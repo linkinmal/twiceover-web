@@ -1,0 +1,70 @@
+---
+// Home (site-prelaunch.md §2) — copy verbatim from ai-team/pm/site-copy-twiceover.md
+// "Page: Home". Do not reword (PM #41); flag issues to PM.
+import Base from "../layouts/Base.astro";
+---
+<Base
+  title="TwiceOver — a second look at your own book"
+  description="TwiceOver connects to your brokerage read-only and lays out the math, the levels, and the context on the positions you already hold — measured against your own rules."
+>
+  <section class="hero">
+    <h1 class="type-display">A second look at your own book.</h1>
+    <p class="sub">
+      TwiceOver connects to your brokerage <strong>read-only</strong> and lays out the math, the
+      levels, and the context on the positions you already hold — measured against
+      <strong>your own rules</strong>. You read it. You decide.
+    </p>
+    <div class="cta-row">
+      <a class="btn-quiet" href="/pricing">See pricing</a>
+    </div>
+  </section>
+
+  <section aria-labelledby="what-you-see">
+    <h2 id="what-you-see" class="type-heading-1 section-heading">What you see <span class="aside">(in every read)</span></h2>
+    <ul class="what-grid">
+      <li class="card">
+        <h3 class="type-heading-2">Your structure, with the math</h3>
+        <p>your legs grouped into the position you actually hold, with net debit/credit, breakevens, max profit, max loss, and current P&amp;L.</p>
+      </li>
+      <li class="card">
+        <h3 class="type-heading-2">Your rules, on live data</h3>
+        <p>the profit targets, DTE thresholds, and max-loss lines <em>you</em> configured, evaluated against where the position is right now.</p>
+      </li>
+      <li class="card">
+        <h3 class="type-heading-2">Levels &amp; context</h3>
+        <p>key technical levels, options-structure context, the macro/regime backdrop, and curated signal — each with its source and timestamp.</p>
+      </li>
+      <li class="card">
+        <h3 class="type-heading-2">A menu of paths, with the full math</h3>
+        <p>the options in front of you, each with its complete numbers and trigger levels. No ranking, no "do this." The conclusion is yours.</p>
+      </li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="how-it-works">
+    <h2 id="how-it-works" class="type-heading-1 section-heading">How it works</h2>
+    <ol class="steps">
+      <li>
+        <span class="num" aria-hidden="true">1</span>
+        <p><span class="step-title">Connect read-only.</span> TwiceOver reads your positions, orders, and balances. It cannot place, change, or cancel orders, and never touches your funds.</p>
+      </li>
+      <li>
+        <span class="num" aria-hidden="true">2</span>
+        <p><span class="step-title">It does the synthesis.</span> Your actual positions, live licensed market and options data, key levels, macro context, and your own rules — combined into one read.</p>
+      </li>
+      <li>
+        <span class="num" aria-hidden="true">3</span>
+        <p><span class="step-title">You decide.</span> Every read is indicative: it describes the state and the math of each path. You make the call.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="what-its-not">
+    <h2 id="what-its-not" class="type-heading-1 section-heading">What TwiceOver is <em>not</em></h2>
+    <div class="not-block">
+      <p>Not an investment adviser. No recommendations, no trading signals, no "buy" or "sell." It never executes trades and never holds your money. It is a data-analytics tool that helps you understand your own positions — you bring the judgment.</p>
+    </div>
+  </section>
+
+  <p class="pricing-cue"><a href="/pricing">See plans</a> · <span class="muted">Launching soon.</span></p>
+</Base>

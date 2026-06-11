@@ -1,0 +1,19 @@
+# Build output
+dist/
+.astro/
+
+# Generated from tokens/twiceover.tokens.json at build (ADR 0004 / consultation 0005)
+src/styles/tokens.css
+
+# Dependencies
+node_modules/
+
+# Never commit secrets — the Cloudflare token comes from macOS Keychain at deploy time
+.dev.vars
+.env
+.env.*
+*.local
+
+# Wrangler / OS
+.wrangler/
+.DS_Store

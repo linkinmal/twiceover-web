@@ -1,0 +1,128 @@
+{
+  "$description": "TwiceOver design tokens · canonical: stock-analyst-platform /ai-team/design/tokens/twiceover.tokens.json · v0.1.0 · 2026-06-11 · consumers bind to semantic tokens (color.bg/text/border/accent/focus, typography.*, space.*, radius.*) only; primitives may be re-tuned without notice. Sync convention: /ai-team/design/design-system.md",
+  "color": {
+    "$type": "color",
+    "neutral": {
+      "100": { "$value": "#F2F4F8" },
+      "200": { "$value": "#D7DCE6" },
+      "300": { "$value": "#C5CCDA" },
+      "400": { "$value": "#9AA3B2" },
+      "500": { "$value": "#626E88" },
+      "600": { "$value": "#3A4254" },
+      "700": { "$value": "#232936" },
+      "800": { "$value": "#1C2230" },
+      "850": { "$value": "#131722" },
+      "900": { "$value": "#0B0E14" }
+    },
+    "blue": {
+      "300": { "$value": "#7FA8F4" },
+      "400": { "$value": "#5B8DEF" },
+      "500": { "$value": "#4678DE" }
+    },
+    "bg": {
+      "canvas": { "$value": "{color.neutral.900}" },
+      "surface": { "$value": "{color.neutral.850}" },
+      "raised": { "$value": "{color.neutral.800}" }
+    },
+    "text": {
+      "primary": { "$value": "{color.neutral.100}" },
+      "long-form": { "$value": "{color.neutral.200}", "$description": "Body text in long documents (policy pages): dimmed one step from primary to reduce glare over long reads; 14.05:1 on canvas." },
+      "secondary": { "$value": "{color.neutral.300}" },
+      "muted": { "$value": "{color.neutral.400}", "$description": "Captions, timestamps, footer meta. 7.59:1 on canvas — AA at any size." },
+      "on-accent": { "$value": "{color.neutral.900}", "$description": "Text on accent fills. Dark-on-accent (5.98:1); white-on-accent fails AA (3.23:1) — never use white." }
+    },
+    "border": {
+      "default": { "$value": "{color.neutral.700}", "$description": "Decorative hairlines (cards, dividers)." },
+      "strong": { "$value": "{color.neutral.600}", "$description": "Emphasized decorative borders." },
+      "interactive": { "$value": "{color.neutral.500}", "$description": "Boundaries of inputs/controls: ≥3:1 on canvas (3.78), surface (3.50), raised (3.11) per WCAG 1.4.11." }
+    },
+    "accent": {
+      "default": { "$value": "{color.blue.400}", "$description": "Links, CTAs, the mark, focus. As link text: 5.98:1 on canvas, 4.92:1 on raised — AA body text on all surfaces." },
+      "hover": { "$value": "{color.blue.300}" },
+      "active": { "$value": "{color.blue.500}", "$description": "Pressed state for fills/borders only — not for text." }
+    },
+    "focus": {
+      "ring": { "$value": "{color.blue.400}", "$description": "5.98:1 against canvas — exceeds the 3:1 non-text minimum." }
+    }
+  },
+  "font": {
+    "family": {
+      "$type": "fontFamily",
+      "sans": { "$value": ["Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"] },
+      "mono": { "$value": ["ui-monospace", "SFMono-Regular", "Menlo", "Consolas", "monospace"], "$description": "Reserved for tickers and dense numerics in the product app; unused on the pre-launch site." }
+    },
+    "weight": {
+      "$type": "fontWeight",
+      "regular": { "$value": 400 },
+      "medium": { "$value": 500 },
+      "semibold": { "$value": 600 }
+    },
+    "size": {
+      "$type": "dimension",
+      "100": { "$value": "0.75rem" },
+      "200": { "$value": "0.875rem" },
+      "300": { "$value": "1rem" },
+      "400": { "$value": "1.125rem" },
+      "500": { "$value": "1.25rem" },
+      "600": { "$value": "1.5rem" },
+      "700": { "$value": "1.875rem" },
+      "800": { "$value": "2.25rem" },
+      "900": { "$value": "3rem" }
+    },
+    "line-height": {
+      "$type": "number",
+      "tight": { "$value": 1.2 },
+      "default": { "$value": 1.5 },
+      "relaxed": { "$value": 1.7 }
+    },
+    "letter-spacing": {
+      "$type": "dimension",
+      "tight": { "$value": "-0.02em" },
+      "normal": { "$value": "0em" }
+    }
+  },
+  "typography": {
+    "$type": "typography",
+    "display": {
+      "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.800}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{font.line-height.tight}", "letterSpacing": "{font.letter-spacing.tight}" },
+      "$description": "Hero H1, mobile-first size."
+    },
+    "display-large": {
+      "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.900}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{font.line-height.tight}", "letterSpacing": "{font.letter-spacing.tight}" },
+      "$description": "Hero H1 at the desktop breakpoint."
+    },
+    "heading-1": {
+      "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.600}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{font.line-height.tight}", "letterSpacing": "{font.letter-spacing.tight}" }
+    },
+    "heading-2": {
+      "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.500}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{font.line-height.tight}", "letterSpacing": "{font.letter-spacing.normal}" }
+    },
+    "body": {
+      "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.300}", "fontWeight": "{font.weight.regular}", "lineHeight": "{font.line-height.default}", "letterSpacing": "{font.letter-spacing.normal}" }
+    },
+    "caption": {
+      "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.200}", "fontWeight": "{font.weight.regular}", "lineHeight": "{font.line-height.default}", "letterSpacing": "{font.letter-spacing.normal}" }
+    },
+    "legal": {
+      "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.300}", "fontWeight": "{font.weight.regular}", "lineHeight": "{font.line-height.relaxed}", "letterSpacing": "{font.letter-spacing.normal}" },
+      "$description": "Policy-page body: full 16px with relaxed leading — legal text is never set smaller than body."
+    }
+  },
+  "space": {
+    "$type": "dimension",
+    "025": { "$value": "0.125rem" },
+    "050": { "$value": "0.25rem" },
+    "100": { "$value": "0.5rem" },
+    "150": { "$value": "0.75rem" },
+    "200": { "$value": "1rem" },
+    "300": { "$value": "1.5rem" },
+    "400": { "$value": "2rem" },
+    "600": { "$value": "3rem" },
+    "800": { "$value": "4rem" }
+  },
+  "radius": {
+    "$type": "dimension",
+    "small": { "$value": "0.5rem" },
+    "medium": { "$value": "0.75rem" }
+  }
+}

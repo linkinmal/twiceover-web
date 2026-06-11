@@ -1,0 +1,19 @@
+{
+  // TwiceOver pre-launch compliance site — Cloudflare Workers Static Assets (ADR 0002).
+  // Assets-only project (no Worker code): `wrangler deploy` uploads ./dist and serves it.
+  // The custom_domain route binds twiceover.io; SSL provisions automatically (zone is
+  // in this Cloudflare account). Deploy token comes from macOS Keychain at deploy time
+  // (cloudflare-api-token-twiceover) — never stored in the repo.
+  "name": "twiceover-web",
+  "compatibility_date": "2026-06-11",
+  "assets": {
+    "directory": "./dist",
+    // Bare paths (/pricing, /terms, …) serve 200 directly with no redirect hop —
+    // the exact URLs submitted to the MoR (#39 AC1/AC6).
+    "html_handling": "drop-trailing-slash",
+    "not_found_handling": "404-page"
+  },
+  "routes": [
+    { "pattern": "twiceover.io", "custom_domain": true }
+  ]
+}

@@ -1,0 +1,8 @@
+---
+// THE shared disclaimer (#39 AC4): single source src/content/disclaimer.txt,
+// rendered byte-identically on every page via this component. ci/check-content.mjs
+// verifies the built HTML against the same file. Compliance-load-bearing — never
+// reword (PM #41); flag issues to PM instead.
+import disclaimer from "../content/disclaimer.txt?raw";
+---
+<p class="disclaimer">{disclaimer.trim()}</p>

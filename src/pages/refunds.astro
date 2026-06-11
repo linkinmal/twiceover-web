@@ -1,0 +1,19 @@
+---
+// Refund Policy — "Page: Refund Policy" (#41), PM-authored, verbatim. [MoR] renders
+// from config (Paddle, pending #31 — not hardcoded final). Do not reword (PM #41).
+import Policy from "../layouts/Policy.astro";
+import { MOR_NAME, EMAIL } from "../config.mjs";
+---
+<Policy
+  title="Refund Policy — TwiceOver"
+  description="Refund Policy for TwiceOver — twiceover.io."
+  heading="Refunds"
+>
+  <p>TwiceOver is sold as a subscription, billed by <strong>{MOR_NAME}</strong> as the merchant of record.</p>
+  <ul>
+    <li><strong>Cancel anytime.</strong> Cancelling stops future renewals; you keep access through the end of the paid period.</li>
+    <li><strong>Refund requests.</strong> To request a refund, contact <a href={`mailto:${EMAIL}`}>{EMAIL}</a> or use the merchant-of-record's billing portal. Eligible refunds are processed by <strong>{MOR_NAME}</strong> under their buyer terms.</li>
+    <li><strong>Where required by law,</strong> statutory cancellation and refund rights (for example, EU/UK consumer cooling-off rights) apply and are honored.</li>
+    <li>No per-analysis or usage charges exist, so there is nothing to refund beyond the subscription itself.</li>
+  </ul>
+</Policy>

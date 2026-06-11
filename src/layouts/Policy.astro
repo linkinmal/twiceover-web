@@ -1,0 +1,25 @@
+---
+// Policy template (site-prelaunch.md §4) — one template, four instances
+// (/terms, /privacy, /refunds, /cookies). 70ch measure, H1 + effective-date
+// caption, typography.legal body.
+import Base from "./Base.astro";
+import { EFFECTIVE_DATE } from "../config.mjs";
+
+interface Props {
+  title: string;
+  description: string;
+  heading: string;
+}
+const { title, description, heading } = Astro.props;
+---
+<Base title={title} description={description}>
+  <article class="policy">
+    <div class="page-title-block">
+      <h1 class="type-heading-1">{heading}</h1>
+    </div>
+    <p class="effective-date">Effective {EFFECTIVE_DATE}</p>
+    <div class="policy-body type-legal">
+      <slot />
+    </div>
+  </article>
+</Base>
