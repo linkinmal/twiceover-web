@@ -1,6 +1,9 @@
-// Site-wide values. [MoR] is a PLACEHOLDER per PM (#39 build notes): Paddle pending
-// verification (#31) — wired here, not hardcoded across pages, so the final MoR lands
-// as a one-line change.
+// Site-wide values.
+// MOR_NAME holds the APPROVED merchant-of-record name for the post-#31-approval flip.
+// Per PM's 2026-06-11 MoR-naming decision the live site ships GENERIC wording (provider
+// not committed — #31 runs Paddle + FastSpring in parallel), so this value is NOT
+// rendered anywhere yet; on approval, swap it into the named form of the 3 MoR lines on
+// /pricing + /refunds (a small copy edit per site-copy-twiceover.md).
 export const MOR_NAME = "Paddle";
 export const ENTITY = "Halit Okumuş"; // sole-proprietor legal name (GetTerms-filled)
 export const EMAIL = "support@twiceover.io";

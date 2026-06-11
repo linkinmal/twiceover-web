@@ -5,7 +5,6 @@
 // question resolved per spec). No card CTA in #39 — no checkout exists yet.
 // Tier symmetry is a compliance feature (spec §6.2): never differentiate cards.
 import Base from "../layouts/Base.astro";
-import { MOR_NAME } from "../config.mjs";
 ---
 <Base
   title="Pricing — TwiceOver"
@@ -43,5 +42,5 @@ import { MOR_NAME } from "../config.mjs";
     </li>
   </ul>
 
-  <p class="mor-line">Subscriptions are billed by <strong>{MOR_NAME}</strong> as the merchant of record; prices in USD. You can cancel anytime; see the <a href="/refunds">Refund Policy</a>.</p>
+  <p class="mor-line">Subscriptions are billed by a third-party merchant of record; prices in USD. You can cancel anytime; see the <a href="/refunds">Refund Policy</a>.</p>
 </Base>
