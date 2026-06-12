@@ -177,6 +177,13 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   padding: var(--space-400);
 }
 .what-grid .card h3 { margin: 0 0 var(--space-100); font-size: var(--font-size-400); }
+/* "(connected)" qualifier — a calm, subordinate tag, not a badge (no color status). */
+.what-grid .card h3 .tag {
+  font-size: var(--font-size-200);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: var(--font-letter-spacing-normal);
+  color: var(--color-text-muted);
+}
 .what-grid .card p { margin: 0; color: var(--color-text-secondary); }
 
 .steps { list-style: none; margin: 0; padding: 0; }
@@ -191,6 +198,8 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 }
 .steps .step-title { font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
 .steps p { margin: 0; color: var(--color-text-secondary); }
+/* Inline emphasis in step body — emphasis by weight, not color (matches the hero sub). */
+.steps p strong { font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
 
 .not-block {
   max-width: 65ch;

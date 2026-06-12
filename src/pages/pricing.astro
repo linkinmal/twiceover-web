@@ -1,43 +1,42 @@
 ---
-// Pricing (site-prelaunch.md §3) — copy verbatim from "Page: Pricing" (#41).
-// Figures are placeholders until #41 finalizes; no annual prices landed, so the
-// designed billing toggle does NOT ship (monthly-only, zero JS — design open
-// question resolved per spec). No card CTA in #39 — no checkout exists yet.
-// Tier symmetry is a compliance feature (spec §6.2): never differentiate cards.
+// Pricing (site-prelaunch.md §3) — copy verbatim from "Page: Pricing" (#41, FINAL).
+// Monthly-only: no annual figures landed, so the designed billing toggle ships dormant
+// (NOT built — zero JS, per the design's own conditional + PM annual-pricing decision).
+// Premium softened (PM 2026-06-12): no real-time data-tier claim — "expanded data & signal
+// coverage (finalized at launch)". Connection-optional: works with or without a broker
+// connection. Figures ($49/$99) are a stated launch hypothesis. No card CTA in #39 — no
+// checkout exists. Tier symmetry is a compliance feature (spec §6.2): never differentiate.
 import Base from "../layouts/Base.astro";
 ---
 <Base
   title="Pricing — TwiceOver"
-  description="Simple subscription. One price, billed monthly or annually. No per-analysis charges."
+  description="One simple monthly subscription. No per-analysis charges. Use it with or without a broker connection."
 >
   <div class="page-title-block">
     <h1 class="type-heading-1">Simple subscription. You hold the decisions; we do the math.</h1>
-    <p class="sub">One price, billed monthly or annually. No per-analysis charges.</p>
+    <p class="sub">One simple monthly subscription. No per-analysis charges. Use it with or without a broker connection — connecting read-only unlocks reads of your own positions against your own rules.</p>
   </div>
 
   <ul class="tier-grid">
     <li class="tier">
       <h2 class="type-heading-2">Core</h2>
       <p class="price type-display">~$49<span class="per">/mo</span></p>
-      <p class="price-note">(or annual, discounted)</p>
       <ul>
         <li>Read-only broker connection</li>
         <li>Held-position reads and new-idea reads</li>
         <li>Options math &amp; structure engine (breakevens, max profit/loss, collateral, P&amp;L)</li>
         <li>Your own rules, evaluated on live data</li>
         <li>Macro/regime context and the research layer</li>
-        <li>Market data on a standard tier</li>
+        <li>Licensed market and options data</li>
       </ul>
     </li>
     <li class="tier">
       <h2 class="type-heading-2">Premium</h2>
       <p class="price type-display">~$99<span class="per">/mo</span></p>
-      <p class="price-note">(or annual, discounted)</p>
       <ul>
         <li>Everything in Core</li>
-        <li>Real-time market-data tier</li>
-        <li>Deeper flow and curated-voice signal</li>
         <li>Higher usage limits</li>
+        <li>Expanded data and signal coverage <em>(finalized at launch)</em></li>
       </ul>
     </li>
   </ul>

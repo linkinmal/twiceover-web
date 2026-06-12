@@ -7,7 +7,7 @@ import "../styles/tokens.css";
 import "../styles/site.css";
 import Mark from "../components/Mark.astro";
 import Disclaimer from "../components/Disclaimer.astro";
-import { ENTITY, YEAR } from "../config.mjs";
+import { YEAR } from "../config.mjs";
 
 interface Props {
   title: string;
@@ -54,7 +54,7 @@ const { title, description } = Astro.props;
         </nav>
         <Disclaimer />
         <div class="footer-meta">
-          <span>© {YEAR} {ENTITY}</span>
+          <span>© {YEAR} TwiceOver</span>
           <span class="wordmark">Twice<span class="o-accent">O</span>ver</span>
         </div>
       </div>
