@@ -48,8 +48,8 @@ const BANNED = [
 // Documented exceptions, verbatim from the signed copy sources. Negations and
 // non-trading boilerplate only — never an actual directive.
 const ALLOWED = [
-  // Home, "What TwiceOver is not" (site-copy-twiceover.md) — quoted negation.
-  'no recommendations, no trading signals, no "buy" or "sell."',
+  // Home, "What TwiceOver is not" (site-copy-twiceover.md, ADR 0011 analysis-led swap) — quoted negation.
+  'no recommendations, no trading signals, no scores, no ratings — and never a one-line verdict or a "buy" or "sell."',
   // Home, "What you see" outlook item (site-copy-twiceover.md, ADR 0011) — quoted negation.
   'never a score, never a "buy" or "sell."',
   // ToS "Nature of the service" insert (PM, compliance-load-bearing) — negation.
