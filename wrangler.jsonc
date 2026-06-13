@@ -1,9 +1,17 @@
 {
   // TwiceOver pre-launch compliance site — Cloudflare Workers Static Assets (ADR 0002).
-  // Assets-only project (no Worker code): `wrangler deploy` uploads ./dist and serves it.
+  // Assets-only project (no Worker code): a deploy uploads ./dist and serves it.
   // The custom_domain route binds twiceover.io; SSL provisions automatically (zone is
-  // in this Cloudflare account). Deploy token comes from macOS Keychain at deploy time
-  // (cloudflare-api-token-twiceover) — never stored in the repo.
+  // in this Cloudflare account).
+  //
+  // Deploy with `npm run deploy` (scripts/deploy.sh, #69): it gates on build +
+  // content check + the consultation-0008 no-operator-log posture, injects the token
+  // (macOS Keychain 'cloudflare-api-token-twiceover', or a CLOUDFLARE_API_TOKEN env
+  // override) for that one run, and never echoes it. The token is never stored in repo.
+  //
+  // NOTE: observability stays OFF here — turning it on collects Workers Logs and would
+  // break the /privacy "collects no personal information" posture (consultation 0008);
+  // scripts/deploy.sh asserts this before every deploy.
   "name": "twiceover-web",
   "compatibility_date": "2026-06-11",
   "assets": {

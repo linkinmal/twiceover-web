@@ -11,7 +11,7 @@
     "dev": "astro dev",
     "check": "node ci/check-content.mjs",
     "gen:favicons": "node scripts/gen-favicons.mjs",
-    "deploy": "wrangler deploy"
+    "deploy": "bash scripts/deploy.sh"
   },
   "dependencies": {
     "astro": "^5.0.0"
