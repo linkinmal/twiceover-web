@@ -2,8 +2,12 @@
 // Terms of Service — compose order per "Page: Terms of Service" (#41):
 // PM "Nature of the service" insert FIRST and prominent (callout; it governs if
 // anything reads ambiguously) -> GetTerms ToS body (ai-team/pm/getterms-boilerplate.md,
-// Ops edit 4 applied) -> shared disclaimer footer. Text is verbatim; [Ops edit N]
+// Ops edit 4 applied) -> shared disclaimer footer. GetTerms text is verbatim; [Ops edit N]
 // editorial markers are not page copy and are omitted. Do not reword (PM #41).
+// PM product clauses are layered on the GetTerms body (same category as the callout):
+// "Automated Access and Fair Use" (after Limitations of Use) — consultation 0018 Q1,
+// ADR 0013 fork 3; backs the auto-block + fair-use posture (site-copy-twiceover.md,
+// /terms section). Last-updated date left at June 11, 2026 per human direction.
 import Policy from "../layouts/Policy.astro";
 ---
 <Policy
@@ -34,6 +38,10 @@ import Policy from "../layouts/Policy.astro";
     <li>harvest, collect, or gather user data without the user's consent; or</li>
     <li>use this website or its associated services in such a way that may infringe the privacy, intellectual property rights, or other rights of third parties.</li>
   </ul>
+
+  <h2 class="type-heading-2">Automated Access and Fair Use</h2>
+  <p>TwiceOver is a personal decision-support service intended for your own individual use. You agree not to access the Service or its content by automated means — including bots, crawlers, scrapers, scripts, or headless browsers — or to extract, harvest, or systematically retrieve analyses, data, or other materials, except through an interface we expressly provide for that purpose.</p>
+  <p>To protect the Service and other users, we may apply automated and manual measures to detect and limit such activity, including rate-limiting, human-verification challenges, and temporarily or permanently restricting access. If you are an individual and your access is restricted in error, please contact us at support@twiceover.io and we will work with you to restore it.</p>
 
   <h2 class="type-heading-2">Intellectual Property</h2>
   <p>The intellectual property in the materials contained in this website are owned by or licensed to Halit Okumuş and are protected by applicable copyright and trademark law. We grant our users permission to download one copy of the materials for personal, non-commercial transitory use.</p>
