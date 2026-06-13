@@ -161,12 +161,39 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   margin: var(--space-300) 0 0;
 }
 .hero .sub strong { font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
-.hero .cta-row { margin-top: var(--space-400); }
-/* Reserved action row (free-tier ticker + sign-in, #32+): the hero is a stacked,
+/* Reserved action row (entry-box wedge + sign-in, #32+): the hero is a stacked,
    top-anchored flex column so the row appends without recomposition. Nothing ships. */
 
+/* ── Connect-to-personalize turn — the deep door (ADR 0011) ─────────────── */
+/* A calm bridge, not a competing section heading: italic frame line + lean body
+   + a quiet two-stage indicator. No screenshots, no collage (spec §5). */
+.connect-turn { padding-block: var(--space-600); max-width: 60ch; }
+/* Lead line of the bridge — upright, weight emphasis (not slant/aside): a confident
+   turn in the narrative (site-prelaunch §2, 2026-06-13). */
+.connect-turn .connect-frame {
+  margin: 0;
+  font-size: var(--font-size-400);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+.connect-turn .connect-body {
+  margin: var(--space-200) 0 0;
+  color: var(--color-text-secondary);
+}
+.connect-turn .connect-body strong { font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
+.connect-stages { display: flex; flex-direction: column; gap: var(--space-100); margin-top: var(--space-300); }
+.connect-stages .stage-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-150); }
+.connect-stages .stage-chip {
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-small);
+  padding: var(--space-100) var(--space-150);
+  font-size: var(--font-size-200);
+  color: var(--color-text-secondary);
+}
+.connect-stages .stage-arrow { color: var(--color-text-muted); }
+.connect-stages .stage-engine { font-size: var(--font-size-200); color: var(--color-text-muted); }
+
 .section-heading { margin: var(--space-600) 0 var(--space-400); }
-.section-heading .aside { color: var(--color-text-muted); font-size: var(--font-size-200); font-weight: var(--font-weight-regular); letter-spacing: var(--font-letter-spacing-normal); }
 
 .what-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-300); margin: 0; padding: 0; list-style: none; }
 @media (min-width: 640px) { .what-grid { grid-template-columns: 1fr 1fr; } }
@@ -185,6 +212,12 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   color: var(--color-text-muted);
 }
 .what-grid .card p { margin: 0; color: var(--color-text-secondary); }
+/* Two labeled groups split by door (spec §2). Caption-muted label opens each group. */
+.wys .group-label { color: var(--color-text-muted); margin: 0 0 var(--space-200); }
+.wys .what-grid + .group-label { margin-top: var(--space-400); }
+/* Connected group reads as the deep door via a marginally emphasized (decorative)
+   border — border.strong, never a signal color, badge, or size difference (spec §2). */
+.what-grid.connected .card { border-color: var(--color-border-strong); }
 
 .steps { list-style: none; margin: 0; padding: 0; }
 .steps li { display: flex; gap: var(--space-300); margin-bottom: var(--space-400); }
@@ -197,6 +230,8 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   font-variant-numeric: tabular-nums;
 }
 .steps .step-title { font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
+/* (optional) marker — plain muted text, never an emphasized affordance (spec §2). */
+.steps .optional { color: var(--color-text-muted); }
 .steps p { margin: 0; color: var(--color-text-secondary); }
 /* Inline emphasis in step body — emphasis by weight, not color (matches the hero sub). */
 .steps p strong { font-weight: var(--font-weight-medium); color: var(--color-text-primary); }

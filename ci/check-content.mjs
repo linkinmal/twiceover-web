@@ -50,6 +50,8 @@ const BANNED = [
 const ALLOWED = [
   // Home, "What TwiceOver is not" (site-copy-twiceover.md) — quoted negation.
   'no recommendations, no trading signals, no "buy" or "sell."',
+  // Home, "What you see" outlook item (site-copy-twiceover.md, ADR 0011) — quoted negation.
+  'never a score, never a "buy" or "sell."',
   // ToS "Nature of the service" insert (PM, compliance-load-bearing) — negation.
   "nothing it produces is investment advice, a recommendation, a solicitation, or a suitability determination",
   "not a registered investment adviser, broker-dealer, or financial planner",

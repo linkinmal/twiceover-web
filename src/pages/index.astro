@@ -1,27 +1,68 @@
 ---
-// Home (site-prelaunch.md §2) — copy verbatim from ai-team/pm/site-copy-twiceover.md
-// "Page: Home". Do not reword (PM #41); flag issues to PM.
+// Home (site-prelaunch.md §2, v2.1 — ADR 0011 two front doors, #64).
+// Copy verbatim from ai-team/pm/site-copy-twiceover.md "Page: Home" (Growth-resolved
+// 2026-06-13, consultation 0015 — human-approved). Do not reword; the rest rides the
+// #41 publish review (swap text if it changes, layout must not). Flag issues to PM.
+// COPY + STRUCTURE ONLY: the hero action row (entry-box wedge) stays RESERVED, not built
+// (deferred to app-launch, #32); the header sign-in slot stays reserved (Base.astro / §1).
 import Base from "../layouts/Base.astro";
 ---
 <Base
   title="TwiceOver — a second look at your own book"
-  description="TwiceOver connects to your brokerage read-only and lays out the math, the levels, and the context on the positions you already hold — measured against your own rules."
+  description="Take any ticker — TwiceOver synthesizes the key technical levels, the macro and regime backdrop, curated trader voices, and the options math and flow into one read. Depth, never a verdict."
 >
   <section class="hero">
     <h1 class="type-display">A second look at your own book.</h1>
     <p class="sub">
-      TwiceOver connects to your brokerage <strong>read-only</strong> and lays out the math, the
-      levels, and the context on the positions you already hold — measured against
-      <strong>your own rules</strong>. You read it. You decide.
+      Take any ticker. TwiceOver synthesizes the key technical levels, the macro backdrop and
+      market regime, the curated voices of prominent traders, and the options math and flow,
+      all into one read. <strong>Depth, never a verdict.</strong> You read it. You decide.
     </p>
-    <div class="cta-row">
-      <a class="btn-quiet" href="/pricing">See pricing</a>
+    {/* No CTA, no pricing link in the boxless interim hero (site-prelaunch §2, 2026-06-13):
+        pricing is carried by the header nav + the foot Pricing cue. The reserved action row
+        (entry-box wedge) is built and wired straight to the app at launch (#32). */}
+  </section>
+
+  {/* Connect-to-personalize turn — the deep door (ADR 0011). A calm bridge, NOT a competing
+      section heading: no <h2>, so it doesn't break the h1→h2 outline. */}
+  <section class="connect-turn">
+    <p class="connect-frame">Or connect, read-only — and it's your book.</p>
+    <p class="connect-body">
+      Connect your brokerage <strong>read-only</strong> and the same read turns on the
+      positions you already hold — measured against <strong>your own rules</strong>, across
+      near-, mid-, and far-term horizons.
+    </p>
+    <div class="connect-stages">
+      <div class="stage-row">
+        <span class="stage-chip">Any ticker · no connection</span>
+        <span class="stage-arrow" aria-hidden="true">→</span>
+        <span class="stage-chip">Your positions · your rules · your paths</span>
+      </div>
+      <span class="stage-engine">one engine</span>
     </div>
   </section>
 
-  <section aria-labelledby="what-you-see">
-    <h2 id="what-you-see" class="type-heading-1 section-heading">What you see <span class="aside">(the first two come from your connected account; the rest, on any ticker)</span></h2>
+  <section class="wys" aria-labelledby="what-you-see">
+    <h2 id="what-you-see" class="type-heading-1 section-heading">What you see</h2>
+
+    <p class="group-label type-caption">On any ticker — no connection needed:</p>
     <ul class="what-grid">
+      <li class="card">
+        <h3 class="type-heading-2">The full read</h3>
+        <p>the key technical levels, the macro backdrop and market regime, the curated voices of prominent traders, the options math and flow, fundamentals, and news and catalysts — each with its source and timestamp.</p>
+      </li>
+      <li class="card">
+        <h3 class="type-heading-2">One conditional, multi-horizon outlook</h3>
+        <p>the evidence weighed into a near-, mid-, and far-term read, each stated as a condition ("while X holds…; a close below Y shifts the near read"). Labeled AI synthesis; every figure from the data pipeline, not the model. Never a score, never a "buy" or "sell."</p>
+      </li>
+      <li class="card">
+        <h3 class="type-heading-2">A menu of structures, with the full math</h3>
+        <p>the trades on that ticker, each with its complete numbers (net debit/credit, breakevens, max profit, max loss) and trigger levels. No ranking, no "do this."</p>
+      </li>
+    </ul>
+
+    <p class="group-label type-caption">Once you connect read-only — your own book:</p>
+    <ul class="what-grid connected">
       <li class="card">
         <h3 class="type-heading-2">Your structure, with the math <span class="tag">(connected)</span></h3>
         <p>your legs grouped into the position you actually hold, with net debit/credit, breakevens, max profit, max loss, and current P&amp;L.</p>
@@ -31,12 +72,8 @@ import Base from "../layouts/Base.astro";
         <p>the profit targets, DTE thresholds, and max-loss lines <em>you</em> configured, evaluated against where the position is right now.</p>
       </li>
       <li class="card">
-        <h3 class="type-heading-2">Levels &amp; context</h3>
-        <p>key technical levels, options-structure context, the macro/regime backdrop, and curated signal — each with its source and timestamp.</p>
-      </li>
-      <li class="card">
-        <h3 class="type-heading-2">A menu of paths, with the full math</h3>
-        <p>the structures in front of you, each with its complete numbers and trigger levels. No ranking, no "do this." The conclusion is yours.</p>
+        <h3 class="type-heading-2">Your paths, with the full math <span class="tag">(connected)</span></h3>
+        <p>the moves available on what you hold, each with its complete numbers and trigger levels. No ranking, no "do this." The conclusion is yours.</p>
       </li>
     </ul>
   </section>
@@ -46,15 +83,11 @@ import Base from "../layouts/Base.astro";
     <ol class="steps">
       <li>
         <span class="num" aria-hidden="true">1</span>
-        <p><span class="step-title">Analyze any ticker — connect read-only when you're ready.</span> Without connecting, you get the full analysis on any ticker as a new idea. Connect your brokerage <strong>read-only</strong> to read your <em>actual</em> positions and balances against <strong>your own rules</strong> — TwiceOver can never place, change, or cancel orders, and never touches your funds.</p>
+        <p><span class="step-title">Analyze any ticker.</span> Type a ticker or ask in plain words. From licensed market and options data, TwiceOver synthesizes the key technical levels, the macro backdrop and market regime, the curated voices of prominent traders, and the options math and flow, all into one read — on any ticker, no broker connection required.</p>
       </li>
       <li>
         <span class="num" aria-hidden="true">2</span>
-        <p><span class="step-title">It does the synthesis.</span> Live licensed market and options data, key levels, macro context — and, when you're connected, your actual positions and your own rules — combined into one read.</p>
-      </li>
-      <li>
-        <span class="num" aria-hidden="true">3</span>
-        <p><span class="step-title">You decide.</span> Every read is indicative: it describes the state and the math of each path. You make the call.</p>
+        <p><span class="step-title">Connect read-only to make it yours</span> <span class="optional">(optional)</span>. Link your brokerage <strong>read-only</strong> and the same read runs on the positions you actually hold, measured against <strong>your own rules</strong>. TwiceOver can never place, change, or cancel an order, and never touches your funds.</p>
       </li>
     </ol>
   </section>
