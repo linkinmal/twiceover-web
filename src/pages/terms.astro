@@ -7,7 +7,13 @@
 // PM product clauses are layered on the GetTerms body (same category as the callout):
 // "Automated Access and Fair Use" (after Limitations of Use) — consultation 0018 Q1,
 // ADR 0013 fork 3; backs the auto-block + fair-use posture (site-copy-twiceover.md,
-// /terms section). Last-updated date left at June 11, 2026 per human direction.
+// /terms section). "Eligibility" (before Limitations of Use) — #129, ADR 0027 Leg 2,
+// consultation 0053; US-only contractual leg of the geofence triad ("may apply" hedge
+// held per C2 until ADR 0028 geo legs are live). Governing-Law clause amended #129
+// (ADR 0027 Leg 2 / 0053 Option B): kept TR law, dropped the exclusive-TR forum,
+// added the consumer-protection savings clause (boilerplate source carries the [#129]
+// marker). Last-updated date left at June 11, 2026 per human direction (re-dating on
+// merge is a human call at posture sign-off — spec §15 3a).
 import Policy from "../layouts/Policy.astro";
 ---
 <Policy
@@ -24,6 +30,9 @@ import Policy from "../layouts/Policy.astro";
   <p>By accessing https://twiceover.io, you agree to abide by these Terms of Service and to comply with all applicable laws and regulations. If you do not agree with these Terms of Service, you are prohibited from using or accessing this website or using any other services provided by Halit Okumuş.</p>
   <p>We, Halit Okumuş, reserve the right to review and amend any of these Terms of Service at our sole discretion. Upon doing so, we will update this page. Any changes to these Terms of Service will take effect immediately from the date of publication.</p>
   <p>These Terms of Service were last updated on June 11, 2026.</p>
+
+  <h2 class="type-heading-2">Eligibility</h2>
+  <p>TwiceOver is offered solely to residents of the United States, accessing the Service from within the United States. By using the Service, you represent that you meet this requirement. The Service is not directed to, or intended for, residents of any other jurisdiction. We may apply geographic and payment-based measures — including location checks and restricting accepted billing to United States payment details — to limit access to eligible users, and we reserve the right to suspend or terminate access that does not meet this requirement. Accessing the Service from outside the United States, or misrepresenting your place of residence, is a breach of these Terms of Service.</p>
 
   <h2 class="type-heading-2">Limitations of Use</h2>
   <p>By using this website, you warrant on behalf of yourself, your users, and other parties you represent that you will not:</p>
@@ -66,5 +75,5 @@ import Policy from "../layouts/Policy.astro";
   <p>Any term of these Terms of Service which is wholly or partially void or unenforceable is severed to the extent that it is void or unenforceable. The validity of the remainder of these Terms of Service is not affected.</p>
 
   <h2 class="type-heading-2">Governing Law</h2>
-  <p>These Terms of Service are governed by and construed in accordance with the laws of Turkey. You irrevocably submit to the exclusive jurisdiction of the courts in that State or location.</p>
+  <p>These Terms of Service are governed by and construed in accordance with the laws of Turkey. If you are a consumer, this choice of governing law does not deprive you of the protection afforded by any mandatory consumer-protection provisions of the law of the place where you reside that cannot be derogated from by agreement, and nothing in these Terms of Service limits any non-waivable rights or remedies available to you under the law of your home jurisdiction.</p>
 </Policy>
