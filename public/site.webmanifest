@@ -4,7 +4,7 @@
   "icons": [
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }
   ],
-  "background_color": "#0B0E14",
-  "theme_color": "#0B0E14",
+  "background_color": "#F7F3EA",
+  "theme_color": "#F7F3EA",
   "display": "browser"
 }
