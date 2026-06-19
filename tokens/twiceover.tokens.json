@@ -1,55 +1,127 @@
 {
-  "$description": "TwiceOver design tokens · canonical: stock-analyst-platform /ai-team/design/tokens/twiceover.tokens.json · v0.1.0 · 2026-06-11 · consumers bind to semantic tokens (color.bg/text/border/accent/focus, typography.*, space.*, radius.*) only; primitives may be re-tuned without notice. Sync convention: /ai-team/design/design-system.md",
+  "$description": "TwiceOver design tokens · canonical: stock-analyst-platform /ai-team/design/tokens/twiceover.tokens.json · v1.0.0 · 2026-06-19 — MAJOR: re-architected to the two-theme 'Ledger' identity (ADR 0035, Accepted 2026-06-19; theming architecture + contrast gate per consult 0067; ADR 0004 sync convention). Site-safe semantic tokens (bg/text/accent/border/focus) now live under themes.light (default) and themes.dark (variant) — the build emits themes.light → :root and themes.dark → [data-theme='dark']. Consumers still bind to the SAME emitted CSS custom-property names (--color-bg-canvas, --color-text-primary, …) which re-resolve per active theme; only the JSON path moved (the structural rename = the major bump). Theme-invariant tokens (font.*, typography.*, space.*, radius.*, motion.*) stay at root and emit once into :root. App-only tokens (signal.*/health.*/elevation.*/path-card.*) stay at root OUTSIDE themes.* — the site build never walks them (#34 containment, consult 0067 Q5); the ones whose contrast depends on the canvas carry .light/.dark sub-values (a single value cannot be AA on both ivory and graphite). Primitives (color.*) are inlined, never exposed, and may be re-tuned without notice. Sync convention: /ai-team/design/design-system.md",
   "color": {
     "$type": "color",
-    "neutral": {
-      "100": { "$value": "#F2F4F8" },
-      "200": { "$value": "#D7DCE6" },
-      "300": { "$value": "#C5CCDA" },
-      "400": { "$value": "#9AA3B2" },
-      "500": { "$value": "#626E88" },
-      "600": { "$value": "#3A4254" },
-      "700": { "$value": "#232936" },
-      "800": { "$value": "#1C2230" },
-      "850": { "$value": "#131722" },
-      "900": { "$value": "#0B0E14" }
+    "warm-white": {
+      "$description": "Light-theme paper ramp (warm ivory). 100 lightest. Light bg surfaces only.",
+      "100": { "$value": "#FFFFFF", "$description": "Overlays/dialogs (light bg.raised)." },
+      "200": { "$value": "#FCFAF4", "$description": "Content panels (light bg.surface)." },
+      "300": { "$value": "#F7F3EA", "$description": "Warm ivory canvas — the brand paper (light bg.canvas)." }
     },
-    "blue": {
-      "300": { "$value": "#7FA8F4" },
-      "400": { "$value": "#5B8DEF" },
-      "500": { "$value": "#4678DE" }
+    "warm-graphite": {
+      "$description": "Dark-theme surface ramp (warm graphite, not cool black). 800 lightest → 900 darkest. Dark bg surfaces only.",
+      "800": { "$value": "#2E2920", "$description": "Overlays/dialogs (dark bg.raised) — elevation lifts lighter." },
+      "850": { "$value": "#242019", "$description": "Content panels (dark bg.surface)." },
+      "900": { "$value": "#1A1713", "$description": "Warm near-black canvas (dark bg.canvas)." }
     },
-    "bg": {
-      "canvas": { "$value": "{color.neutral.900}" },
-      "surface": { "$value": "{color.neutral.850}" },
-      "raised": { "$value": "{color.neutral.800}" }
+    "warm-ink": {
+      "$description": "Shared warm neutral ramp for text + borders across BOTH themes. 100 lightest → 900 darkest. Light theme draws text from the dark end (900→600); dark theme from the light end (100→400). Intermediate stops carry decorative borders.",
+      "100": { "$value": "#F4F0E8", "$description": "Dark text.primary — warm white." },
+      "150": { "$value": "#E2DCCF", "$description": "Light border.default — warm hairline." },
+      "200": { "$value": "#DED7C9", "$description": "Dark text.long-form." },
+      "250": { "$value": "#CFC7B6", "$description": "Light border.strong." },
+      "300": { "$value": "#C6BEAD", "$description": "Dark text.secondary." },
+      "400": { "$value": "#A79E8B", "$description": "Dark text.muted." },
+      "500": { "$value": "#867D69", "$description": "border.interactive (both themes): ≥3:1 on every bg in light (3.68–4.08) and dark (3.54–4.38) per WCAG 1.4.11." },
+      "600": { "$value": "#6B6358", "$description": "Light text.muted — re-floored for warm paper (ADR 0035 corrects the #8A8378 3.4:1 defect). 5.34:1 on canvas — AA at any size." },
+      "700": { "$value": "#4C463D", "$description": "Light text.secondary; dark border.strong." },
+      "750": { "$value": "#3A352C", "$description": "Dark border.default — warm hairline on graphite." },
+      "800": { "$value": "#332E26", "$description": "Light text.long-form — softer ink for sustained reading." },
+      "900": { "$value": "#211D17", "$description": "Light text.primary — warm near-black ink. 15.14:1 on canvas." }
     },
-    "text": {
-      "primary": { "$value": "{color.neutral.100}" },
-      "long-form": { "$value": "{color.neutral.200}", "$description": "Body text in long documents (policy pages): dimmed one step from primary to reduce glare over long reads; 14.05:1 on canvas." },
-      "secondary": { "$value": "{color.neutral.300}" },
-      "muted": { "$value": "{color.neutral.400}", "$description": "Captions, timestamps, footer meta. 7.59:1 on canvas — AA at any size." },
-      "on-accent": { "$value": "{color.neutral.900}", "$description": "Text on accent fills. Dark-on-accent (5.98:1); white-on-accent fails AA (3.23:1) — never use white." }
+    "navy": {
+      "$description": "Light-theme accent (ink-navy). Same hue family as the dark steel accent; never a signal color. 500 lightest (hover) → 700 darkest (active).",
+      "500": { "$value": "#2E567F", "$description": "Light accent.hover. 6.89:1 on canvas — AA body text." },
+      "600": { "$value": "#23436F", "$description": "Light accent.default + focus. 9.01:1 on canvas (AAA-near); as link text AA on every surface." },
+      "700": { "$value": "#1A3257", "$description": "Light accent.active — fills/borders on press only, not text." }
     },
-    "border": {
-      "default": { "$value": "{color.neutral.700}", "$description": "Decorative hairlines (cards, dividers)." },
-      "strong": { "$value": "{color.neutral.600}", "$description": "Emphasized decorative borders." },
-      "interactive": { "$value": "{color.neutral.500}", "$description": "Boundaries of inputs/controls: ≥3:1 on canvas (3.78), surface (3.50), raised (3.11) per WCAG 1.4.11." }
+    "steel": {
+      "$description": "Dark-theme accent (lifted steel). Same hue family as the light navy accent; never a signal color. 300 lightest (hover) → 500 darkest (active).",
+      "300": { "$value": "#9BBCE6", "$description": "Dark accent.hover. 9.12:1 on canvas — AA body text." },
+      "400": { "$value": "#7DA6DB", "$description": "Dark accent.default + focus. 7.10:1 on canvas — AA body text on every surface." },
+      "500": { "$value": "#6892CC", "$description": "Dark accent.active — fills/borders on press only, not text." }
     },
-    "accent": {
-      "default": { "$value": "{color.blue.400}", "$description": "Links, CTAs, the mark, focus. As link text: 5.98:1 on canvas, 4.92:1 on raised — AA body text on all surfaces." },
-      "hover": { "$value": "{color.blue.300}" },
-      "active": { "$value": "{color.blue.500}", "$description": "Pressed state for fills/borders only — not for text." }
+    "green": {
+      "$description": "Primitives behind signal.positive, per theme. P&L gain — on the number only, always with an explicit sign.",
+      "light": { "$value": "#197A4B", "$description": "Light theme: deep green, AA on ivory (4.83:1 canvas → 5.35:1 raised)." },
+      "dark": { "$value": "#4CC38A", "$description": "Dark theme: bright green, AA on graphite (8.06:1 canvas → 6.52:1 raised)." }
     },
-    "focus": {
-      "ring": { "$value": "{color.blue.400}", "$description": "5.98:1 against canvas — exceeds the 3:1 non-text minimum." }
+    "red": {
+      "$description": "Primitives behind signal.negative, per theme. P&L loss — on the number only, always with an explicit sign.",
+      "light": { "$value": "#C0392F", "$description": "Light theme: deep brick red, AA on ivory (4.90:1 canvas → 5.43:1 raised)." },
+      "dark": { "$value": "#FF6369", "$description": "Dark theme: bright red, AA on graphite (6.16:1 canvas → 4.98:1 raised)." }
+    },
+    "amber": {
+      "$description": "Primitives behind health.degraded, per theme. Data-health marker — deliberately neither a signal hue nor the accent.",
+      "light": { "$value": "#8A6111", "$description": "Light theme: deep ochre, AA on ivory (4.99:1 canvas → 5.53:1 raised)." },
+      "dark": { "$value": "#D5A439", "$description": "Dark theme: warm amber, AA on graphite (7.82:1 canvas → 6.33:1 raised)." }
+    }
+  },
+  "themes": {
+    "$description": "Site-safe semantic tokens, resolved per theme. The build emits themes.light → :root and themes.dark → [data-theme='dark']; the emitted CSS custom-property names are identical across themes (--color-bg-canvas, --color-text-primary, …). These are the ONLY groups (with the named theme-invariant groups) the public-site build walks (consult 0067 Q5).",
+    "light": {
+      "$description": "Default theme — 'Ledger': warm ivory paper, warm-ink text, ink-navy accent. Ships at launch (consult 0066: light-default, theme toggle is P1).",
+      "bg": {
+        "canvas": { "$value": "{color.warm-white.300}", "$description": "App background — the warm ivory paper." },
+        "surface": { "$value": "{color.warm-white.200}", "$description": "Content panels." },
+        "raised": { "$value": "{color.warm-white.100}", "$description": "Overlays/dialogs." }
+      },
+      "text": {
+        "primary": { "$value": "{color.warm-ink.900}", "$description": "15.14:1 on canvas — AAA." },
+        "long-form": { "$value": "{color.warm-ink.800}", "$description": "Body text in long documents (policy pages): softer ink for sustained reading; 12.16:1 on canvas." },
+        "secondary": { "$value": "{color.warm-ink.700}", "$description": "Sub-heads, labels. 8.43:1 on canvas." },
+        "muted": { "$value": "{color.warm-ink.600}", "$description": "Captions, timestamps, footer meta. 5.34:1 on canvas — AA at any size." },
+        "on-accent": { "$value": "{color.warm-white.100}", "$description": "Text on the navy accent fill — white reads 9.98:1 on accent.default." }
+      },
+      "border": {
+        "default": { "$value": "{color.warm-ink.150}", "$description": "Decorative hairlines (rules, dividers) — the Ledger row-rule." },
+        "strong": { "$value": "{color.warm-ink.250}", "$description": "Emphasized decorative borders." },
+        "interactive": { "$value": "{color.warm-ink.500}", "$description": "Boundaries of inputs/controls: ≥3:1 on canvas (3.68), surface (3.91), raised (4.08) per WCAG 1.4.11." }
+      },
+      "accent": {
+        "default": { "$value": "{color.navy.600}", "$description": "Links, CTAs, the mark, focus. As link text: 9.01:1 on canvas — AA on all surfaces. Never a signal hue." },
+        "hover": { "$value": "{color.navy.500}" },
+        "active": { "$value": "{color.navy.700}", "$description": "Pressed state for fills/borders only — not for text." }
+      },
+      "focus": {
+        "ring": { "$value": "{color.navy.600}", "$description": "9.01:1 against canvas — exceeds the 3:1 non-text minimum." }
+      }
+    },
+    "dark": {
+      "$description": "Variant theme — warm graphite. The coherence bridge during the re-theme transition and the multi-monitor option (ADR 0035). Reuses + warms the prior dark prototype.",
+      "bg": {
+        "canvas": { "$value": "{color.warm-graphite.900}", "$description": "App background — warm near-black graphite." },
+        "surface": { "$value": "{color.warm-graphite.850}", "$description": "Content panels — elevation lifts lighter." },
+        "raised": { "$value": "{color.warm-graphite.800}", "$description": "Overlays/dialogs." }
+      },
+      "text": {
+        "primary": { "$value": "{color.warm-ink.100}", "$description": "15.71:1 on canvas — AAA." },
+        "long-form": { "$value": "{color.warm-ink.200}", "$description": "Body text in long documents: dimmed one step to reduce glare; 12.48:1 on canvas." },
+        "secondary": { "$value": "{color.warm-ink.300}", "$description": "Sub-heads, labels. 9.67:1 on canvas." },
+        "muted": { "$value": "{color.warm-ink.400}", "$description": "Captions, timestamps, footer meta. 6.72:1 on canvas — AA at any size." },
+        "on-accent": { "$value": "{color.warm-graphite.900}", "$description": "Text on the steel accent fill — dark reads 7.10:1 on accent.default." }
+      },
+      "border": {
+        "default": { "$value": "{color.warm-ink.750}", "$description": "Decorative hairlines on graphite." },
+        "strong": { "$value": "{color.warm-ink.700}", "$description": "Emphasized decorative borders." },
+        "interactive": { "$value": "{color.warm-ink.500}", "$description": "Boundaries of inputs/controls: ≥3:1 on canvas (4.38), surface (3.98), raised (3.54) per WCAG 1.4.11." }
+      },
+      "accent": {
+        "default": { "$value": "{color.steel.400}", "$description": "Links, CTAs, the mark, focus. As link text: 7.10:1 on canvas — AA on all surfaces. Never a signal hue." },
+        "hover": { "$value": "{color.steel.300}" },
+        "active": { "$value": "{color.steel.500}", "$description": "Pressed state for fills/borders only — not for text." }
+      },
+      "focus": {
+        "ring": { "$value": "{color.steel.400}", "$description": "7.10:1 against canvas — exceeds the 3:1 non-text minimum." }
+      }
     }
   },
   "font": {
     "family": {
       "$type": "fontFamily",
-      "sans": { "$value": ["Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"] },
-      "mono": { "$value": ["ui-monospace", "SFMono-Regular", "Menlo", "Consolas", "monospace"], "$description": "Reserved for tickers and dense numerics in the product app; unused on the pre-launch site." }
+      "serif": { "$value": ["Source Serif 4", "Georgia", "Cambria", "Times New Roman", "serif"], "$description": "Display family — H1/headings only, never tables or labels (ADR 0035). Self-hosted variable woff2 (consult 0067 Q4)." },
+      "sans": { "$value": ["Source Sans 3", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"], "$description": "UI/body family — replaces Inter (ADR 0035). Self-hosted variable woff2." },
+      "mono": { "$value": ["Source Code Pro", "ui-monospace", "SFMono-Regular", "Menlo", "Consolas", "monospace"], "$description": "Tabular figures for tickers and dense numerics in the product app — replaces the system stack (ADR 0035). Unused on the pre-launch site." }
     },
     "weight": {
       "$type": "fontWeight",
@@ -83,19 +155,22 @@
   },
   "typography": {
     "$type": "typography",
+    "$description": "Theme-invariant. Serif (display family) is reserved for display + section headings; body/caption/legal use the sans UI family (ADR 0035).",
     "display": {
-      "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.800}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{font.line-height.tight}", "letterSpacing": "{font.letter-spacing.tight}" },
-      "$description": "Hero H1, mobile-first size."
+      "$value": { "fontFamily": "{font.family.serif}", "fontSize": "{font.size.800}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{font.line-height.tight}", "letterSpacing": "{font.letter-spacing.tight}" },
+      "$description": "Hero H1, mobile-first size — Source Serif 4."
     },
     "display-large": {
-      "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.900}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{font.line-height.tight}", "letterSpacing": "{font.letter-spacing.tight}" },
-      "$description": "Hero H1 at the desktop breakpoint."
+      "$value": { "fontFamily": "{font.family.serif}", "fontSize": "{font.size.900}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{font.line-height.tight}", "letterSpacing": "{font.letter-spacing.tight}" },
+      "$description": "Hero H1 at the desktop breakpoint — Source Serif 4."
     },
     "heading-1": {
-      "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.600}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{font.line-height.tight}", "letterSpacing": "{font.letter-spacing.tight}" }
+      "$value": { "fontFamily": "{font.family.serif}", "fontSize": "{font.size.600}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{font.line-height.tight}", "letterSpacing": "{font.letter-spacing.tight}" },
+      "$description": "Section head — Source Serif 4 (display register, large text ≥24px qualifies at AA 3:1)."
     },
     "heading-2": {
-      "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.500}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{font.line-height.tight}", "letterSpacing": "{font.letter-spacing.normal}" }
+      "$value": { "fontFamily": "{font.family.serif}", "fontSize": "{font.size.500}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{font.line-height.tight}", "letterSpacing": "{font.letter-spacing.normal}" },
+      "$description": "Sub-section head — Source Serif 4."
     },
     "body": {
       "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.300}", "fontWeight": "{font.weight.regular}", "lineHeight": "{font.line-height.default}", "letterSpacing": "{font.letter-spacing.normal}" }
@@ -124,5 +199,80 @@
     "$type": "dimension",
     "small": { "$value": "0.5rem" },
     "medium": { "$value": "0.75rem" }
+  },
+  "elevation": {
+    "$type": "shadow",
+    "$description": "App-only (#34), theme-variant. Light ('Ledger') leans on hairline rules with restrained warm shadows; dark elevation is primarily surface lightening (bg.surface → bg.raised) with shadows as the secondary cue. Never on path cards — elevation difference reads as ranking (spec §6.2).",
+    "light": {
+      "low": { "$value": { "color": "#211D1714", "offsetX": "0px", "offsetY": "1px", "blur": "2px", "spread": "0px" }, "$description": "In-flow raised elements: expanders, notices. Warm-ink ~8% over paper." },
+      "medium": { "$value": { "color": "#211D171F", "offsetX": "0px", "offsetY": "4px", "blur": "16px", "spread": "0px" }, "$description": "Overlaying elements only (menus, dialogs). Warm-ink ~12%." }
+    },
+    "dark": {
+      "low": { "$value": { "color": "#00000066", "offsetX": "0px", "offsetY": "1px", "blur": "2px", "spread": "0px" }, "$description": "In-flow raised elements: expanders, notices." },
+      "medium": { "$value": { "color": "#00000080", "offsetX": "0px", "offsetY": "4px", "blur": "16px", "spread": "0px" }, "$description": "Overlaying elements only (menus, dialogs)." }
+    }
+  },
+  "motion": {
+    "$description": "App-only (#34), theme-invariant. Calm: color/opacity transitions, no movement that begs attention; everything suppressed under prefers-reduced-motion.",
+    "duration": {
+      "$type": "duration",
+      "fast": { "$value": "120ms", "$description": "Hover/focus color shifts, live value refreshes." },
+      "base": { "$value": "180ms", "$description": "Content arrival fade-in (streaming read)." },
+      "slow": { "$value": "1200ms", "$description": "Skeleton opacity pulse cycle." }
+    },
+    "easing": {
+      "$type": "cubicBezier",
+      "standard": { "$value": [0.2, 0, 0, 1] }
+    }
+  },
+  "signal": {
+    "$description": "App-only (#34), theme-variant — a single value cannot be AA on both ivory and graphite, so positive/negative carry .light/.dark resolutions. P&L up/down — on the NUMBER only, never on chrome, cards, or paths (spec §6.2: color-grading a path reads as advice); always paired with an explicit sign — color never carries meaning alone (WCAG 1.4.1). Lives outside themes.* so the site build never emits it.",
+    "positive": {
+      "light": { "$type": "color", "$value": "{color.green.light}" },
+      "dark": { "$type": "color", "$value": "{color.green.dark}" }
+    },
+    "negative": {
+      "light": { "$type": "color", "$value": "{color.red.light}" },
+      "dark": { "$type": "color", "$value": "{color.red.dark}" }
+    }
+  },
+  "health": {
+    "$description": "App-only (#34), theme-variant. Data-health marker: limited / unavailable / stale / conflicting (spec §6.8 honest degradation). Deliberately neither a signal hue nor the accent. Lives outside themes.* so the site build never emits it.",
+    "degraded": {
+      "light": { "$type": "color", "$value": "{color.amber.light}" },
+      "dark": { "$type": "color", "$value": "{color.amber.dark}" }
+    }
+  },
+  "path-card": {
+    "$description": "Component tokens for the symmetric path menu (read-components.md). One set of values for ALL path cards — uniformity enforced at the token layer; a 'featured' variant cannot exist without a reviewable change here (spec §6.2). App-only (#34). Color bindings are theme-variant (.light/.dark) because the semantic tokens they mirror moved under themes.*; structural/typographic tokens (radius, padding, fonts, gap) are theme-invariant. Lives outside themes.* so the site build never emits it.",
+    "radius": { "$type": "dimension", "$value": "{radius.medium}" },
+    "padding": { "$type": "dimension", "$value": "{space.400}" },
+    "light": {
+      "bg": { "$type": "color", "$value": "{themes.light.bg.surface}" },
+      "border": { "$type": "color", "$value": "{themes.light.border.default}" },
+      "state-field": {
+        "$description": "ADR 0026 state-interaction field — one binding for ALL path cards (R5 gate #2 visual parity, consult 0051). Quiet secondary-text register; references only text.muted/text.secondary so signal.*/accent.*/text.primary are UNREACHABLE through this binding. Holds in the degraded render (N/A '—' in this same body style).",
+        "label": { "color": { "$type": "color", "$value": "{themes.light.text.muted}" } },
+        "body": { "color": { "$type": "color", "$value": "{themes.light.text.secondary}" } },
+        "number": { "color": { "$type": "color", "$value": "{themes.light.text.secondary}" } }
+      }
+    },
+    "dark": {
+      "bg": { "$type": "color", "$value": "{themes.dark.bg.surface}" },
+      "border": { "$type": "color", "$value": "{themes.dark.border.default}" },
+      "state-field": {
+        "$description": "Dark resolution of the ADR 0026 state-interaction field — same parity + no-signal-color-reachable guarantees as light.",
+        "label": { "color": { "$type": "color", "$value": "{themes.dark.text.muted}" } },
+        "body": { "color": { "$type": "color", "$value": "{themes.dark.text.secondary}" } },
+        "number": { "color": { "$type": "color", "$value": "{themes.dark.text.secondary}" } }
+      }
+    },
+    "state-field": {
+      "$description": "Theme-invariant typography for the state-interaction field (colors are under path-card.light/.dark.state-field).",
+      "label": { "font": { "$value": "{typography.caption}" } },
+      "body": { "font": { "$value": "{typography.body}" } },
+      "number": { "font-family": { "$value": "{font.family.mono}" } },
+      "gap": { "$type": "dimension", "$value": "{space.300}" }
+    }
   }
 }
