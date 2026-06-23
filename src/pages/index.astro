@@ -1,37 +1,30 @@
 ---
-// Home (site-prelaunch.md §2, v2.1 — ADR 0011 two front doors, #64).
-// Copy verbatim from ai-team/pm/site-copy-twiceover.md "Page: Home" (Growth-resolved
-// 2026-06-13, consultation 0015 — human-approved). Do not reword; the rest rides the
-// #41 publish review (swap text if it changes, layout must not). Flag issues to PM.
-// COPY + STRUCTURE ONLY: the hero action row (entry-box wedge) stays RESERVED, not built
-// (deferred to app-launch, #32); the header sign-in slot stays reserved (Base.astro / §1).
+// Home (site-prelaunch.md §2, v2.2 — ADR 0042 connection-led, #195).
+// Deep door leads the hero sub; "Or, take any ticker" demo turn follows above the fold
+// (demo-retention guardrail). Copy slots pending Growth #63 (site-copy-twiceover.md
+// reconciliation per ADR 0042 pivot). Do not reword; layout must not change when #63 lands.
+// COPY + STRUCTURE ONLY: "Connect read-only →" CTA and entry-box row stay RESERVED,
+// not built (deferred to app-launch, #32); header sign-in slot reserved (Base.astro / §1).
 import Base from "../layouts/Base.astro";
 ---
 <Base
   title="TwiceOver — a second look at your own book"
-  description="Take any ticker — TwiceOver synthesizes the key technical levels, the macro and regime backdrop, curated trader voices, and the options math and flow, all into one read. Depth, never a verdict."
+  description="Connect your brokerage read-only and the read runs on the positions you actually hold — your rules, your horizons. Or take any ticker, no connection needed. Depth, never a verdict."
 >
+  {/* Hero — deep door leads the sub (ADR 0042, connect-led); demo retained above the fold.
+      No pricing link in the reserved-box state: pricing via header nav + foot Pricing cue. */}
   <section class="hero">
     <h1 class="type-display">A second look at your own book.</h1>
     <p class="sub">
-      Take any ticker. TwiceOver synthesizes the key technical levels, the macro backdrop and
-      market regime, the curated voices of prominent traders, and the options math and flow,
-      all into one read. <strong>Depth, never a verdict.</strong> You read it. You decide.
+      Connect your brokerage <strong>read-only</strong> and the read runs on the positions
+      you actually hold — measured against <strong>your own rules</strong>, across near-, mid-,
+      and far-term horizons. <strong>Depth, never a verdict.</strong>
     </p>
-    {/* No CTA, no pricing link in the boxless interim hero (site-prelaunch §2, 2026-06-13):
-        pricing is carried by the header nav + the foot Pricing cue. The reserved action row
-        (entry-box wedge) is built and wired straight to the app at launch (#32). */}
-  </section>
-
-  {/* Connect-to-personalize turn — the deep door (ADR 0011). A calm bridge, NOT a competing
-      section heading: no <h2>, so it doesn't break the h1→h2 outline. */}
-  <section class="connect-turn">
-    <p class="connect-frame">Or connect, read-only — and it's your book.</p>
-    <p class="connect-body">
-      Connect your brokerage <strong>read-only</strong> and the same read turns on the
-      positions you already hold — measured against <strong>your own rules</strong>, across
-      near-, mid-, and far-term horizons.
-    </p>
+    {/* Reserved — "Connect read-only →" quiet-outline CTA: built and wired to the app at
+        launch (#32). No interim OAuth plumbing pre-launch. */}
+    <p class="demo-turn">Or, take any ticker — no connection needed.</p>
+    {/* Reserved — entry-box row (read-components.md §6, logged-out variant): built at
+        app-launch (#32), wired straight to the app. No waitlist or interim capture path. */}
     <div class="connect-stages">
       <div class="stage-row">
         <span class="stage-chip">Any ticker · no connection</span>
