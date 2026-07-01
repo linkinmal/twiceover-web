@@ -183,26 +183,19 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   margin: var(--space-300) 0 0;
 }
 .hero .sub strong { font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
-/* Reserved action row (entry-box wedge + sign-in, #32+): the hero is a stacked,
-   top-anchored flex column so the row appends without recomposition. Nothing ships. */
+/* Reserved items (ADR 0042, #32+): (1) "Connect read-only →" quiet-outline CTA;
+   (2) entry-box row ("Or, any ticker" demo). Both built and wired at app-launch.
+   Hero is stacked flex column — both append without recomposition. Nothing ships. */
 
-/* ── Connect-to-personalize turn — the deep door (ADR 0011) ─────────────── */
-/* A calm bridge, not a competing section heading: italic frame line + lean body
-   + a quiet two-stage indicator. No screenshots, no collage (spec §5). */
-.connect-turn { padding-block: var(--space-600); max-width: 60ch; }
-/* Lead line of the bridge — upright, weight emphasis (not slant/aside): a confident
-   turn in the narrative (site-prelaunch §2, 2026-06-13). */
-.connect-turn .connect-frame {
-  margin: 0;
+/* ── Hero: "Or" demo turn + stage indicator (ADR 0042 — connect-led) ──────── */
+/* Deep door leads in .sub; "Or, take any ticker" follows as the demo-retention
+   guardrail (immediately above the fold). No separate connect-turn section. */
+.hero .demo-turn {
+  margin: var(--space-300) 0 0;
   font-size: var(--font-size-400);
   font-weight: var(--font-weight-medium);
   color: var(--color-text-primary);
 }
-.connect-turn .connect-body {
-  margin: var(--space-200) 0 0;
-  color: var(--color-text-secondary);
-}
-.connect-turn .connect-body strong { font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
 .connect-stages { display: flex; flex-direction: column; gap: var(--space-100); margin-top: var(--space-300); }
 .connect-stages .stage-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-150); }
 .connect-stages .stage-chip {
