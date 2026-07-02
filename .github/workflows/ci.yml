@@ -19,3 +19,43 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm run check
+
+  # Deploy-on-merge to production (ADR 0056, #305). Here deploy ≈ release, and that is intentional:
+  # the site is static marketing content with no user data or behavior, so the pre-merge PR review is
+  # the release control. This flips only the TRIGGER leg of scripts/deploy.sh's documented flow
+  # (human-approval-before-merge replaces human-approval-before-deploy) — the AC3/AC4 content gate and
+  # the ADR 0008 "Workers observability off" gate are untouched, because the deploy job runs the same
+  # guarded `npm run deploy` → scripts/deploy.sh, which re-asserts both gates before it uploads.
+  #
+  # Runs ONLY on push to `main`, after build-and-check is green — NEVER on pull_request, so the deploy
+  # token is out of scope for PR-triggered runs (ADR 0056 sub-decision 1, Security 0098). The real
+  # control against malicious code reaching this token is branch protection on `main` (required check
+  # `build-and-check` + PR review), confirmed enabled live 2026-07-02 (runbooks/github-branch-
+  # protection.md); this workflow depends on it staying enforced.
+  #
+  # Token: `CLOUDFLARE_API_TOKEN` — the `twiceover-web-ci-deploy` repo secret (HA-33/#303), scoped
+  # `Account Settings:Read` + `Workers Scripts:Edit` only. deploy.sh already reads it from this env var
+  # (its documented `:=` CI seam), falling back to the Keychain only for a local operator run.
+  deploy:
+    needs: build-and-check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    # Serialize production deploys so two quick merges to `main` never overlap a `wrangler deploy`;
+    # never cancel one in flight (a cancelled deploy can leave the site half-updated). Job-scoped so
+    # PR build-and-check runs are unaffected.
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    environment: production
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Guarded deploy: re-runs build + AC3/AC4 content gate + ADR 0008 observability-off gate, then
+      # `wrangler deploy`. The token is supplied via the env var above (deploy.sh's CI override seam).
+      - run: npm run deploy
