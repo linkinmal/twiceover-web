@@ -180,11 +180,12 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   display: flex;
   flex-direction: column;
   gap: var(--space-600);
-  padding-block: var(--space-800);
+  padding-top: var(--space-400);
+  padding-bottom: var(--space-600);
   background: var(--color-bg-canvas);
 }
 @media (min-width: 960px) {
-  .hero { flex-direction: row; align-items: center; padding-block: calc(var(--space-800) * 1.5); gap: var(--space-800); }
+  .hero { flex-direction: row; align-items: center; gap: var(--space-800); }
   .hero__copy { flex: 1 1 52%; }
   .proof { flex: 1 1 44%; }
 }
