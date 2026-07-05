@@ -1,52 +1,86 @@
----
-// Hero product-proof visual (site-prelaunch.md v2.4 §2 Hero) — a three-card
-// diagonal cascade, never a screenshot: a stock read (AAPL label, the fixed
-// NVDA fixture's own shares leg) + an options read (NVDA bull call spread) +
-// a rules chip bridging both, built from the real component anatomy
-// (read-components.md §1 path card, §2 rule row) on the fixed NVDA fixture
-// (read-held-position.md line 10/128/137/146) — every figure below traces to
-// that fixture, never invented. Stock card leads (largest, first in reading
-// order) — the dual-audience fix for the prior all-options v2.3 draft.
-// aria-hidden as a unit: decorative proof, not a second read of live data.
-import RuleRow from "./RuleRow.astro";
----
 <div class="proof" aria-hidden="true">
-  <div class="proof__cascade">
-    <div class="proof__stock">
-      <p class="proof__card-label type-caption">Ticker analysis · AAPL</p>
-      <p class="proof__card-structure">100 shares</p>
-      <p class="proof__stock-pnl">+$2,612 <span>(+16.5%)</span></p>
-      <div class="proof__row">
-        <p class="proof__row-label type-caption">Key levels</p>
-        <p class="proof__row-body">50-DMA support $176.40 · resistance $190.00 · golden zone $171–176</p>
-      </div>
-      <div class="proof__row">
-        <p class="proof__row-label type-caption">Macro &amp; regime</p>
-        <p class="proof__row-body">Risk-on — credit spreads tightening, carry active, VIX term structure in contango</p>
-      </div>
-      <div class="proof__row">
-        <p class="proof__row-label type-caption">Outlook</p>
-        <p class="proof__row-body">Holds above $181.20: shares extend $100 per $1 higher. A break below the $176.40 50-DMA opens the $171–176 golden zone — shares give back ≈$800 to the zone midpoint.</p>
-      </div>
-    </div>
+  <svg class="proof__svg" viewBox="-32 -24 624 576" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="An illustrative TwiceOver read: an AAPL shares position, an NVDA bull call spread, and the rules checked against them.">
+    <!--
+      Hero product-proof visual (site-prelaunch.md §2 Hero, v2.4). A fixed-geometry
+      three-card layered-overlap collage. Ship this INLINE in the Astro component
+      (not as <img>) so the page's @font-face (Source Serif 4 / Sans 3 / Code Pro)
+      and :root design tokens (--color-*) resolve — the fill/stroke use var(token,
+      hexFallback), so it degrades gracefully if opened standalone. It is a fixed
+      viewBox, so it scales as ONE unit — it can never reflow or let cards collide
+      (the recurring CSS-collage failure). aria-hidden the wrapper in the page (it
+      is decorative; the caption below carries the disclosure). Cap its width in
+      the hero column (~min(440px, 100%)) and center on mobile.
+      Every figure traces to read-held-position.md's canonical fixture; AAPL is the
+      stock card's display label only (same NVDA shares-leg fixture). No invented
+      market levels — qualitative descriptors only on the stock card.
+    -->
+    <defs>
+      <filter id="cardShadow" x="-60%" y="-60%" width="220%" height="220%">
+        <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#211D17" flood-opacity="0.13"/>
+        <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#211D17" flood-opacity="0.07"/>
+      </filter>
+      <style>
+        .card  { fill: var(--color-bg-surface, #FCFAF4); stroke: var(--color-border-strong, #CFC7B6); stroke-width:1; }
+        .rcard { fill: var(--color-bg-raised, #FFFFFF);   stroke: var(--color-border-strong, #CFC7B6); stroke-width:1; }
+        .kick  { font-family:'Source Sans 3',sans-serif; font-size:11px; fill: var(--color-text-muted, #6B6358); }
+        .ttl   { font-family:'Source Serif 4',Georgia,serif; font-weight:600; font-size:16px; fill: var(--color-text-primary, #211D17); }
+        .lbl   { font-family:'Source Sans 3',sans-serif; font-size:12.5px; fill: var(--color-text-secondary, #4C463D); }
+        .val   { font-family:'Source Code Pro',monospace; font-weight:500; font-size:12px; fill: var(--color-text-primary, #211D17); }
+        .pnl   { font-family:'Source Code Pro',monospace; font-weight:500; font-size:16px; fill: var(--color-signal-positive, #197A4B); }
+        .pnlsub{ font-family:'Source Code Pro',monospace; font-weight:500; font-size:13px; fill: var(--color-text-secondary, #4C463D); }
+        .rnm   { font-family:'Source Sans 3',sans-serif; font-size:12.5px; fill: var(--color-text-primary, #211D17); }
+        .rst   { font-family:'Source Code Pro',monospace; font-weight:500; font-size:12px; fill: var(--color-text-secondary, #4C463D); }
+        .hr    { stroke: var(--color-border-default, #E2DCCF); stroke-width:1; }
+      </style>
+    </defs>
 
-    <div class="proof__options">
-      <p class="proof__card-label type-caption">Ticker analysis · NVDA</p>
-      <p class="proof__card-structure">Bull call spread · 24 DTE</p>
-      <dl class="proof__options-math">
-        <div><dt>Net debit</dt><dd>$6.20/spread</dd></div>
-        <div><dt>Max profit</dt><dd>$1,760</dd></div>
-        <div><dt>Max loss</dt><dd>$1,240</dd></div>
-        <div><dt>Breakeven</dt><dd>$181.20</dd></div>
-      </dl>
-      <p class="proof__options-pnl">+$612 <span>(+49.4%)</span></p>
-    </div>
+    <!-- Card 1 · AAPL stock (z1, drawn first) -->
+    <g transform="rotate(-0.5 170 115)" filter="url(#cardShadow)">
+      <rect class="card" x="0" y="0" width="340" height="230" rx="8"/>
+      <text class="kick" x="18" y="26">Your read · AAPL</text>
+      <text class="ttl"  x="18" y="52">100 shares</text>
+      <text class="pnl"  x="18" y="84">+$2,612 <tspan class="pnlsub">(+16.5%)</tspan></text>
+      <line class="hr" x1="18" y1="102" x2="322" y2="102"/>
+      <text class="lbl" x="18"  y="126">Key levels</text>
+      <text class="val" x="322" y="126" text-anchor="end">support · resistance</text>
+      <line class="hr" x1="18" y1="142" x2="322" y2="142"/>
+      <text class="lbl" x="18"  y="166">Macro &amp; regime</text>
+      <text class="val" x="322" y="166" text-anchor="end">in plain language</text>
+      <line class="hr" x1="18" y1="182" x2="322" y2="182"/>
+      <text class="lbl" x="18"  y="206">Outlook</text>
+      <text class="val" x="322" y="206" text-anchor="end">near · mid · far</text>
+    </g>
 
-    <div class="proof__rules">
-      <RuleRow state="not-met" name="Stock profit target 25%" scope="shares" pnl="P&L +16.5%" />
-      <RuleRow state="approaching" name="Option profit target 60%" scope="bull call spread" pnl="P&L +49.4%" />
-    </div>
-  </div>
+    <!-- Card 2 · NVDA options (z2) -->
+    <g transform="rotate(0.6 395 300)" filter="url(#cardShadow)">
+      <rect class="card" x="235" y="214" width="320" height="172" rx="8"/>
+      <text class="kick" x="253" y="238">Your read · NVDA</text>
+      <text class="ttl"  x="253" y="263">Bull call spread · Aug 21</text>
+      <line class="hr" x1="253" y1="279" x2="537" y2="279"/>
+      <text class="lbl" x="253" y="301">Max profit / loss</text>
+      <text class="val" x="537" y="301" text-anchor="end">$880 / $620</text>
+      <line class="hr" x1="253" y1="317" x2="537" y2="317"/>
+      <text class="lbl" x="253" y="339">Breakeven</text>
+      <text class="val" x="537" y="339" text-anchor="end">$181.20</text>
+      <line class="hr" x1="253" y1="355" x2="537" y2="355"/>
+      <text class="lbl" x="253" y="377">Paths</text>
+      <text class="val" x="537" y="377" text-anchor="end">hold · close · reduce · roll</text>
+    </g>
+
+    <!-- Card 3 · rules chip (z3, on top) -->
+    <g transform="rotate(-0.4 335 443)" filter="url(#cardShadow)">
+      <rect class="rcard" x="170" y="382" width="330" height="122" rx="6"/>
+      <text class="kick" x="186" y="406">Your rules, checked every read</text>
+      <line class="hr" x1="186" y1="418" x2="484" y2="418"/>
+      <circle cx="192" cy="436" r="5" fill="none" stroke="#6B6358" stroke-width="1.5"/>
+      <text class="rnm" x="206" y="440">Stock target 25%</text>
+      <text class="rst" x="484" y="440" text-anchor="end">not met · +16.5%</text>
+      <circle cx="192" cy="468" r="5" fill="none" stroke="#4C463D" stroke-width="1.5"/>
+      <path d="M192 463 A5 5 0 0 1 192 473 Z" fill="#4C463D"/>
+      <text class="rnm" x="206" y="472">Option target 60%</text>
+      <text class="rst" x="484" y="472" text-anchor="end">approaching · +49.4%</text>
+    </g>
+  </svg>
 
   <p class="proof__caption type-caption">Illustrative example — the same fixed AAPL/NVDA data shown throughout this page, not a live account.</p>
 </div>
