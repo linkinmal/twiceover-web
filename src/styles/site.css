@@ -170,20 +170,21 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .btn-quiet:active { border-color: var(--color-accent-active); }
 
 /* ── Home ─────────────────────────────────────────────────────────────── */
-/* Hero (v2.3): ledger-rules texture behind a two-column layout at lg (copy +
-   product-proof visual), single stacked column below — the visual never
-   disappears at narrower widths (site-prelaunch.md §2 hero, regression case). */
+/* Hero (v2.4): a two-column layout at lg (copy + product-proof visual), single
+   stacked column below — the visual never disappears at narrower widths
+   (site-prelaunch.md §2 hero, regression case). Canvas is a plain "paper under
+   light" radial gradient, no repeating hairlines — depth comes from the cards'
+   own shadows (spec §2 "Canvas, resolved": the earlier repeating-hairline
+   ledger-rules texture read as visually confusing and is retired everywhere). */
 .hero {
   display: flex;
   flex-direction: column;
   gap: var(--space-600);
   padding-block: var(--space-800);
-  background-image: repeating-linear-gradient(
-    0deg,
-    color-mix(in srgb, var(--color-accent-default) 5%, transparent) 0,
-    color-mix(in srgb, var(--color-accent-default) 5%, transparent) 1px,
-    transparent 1px,
-    transparent 28px
+  background-image: radial-gradient(
+    ellipse at 30% 20%,
+    var(--color-bg-surface) 0%,
+    var(--color-bg-canvas) 70%
   );
 }
 @media (min-width: 960px) {
@@ -228,11 +229,20 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .connect-stages .stage-arrow { color: var(--color-text-muted); }
 .connect-stages .stage-engine { font-size: var(--font-size-200); color: var(--color-text-muted); }
 
-/* ── Hero product-proof visual (v2.3) ────────────────────────────────────
-   A layered composition, never a screenshot: a miniature "Ticker analysis"
-   read document + a floating path card (roll quote) + a floating rule row,
-   all built from the real NVDA fixture (read-held-position.md line 10/128/146).
-   Stacks to a single column below the copy at narrow widths — never disappears. */
+/* ── Hero product-proof visual (v2.4) ────────────────────────────────────
+   A three-card diagonal cascade, never a screenshot: a stock read (leads —
+   largest, first in reading order) + an options read (follows) + a rules chip
+   bridging both, all built from the fixed NVDA fixture (read-held-position.md
+   line 10/128/137/146; AAPL is the stock card's display ticker only, same
+   fixture). Cascade geometry, not a stack, and not a corner-overlap either
+   (spec §2 hero, regression case: a naive corner-overlap stack buried a
+   card's header in an earlier draft) — each card clears the previous one
+   in normal flow (the options card's header clears the stock card with
+   margin; the rules chip's top edge meets the options card's last row, no
+   clipping), the "diagonal below-right" look coming from alternating
+   left/right alignment, never from literal overlap. Stacks to a single
+   column below the copy at narrow widths, stock card first — never
+   disappears. */
 .proof {
   position: relative;
   display: flex;
@@ -240,49 +250,58 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   gap: var(--space-300);
   padding-block: var(--space-300);
 }
+.proof__cascade { display: flex; flex-direction: column; gap: var(--space-400); }
 @media (min-width: 960px) {
-  .proof { min-height: 24rem; padding-block: 0; }
-  .proof__doc { position: absolute; top: 0; left: 0; width: 80%; }
-  /* Path card and rule row each overlap a corner of the mini document, not each
-     other — no horizontal overlap between the two floats (spec §2 hero). */
-  .proof__path { position: absolute; top: 38%; right: 0; width: 48%; transform: rotate(-1.5deg); }
-  .proof__rule { position: absolute; bottom: 0; left: 0; width: 46%; transform: rotate(1deg); }
+  .proof__stock { align-self: flex-start; width: 62%; }
+  .proof__options { align-self: flex-end; width: 54%; }
+  .proof__rules { align-self: center; width: 58%; }
 }
-.proof__doc,
-.proof__path {
+.proof__stock,
+.proof__options {
   background: var(--surface-panel);
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-medium);
   padding: var(--space-300);
   box-shadow: 0 4px 16px color-mix(in srgb, var(--color-text-primary) 8%, transparent);
 }
-.proof__rule { background: var(--color-bg-raised); border: 1px solid var(--color-border-default); border-radius: var(--radius-small); padding: var(--space-150) var(--space-200); box-shadow: 0 2px 10px color-mix(in srgb, var(--color-text-primary) 6%, transparent); }
-.proof__doc-label { color: var(--color-text-muted); margin: 0; }
-.proof__doc-structure { font-family: var(--font-family-serif); font-weight: var(--font-weight-semibold); margin: var(--space-100) 0 var(--space-200); color: var(--color-text-primary); }
-.proof__doc-math {
+.proof__rules {
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-small);
+  padding: var(--space-150) var(--space-200);
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--color-text-primary) 6%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-150);
+}
+.proof__card-label { color: var(--color-text-muted); margin: 0; }
+.proof__card-structure { font-family: var(--font-family-serif); font-weight: var(--font-weight-semibold); margin: var(--space-100) 0 var(--space-200); color: var(--color-text-primary); }
+.proof__options-math {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-100) var(--space-200);
   margin: 0;
 }
-.proof__path-math {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-100);
-  margin: 0;
-}
-.proof__doc-math div, .proof__path-math div { display: flex; justify-content: space-between; gap: var(--space-100); }
-.proof__doc-math dt, .proof__path-math dt { color: var(--color-text-muted); font-size: var(--font-size-200); white-space: nowrap; }
-.proof__doc-math dd, .proof__path-math dd {
+.proof__options-math div { display: flex; justify-content: space-between; gap: var(--space-100); }
+.proof__options-math dt { color: var(--color-text-muted); font-size: var(--font-size-200); white-space: nowrap; }
+.proof__options-math dd {
   margin: 0;
   font-family: var(--font-family-mono);
   font-variant-numeric: tabular-nums;
   color: var(--color-text-primary);
   font-size: var(--font-size-200);
 }
-.proof__doc-pnl { margin: var(--space-200) 0 0; font-family: var(--font-family-mono); font-variant-numeric: tabular-nums; font-size: var(--font-size-400); color: var(--color-text-primary); }
-.proof__doc-pnl span { color: var(--color-text-secondary); font-size: var(--font-size-300); }
-.proof__path-title { font-size: var(--font-size-300); font-weight: var(--font-weight-medium); color: var(--color-text-primary); margin: 0 0 var(--space-200); }
+.proof__stock-pnl,
+.proof__options-pnl { margin: var(--space-200) 0 0; font-family: var(--font-family-mono); font-variant-numeric: tabular-nums; font-size: var(--font-size-400); color: var(--color-text-primary); }
+.proof__stock-pnl span,
+.proof__options-pnl span { color: var(--color-text-secondary); font-size: var(--font-size-300); }
+/* Stock card's key-levels / macro & regime / outlook rows — prose lines, not a
+   math grid (no max-profit line: that's options-vocabulary noise on plain
+   shares, site-prelaunch.md §2 hero). */
+.proof__row { margin-top: var(--space-200); }
+.proof__row-label { color: var(--color-text-muted); margin: 0 0 var(--space-100); }
+.proof__row-body { margin: 0; color: var(--color-text-secondary); font-size: var(--font-size-200); }
+.proof__caption { color: var(--color-text-muted); margin: 0; }
 
 /* Rule-state row (read-components.md §2) — geometric marker, no signal color. */
 .rule-row { display: flex; align-items: baseline; gap: var(--space-150); flex-wrap: wrap; }
@@ -296,30 +315,17 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .rule-row__pnl { margin-left: auto; font-family: var(--font-family-mono); font-variant-numeric: tabular-nums; color: var(--color-text-secondary); font-size: var(--font-size-200); }
 
 /* Staggered rise-in on load — literal durations, no motion.* tokens (app-only,
-   containment-forbidden on this site); respects prefers-reduced-motion. */
+   containment-forbidden on this site); respects prefers-reduced-motion.
+   Stock card first, then options, then the rules chip (spec §2 hero). */
 @media (prefers-reduced-motion: no-preference) {
-  .proof__doc, .proof__path, .proof__rule { animation: proof-rise 500ms ease-out backwards; }
-  .proof__doc { animation-delay: 0ms; }
-  .proof__path { animation-delay: 120ms; }
-  .proof__rule { animation-delay: 240ms; }
+  .proof__stock, .proof__options, .proof__rules { animation: proof-rise 500ms ease-out backwards; }
+  .proof__stock { animation-delay: 0ms; }
+  .proof__options { animation-delay: 150ms; }
+  .proof__rules { animation-delay: 300ms; }
 }
 @keyframes proof-rise {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
-}
-@media (min-width: 960px) {
-  @media (prefers-reduced-motion: no-preference) {
-    .proof__path { animation-name: proof-rise-rotated-path; }
-    .proof__rule { animation-name: proof-rise-rotated-rule; }
-  }
-}
-@keyframes proof-rise-rotated-path {
-  from { opacity: 0; transform: translateY(10px) rotate(-1.5deg); }
-  to { opacity: 1; transform: translateY(0) rotate(-1.5deg); }
-}
-@keyframes proof-rise-rotated-rule {
-  from { opacity: 0; transform: translateY(10px) rotate(1deg); }
-  to { opacity: 1; transform: translateY(0) rotate(1deg); }
 }
 
 .section-heading { margin: var(--space-600) 0 var(--space-400); }

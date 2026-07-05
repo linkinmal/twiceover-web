@@ -1,37 +1,52 @@
 ---
-// Hero product-proof visual (site-prelaunch.md v2.3 §2 Hero) — a layered
-// composition, never a screenshot: a miniature "Ticker analysis" read document +
-// a floating path card (roll quote) + a floating rule-state row, built from the
-// real component anatomy (read-components.md §1 path card, §2 rule row) on the
-// fixed NVDA fixture (read-held-position.md line 10/128/146) — every figure below
-// traces to that fixture, never invented. aria-hidden as a unit: decorative proof,
-// not a second read of live data.
+// Hero product-proof visual (site-prelaunch.md v2.4 §2 Hero) — a three-card
+// diagonal cascade, never a screenshot: a stock read (AAPL label, the fixed
+// NVDA fixture's own shares leg) + an options read (NVDA bull call spread) +
+// a rules chip bridging both, built from the real component anatomy
+// (read-components.md §1 path card, §2 rule row) on the fixed NVDA fixture
+// (read-held-position.md line 10/128/137/146) — every figure below traces to
+// that fixture, never invented. Stock card leads (largest, first in reading
+// order) — the dual-audience fix for the prior all-options v2.3 draft.
+// aria-hidden as a unit: decorative proof, not a second read of live data.
 import RuleRow from "./RuleRow.astro";
 ---
 <div class="proof" aria-hidden="true">
-  <div class="proof__doc">
-    <p class="proof__doc-label type-caption">Ticker analysis · NVDA</p>
-    <p class="proof__doc-structure">Bull call spread · 24 DTE</p>
-    <dl class="proof__doc-math">
-      <div><dt>Net debit</dt><dd>$6.20/spread</dd></div>
-      <div><dt>Max profit</dt><dd>$1,760</dd></div>
-      <div><dt>Max loss</dt><dd>$1,240</dd></div>
-      <div><dt>Breakeven</dt><dd>$181.20</dd></div>
-    </dl>
-    <p class="proof__doc-pnl">+$612 <span>(+49.4%)</span></p>
+  <div class="proof__cascade">
+    <div class="proof__stock">
+      <p class="proof__card-label type-caption">Ticker analysis · AAPL</p>
+      <p class="proof__card-structure">100 shares</p>
+      <p class="proof__stock-pnl">+$2,612 <span>(+16.5%)</span></p>
+      <div class="proof__row">
+        <p class="proof__row-label type-caption">Key levels</p>
+        <p class="proof__row-body">50-DMA support $176.40 · resistance $190.00 · golden zone $171–176</p>
+      </div>
+      <div class="proof__row">
+        <p class="proof__row-label type-caption">Macro &amp; regime</p>
+        <p class="proof__row-body">Risk-on — credit spreads tightening, carry active, VIX term structure in contango</p>
+      </div>
+      <div class="proof__row">
+        <p class="proof__row-label type-caption">Outlook</p>
+        <p class="proof__row-body">Holds above $181.20: shares extend $100 per $1 higher. A break below the $176.40 50-DMA opens the $171–176 golden zone — shares give back ≈$800 to the zone midpoint.</p>
+      </div>
+    </div>
+
+    <div class="proof__options">
+      <p class="proof__card-label type-caption">Ticker analysis · NVDA</p>
+      <p class="proof__card-structure">Bull call spread · 24 DTE</p>
+      <dl class="proof__options-math">
+        <div><dt>Net debit</dt><dd>$6.20/spread</dd></div>
+        <div><dt>Max profit</dt><dd>$1,760</dd></div>
+        <div><dt>Max loss</dt><dd>$1,240</dd></div>
+        <div><dt>Breakeven</dt><dd>$181.20</dd></div>
+      </dl>
+      <p class="proof__options-pnl">+$612 <span>(+49.4%)</span></p>
+    </div>
+
+    <div class="proof__rules">
+      <RuleRow state="not-met" name="Stock profit target 25%" scope="shares" pnl="P&L +16.5%" />
+      <RuleRow state="approaching" name="Option profit target 60%" scope="bull call spread" pnl="P&L +49.4%" />
+    </div>
   </div>
 
-  <div class="proof__path">
-    <p class="proof__path-title">If you roll the spread out to Aug 21</p>
-    <dl class="proof__path-math">
-      <div><dt>Max profit</dt><dd>$796</dd></div>
-      <div><dt>Max loss</dt><dd>$704</dd></div>
-      <div><dt>Breakeven</dt><dd>$182.04</dd></div>
-      <div><dt>Net debit</dt><dd>−$84</dd></div>
-    </dl>
-  </div>
-
-  <div class="proof__rule">
-    <RuleRow state="approaching" name="Option profit target 60%" scope="bull call spread" pnl="P&L +49.4%" />
-  </div>
+  <p class="proof__caption type-caption">Illustrative example — the same fixed AAPL/NVDA data shown throughout this page, not a live account.</p>
 </div>
