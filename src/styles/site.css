@@ -170,8 +170,28 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .btn-quiet:active { border-color: var(--color-accent-active); }
 
 /* ── Home ─────────────────────────────────────────────────────────────── */
-.hero { display: flex; flex-direction: column; align-items: flex-start; padding-block: var(--space-800); }
-@media (min-width: 960px) { .hero { padding-block: calc(var(--space-800) * 1.5); } }
+/* Hero (v2.3): ledger-rules texture behind a two-column layout at lg (copy +
+   product-proof visual), single stacked column below — the visual never
+   disappears at narrower widths (site-prelaunch.md §2 hero, regression case). */
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-600);
+  padding-block: var(--space-800);
+  background-image: repeating-linear-gradient(
+    0deg,
+    color-mix(in srgb, var(--color-accent-default) 5%, transparent) 0,
+    color-mix(in srgb, var(--color-accent-default) 5%, transparent) 1px,
+    transparent 1px,
+    transparent 28px
+  );
+}
+@media (min-width: 960px) {
+  .hero { flex-direction: row; align-items: center; padding-block: calc(var(--space-800) * 1.5); gap: var(--space-800); }
+  .hero__copy { flex: 1 1 52%; }
+  .proof { flex: 1 1 44%; }
+}
+.hero__copy { display: flex; flex-direction: column; align-items: flex-start; }
 .hero h1 { margin: 0; max-width: 18ch; }
 @media (min-width: 960px) {
   .hero h1 { font-size: var(--font-size-900); }
@@ -208,31 +228,237 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .connect-stages .stage-arrow { color: var(--color-text-muted); }
 .connect-stages .stage-engine { font-size: var(--font-size-200); color: var(--color-text-muted); }
 
+/* ── Hero product-proof visual (v2.3) ────────────────────────────────────
+   A layered composition, never a screenshot: a miniature "Ticker analysis"
+   read document + a floating path card (roll quote) + a floating rule row,
+   all built from the real NVDA fixture (read-held-position.md line 10/128/146).
+   Stacks to a single column below the copy at narrow widths — never disappears. */
+.proof {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-300);
+  padding-block: var(--space-300);
+}
+@media (min-width: 960px) {
+  .proof { min-height: 24rem; padding-block: 0; }
+  .proof__doc { position: absolute; top: 0; left: 0; width: 80%; }
+  /* Path card and rule row each overlap a corner of the mini document, not each
+     other — no horizontal overlap between the two floats (spec §2 hero). */
+  .proof__path { position: absolute; top: 38%; right: 0; width: 48%; transform: rotate(-1.5deg); }
+  .proof__rule { position: absolute; bottom: 0; left: 0; width: 46%; transform: rotate(1deg); }
+}
+.proof__doc,
+.proof__path {
+  background: var(--surface-panel);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-medium);
+  padding: var(--space-300);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--color-text-primary) 8%, transparent);
+}
+.proof__rule { background: var(--color-bg-raised); border: 1px solid var(--color-border-default); border-radius: var(--radius-small); padding: var(--space-150) var(--space-200); box-shadow: 0 2px 10px color-mix(in srgb, var(--color-text-primary) 6%, transparent); }
+.proof__doc-label { color: var(--color-text-muted); margin: 0; }
+.proof__doc-structure { font-family: var(--font-family-serif); font-weight: var(--font-weight-semibold); margin: var(--space-100) 0 var(--space-200); color: var(--color-text-primary); }
+.proof__doc-math {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-100) var(--space-200);
+  margin: 0;
+}
+.proof__path-math {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-100);
+  margin: 0;
+}
+.proof__doc-math div, .proof__path-math div { display: flex; justify-content: space-between; gap: var(--space-100); }
+.proof__doc-math dt, .proof__path-math dt { color: var(--color-text-muted); font-size: var(--font-size-200); white-space: nowrap; }
+.proof__doc-math dd, .proof__path-math dd {
+  margin: 0;
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-200);
+}
+.proof__doc-pnl { margin: var(--space-200) 0 0; font-family: var(--font-family-mono); font-variant-numeric: tabular-nums; font-size: var(--font-size-400); color: var(--color-text-primary); }
+.proof__doc-pnl span { color: var(--color-text-secondary); font-size: var(--font-size-300); }
+.proof__path-title { font-size: var(--font-size-300); font-weight: var(--font-weight-medium); color: var(--color-text-primary); margin: 0 0 var(--space-200); }
+
+/* Rule-state row (read-components.md §2) — geometric marker, no signal color. */
+.rule-row { display: flex; align-items: baseline; gap: var(--space-150); flex-wrap: wrap; }
+.rule-row__marker { font-size: var(--font-size-400); }
+.rule-row--reached .rule-row__marker, .rule-row--reached .rule-row__state { color: var(--color-text-primary); }
+.rule-row--approaching .rule-row__marker, .rule-row--approaching .rule-row__state { color: var(--color-text-secondary); }
+.rule-row--not-met .rule-row__marker, .rule-row--not-met .rule-row__state { color: var(--color-text-muted); }
+.rule-row__name { color: var(--color-text-primary); font-size: var(--font-size-300); }
+.rule-row__scope { color: var(--color-text-muted); }
+.rule-row__state { font-weight: var(--font-weight-medium); font-size: var(--font-size-300); }
+.rule-row__pnl { margin-left: auto; font-family: var(--font-family-mono); font-variant-numeric: tabular-nums; color: var(--color-text-secondary); font-size: var(--font-size-200); }
+
+/* Staggered rise-in on load — literal durations, no motion.* tokens (app-only,
+   containment-forbidden on this site); respects prefers-reduced-motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .proof__doc, .proof__path, .proof__rule { animation: proof-rise 500ms ease-out backwards; }
+  .proof__doc { animation-delay: 0ms; }
+  .proof__path { animation-delay: 120ms; }
+  .proof__rule { animation-delay: 240ms; }
+}
+@keyframes proof-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (min-width: 960px) {
+  @media (prefers-reduced-motion: no-preference) {
+    .proof__path { animation-name: proof-rise-rotated-path; }
+    .proof__rule { animation-name: proof-rise-rotated-rule; }
+  }
+}
+@keyframes proof-rise-rotated-path {
+  from { opacity: 0; transform: translateY(10px) rotate(-1.5deg); }
+  to { opacity: 1; transform: translateY(0) rotate(-1.5deg); }
+}
+@keyframes proof-rise-rotated-rule {
+  from { opacity: 0; transform: translateY(10px) rotate(1deg); }
+  to { opacity: 1; transform: translateY(0) rotate(1deg); }
+}
+
 .section-heading { margin: var(--space-600) 0 var(--space-400); }
 
-.what-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-300); margin: 0; padding: 0; list-style: none; }
-@media (min-width: 640px) { .what-grid { grid-template-columns: 1fr 1fr; } }
-.what-grid .card {
+/* ── Depth strip (v2.3, new) — full-bleed background, column-width content ── */
+.depth-strip {
+  margin-inline: calc(50% - 50vw);
+  border-block: 1px solid var(--color-border-strong);
+  background: var(--color-bg-surface);
+}
+.depth-strip__inner { display: grid; grid-template-columns: 1fr; }
+@media (min-width: 640px) { .depth-strip__inner { grid-template-columns: repeat(4, 1fr); } }
+.depth-stat {
+  padding: var(--space-400) var(--space-300);
+  border-bottom: 1px solid var(--color-border-default);
+}
+@media (min-width: 640px) {
+  .depth-stat { border-bottom: none; border-right: 1px solid var(--color-border-default); }
+  .depth-stat:last-child { border-right: none; }
+}
+.depth-strip__inner .depth-stat:last-child { border-bottom: none; }
+.depth-stat__figure { margin: 0 0 var(--space-100); color: var(--color-text-primary); }
+.depth-stat__caption { margin: 0; color: var(--color-text-secondary); font-size: var(--font-size-300); }
+
+/* ── Two doors (v2.3, replaces "What you see") ───────────────────────────── */
+.door-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-300); }
+@media (min-width: 640px) { .door-grid { grid-template-columns: 1fr 1fr; } }
+.door {
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-medium);
   padding: var(--space-400);
+  display: flex;
+  flex-direction: column;
+  transition: transform 250ms, box-shadow 250ms;
 }
-.what-grid .card h3 { margin: 0 0 var(--space-100); font-size: var(--font-size-400); }
-/* "(connected)" qualifier — a calm, subordinate tag, not a badge (no color status). */
-.what-grid .card h3 .tag {
+@media (prefers-reduced-motion: no-preference) {
+  .door:hover { transform: translateY(-3px); box-shadow: 0 8px 24px color-mix(in srgb, var(--color-text-primary) 10%, transparent); }
+}
+.door__tag { color: var(--color-text-muted); margin: 0 0 var(--space-100); }
+.door h3 { margin: 0 0 var(--space-100); }
+.door__body { margin: 0 0 var(--space-300); color: var(--color-text-secondary); }
+.door__checklist { list-style: none; margin: 0 0 var(--space-300); padding: 0; color: var(--color-text-secondary); }
+.door__checklist li { display: flex; gap: var(--space-100); margin-bottom: var(--space-150); }
+.door__checklist .chevron { color: var(--color-text-muted); flex-shrink: 0; }
+/* Static illustrative decorations only — no live semantics (spec §2). */
+.door__decor { margin-top: auto; padding-top: var(--space-300); border-top: 1px solid var(--color-border-default); }
+.door__decor--entry { display: flex; gap: var(--space-150); }
+.door__decor--entry input {
+  flex: 1;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-medium);
+  padding: var(--space-150) var(--space-200);
+  font-family: var(--font-family-sans);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-canvas);
+}
+.door__decor--positions .position-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-150);
+  padding-block: var(--space-100);
   font-size: var(--font-size-200);
-  font-weight: var(--font-weight-regular);
-  letter-spacing: var(--font-letter-spacing-normal);
-  color: var(--color-text-muted);
+  color: var(--color-text-secondary);
 }
-.what-grid .card p { margin: 0; color: var(--color-text-secondary); }
-/* Two labeled groups split by door (spec §2). Caption-muted label opens each group. */
-.wys .group-label { color: var(--color-text-muted); margin: 0 0 var(--space-200); }
-.wys .what-grid + .group-label { margin-top: var(--space-400); }
-/* Connected group reads as the deep door via a marginally emphasized (decorative)
-   border — border.strong, never a signal color, badge, or size difference (spec §2). */
-.what-grid.connected .card { border-color: var(--color-border-strong); }
+.door__decor--positions .position-row + .position-row { border-top: 1px solid var(--color-border-default); }
+.door__decor--positions .position-row span:first-child { font-family: var(--font-family-mono); color: var(--color-text-primary); }
+
+/* ── Showcase band (v2.3, new — full-bleed surface.panel) ────────────────── */
+.showcase {
+  margin-inline: calc(50% - 50vw);
+  background: var(--surface-panel);
+  border-top: 2px solid var(--color-border-strong);
+  padding-block: var(--space-600);
+}
+.showcase-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-400); }
+@media (min-width: 960px) { .showcase-grid { grid-template-columns: repeat(3, 1fr); } }
+.showcase-card { display: flex; flex-direction: column; gap: var(--space-200); }
+.showcase-card__caption { margin: 0; color: var(--color-text-long-form); font-size: var(--font-size-300); }
+
+/* Outlook artifact — the reserved accent surface (ADR 0008), same tokens as the
+   app's Paths/Outlook pair. Never rendered without the label + non-personalization
+   lines (read-components.md §7 forbidden states). */
+.outlook-artifact {
+  background: var(--accent-surface-container);
+  border: 1px solid var(--accent-surface-border);
+  border-radius: var(--radius-medium);
+  padding: var(--space-300);
+}
+.outlook-artifact__label { color: var(--accent-surface-marker); font-weight: var(--font-weight-semibold); margin: 0; }
+.outlook-artifact__caption { color: var(--accent-surface-on-surface-muted); margin: var(--space-050) 0 var(--space-200); }
+.outlook-artifact__horizon { margin-bottom: var(--space-200); }
+.outlook-artifact__horizon p:first-child { color: var(--accent-surface-marker); margin: 0 0 var(--space-050); font-weight: var(--font-weight-semibold); }
+.outlook-artifact__horizon p:last-child { margin: 0; color: var(--accent-surface-on-surface); }
+.outlook-artifact__nonpersonal { color: var(--accent-surface-on-surface-muted); margin: var(--space-200) 0 0; }
+
+/* Levels artifact — inline SVG hairlines only, no price path, no invented numbers. */
+.levels-artifact { width: 100%; height: auto; }
+.levels-artifact__line { stroke: var(--color-border-strong); stroke-width: 1.5; }
+.levels-artifact__fib { stroke: var(--text-link); stroke-width: 1.5; }
+
+.rules-artifact { display: flex; flex-direction: column; gap: var(--space-150); }
+.rules-artifact .rule-row { padding-block: var(--space-100); border-bottom: 1px solid var(--color-border-default); }
+.rules-artifact .rule-row:last-child { border-bottom: none; }
+
+/* ── Trust plate (v2.3, new — the one register break, scoped dark section) ── */
+.trust-plate {
+  margin-inline: calc(50% - 50vw);
+  background: var(--color-bg-canvas);
+  /* color is an inherited property already resolved to the light value at body —
+     custom properties re-scope per subtree, but inheritance doesn't re-evaluate
+     var() on its own. Re-declaring color here (against this element's own
+     data-theme="dark" scope) is what makes headings/paragraphs below pick up the
+     dark-theme text color instead of silently inheriting the light one. */
+  color: var(--color-text-primary);
+  padding-block: var(--space-800);
+}
+.trust-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-400); margin: var(--space-400) 0 var(--space-600); }
+@media (min-width: 640px) { .trust-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 960px) { .trust-grid { grid-template-columns: repeat(4, 1fr); } }
+.trust-card__icon { width: 24px; height: 24px; color: var(--color-accent-default); margin-bottom: var(--space-200); }
+.trust-card h3 { margin: 0 0 var(--space-100); }
+.trust-card p { margin: 0; color: var(--color-text-secondary); }
+.trust-plate .disclaimer--on-dark { margin-top: 0; }
+
+/* ── FAQ (v2.3, new) — two-column at lg, native details/summary, no JS ──────── */
+.faq { display: grid; grid-template-columns: 1fr; gap: var(--space-400); padding-block: var(--space-600); }
+@media (min-width: 960px) {
+  .faq { grid-template-columns: 1fr 1.5fr; gap: var(--space-800); }
+  .faq__intro { position: sticky; top: var(--space-400); align-self: start; }
+}
+.faq__kicker { color: var(--color-text-muted); margin: 0 0 var(--space-100); }
+.faq__intro h2 { margin: 0 0 var(--space-200); }
+.faq__intro p:last-child { color: var(--color-text-secondary); }
+.faq__list details { border-top: 1px solid var(--color-border-strong); padding-block: var(--space-300); }
+.faq__list details:last-child { border-bottom: 1px solid var(--color-border-strong); }
+.faq__list summary { cursor: pointer; color: var(--color-text-primary); }
+.faq__list summary::-webkit-details-marker { display: none; }
+.faq__list details p { margin: var(--space-200) 0 0; color: var(--color-text-secondary); }
 
 .steps { list-style: none; margin: 0; padding: 0; }
 .steps li { display: flex; gap: var(--space-300); margin-bottom: var(--space-400); }
@@ -260,8 +486,19 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 }
 .not-block p { margin: 0; }
 
-.pricing-cue { padding-block: var(--space-600); color: var(--color-text-secondary); }
-.pricing-cue .muted { color: var(--color-text-muted); }
+/* ── Closing band (v2.3 — promotes the old one-line pricing cue) ─────────── */
+.closing-band { margin-inline: calc(50% - 50vw); background: var(--surface-panel); }
+.closing-band__inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-300);
+  align-items: flex-start;
+  padding-block: var(--space-600);
+}
+@media (min-width: 640px) { .closing-band__inner { flex-direction: row; align-items: center; justify-content: space-between; } }
+.closing-band__inner p:last-child { margin: var(--space-100) 0 0; color: var(--color-text-secondary); }
+.closing-band__actions { display: flex; align-items: center; gap: var(--space-200); flex-shrink: 0; }
+.closing-band__soon { color: var(--color-text-muted); }
 
 /* ── Pricing ──────────────────────────────────────────────────────────── */
 .page-title-block { padding-block-start: var(--space-600); }

@@ -1,0 +1,25 @@
+---
+// Rule-state row (read-components.md §2), decorative marketing-site rendering:
+// no live rule evaluation happens here — state/name/scope/pnl are fixture text
+// props, reused across the hero product-proof visual and the showcase band's
+// rules artifact. State marker is geometric, not hue (aria-hidden; the state
+// word carries the meaning) — no signal.* color anywhere (site containment).
+interface Props {
+  state: "reached" | "approaching" | "not-met";
+  name: string;
+  scope?: string;
+  pnl: string;
+}
+const { state, name, scope, pnl } = Astro.props;
+const MARKER = { reached: "●", approaching: "◐", "not-met": "○" };
+const WORD = { reached: "reached", approaching: "approaching", "not-met": "not met" };
+---
+<div class={`rule-row rule-row--${state}`}>
+  <span class="rule-row__marker" aria-hidden="true">{MARKER[state]}</span>
+  <span class="rule-row__name">
+    {name}
+    {scope && <span class="rule-row__scope">· {scope}</span>}
+  </span>
+  <span class="rule-row__state">{WORD[state]}</span>
+  <span class="rule-row__pnl">{pnl}</span>
+</div>
