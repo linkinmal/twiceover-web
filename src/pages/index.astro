@@ -1,11 +1,23 @@
 ---
-// Home (site-prelaunch.md §2, v2.2 — ADR 0042 connection-led, #195).
-// Deep door leads the hero sub; "Or, take any ticker" demo turn follows above the fold
+// Home (site-prelaunch.md §2, v2.3 — Ledger re-expression: product-proof hero +
+// five new sections, human-approved concept study 2026-07-05, #417). Deep door
+// leads the hero sub; "Or, take any ticker" demo turn follows above the fold
 // (demo-retention guardrail). Copy slots pending Growth #63 (site-copy-twiceover.md
-// reconciliation per ADR 0042 pivot). Do not reword; layout must not change when #63 lands.
+// reconciliation per ADR 0042 pivot) for the hero/how-it-works/what-its-not text —
+// do not reword; layout must not change when #63 lands.
 // COPY + STRUCTURE ONLY: "Connect read-only →" CTA and entry-box row stay RESERVED,
-// not built (deferred to app-launch, #32); header sign-in slot reserved (Base.astro / §1).
+// not built (ADR 0042/0074, deferred to app-launch, #32/#416 closed — the human
+// declined reopening the reservation 2026-07-05); header sign-in slot reserved
+// (Base.astro / §1).
+// v2.3 NEW SECTIONS (Depth strip, Two doors, Showcase band, Trust plate, FAQ):
+// copy below is Engineer-drafted structural placeholder text — facts already
+// established elsewhere (the constitution's own data/privacy rules, the NVDA
+// fixture, existing Growth-approved wys copy folded into the two door cards) —
+// pending the PM/Growth copy-slot pass before this ships past a preview deploy,
+// same status as the rest of the page's placeholder text (site-prelaunch.md v2.3).
 import Base from "../layouts/Base.astro";
+import RuleRow from "../components/RuleRow.astro";
+import ProductProofVisual from "../components/ProductProofVisual.astro";
 ---
 <Base
   title="TwiceOver — a second look at your own book"
@@ -14,61 +26,136 @@ import Base from "../layouts/Base.astro";
   {/* Hero — deep door leads the sub (ADR 0042, connect-led); demo retained above the fold.
       No pricing link in the reserved-box state: pricing via header nav + foot Pricing cue. */}
   <section class="hero">
-    <h1 class="type-display">A second look at your own book.</h1>
-    <p class="sub">
-      Connect your brokerage <strong>read-only</strong> and the read runs on the positions
-      you actually hold — measured against <strong>your own rules</strong>, across near-, mid-,
-      and far-term horizons. <strong>Depth, never a verdict.</strong>
-    </p>
-    {/* Reserved — "Connect read-only →" quiet-outline CTA: built and wired to the app at
-        launch (#32). No interim OAuth plumbing pre-launch. */}
-    <p class="demo-turn">Or, take any ticker — no connection needed.</p>
-    {/* Reserved — entry-box row (read-components.md §6, logged-out variant): built at
-        app-launch (#32), wired straight to the app. No waitlist or interim capture path. */}
-    <div class="connect-stages">
-      <div class="stage-row">
-        <span class="stage-chip">Any ticker · no connection</span>
-        <span class="stage-arrow" aria-hidden="true">→</span>
-        <span class="stage-chip">Your positions · your rules · your paths</span>
+    <div class="hero__copy">
+      <h1 class="type-display">A second look at your own book.</h1>
+      <p class="sub">
+        Connect your brokerage <strong>read-only</strong> and the read runs on the positions
+        you actually hold — measured against <strong>your own rules</strong>, across near-, mid-,
+        and far-term horizons. <strong>Depth, never a verdict.</strong>
+      </p>
+      {/* Reserved — "Connect read-only →" quiet-outline CTA: built and wired to the app at
+          launch (#32). No interim OAuth plumbing pre-launch. */}
+      <p class="demo-turn">Or, take any ticker — no connection needed.</p>
+      {/* Reserved — entry-box row (read-components.md §6, logged-out variant): built at
+          app-launch (#32), wired straight to the app. No waitlist or interim capture path. */}
+      <div class="connect-stages">
+        <div class="stage-row">
+          <span class="stage-chip">Any ticker · no connection</span>
+          <span class="stage-arrow" aria-hidden="true">→</span>
+          <span class="stage-chip">Your positions · your rules · your paths</span>
+        </div>
+        <span class="stage-engine">one engine</span>
       </div>
-      <span class="stage-engine">one engine</span>
+    </div>
+    <ProductProofVisual />
+  </section>
+
+  {/* Depth strip (v2.3, new) — four structural facts about the product's construction,
+      never a performance/returns claim (spec §2). */}
+  <section class="depth-strip" aria-label="TwiceOver at a glance">
+    <div class="container depth-strip__inner">
+      <div class="depth-stat">
+        <p class="depth-stat__figure type-display">13</p>
+        <p class="depth-stat__caption">Sections in every read — technicals, options math, news, and the synthesis, every time.</p>
+      </div>
+      <div class="depth-stat">
+        <p class="depth-stat__figure type-display">4</p>
+        <p class="depth-stat__caption">Paths for every structure you hold — including making no change. Full math, never a ranking.</p>
+      </div>
+      <div class="depth-stat">
+        <p class="depth-stat__figure type-display">3</p>
+        <p class="depth-stat__caption">Horizons in every outlook — near, mid, and far — each stated as a condition, never a verdict.</p>
+      </div>
+      <div class="depth-stat">
+        <p class="depth-stat__figure type-display">Read-only</p>
+        <p class="depth-stat__caption">TwiceOver can view your positions — it can never place, change, or cancel an order.</p>
+      </div>
     </div>
   </section>
 
-  <section class="wys" aria-labelledby="what-you-see">
-    <h2 id="what-you-see" class="type-heading-1 section-heading">What you see</h2>
+  {/* Two doors (v2.3, replaces "What you see") — two door cards, each ending in a
+      static illustrative decoration, not a live control (spec §2). Checklist copy
+      folds in the existing Growth-approved (#63) wys content, restructured. */}
+  <section class="doors" aria-labelledby="two-doors">
+    <h2 id="two-doors" class="type-heading-1 section-heading">Two doors</h2>
+    <div class="door-grid">
+      <article class="door">
+        <p class="door__tag type-caption">The open door</p>
+        <h3 class="type-heading-2">Any ticker, no connection needed</h3>
+        <p class="door__body">Type any ticker — no connection needed — and get the same read, built from licensed data.</p>
+        <ul class="door__checklist">
+          <li><span class="chevron" aria-hidden="true">›</span> The key technical levels, the macro backdrop and market regime, the curated voices of prominent traders, the options math and flow, fundamentals, and news and catalysts — each with its source and timestamp.</li>
+          <li><span class="chevron" aria-hidden="true">›</span> One conditional, multi-horizon outlook, each stated as a condition. Labeled AI synthesis; every figure from the data pipeline, not the model. Never a score, never a "buy" or "sell."</li>
+          <li><span class="chevron" aria-hidden="true">›</span> A menu of structures, with the full math — net debit/credit, breakevens, max profit, max loss — and trigger levels. No ranking, no "do this."</li>
+        </ul>
+        <div class="door__decor door__decor--entry">
+          <input type="text" value="A ticker — NVDA" disabled aria-hidden="true" />
+          <span class="btn-quiet" aria-hidden="true">Get the read</span>
+        </div>
+      </article>
 
-    <p class="group-label type-caption">On any ticker — no connection needed:</p>
-    <ul class="what-grid">
-      <li class="card">
-        <h3 class="type-heading-2">The full read</h3>
-        <p>the key technical levels, the macro backdrop and market regime, the curated voices of prominent traders, the options math and flow, fundamentals, and news and catalysts — each with its source and timestamp.</p>
-      </li>
-      <li class="card">
-        <h3 class="type-heading-2">One conditional, multi-horizon outlook</h3>
-        <p>the evidence weighed into a near-, mid-, and far-term read, each stated as a condition ("while X holds…; a close below Y shifts the near read"). Labeled AI synthesis; every figure from the data pipeline, not the model. Never a score, never a "buy" or "sell."</p>
-      </li>
-      <li class="card">
-        <h3 class="type-heading-2">A menu of structures, with the full math</h3>
-        <p>the trades on that ticker, each with its complete numbers (net debit/credit, breakevens, max profit, max loss) and trigger levels. No ranking, no "do this."</p>
-      </li>
-    </ul>
+      <article class="door">
+        <p class="door__tag type-caption">The deep door</p>
+        <h3 class="type-heading-2">Connect read-only, see your own book</h3>
+        <p class="door__body">Link your brokerage read-only and the same engine runs on the positions you actually hold.</p>
+        <ul class="door__checklist">
+          <li><span class="chevron" aria-hidden="true">›</span> Your structure, with the math — your legs grouped into the position you actually hold, with net debit/credit, breakevens, max profit, max loss, and current P&amp;L.</li>
+          <li><span class="chevron" aria-hidden="true">›</span> Your rules, on live data — the profit targets, DTE thresholds, and max-loss lines you configured, evaluated against where the position is right now.</li>
+          <li><span class="chevron" aria-hidden="true">›</span> Your paths, with the full math — the moves available on what you hold, each with its complete numbers and trigger levels. No ranking, no "do this."</li>
+        </ul>
+        <div class="door__decor door__decor--positions" role="presentation">
+          <div class="position-row"><span>NVDA</span><span>bull call spread</span><span>+$612</span></div>
+          <div class="position-row"><span>CIFR</span><span>covered call</span><span>+$105</span></div>
+        </div>
+      </article>
+    </div>
+  </section>
 
-    <p class="group-label type-caption">Once you connect read-only — your own book:</p>
-    <ul class="what-grid connected">
-      <li class="card">
-        <h3 class="type-heading-2">Your structure, with the math <span class="tag">(connected)</span></h3>
-        <p>your legs grouped into the position you actually hold, with net debit/credit, breakevens, max profit, max loss, and current P&amp;L.</p>
-      </li>
-      <li class="card">
-        <h3 class="type-heading-2">Your rules, on live data <span class="tag">(connected)</span></h3>
-        <p>the profit targets, DTE thresholds, and max-loss lines <em>you</em> configured, evaluated against where the position is right now.</p>
-      </li>
-      <li class="card">
-        <h3 class="type-heading-2">Your paths, with the full math <span class="tag">(connected)</span></h3>
-        <p>the moves available on what you hold, each with its complete numbers and trigger levels. No ranking, no "do this." The conclusion is yours.</p>
-      </li>
-    </ul>
+  {/* Showcase band (v2.3, new — full-bleed surface.panel) — three static artifacts. */}
+  <section class="showcase" aria-labelledby="showcase-band">
+    <div class="container">
+      <h2 id="showcase-band" class="type-heading-1 section-heading">What's inside every read</h2>
+      <div class="showcase-grid">
+        <article class="showcase-card">
+          <div class="outlook-artifact">
+            <p class="outlook-artifact__label type-caption">AI synthesis · conditional</p>
+            <p class="outlook-artifact__caption type-caption">Figures cited below are from the data pipeline, not the model.</p>
+            <div class="outlook-artifact__horizon">
+              <p class="type-caption">NEAR · DAYS–WEEKS</p>
+              <p>While the position holds above its recent range, the near-term read stays constructive; a decisive break lower shifts it.</p>
+            </div>
+            <div class="outlook-artifact__horizon">
+              <p class="type-caption">MID · 1–3 MONTHS</p>
+              <p>Absent a change in the broader trend, the mid-term structure remains intact.</p>
+            </div>
+            <div class="outlook-artifact__horizon">
+              <p class="type-caption">FAR · QUARTERS</p>
+              <p>Longer-term, the far read depends on how the current macro regime resolves.</p>
+            </div>
+            <p class="outlook-artifact__nonpersonal type-caption">This analysis does not consider your positions, rules, or account.</p>
+          </div>
+          <p class="showcase-card__caption">A single conditional read — near, mid, and far — never a score, never a verdict.</p>
+        </article>
+
+        <article class="showcase-card">
+          <svg class="levels-artifact" viewBox="0 0 300 140" role="img" aria-label="Illustrative support, resistance, and Fibonacci lines">
+            <line x1="10" y1="30" x2="290" y2="30" class="levels-artifact__line" />
+            <line x1="10" y1="70" x2="290" y2="70" class="levels-artifact__fib" stroke-dasharray="6 6" />
+            <line x1="10" y1="112" x2="290" y2="112" class="levels-artifact__line" />
+          </svg>
+          <p class="showcase-card__caption">Support, resistance, and Fibonacci confluence — the structure every technical read stands on.</p>
+        </article>
+
+        <article class="showcase-card">
+          <div class="rules-artifact">
+            <RuleRow state="approaching" name="Option profit target 60%" scope="bull call spread" pnl="P&L +49.4%" />
+            <RuleRow state="not-met" name="Stock profit target 25%" scope="shares" pnl="P&L +16.5%" />
+            <RuleRow state="not-met" name="DTE threshold 21" scope="bull call spread" pnl="24 DTE" />
+          </div>
+          <p class="showcase-card__caption">Your own thresholds, evaluated against where the position stands right now.</p>
+        </article>
+      </div>
+    </div>
   </section>
 
   <section aria-labelledby="how-it-works">
@@ -85,6 +172,68 @@ import Base from "../layouts/Base.astro";
     </ol>
   </section>
 
+  {/* Trust plate (v2.3, new — the one deliberate register break, dark-variant Ledger
+      tokens, ADR 0035, scoped via [data-theme="dark"] to this section only). */}
+  <section class="trust-plate" data-theme="dark" aria-labelledby="trust-plate">
+    <div class="container">
+      <h2 id="trust-plate" class="type-heading-1 section-heading">Built the honest way</h2>
+      <div class="trust-grid">
+        <div class="trust-card">
+          <svg class="trust-card__icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="11" width="12" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+          <h3 class="type-heading-2">Read-only, structurally</h3>
+          <p>Your brokerage connection can view your positions. It is technically incapable of placing, changing, or canceling an order.</p>
+        </div>
+        <div class="trust-card">
+          <svg class="trust-card__icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 9h8M8 13h8M8 17h5" stroke="currentColor" stroke-width="1.5"/></svg>
+          <h3 class="type-heading-2">Licensed data only</h3>
+          <p>Every quote, options chain, and news item comes from a licensed vendor — never scraped.</p>
+        </div>
+        <div class="trust-card">
+          <svg class="trust-card__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v6c0 5-3 8-7 9-4-1-7-4-7-9V6z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+          <h3 class="type-heading-2">Your book stays yours</h3>
+          <p>Your account data and its analysis are never exposed to, cached for, or reused by another user.</p>
+        </div>
+        <div class="trust-card">
+          <svg class="trust-card__icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+          <h3 class="type-heading-2">Every number stamped</h3>
+          <p>Every figure carries its source and the exact time it was fetched, so you always know how fresh it is.</p>
+        </div>
+      </div>
+      <p class="disclaimer disclaimer--on-dark">TwiceOver is informational and educational software, not a registered investment adviser. It does not provide investment advice, recommendations, or trading signals, does not assess suitability, and never places, manages, or has access to trades or funds. Analyses are algorithmically generated from licensed data and may be incomplete or delayed. You make your own decisions and are responsible for them. Trading involves risk of loss.</p>
+    </div>
+  </section>
+
+  {/* FAQ (v2.3, new) — native details/summary accordion, no JS. */}
+  <section class="faq" aria-labelledby="faq-heading">
+    <div class="faq__intro">
+      <p class="type-caption faq__kicker">FAQ</p>
+      <h2 id="faq-heading" class="type-heading-1">Questions, answered plainly</h2>
+      <p>The same plain-language answers we'd give if you asked us directly.</p>
+    </div>
+    <div class="faq__list">
+      <details open>
+        <summary class="type-heading-2">What is TwiceOver, exactly?</summary>
+        <p>A decision-support tool, not a registered investment adviser or broker-dealer. No recommendations, no trading signals, no scores, no ratings — and never a one-line verdict or a "buy" or "sell." It never executes trades and never holds your money — the decision stays with you.</p>
+      </details>
+      <details>
+        <summary class="type-heading-2">Can TwiceOver trade on my behalf?</summary>
+        <p>No. The brokerage connection is read-only, structurally — TwiceOver can view your positions but is technically incapable of placing, changing, or canceling an order, and it never touches your funds.</p>
+      </details>
+      <details>
+        <summary class="type-heading-2">Where does the data come from?</summary>
+        <p>Licensed market, options, and news data — never scraped, and never dependent on a personal login shared between users.</p>
+      </details>
+      <details>
+        <summary class="type-heading-2">Do I need to connect my brokerage to use it?</summary>
+        <p>No. Every ticker gets the full read with no connection at all. Connecting read-only adds your own positions and your own rules to that same read — it's optional, always.</p>
+      </details>
+      <details>
+        <summary class="type-heading-2">Is my account data shared with anyone?</summary>
+        <p>No. Your account data and its analysis are never exposed to, cached for, or reused by another user.</p>
+      </details>
+    </div>
+  </section>
+
   <section aria-labelledby="what-its-not">
     <h2 id="what-its-not" class="type-heading-1 section-heading">What TwiceOver is <em>not</em></h2>
     <div class="not-block">
@@ -92,5 +241,19 @@ import Base from "../layouts/Base.astro";
     </div>
   </section>
 
-  <p class="pricing-cue"><a href="/pricing">See plans</a> · <span class="muted">Launching soon.</span></p>
+  {/* Closing band (v2.3 — promotes the old one-line pricing cue). Button targets
+      follow whatever the reserved CTA/entry-box decision resolves to (ADR 0074) —
+      placeholder labels only. */}
+  <section class="closing-band">
+    <div class="container closing-band__inner">
+      <div>
+        <p class="type-heading-1">See it on your own book.</p>
+        <p>Any ticker, no connection needed — or connect read-only for your own read.</p>
+      </div>
+      <div class="closing-band__actions">
+        <a class="btn-quiet" href="/pricing">Pricing</a>
+        <span class="closing-band__soon type-caption">Launching soon.</span>
+      </div>
+    </div>
+  </section>
 </Base>

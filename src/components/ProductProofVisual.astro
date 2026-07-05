@@ -1,0 +1,37 @@
+---
+// Hero product-proof visual (site-prelaunch.md v2.3 §2 Hero) — a layered
+// composition, never a screenshot: a miniature "Ticker analysis" read document +
+// a floating path card (roll quote) + a floating rule-state row, built from the
+// real component anatomy (read-components.md §1 path card, §2 rule row) on the
+// fixed NVDA fixture (read-held-position.md line 10/128/146) — every figure below
+// traces to that fixture, never invented. aria-hidden as a unit: decorative proof,
+// not a second read of live data.
+import RuleRow from "./RuleRow.astro";
+---
+<div class="proof" aria-hidden="true">
+  <div class="proof__doc">
+    <p class="proof__doc-label type-caption">Ticker analysis · NVDA</p>
+    <p class="proof__doc-structure">Bull call spread · 24 DTE</p>
+    <dl class="proof__doc-math">
+      <div><dt>Net debit</dt><dd>$6.20/spread</dd></div>
+      <div><dt>Max profit</dt><dd>$1,760</dd></div>
+      <div><dt>Max loss</dt><dd>$1,240</dd></div>
+      <div><dt>Breakeven</dt><dd>$181.20</dd></div>
+    </dl>
+    <p class="proof__doc-pnl">+$612 <span>(+49.4%)</span></p>
+  </div>
+
+  <div class="proof__path">
+    <p class="proof__path-title">If you roll the spread out to Aug 21</p>
+    <dl class="proof__path-math">
+      <div><dt>Max profit</dt><dd>$796</dd></div>
+      <div><dt>Max loss</dt><dd>$704</dd></div>
+      <div><dt>Breakeven</dt><dd>$182.04</dd></div>
+      <div><dt>Net debit</dt><dd>−$84</dd></div>
+    </dl>
+  </div>
+
+  <div class="proof__rule">
+    <RuleRow state="approaching" name="Option profit target 60%" scope="bull call spread" pnl="P&L +49.4%" />
+  </div>
+</div>

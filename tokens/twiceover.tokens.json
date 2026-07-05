@@ -1,5 +1,5 @@
 {
-  "$description": "TwiceOver design tokens · canonical: stock-analyst-platform /ai-team/design/tokens/twiceover.tokens.json · v1.0.0 · 2026-06-19 — MAJOR: re-architected to the two-theme 'Ledger' identity (ADR 0035, Accepted 2026-06-19; theming architecture + contrast gate per consult 0067; ADR 0004 sync convention). Site-safe semantic tokens (bg/text/accent/border/focus) now live under themes.light (default) and themes.dark (variant) — the build emits themes.light → :root and themes.dark → [data-theme='dark']. Consumers still bind to the SAME emitted CSS custom-property names (--color-bg-canvas, --color-text-primary, …) which re-resolve per active theme; only the JSON path moved (the structural rename = the major bump). Theme-invariant tokens (font.*, typography.*, space.*, radius.*, motion.*) stay at root and emit once into :root. App-only tokens (signal.*/health.*/elevation.*/path-card.*) stay at root OUTSIDE themes.* — the site build never walks them (#34 containment, consult 0067 Q5); the ones whose contrast depends on the canvas carry .light/.dark sub-values (a single value cannot be AA on both ivory and graphite). Primitives (color.*) are inlined, never exposed, and may be re-tuned without notice. Sync convention: /ai-team/design/design-system.md",
+  "$description": "TwiceOver design tokens · canonical: stock-analyst-platform /ai-team/design/tokens/twiceover.tokens.json · v1.0.1 · 2026-06-19 — PATCH: read-surface tokens minted for the Ledger identity (#159). Adds accent-surface.* (the reserved Paths/Outlook pair standout — pale navy wash in light, navy-lift in dark; pair-symmetric per ADR 0008), surface.panel.* (the impersonal-half band), text.link.* (inline link/handle, kept distinct from accent.default per ADR 0008), typography.half-header + font.size.550 (the 'Your read / Ticker analysis' half-header slot), and motion.duration.reveal (220ms — the section-loader part-and-whoosh). All new tokens are app-only (outside themes.*). No structural rename; semver patch. v1.0.0 · 2026-06-19 — MAJOR: re-architected to the two-theme 'Ledger' identity (ADR 0035, Accepted 2026-06-19; theming architecture + contrast gate per consult 0067; ADR 0004 sync convention). Site-safe semantic tokens (bg/text/accent/border/focus) now live under themes.light (default) and themes.dark (variant) — the build emits themes.light → :root and themes.dark → [data-theme='dark']. Consumers still bind to the SAME emitted CSS custom-property names (--color-bg-canvas, --color-text-primary, …) which re-resolve per active theme; only the JSON path moved (the structural rename = the major bump). Theme-invariant tokens (font.*, typography.*, space.*, radius.*, motion.*) stay at root and emit once into :root. App-only tokens (signal.*/health.*/elevation.*/path-card.*) stay at root OUTSIDE themes.* — the site build never walks them (#34 containment, consult 0067 Q5); the ones whose contrast depends on the canvas carry .light/.dark sub-values (a single value cannot be AA on both ivory and graphite). Primitives (color.*) are inlined, never exposed, and may be re-tuned without notice. Sync convention: /ai-team/design/design-system.md",
   "color": {
     "$type": "color",
     "warm-white": {
@@ -30,14 +30,21 @@
       "900": { "$value": "#211D17", "$description": "Light text.primary — warm near-black ink. 15.14:1 on canvas." }
     },
     "navy": {
-      "$description": "Light-theme accent (ink-navy). Same hue family as the dark steel accent; never a signal color. 500 lightest (hover) → 700 darkest (active).",
+      "$description": "Light-theme accent (ink-navy). Same hue family as the dark steel accent; never a signal color. 500 lightest (hover) → 700 darkest (active). 050/100 are wash fills used by accent-surface tokens.",
+      "050": { "$value": "#DFE6F0", "$description": "Pale navy wash — pill fill (accent-surface.pill.light). Not emitted to site." },
+      "100": { "$value": "#E9EDF3", "$description": "Pale navy wash — section/box container fill (accent-surface.container.light). Not emitted to site." },
       "500": { "$value": "#2E567F", "$description": "Light accent.hover. 6.89:1 on canvas — AA body text." },
       "600": { "$value": "#23436F", "$description": "Light accent.default + focus. 9.01:1 on canvas (AAA-near); as link text AA on every surface." },
+      "650": { "$value": "#2F5C97", "$description": "Light text.link — brighter than accent.default, kept distinct per ADR 0008 so the reserved accent-surface standout is never confused with inline links. 7.41:1 on canvas — AA on every surface." },
       "700": { "$value": "#1A3257", "$description": "Light accent.active — fills/borders on press only, not text." }
     },
     "steel": {
-      "$description": "Dark-theme accent (lifted steel). Same hue family as the light navy accent; never a signal color. 300 lightest (hover) → 500 darkest (active).",
-      "300": { "$value": "#9BBCE6", "$description": "Dark accent.hover. 9.12:1 on canvas — AA body text." },
+      "$description": "Dark-theme accent (lifted steel). Same hue family as the light navy accent; never a signal color. 200/250 are wash fills used by accent-surface tokens. 300 lightest (hover) → 500 darkest (active).",
+      "200": { "$value": "#233152", "$description": "Navy-lift wash — pill fill (accent-surface.pill.dark). Not emitted to site." },
+      "250": { "$value": "#1C2A45", "$description": "Navy-lift wash — section/box container fill (accent-surface.container.dark). Not emitted to site." },
+      "280": { "$value": "#C3CEDF", "$description": "Muted rule inside the accent container (accent-surface.rule.dark). Not emitted to site." },
+      "300": { "$value": "#9BBCE6", "$description": "Dark accent.hover / accent-surface marker + label. 9.12:1 on canvas — AA body text." },
+      "350": { "$value": "#8FB4E4", "$description": "Dark text.link — slightly distinct from accent.default per ADR 0008. 8.28:1 on canvas — AA on every surface." },
       "400": { "$value": "#7DA6DB", "$description": "Dark accent.default + focus. 7.10:1 on canvas — AA body text on every surface." },
       "500": { "$value": "#6892CC", "$description": "Dark accent.active — fills/borders on press only, not text." }
     },
@@ -136,6 +143,7 @@
       "300": { "$value": "1rem" },
       "400": { "$value": "1.125rem" },
       "500": { "$value": "1.25rem" },
+      "550": { "$value": "1.375rem", "$description": "Half-header slot — 'Your read / Ticker analysis' banners. One step below heading-1 (1.5rem), one above heading-2 (1.25rem). App-only (#34)." },
       "600": { "$value": "1.5rem" },
       "700": { "$value": "1.875rem" },
       "800": { "$value": "2.25rem" },
@@ -181,6 +189,10 @@
     "legal": {
       "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.300}", "fontWeight": "{font.weight.regular}", "lineHeight": "{font.line-height.relaxed}", "letterSpacing": "{font.letter-spacing.normal}" },
       "$description": "Policy-page body: full 16px with relaxed leading — legal text is never set smaller than body."
+    },
+    "half-header": {
+      "$value": { "fontFamily": "{font.family.serif}", "fontSize": "{font.size.550}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{font.line-height.tight}", "letterSpacing": "{font.letter-spacing.tight}" },
+      "$description": "App-only (#34). The 'Your read / Ticker analysis' half banners — one step below heading-1, above heading-2. Source Serif 4 semibold at 1.375rem. Sits between heading-1 (1.5rem) and heading-2 (1.25rem) in the section-header scale; never used for per-section heads (those are heading-2)."
     }
   },
   "space": {
@@ -218,6 +230,7 @@
       "$type": "duration",
       "fast": { "$value": "120ms", "$description": "Hover/focus color shifts, live value refreshes." },
       "base": { "$value": "180ms", "$description": "Content arrival fade-in (streaming read)." },
+      "reveal": { "$value": "220ms", "$description": "Section-loader part-and-whoosh: bars sweep outward + content rises in. Between base (180ms) and slow (1200ms); the outward sweep and the vertical settle run simultaneously at this duration." },
       "slow": { "$value": "1200ms", "$description": "Skeleton opacity pulse cycle." }
     },
     "easing": {
@@ -274,5 +287,39 @@
       "number": { "font-family": { "$value": "{font.family.mono}" } },
       "gap": { "$type": "dimension", "$value": "{space.300}" }
     }
+  },
+  "accent-surface": {
+    "$description": "App-only (#34). The RESERVED standout for the Paths · Outlook pair — the two sections that are identical-treatment by design (ADR 0008, clause 2: pair-symmetric; the decision menu and the conclusion get the same accent surface so neither outranks the other). Applied to: fast-cut pills, section containers (Paths section + Outlook box), section-header markers, and popovers. NEVER used for any other surface — 'reserved for the pair' is literal. Kept DISTINCT from themes.*.accent.* (links/CTAs) per ADR 0008: the standout surface must never read as 'just another link.' Theme-variant (.light/.dark) because the underlying primitives differ between themes.",
+    "light": {
+      "pill": { "$type": "color", "$value": "{color.navy.050}", "$description": "Fast-cut pill fill — slightly deeper than the container so the parked pill reads as a control, not a section. #DFE6F0. 4.23:1 on canvas — AA non-text (WCAG 1.4.11)." },
+      "container": { "$type": "color", "$value": "{color.navy.100}", "$description": "Paths section + Outlook box fill — the pale navy wash. #E9EDF3. IDENTICAL on both halves; pair-symmetry is enforced by sharing this one token." },
+      "border": { "$type": "color", "$value": "{color.navy.600}", "$description": "Container border + pill border. Reuses accent.default — visually consistent, and the border carries the accent identity without a new hue. #23436F. AA non-text on the container fill (9.01:1 on canvas)." },
+      "marker": { "$type": "color", "$value": "{color.navy.600}", "$description": "Section-header accent marker (a left-edge rule or a small indicator at the heading level) + horizon-label text (NEAR / MID / FAR) inside the Outlook box. #23436F. 9.01:1 on container fill — AA body text." },
+      "rule": { "$type": "color", "$value": "{color.navy.050}", "$description": "Hairline rule inside the container (e.g. the Outlook box divider above the non-personalization line). Light, stays in the wash family. #DFE6F0." },
+      "on-surface": { "$type": "color", "$value": "{color.warm-ink.900}", "$description": "Primary text on the container fill. Reuses text.primary — #211D17 reads 13.84:1 on the container fill, AAA." },
+      "on-surface-muted": { "$type": "color", "$value": "{color.warm-ink.600}", "$description": "Muted text on the container fill (label-line captions, non-personalization line). #6B6358 reads 4.68:1 on the container fill — AA at any size." }
+    },
+    "dark": {
+      "pill": { "$type": "color", "$value": "{color.steel.200}", "$description": "Fast-cut pill fill — navy-lift, slightly deeper than the container. #233152." },
+      "container": { "$type": "color", "$value": "{color.steel.250}", "$description": "Paths section + Outlook box fill — navy-lift on graphite. #1C2A45. IDENTICAL on both halves; pair-symmetry enforced by this single token." },
+      "border": { "$type": "color", "$value": "{color.steel.400}", "$description": "Container border + pill border. Reuses dark accent.default. #7DA6DB. AA non-text on container fill." },
+      "marker": { "$type": "color", "$value": "{color.steel.300}", "$description": "Header marker + horizon-label text (NEAR / MID / FAR). #9BBCE6. 7.82:1 on container fill — AA body text." },
+      "rule": { "$type": "color", "$value": "{color.steel.200}", "$description": "Hairline rule inside the dark container. #233152." },
+      "on-surface": { "$type": "color", "$value": "{color.warm-ink.100}", "$description": "Primary text on dark container fill. #F4F0E8. 13.91:1 on container fill — AAA." },
+      "on-surface-muted": { "$type": "color", "$value": "{color.warm-ink.300}", "$description": "Muted text on dark container fill. #C6BEAD. 7.38:1 on container fill — AA at any size." }
+    }
+  },
+  "surface": {
+    "$description": "App-only (#34). Named surfaces that are not bg.canvas/surface/raised — structural zones with their own identity. Theme-variant.",
+    "panel": {
+      "$description": "The impersonal-half band ('Ticker analysis'): a full-bleed tinted surface that makes the embedded publication visible as a distinct zone. Slightly warmer/cooler than canvas but not as deep as bg.surface, so it reads as a section of the page, not a card.",
+      "light": { "$type": "color", "$value": "#EEE7D6", "$description": "Warm parchment — one step warmer than canvas (#F7F3EA), conveying the panel as printed matter set into the page. Contrast with text.primary on canvas: the panel is a zone, not an overlay." },
+      "dark": { "$type": "color", "$value": "#14110D", "$description": "Deep warm graphite — slightly darker than canvas (#1A1713), receding to mark the publication boundary. The panel is a darker zone in dark mode (inverted logic from light — depth = distinction)." }
+    }
+  },
+  "text-link": {
+    "$description": "App-only (#34). Inline link and @-handle text color — kept DISTINCT from themes.*.accent.default and from accent-surface.*.marker per ADR 0008 clause 2: 'reserved for the pair' stays literally true. A link uses accent.default (navy/steel); text-link is a slightly different value so a reader never confuses an inline hyperlink with the pair's standout surface. Theme-variant.",
+    "light": { "$type": "color", "$value": "{color.navy.650}", "$description": "Inline link / @-handle on light surfaces. #2F5C97 — slightly brighter than accent.default (#23436F), still clearly in the navy family. 7.41:1 on canvas — AA on all surfaces including bg.raised." },
+    "dark": { "$type": "color", "$value": "{color.steel.350}", "$description": "Inline link / @-handle on dark surfaces. #8FB4E4 — slightly distinct from accent.default (#7DA6DB). 8.28:1 on canvas — AA on all surfaces." }
   }
 }
