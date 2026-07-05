@@ -1,9 +1,10 @@
 ---
 // Rule-state row (read-components.md §2), decorative marketing-site rendering:
 // no live rule evaluation happens here — state/name/scope/pnl are fixture text
-// props, reused across the hero product-proof visual and the showcase band's
-// rules artifact. State marker is geometric, not hue (aria-hidden; the state
-// word carries the meaning) — no signal.* color anywhere (site containment).
+// props, used by the showcase band's rules artifact (the hero product-proof
+// visual is now a fixed-geometry SVG, #432). State marker is geometric, not
+// hue (aria-hidden; the state word carries the meaning) — no signal.* color
+// anywhere (site containment).
 interface Props {
   state: "reached" | "approaching" | "not-met";
   name: string;

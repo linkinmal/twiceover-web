@@ -170,22 +170,18 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .btn-quiet:active { border-color: var(--color-accent-active); }
 
 /* ── Home ─────────────────────────────────────────────────────────────── */
-/* Hero (v2.4): a two-column layout at lg (copy + product-proof visual), single
+/* Hero (v2.5): a two-column layout at lg (copy + product-proof visual), single
    stacked column below — the visual never disappears at narrower widths
-   (site-prelaunch.md §2 hero, regression case). Canvas is a plain "paper under
-   light" radial gradient, no repeating hairlines — depth comes from the cards'
-   own shadows (spec §2 "Canvas, resolved": the earlier repeating-hairline
-   ledger-rules texture read as visually confusing and is retired everywhere). */
+   (site-prelaunch.md §2 hero, regression case). Canvas is flat — the earlier
+   radial-gradient "paper under light" treatment rendered as a visible
+   off-center blob with a seam at the hero's edge (#432); depth now comes
+   entirely from the SVG's own layered drop-shadows. */
 .hero {
   display: flex;
   flex-direction: column;
   gap: var(--space-600);
   padding-block: var(--space-800);
-  background-image: radial-gradient(
-    ellipse at 30% 20%,
-    var(--color-bg-surface) 0%,
-    var(--color-bg-canvas) 70%
-  );
+  background: var(--color-bg-canvas);
 }
 @media (min-width: 960px) {
   .hero { flex-direction: row; align-items: center; padding-block: calc(var(--space-800) * 1.5); gap: var(--space-800); }
@@ -228,19 +224,13 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 }
 .connect-stages .stage-arrow { color: var(--color-text-muted); }
 
-/* ── Hero product-proof visual (v2.4, geometry corrected #423) ───────────
-   A three-card LAYERED OVERLAP, never a screenshot and never a spaced-apart
-   stagger: a stock read (leads — largest, first in reading order) + an
-   options read (follows) + a rules chip bridging both, all built from the
-   fixed NVDA fixture (read-held-position.md line 10/128/137/146; AAPL is the
-   stock card's display ticker only, same fixture). The group reads as one
-   cohesive layered document (a stack of papers) — cards overlap at their
-   trailing corners, z-ordered so each higher card paints over the previous
-   one's corner while that previous card's header/title stays clear (site-
-   prelaunch.md §2 hero "Cascade geometry" — the first shipped build read as
-   three disconnected `gap`-separated boxes; corrected here). Stacks to a
-   single normal-flow column below the copy at narrow widths, stock card
-   first, no overlap — overlap is a desktop-only enhancement. */
+/* ── Hero product-proof visual (v2.5 — fixed-geometry SVG, #432) ─────────
+   Two prior CSS-collage builds (#422/#423) both reflowed/collided on prod —
+   content-sized cards, different at every width. Now a single designer-
+   authored inline SVG (ai-team/design/assets/hero-product-proof.svg) with a
+   fixed viewBox: it scales as one unit and cannot reflow or collide. All
+   overlap geometry, z-order, shadows, and markers live in the SVG itself —
+   nothing to re-derive here. */
 .proof {
   position: relative;
   display: flex;
@@ -248,75 +238,13 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   gap: var(--space-300);
   padding-block: var(--space-300);
 }
-.proof__cascade { display: flex; flex-direction: column; gap: var(--space-400); }
-@media (min-width: 960px) {
-  .proof__cascade { gap: 0; }
-  .proof__stock {
-    align-self: flex-start;
-    width: 62%;
-    z-index: 1;
-    transform: rotate(-0.5deg);
-  }
-  .proof__options {
-    align-self: flex-end;
-    width: 54%;
-    z-index: 2;
-    margin-top: -0.5rem;
-    transform: rotate(0.5deg);
-  }
-  .proof__rules {
-    align-self: center;
-    width: 58%;
-    z-index: 3;
-    margin-top: -4.5rem;
-    transform: rotate(-0.5deg);
-  }
+.proof__svg {
+  display: block;
+  width: 100%;
+  max-width: min(440px, 100%);
+  height: auto;
+  margin-inline: auto;
 }
-.proof__stock,
-.proof__options {
-  background: var(--surface-panel);
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-medium);
-  padding: var(--space-300);
-  box-shadow: 0 4px 16px color-mix(in srgb, var(--color-text-primary) 8%, transparent);
-}
-.proof__rules {
-  background: var(--color-bg-raised);
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-small);
-  padding: var(--space-150) var(--space-200);
-  box-shadow: 0 2px 10px color-mix(in srgb, var(--color-text-primary) 6%, transparent);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-150);
-}
-.proof__card-label { color: var(--color-text-muted); margin: 0; }
-.proof__card-structure { font-family: var(--font-family-serif); font-weight: var(--font-weight-semibold); margin: var(--space-100) 0 var(--space-200); color: var(--color-text-primary); }
-.proof__options-math {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-100) var(--space-200);
-  margin: 0;
-}
-.proof__options-math div { display: flex; justify-content: space-between; gap: var(--space-100); }
-.proof__options-math dt { color: var(--color-text-muted); font-size: var(--font-size-200); white-space: nowrap; }
-.proof__options-math dd {
-  margin: 0;
-  font-family: var(--font-family-mono);
-  font-variant-numeric: tabular-nums;
-  color: var(--color-text-primary);
-  font-size: var(--font-size-200);
-}
-.proof__stock-pnl,
-.proof__options-pnl { margin: var(--space-200) 0 0; font-family: var(--font-family-mono); font-variant-numeric: tabular-nums; font-size: var(--font-size-400); color: var(--color-text-primary); }
-.proof__stock-pnl span,
-.proof__options-pnl span { color: var(--color-text-secondary); font-size: var(--font-size-300); }
-/* Stock card's key-levels / macro & regime / outlook rows — prose lines, not a
-   math grid (no max-profit line: that's options-vocabulary noise on plain
-   shares, site-prelaunch.md §2 hero). */
-.proof__row { margin-top: var(--space-200); }
-.proof__row-label { color: var(--color-text-muted); margin: 0 0 var(--space-100); }
-.proof__row-body { margin: 0; color: var(--color-text-secondary); font-size: var(--font-size-200); }
 .proof__caption { color: var(--color-text-muted); margin: 0; }
 
 /* Rule-state row (read-components.md §2) — geometric marker, no signal color. */
@@ -329,20 +257,6 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .rule-row__scope { color: var(--color-text-muted); }
 .rule-row__state { font-weight: var(--font-weight-medium); font-size: var(--font-size-300); }
 .rule-row__pnl { margin-left: auto; font-family: var(--font-family-mono); font-variant-numeric: tabular-nums; color: var(--color-text-secondary); font-size: var(--font-size-200); }
-
-/* Staggered rise-in on load — literal durations, no motion.* tokens (app-only,
-   containment-forbidden on this site); respects prefers-reduced-motion.
-   Stock card first, then options, then the rules chip (spec §2 hero). */
-@media (prefers-reduced-motion: no-preference) {
-  .proof__stock, .proof__options, .proof__rules { animation: proof-rise 500ms ease-out backwards; }
-  .proof__stock { animation-delay: 0ms; }
-  .proof__options { animation-delay: 150ms; }
-  .proof__rules { animation-delay: 300ms; }
-}
-@keyframes proof-rise {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
 
 .section-heading { margin: var(--space-600) 0 var(--space-400); }
 
@@ -465,7 +379,6 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .trust-card__icon { width: 24px; height: 24px; color: var(--color-accent-default); margin-bottom: var(--space-200); }
 .trust-card h3 { margin: 0 0 var(--space-100); }
 .trust-card p { margin: 0; color: var(--color-text-secondary); }
-.trust-plate .disclaimer--on-dark { margin-top: 0; }
 
 /* ── FAQ (v2.3, new) — two-column at lg, native details/summary, no JS ──────── */
 .faq { display: grid; grid-template-columns: 1fr; gap: var(--space-400); padding-block: var(--space-600); }
