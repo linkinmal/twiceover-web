@@ -227,22 +227,20 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   color: var(--color-text-secondary);
 }
 .connect-stages .stage-arrow { color: var(--color-text-muted); }
-.connect-stages .stage-engine { font-size: var(--font-size-200); color: var(--color-text-muted); }
 
-/* ── Hero product-proof visual (v2.4) ────────────────────────────────────
-   A three-card diagonal cascade, never a screenshot: a stock read (leads —
-   largest, first in reading order) + an options read (follows) + a rules chip
-   bridging both, all built from the fixed NVDA fixture (read-held-position.md
-   line 10/128/137/146; AAPL is the stock card's display ticker only, same
-   fixture). Cascade geometry, not a stack, and not a corner-overlap either
-   (spec §2 hero, regression case: a naive corner-overlap stack buried a
-   card's header in an earlier draft) — each card clears the previous one
-   in normal flow (the options card's header clears the stock card with
-   margin; the rules chip's top edge meets the options card's last row, no
-   clipping), the "diagonal below-right" look coming from alternating
-   left/right alignment, never from literal overlap. Stacks to a single
-   column below the copy at narrow widths, stock card first — never
-   disappears. */
+/* ── Hero product-proof visual (v2.4, geometry corrected #423) ───────────
+   A three-card LAYERED OVERLAP, never a screenshot and never a spaced-apart
+   stagger: a stock read (leads — largest, first in reading order) + an
+   options read (follows) + a rules chip bridging both, all built from the
+   fixed NVDA fixture (read-held-position.md line 10/128/137/146; AAPL is the
+   stock card's display ticker only, same fixture). The group reads as one
+   cohesive layered document (a stack of papers) — cards overlap at their
+   trailing corners, z-ordered so each higher card paints over the previous
+   one's corner while that previous card's header/title stays clear (site-
+   prelaunch.md §2 hero "Cascade geometry" — the first shipped build read as
+   three disconnected `gap`-separated boxes; corrected here). Stacks to a
+   single normal-flow column below the copy at narrow widths, stock card
+   first, no overlap — overlap is a desktop-only enhancement. */
 .proof {
   position: relative;
   display: flex;
@@ -252,9 +250,27 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 }
 .proof__cascade { display: flex; flex-direction: column; gap: var(--space-400); }
 @media (min-width: 960px) {
-  .proof__stock { align-self: flex-start; width: 62%; }
-  .proof__options { align-self: flex-end; width: 54%; }
-  .proof__rules { align-self: center; width: 58%; }
+  .proof__cascade { gap: 0; }
+  .proof__stock {
+    align-self: flex-start;
+    width: 62%;
+    z-index: 1;
+    transform: rotate(-0.5deg);
+  }
+  .proof__options {
+    align-self: flex-end;
+    width: 54%;
+    z-index: 2;
+    margin-top: -0.5rem;
+    transform: rotate(0.5deg);
+  }
+  .proof__rules {
+    align-self: center;
+    width: 58%;
+    z-index: 3;
+    margin-top: -4.5rem;
+    transform: rotate(-0.5deg);
+  }
 }
 .proof__stock,
 .proof__options {
@@ -483,6 +499,11 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 /* Inline emphasis in step body — emphasis by weight, not color (matches the hero sub). */
 .steps p strong { font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
 
+/* Bottom spacing so the accent bar clears the full-bleed closing band below
+   (site-prelaunch.md §2 "What TwiceOver is not" — general rule: any section
+   whose content/accent rule sits directly above a full-bleed band needs
+   bottom padding so the two don't collide at the seam, #423). */
+.not-section { padding-block-end: var(--space-600); }
 .not-block {
   max-width: 65ch;
   font-size: var(--font-size-400);
