@@ -1,26 +1,44 @@
 {
   // TwiceOver pre-launch compliance site — Cloudflare Workers Static Assets (ADR 0002).
-  // Assets-only project (no Worker code): a deploy uploads ./dist and serves it.
+  // A thin Worker (worker/index.js) now runs in front of the static assets to write the
+  // cookieless SITE_METRICS Analytics-Engine dataset (ADR 0136 Option D, #557): a deploy
+  // uploads ./dist and the Worker, which records six-field, zero-identifier page-view /
+  // CTA-click data points, then falls through to env.ASSETS to serve the static file.
   // The custom_domain route binds twiceover.io; SSL provisions automatically (zone is
   // in this Cloudflare account).
   //
   // Deploy with `npm run deploy` (scripts/deploy.sh, #69): it gates on build +
-  // content check + the consultation-0008 no-operator-log posture, injects the token
-  // (macOS Keychain 'cloudflare-api-token-twiceover', or a CLOUDFLARE_API_TOKEN env
-  // override) for that one run, and never echoes it. The token is never stored in repo.
+  // content check + the consultation-0008 no-operator-log posture + the consult-0163
+  // Worker-source field gate, injects the token (macOS Keychain
+  // 'cloudflare-api-token-twiceover', or a CLOUDFLARE_API_TOKEN env override) for that
+  // one run, and never echoes it. The token is never stored in repo.
   //
   // NOTE: observability stays OFF here — turning it on collects Workers Logs and would
   // break the /privacy "collects no personal information" posture (consultation 0008);
-  // scripts/deploy.sh asserts this before every deploy.
+  // scripts/deploy.sh asserts this before every deploy. SITE_METRICS is a distinct
+  // Cloudflare feature (Analytics Engine, not Workers Logs) and does NOT enable
+  // observability — consult 0163 confirmed the six-field set clean against 0008.
   "name": "twiceover-web",
   "compatibility_date": "2026-06-11",
+  "main": "worker/index.js",
   "assets": {
     "directory": "./dist",
+    // The ASSETS binding lets worker/index.js serve the static file after recording a
+    // page view; run_worker_first:true runs the Worker on every request (so it sees page
+    // navigations, which assets would otherwise serve without invoking it).
+    "binding": "ASSETS",
+    "run_worker_first": true,
     // Bare paths (/pricing, /terms, …) serve 200 directly with no redirect hop —
     // the exact URLs submitted to the MoR (#39 AC1/AC6).
     "html_handling": "drop-trailing-slash",
     "not_found_handling": "404-page"
   },
+  // Cookieless site measurement (ADR 0136). The dataset auto-creates on first write; no
+  // API token or secret is involved (writes go through this binding). Adding it to the
+  // ADR 0130 read token is a separate reporting/Ops step, out of this ADR's scope.
+  "analytics_engine_datasets": [
+    { "binding": "SITE_METRICS", "dataset": "twiceover_site_metrics" }
+  ],
   "routes": [
     { "pattern": "twiceover.io", "custom_domain": true }
   ]
