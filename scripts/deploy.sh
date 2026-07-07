@@ -47,6 +47,15 @@ else
   exit 1
 fi
 
+# ── 2b · SITE_METRICS Worker field gate (ADR 0136 / consult 0163) ────────────
+# The Worker (worker/index.js) is the first-ever code on this assets-only site. Security's
+# consult-0163 reconciliation with 0008 requires a source-level assertion that keeps the
+# Worker incapable of referencing per-request identifying data as it evolves: a denylist
+# (no IP/UA/cookie header, no full-header dump, no hash/crypto), a writeDataPoint allowlist
+# (exactly the six SITE_METRICS fields), and console.* coverage. Fail-closed, like 2 above.
+echo "▸ 0163 gate: SITE_METRICS Worker field set (denylist · six-field allowlist · console.*)…"
+node ci/check-worker-source.mjs
+
 # ── 3 · Token: env-var override, Keychain fallback (never echoed) ────────────
 # CI can export CLOUDFLARE_API_TOKEN (a secret) to override; otherwise the macOS
 # Keychain item is the source on the single deploy machine. The := seam is where

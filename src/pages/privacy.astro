@@ -42,8 +42,24 @@ import Policy from "../layouts/Policy.astro";
       <li><strong>No selling of personal information.</strong> We do not sell or rent personal data.</li>
       <li><strong>Disconnect &amp; deletion.</strong> You can disconnect your brokerage at any time; your synced account data is deleted per the retention terms.</li>
     </ul>
-    <p><em>Pre-launch: the site collects no account data and ships with no analytics/PII capture; update this page before any data collection or analytics is added.</em></p>
+    <p><em>Pre-launch product status: the full product — the read-only brokerage connection and position analyses — is not yet live, so the website collects no brokerage, account, or trading data. What the website itself measures is disclosed in the "Site analytics" clause below.</em></p>
   </aside>
+
+  {/* Site analytics disclosure — ADR 0136 (#556), the cookieless first-party measurement
+      that must be live before the #557 measurement Worker ships. Copy is verbatim from
+      ai-team/pm/site-copy-twiceover.md (PM #41 — do not reword). Names the exact six-field
+      set worker/index.js emits, no third-party processor, no new jurisdiction. */}
+  <section class="site-analytics" aria-labelledby="site-analytics">
+    <h2 class="type-heading-2" id="site-analytics">Site analytics</h2>
+    <p>To understand how our website is used, we collect a small, fixed set of aggregate, non-identifying measurements about the pages you visit and the links you follow on our site:</p>
+    <ul>
+      <li>the <strong>page</strong> you visit;</li>
+      <li>the <strong>site you came from</strong>, its origin only — for example <code>google.com</code>, never the full referring web address or anything after it;</li>
+      <li>the <strong>campaign tags</strong> in the link you arrived through, when present (the <code>utm_source</code>, <code>utm_medium</code>, and <code>utm_campaign</code> values a marketer adds to a link);</li>
+      <li>the <strong>country</strong> a visit came from, at country level only, derived from our network's own edge classification.</li>
+    </ul>
+    <p>That is the complete list. We set <strong>no cookies</strong>, and we do <strong>not</strong> collect or store your IP address — not even a shortened or hashed version — nor any device or browser fingerprint or other identifier. Nothing in this data can be traced back to you, your device, or a single visit; we use it only in aggregate, to see which pages and channels are working. These measurements are recorded on the same infrastructure that already serves this website, operated by us from Türkiye — no third-party analytics provider receives your data, and no new country of processing is introduced.</p>
+  </section>
 
   <p>Your privacy is important to us. It is our policy to respect your privacy and comply with any applicable law and regulation regarding any personal information we may collect about you, including across our website, https://twiceover.io, and other sites we own and operate.</p>
   <p>Personal information is any information about you which can be used to identify you. This includes information about you as a person (such as name, address, and date of birth), your devices, payment details, and even information about how you use a website or online service.</p>
