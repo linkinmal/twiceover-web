@@ -4,7 +4,8 @@
 // (NOT built — zero JS, per the design's own conditional + PM annual-pricing decision).
 // Premium softened (PM 2026-06-12): no real-time data-tier claim — "expanded data & signal
 // coverage (finalized at launch)". Connection-optional: works with or without a broker
-// connection. Figures ($49/$99) are a stated launch hypothesis. No card CTA in #39 — no
+// connection. Figures ($49/$99) are the Accepted prices (pricing-artifact.md §1, human
+// sign-off 2026-06-30), matching FastSpring's catalog exactly. No card CTA in #39 — no
 // checkout exists. Tier symmetry is a compliance feature (spec §6.2): never differentiate.
 import Base from "../layouts/Base.astro";
 ---
@@ -20,7 +21,7 @@ import Base from "../layouts/Base.astro";
   <ul class="tier-grid">
     <li class="tier">
       <h2 class="type-heading-2">Core</h2>
-      <p class="price type-display">~$49<span class="per">/mo</span></p>
+      <p class="price type-display">$49<span class="per">/mo</span></p>
       <ul>
         <li>Read-only broker connection</li>
         <li>Held-position reads and new-idea reads</li>
@@ -32,7 +33,7 @@ import Base from "../layouts/Base.astro";
     </li>
     <li class="tier">
       <h2 class="type-heading-2">Premium</h2>
-      <p class="price type-display">~$99<span class="per">/mo</span></p>
+      <p class="price type-display">$99<span class="per">/mo</span></p>
       <ul>
         <li>Everything in Core</li>
         <li>Higher usage limits</li>
