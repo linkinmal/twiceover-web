@@ -32,6 +32,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { ratio } from "./contrast.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const tokens = JSON.parse(readFileSync(join(root, "tokens/twiceover.tokens.json"), "utf8"));
@@ -111,22 +112,10 @@ const cssFamilyList = (families) =>
 // ---------------------------------------------------------------------------
 // Contrast gate (consult 0067 Q2) — WCAG 2.1 relative luminance, ratio
 // (L1+0.05)/(L2+0.05). Mirrors ai-team/design/tokens/ledger-contrast-check.py.
+// Arithmetic lives in ./contrast.mjs (ADR 0157 §Resulting work — the NaN
+// fail-open fix; see that module for the malformed-input-throws test coverage).
 // Thresholds: body/UI text >=4.5, non-text UI (border/focus) >=3.0.
 // ---------------------------------------------------------------------------
-function channel(c) {
-  c /= 255;
-  return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
-}
-function luminance(hex) {
-  const h = hex.replace("#", "");
-  const [r, g, b] = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
-  return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
-}
-function ratio(a, b) {
-  const [la, lb] = [luminance(a), luminance(b)];
-  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
-}
-
 const BG = ["bg-canvas", "bg-surface", "bg-raised"];
 const BODY_TEXT = ["text-primary", "text-long-form", "text-secondary", "text-muted"];
 
