@@ -8,7 +8,8 @@
 # pre-upload gates; it does NOT auto-deploy.
 #
 # Pipeline:
-#   1. Build + content gate (AC3 banned terms, AC4 disclaimer byte-identical).
+#   1. Build + content gate (AC3 banned terms, AC4 disclaimer byte-identical) +
+#      a11y-decor gate (Two-doors static decorations stay non-focusable, #734).
 #   2. Consultation-0008 log gate (Security, CLOSED + re-verified 2026-06-13).
 #   3. Inject the Cloudflare token for this one invocation (env-var override,
 #      macOS Keychain fallback) — never echoed.
@@ -22,6 +23,8 @@ echo "▸ Build…"
 npm run build
 echo "▸ Content gate (AC3 banned terms · AC4 disclaimer byte-identical)…"
 node ci/check-content.mjs
+echo "▸ A11y-decor gate (Two-doors static decorations stay non-focusable, #734)…"
+node ci/check-a11y-decor.mjs
 
 # ── 2 · Consultation-0008 log gate ──────────────────────────────────────────
 # Security's "no operator-accessible access/edge logs" posture (consultation 0008,
