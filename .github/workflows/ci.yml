@@ -19,6 +19,9 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm run check
+      # Static-decoration a11y gate (site-prelaunch.md §6 v2.4 redeploy build note, #734):
+      # the Two-doors illustrations must never surface as a focusable, non-functional control.
+      - run: npm run check:a11y-decor
       # SITE_METRICS Worker gates (ADR 0136 / consult 0163, #557): the six-field source
       # assertion and the pure-helper unit tests. Fail fast on PRs, before the deploy job.
       - run: npm run check:worker
