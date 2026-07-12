@@ -1,0 +1,21 @@
+---
+// Contact page (#452) — a dedicated Contact page URL for vendor/partner applications
+// that require one distinct from Privacy/Terms (surfaced by SnapTrade's production-access
+// application, #73, whose "Contact & Policies" step marks it required). Static: the
+// support@twiceover.io mailto address + a response-time note, no form/backend. Not a
+// legal policy document, so it skips Policy.astro's effective-date caption — it reuses
+// that layout's .policy/.policy-body styling directly for visual consistency.
+import Base from "../layouts/Base.astro";
+import { EMAIL } from "../config.mjs";
+---
+<Base title="Contact — TwiceOver" description="Contact TwiceOver — reach us at support@twiceover.io.">
+  <article class="policy">
+    <div class="page-title-block">
+      <h1 class="type-heading-1">Contact</h1>
+    </div>
+    <div class="policy-body type-legal">
+      <p>For support, questions, or anything else, reach us at <a href={`mailto:${EMAIL}`}>{EMAIL}</a>.</p>
+      <p>We typically respond within 1–2 business days.</p>
+    </div>
+  </article>
+</Base>
