@@ -28,6 +28,7 @@ const EXPECTED_PAGES = [
   "privacy/index.html",
   "cookies/index.html",
   "refunds/index.html",
+  "contact/index.html",
   "404.html",
 ];
 
