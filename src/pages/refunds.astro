@@ -1,7 +1,9 @@
 ---
-// Refund Policy — "Page: Refund Policy" (#41), PM-authored, verbatim. MoR wording is
-// GENERIC per PM's 2026-06-11 decision (no provider named until #31 approval); the
-// named form is the on-approval target in site-copy-twiceover.md. Do not reword (PM #41).
+// Refund Policy — "Page: Refund Policy" (#41), PM-authored, verbatim. MoR wording
+// revised 2026-07-21 (#1266, SIGNED OFF by the human) — Dodo Payments is a true
+// third-party merchant of record (#1177 approved; ADR 0361; ADR 0151 Amendment 1);
+// mechanics stated per Dodo's Buyer Terms, not as TwiceOver's own direct commitment.
+// Do not reword (PM #41 / #1266).
 import Policy from "../layouts/Policy.astro";
 import { EMAIL } from "../config.mjs";
 ---
@@ -10,11 +12,11 @@ import { EMAIL } from "../config.mjs";
   description="Refund Policy for TwiceOver — twiceover.io."
   heading="Refunds"
 >
-  <p>TwiceOver is sold as a subscription, billed by a third-party merchant of record.</p>
+  <p>TwiceOver is sold as a subscription through <strong>Dodo Payments</strong>, our merchant of record. Dodo is the seller you purchase from and the party you contract with for the transaction itself — TwiceOver is the software and service you're using.</p>
   <ul>
-    <li><strong>Cancel anytime.</strong> Cancelling stops future renewals; you keep access through the end of the paid period.</li>
-    <li><strong>Refund requests.</strong> To request a refund, contact <a href={`mailto:${EMAIL}`}>{EMAIL}</a> or use the merchant-of-record's billing portal. Eligible refunds are processed by our merchant of record under their buyer terms.</li>
-    <li><strong>Where required by law,</strong> statutory cancellation and refund rights (for example, EU/UK consumer cooling-off rights) apply and are honored.</li>
+    <li><strong>Cancel anytime.</strong> Contact us or Dodo at least 48 hours before your renewal date; cancellation takes effect at the next payment date — no partial refund for the remainder of the period already paid for.</li>
+    <li><strong>Refund requests.</strong> Refunds are handled by Dodo, our merchant of record, under <a href="https://dodopayments.com/legal/buyer-terms">Dodo's Buyer Terms</a> — contact Dodo directly, or reach us at <a href={`mailto:${EMAIL}`}>{EMAIL}</a> and we'll route you. Refunds are given <strong>at Dodo's sole discretion, on a case-by-case basis, and may be refused</strong>; contact Dodo within 60 days of your purchase. This is a real change from TwiceOver's own prior promise to "review requests and issue eligible refunds directly" — under a true MoR, refund decisions are Dodo's to make, not ours.</li>
+    <li><strong>Where required by law,</strong> statutory cancellation and refund rights (for example, EU/UK consumer cooling-off rights) apply and are honored by Dodo as the seller of record.</li>
     <li>No per-analysis or usage charges exist, so there is nothing to refund beyond the subscription itself.</li>
   </ul>
 </Policy>

@@ -7,7 +7,10 @@
 // DPO reference removed; brokerage data carved out of the marketing-combine clause.
 // Text is verbatim; [Ops edit N]/[#51 …] editorial markers are not page copy and are
 // omitted. >12 sections, so a plain anchor list sits under the H1 (site-prelaunch §4).
-// Do not reword (PM #41).
+// Sub-processor list + Customer records clause revised 2026-07-21 (#1266, SIGNED OFF
+// by the human): Dodo Payments is a true merchant of record (#1177; ADR 0361; ADR 0151
+// Amendment 1), named directly in place of the generic payment-provider wording.
+// Do not reword (PM #41 / #1266).
 import Policy from "../layouts/Policy.astro";
 ---
 <Policy
@@ -144,7 +147,7 @@ import Policy from "../layouts/Policy.astro";
   </ul>
   <p>Third parties we currently use include:</p>
   <ul>
-    <li>A third-party payment provider acting as our merchant of record, for subscription billing and payment processing.</li>
+    <li><strong>Dodo Payments</strong>, our merchant of record, for subscription billing, payment processing, and refund/chargeback handling.</li>
     <li><strong>SnapTrade</strong> — brokerage-connectivity provider that enables the read-only connection you authorize to your brokerage account; purpose: broker authorization and position/order/balance data retrieval (read-only).</li>
     <li><strong>Neon, a Databricks company</strong> — account-domain relational database; purpose: storing your account record and the authorized connection to your brokerage (read-only persistence, no secondary use). Note: Neon was acquired by Databricks in 2025; this ownership change is the type of event the applicable data-processing agreement's change-notification clause covers.</li>
     <li><strong>Cloudflare</strong> — cloud hosting, edge delivery, and security; purpose: serving the site and application and protecting against automated abuse.</li>
@@ -206,7 +209,7 @@ import Policy from "../layouts/Policy.astro";
   <p>In the past 12 months, we have collected the following categories of personal information enumerated in the CCPA:</p>
   <ul>
     <li>Identifiers, such as name, email address, phone number, account name, IP address, and an ID or number assigned to your account.</li>
-    <li>Customer records, such as your account contact details and your brokerage holdings (positions, orders, and balances) accessed via your authorized read-only connection. TwiceOver does not collect or store payment-card data; card and billing details are handled by our payment provider acting as merchant of record.</li>
+    <li>Customer records, such as your account contact details and your brokerage holdings (positions, orders, and balances) accessed via your authorized read-only connection. TwiceOver does not collect or store payment-card data; card and billing details are handled by <strong>Dodo Payments</strong>, our merchant of record.</li>
   </ul>
   <p>For more information on information we collect, including the sources we receive information from, review the "Information We Collect" section. We collect and use these categories of personal information for the business purposes described in the "Collection and Use of Information" section, including to provide and manage our Service.</p>
 
