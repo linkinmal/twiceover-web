@@ -7,14 +7,25 @@
  *   (b) never capture, log, or transmit it
  *   (c) no network call
  *
- * Checks, over the entry-box form + its enhancement script:
+ * Checks, over the entry-box form + the WHOLE built document:
  *   - the <form> exists, action="#demo-read" exactly (never an external or app URL)
  *   - the ticker <input> carries NO name attribute (the no-JS security guarantee —
  *     an unnamed field is excluded from form serialization by the HTML spec itself,
  *     so even a real no-JS submit sends nothing)
  *   - the submit <button> is type="submit", not disabled
- *   - the inline enhancement script contains none of fetch(/XMLHttpRequest/WebSocket/
+ *   - EVERY inline <script> block in the document (not only the one that happens to
+ *     reference "demo-form") contains none of fetch(/XMLHttpRequest/WebSocket/
  *     sendBeacon, and never reads `.value` off any element
+ *   - NO inline event-handler attribute (onclick=, onblur=, oninput=, …) appears
+ *     anywhere in the document — this site's entire interactivity story is the one
+ *     progressive-enhancement script; an inline handler has no legitimate use here
+ *
+ * Scope note (found in Architect review of PR #23): an earlier version of this gate
+ * scanned only the single <script> block whose body happened to contain the string
+ * "demo-form" — a second, unrelated script (no "demo-form" text) or an inline
+ * on*="..." handler on any element sailed through undetected, exactly the "next PR
+ * adds a tracking call" scenario Security's consult 0384 named as the risk. Both are
+ * closed by scanning every script in the document and banning inline handlers outright.
  *
  * Run after `astro build` (same dependency as ci/check-content.mjs / check-a11y-decor.mjs).
  */
@@ -82,24 +93,41 @@ for (const btn of submitButtons) {
   }
 }
 
-// ── The enhancement script — structural, not procedural ────────────────────
+// ── Every inline script in the document — structural, not procedural ───────
+// Scans ALL inline <script> blocks, not only the one that happens to reference
+// "demo-form" — a second, unrelated script is exactly the bypass a narrower scan
+// would miss (Architect review, PR #23).
 const scriptMatches = [...html.matchAll(/<script\b(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)];
-const demoScript = scriptMatches.map((m) => m[1]).find((body) => body.includes("demo-form"));
+const scriptBodies = scriptMatches.map((m) => m[1]);
+const demoScriptExists = scriptBodies.some((body) => body.includes("demo-form"));
 
-if (!demoScript) {
+if (!demoScriptExists) {
   failures.push(`[structure] no inline enhancement script referencing "demo-form" found in dist/index.html`);
-} else {
-  const forbiddenCalls = [/\bfetch\s*\(/, /\bXMLHttpRequest\b/, /\bWebSocket\b/, /\bsendBeacon\b/];
+}
+
+const forbiddenCalls = [/\bfetch\s*\(/, /\bXMLHttpRequest\b/, /\bWebSocket\b/, /\bsendBeacon\b/];
+for (const body of scriptBodies) {
   for (const re of forbiddenCalls) {
-    if (re.test(demoScript)) {
-      failures.push(`[security] demo enhancement script must never call ${re.source} — the demo has nothing to send anywhere`);
+    if (re.test(body)) {
+      failures.push(`[security] an inline script must never call ${re.source} — this page has nothing to send anywhere`);
     }
   }
-  // `.value` read: the handler must never read the typed value off any element
+  // `.value` read: no script on this page may read the typed value off any element
   // (a variable assignment, template interpolation, or discarded expression).
-  if (/\.value\b/.test(demoScript)) {
-    failures.push(`[security] demo enhancement script must never read .value off any element — the guardrail is structural, not a discipline to remember`);
+  if (/\.value\b/.test(body)) {
+    failures.push(`[security] an inline script must never read .value off any element — the guardrail is structural, not a discipline to remember`);
   }
+}
+
+// ── No inline event-handler attributes anywhere in the document ────────────
+// This site's entire interactivity story is the one progressive-enhancement
+// <script>; an inline on*="..." handler (onclick, onblur, oninput, …) has no
+// legitimate use here and is exactly how a script-scoped scan gets bypassed
+// (Architect review, PR #23) — bar it outright rather than pattern-matching its
+// contents. Matched only inside a tag's attribute list, not in text content.
+const inlineHandlerMatches = html.match(/<[a-z][^>]*\son[a-z]+\s*=\s*["']/gi) ?? [];
+for (const m of inlineHandlerMatches) {
+  failures.push(`[security] inline event-handler attribute found — the page's only script is the one progressive-enhancement block; nothing else may run JS: ${m}…`);
 }
 
 if (failures.length) {
