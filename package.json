@@ -11,6 +11,7 @@
     "dev": "astro dev",
     "check": "node ci/check-content.mjs",
     "check:a11y-decor": "node ci/check-a11y-decor.mjs",
+    "check:demo-control": "node ci/check-demo-control.mjs",
     "check:worker": "node ci/check-worker-source.mjs",
     "test": "vitest run",
     "gen:favicons": "node scripts/gen-favicons.mjs",
