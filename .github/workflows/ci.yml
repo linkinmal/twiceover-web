@@ -22,6 +22,11 @@ jobs:
       # Static-decoration a11y gate (site-prelaunch.md §6 v2.4 redeploy build note, #734):
       # the Two-doors illustrations must never surface as a focusable, non-functional control.
       - run: npm run check:a11y-decor
+      # Demo-control security gate (#1240, ADR 0383, site-prelaunch.md §6 v2.6(f)): the hero
+      # entry-box's typed value must never be able to reach a URL, log, or network call —
+      # unnamed input, #demo-read-only form action, no fetch/XHR/WebSocket/sendBeacon or
+      # .value read in the enhancement script.
+      - run: npm run check:demo-control
       # SITE_METRICS Worker gates (ADR 0136 / consult 0163, #557): the six-field source
       # assertion and the pure-helper unit tests. Fail fast on PRs, before the deploy job.
       - run: npm run check:worker
@@ -30,9 +35,10 @@ jobs:
   # Deploy-on-merge to production (ADR 0056, #305). Here deploy ≈ release, and that is intentional:
   # the site is static marketing content with no user data or behavior, so the pre-merge PR review is
   # the release control. This flips only the TRIGGER leg of scripts/deploy.sh's documented flow
-  # (human-approval-before-merge replaces human-approval-before-deploy) — the AC3/AC4 content gate and
-  # the ADR 0008 "Workers observability off" gate are untouched, because the deploy job runs the same
-  # guarded `npm run deploy` → scripts/deploy.sh, which re-asserts both gates before it uploads.
+  # (human-approval-before-merge replaces human-approval-before-deploy) — the AC3/AC4 content gate, the
+  # demo-control security gate, and the ADR 0008 "Workers observability off" gate are all untouched,
+  # because the deploy job runs the same guarded `npm run deploy` → scripts/deploy.sh, which re-asserts
+  # every gate before it uploads.
   #
   # Runs ONLY on push to `main`, after build-and-check is green — NEVER on pull_request, so the deploy
   # token is out of scope for PR-triggered runs (ADR 0056 sub-decision 1, Security 0098). The real

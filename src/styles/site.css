@@ -201,9 +201,131 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   margin: var(--space-300) 0 0;
 }
 .hero .sub strong { font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
-/* Reserved items (ADR 0042, #32+): (1) "Connect read-only →" quiet-outline CTA;
-   (2) entry-box row ("Or, any ticker" demo). Both built and wired at app-launch.
-   Hero is stacked flex column — both append without recomposition. Nothing ships. */
+/* Reserved (ADR 0042, #32+): the "Connect read-only →" CTA — built and wired at
+   app-launch. Hero is a stacked flex column — it appends without recomposition. */
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ── Entry-box (v2.6, #1240, ADR 0383) — the hero's built fixture demo control ──
+   Geometry per site-prelaunch.md §2 item (2): margin-top space.300 (after the
+   demo-turn label), max-width 36rem, radius.medium. Field styling lifted from the
+   real product: twiceover-app apps/web/src/read/EntryInput.css `.entry-input__field`
+   — with `border.interactive`, not that file's stale `border.default` (~1.15:1 on
+   canvas, fails WCAG 1.4.11 for a control boundary; twiceover-app#1245 corrects the
+   app side of the same drift). Mono + uppercase is read-components.md §6's "an
+   all-caps symbol token renders font.family.mono as typed." */
+.entry-box {
+  margin-top: var(--space-300);
+  /* .hero__copy is itself a flex column, so this form is a flex ITEM and would
+     otherwise shrink to its content width. width+align-self, not max-width alone. */
+  width: 100%;
+  align-self: stretch;
+  max-width: 36rem;
+  display: flex;
+  gap: var(--space-150);
+  flex-wrap: wrap;
+}
+.entry-box input {
+  flex: 1 1 14rem;
+  min-height: 44px;
+  border: 1px solid var(--color-border-interactive);
+  border-radius: var(--radius-medium);
+  padding: var(--space-200) var(--space-300);
+  font-family: var(--font-family-mono);
+  text-transform: uppercase;
+  font-size: var(--font-size-300);
+  color: var(--color-text-primary);
+  background: var(--color-bg-surface);
+}
+/* The placeholder is a hint, not a symbol, so it stays sans and sentence-case —
+   mono-uppercased it reads as data ("A TICKER — NVDA") rather than guidance. */
+.entry-box input::placeholder {
+  color: var(--color-text-muted);
+  font-family: var(--font-family-sans);
+  text-transform: none;
+}
+
+/* Submit — filled, not quiet-outline (site-prelaunch.md §1, the new second button
+   style, ADR 0383). Lifted from twiceover-app's own EntryInput.css
+   `.entry-input__submit` so the site's one live control matches the product's real
+   submit rather than inventing a third register. text.on-accent on accent.default
+   is an existing gated pairing (design-system.md, 9.98:1 light). */
+.entry-box__submit {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 var(--space-300);
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-300);
+  font-weight: var(--font-weight-medium);
+  background: var(--color-accent-default);
+  color: var(--color-text-on-accent);
+  border: none;
+  border-radius: var(--radius-medium);
+  cursor: pointer;
+  transition: background-color 150ms;
+}
+.entry-box__submit:hover { background: var(--color-accent-hover); }
+.entry-box__submit:active { background: var(--color-accent-active); }
+.entry-box__caption { max-width: 36rem; color: var(--color-text-muted); margin: var(--space-150) 0 0; }
+
+/* Stacked below md. `flex: 1 1 14rem` is a WIDTH basis in a row and a HEIGHT basis
+   once the base breakpoint stacks the form into a column (renders a ~14rem-tall
+   input) — reset both the basis and the wrap (site-prelaunch.md §6 v2.6(e)). */
+@media (max-width: 639px) {
+  .entry-box { flex-direction: column; flex-wrap: nowrap; align-items: stretch; }
+  .entry-box input { flex: 0 0 auto; width: 100%; }
+  .entry-box__submit { width: 100%; }
+}
+
+/* ── The reveal panel — directly below the hero, where the control is ───────
+   :target, not [hidden]: one mechanism serves the no-JS anchor-jump AND the
+   JS-enhanced path (the enhancement script just sets location.hash + manages
+   focus/animation on top of this same rule, instead of duplicating show/hide
+   logic in two places that could drift apart). */
+.demo-read {
+  display: none;
+  margin-top: var(--space-400);
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-medium);
+  padding: var(--space-400);
+}
+.demo-read:target { display: block; }
+.demo-read:focus { outline: none; }
+.demo-read:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .demo-read.is-entering { animation: demo-read-in 220ms ease-out both; }
+}
+@keyframes demo-read-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.demo-read__head { border-bottom: 1px solid var(--color-border-default); padding-bottom: var(--space-300); margin-bottom: var(--space-300); }
+.demo-read__tag { color: var(--color-text-muted); margin: 0 0 var(--space-050); }
+.demo-read__head h3 { margin: 0 0 var(--space-150); font-family: var(--font-family-mono); font-size: var(--font-size-400); letter-spacing: 0; }
+/* The disclosure is the one line that keeps this honest, so it is body-weight
+   text, not a caption — it must not be scannable-past. */
+.demo-read__disclosure { margin: 0; color: var(--color-text-primary); font-weight: var(--font-weight-medium); }
+
+.demo-read__body { display: grid; grid-template-columns: 1fr; gap: var(--space-400); }
+@media (min-width: 640px) { .demo-read__body { grid-template-columns: 1fr 1fr; } }
+.demo-read__col { display: flex; flex-direction: column; gap: var(--space-200); }
+.demo-read__section-label { color: var(--color-text-muted); margin: 0; text-transform: uppercase; letter-spacing: 0.06em; }
+.demo-read__caption { margin: 0; color: var(--color-text-long-form); font-size: var(--font-size-300); }
+
+.demo-read__foot { margin-top: var(--space-400); padding-top: var(--space-300); border-top: 1px solid var(--color-border-default); }
+.demo-read__foot p { margin: 0 0 var(--space-150); color: var(--color-text-secondary); font-size: var(--font-size-200); }
+.demo-read__foot p:last-child { margin-bottom: 0; }
+.demo-read__foot strong { color: var(--color-text-primary); font-weight: var(--font-weight-medium); }
+.demo-read__bridge { color: var(--color-text-long-form) !important; }
 
 /* ── Hero: "Or" demo turn + stage indicator (ADR 0042 — connect-led) ──────── */
 /* Deep door leads in .sub; "Or, take any ticker" follows as the demo-retention
