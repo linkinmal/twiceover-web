@@ -13,8 +13,10 @@
 // Premium's "No trial —" line stay gated on #97/#31 and are NOT part of this change.
 // Trimmed from the #1307 canonical draft (human direction 2026-07-22): dropped
 // "— ongoing, not a trial" and the standalone "No card required" line as redundant
-// on a card with no CTA/checkout to contrast against. "The synthesis read on any
-// ticker" is UNCHANGED pending PM (consult 0416 — US-only scope, ADR 0027/0028).
+// on a card with no CTA/checkout to contrast against. "Any ticker" → "any US-listed
+// ticker" per consult 0416 (PM ruling): the product is US-only by design (ADR
+// 0027/0028) and US-venue-scoped by construction; inline qualifier, not a footnote,
+// to preserve tier-card symmetry (spec §6.2).
 import Base from "../layouts/Base.astro";
 ---
 <Base
@@ -32,7 +34,7 @@ import Base from "../layouts/Base.astro";
       <p class="price type-display">$0</p>
       <ul>
         <li>15 reads a month</li>
-        <li>The synthesis read on any ticker</li>
+        <li>The synthesis read on any US-listed ticker</li>
         <li>Key technical levels (basic), SEC/EDGAR fundamentals, macro regime context</li>
       </ul>
     </li>
