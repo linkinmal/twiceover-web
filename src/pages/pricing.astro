@@ -11,6 +11,10 @@
 // trial-launch reveal (consult 0182, ADR 0145 item 6) — Free needs neither ORATS (#97)
 // nor a live checkout, so it ships alone. The chooser block, Core's trial CTA, and
 // Premium's "No trial —" line stay gated on #97/#31 and are NOT part of this change.
+// Trimmed from the #1307 canonical draft (human direction 2026-07-22): dropped
+// "— ongoing, not a trial" and the standalone "No card required" line as redundant
+// on a card with no CTA/checkout to contrast against. "The synthesis read on any
+// ticker" is UNCHANGED pending PM (consult 0416 — US-only scope, ADR 0027/0028).
 import Base from "../layouts/Base.astro";
 ---
 <Base
@@ -27,10 +31,9 @@ import Base from "../layouts/Base.astro";
       <h2 class="type-heading-2">Free</h2>
       <p class="price type-display">$0</p>
       <ul>
-        <li>15 reads a month — ongoing, not a trial</li>
+        <li>15 reads a month</li>
         <li>The synthesis read on any ticker</li>
         <li>Key technical levels (basic), SEC/EDGAR fundamentals, macro regime context</li>
-        <li>No card required</li>
       </ul>
     </li>
     <li class="tier">
