@@ -7,6 +7,16 @@
 // connection. Figures ($49/$99) are the Accepted prices (pricing-artifact.md §1, human
 // sign-off 2026-06-30), matching FastSpring's catalog exactly. No card CTA in #39 — no
 // checkout exists. Tier symmetry is a compliance feature (spec §6.2): never differentiate.
+// Free card (2026-07-22, stock-analyst-platform#1307): shipped decoupled from the
+// trial-launch reveal (consult 0182, ADR 0145 item 6) — Free needs neither ORATS (#97)
+// nor a live checkout, so it ships alone. The chooser block, Core's trial CTA, and
+// Premium's "No trial —" line stay gated on #97/#31 and are NOT part of this change.
+// Trimmed from the #1307 canonical draft (human direction 2026-07-22): dropped
+// "— ongoing, not a trial" and the standalone "No card required" line as redundant
+// on a card with no CTA/checkout to contrast against. "Any ticker" → "any US-listed
+// ticker" per consult 0416 (PM ruling): the product is US-only by design (ADR
+// 0027/0028) and US-venue-scoped by construction; inline qualifier, not a footnote,
+// to preserve tier-card symmetry (spec §6.2).
 import Base from "../layouts/Base.astro";
 ---
 <Base
@@ -19,6 +29,15 @@ import Base from "../layouts/Base.astro";
   </div>
 
   <ul class="tier-grid">
+    <li class="tier">
+      <h2 class="type-heading-2">Free</h2>
+      <p class="price type-display">$0</p>
+      <ul>
+        <li>15 reads a month</li>
+        <li>The synthesis read on any US-listed ticker</li>
+        <li>Key technical levels (basic), SEC/EDGAR fundamentals, macro regime context</li>
+      </ul>
+    </li>
     <li class="tier">
       <h2 class="type-heading-2">Core</h2>
       <p class="price type-display">$49<span class="per">/mo</span></p>
