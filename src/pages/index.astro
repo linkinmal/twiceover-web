@@ -23,7 +23,7 @@ import ProductProofVisual from "../components/ProductProofVisual.astro";
 ---
 <Base
   title="TwiceOver — a second look at your own book"
-  description="Connect your brokerage read-only and the read runs on the positions you actually hold — your rules, your horizons. Or take any ticker, no connection needed. Depth, never a verdict."
+  description="Connect your brokerage read-only and the read runs on the positions you actually hold — your rules, your horizons. Or take any ticker — no account, no connection needed. Depth, never a verdict."
 >
   {/* Hero — deep door leads the sub (ADR 0042, connect-led); demo retained above the fold.
       No pricing link in the reserved-box state: pricing via header nav + foot Pricing cue. */}
@@ -37,7 +37,7 @@ import ProductProofVisual from "../components/ProductProofVisual.astro";
       </p>
       {/* Reserved — "Connect read-only →" quiet-outline CTA: built and wired to the app at
           launch (#32). No interim OAuth plumbing pre-launch. */}
-      <p class="demo-turn">Or, take any ticker — no connection needed.</p>
+      <p class="demo-turn">Or, take any ticker — no account, no connection needed.</p>
       {/* Built (v2.6, #1240, ADR 0383) — the entry-box row, fixture-only. No JavaScript
           required: action="#demo-read" + the input carries no `name` attribute, so a real
           no-JS submit serializes nothing (the HTML forms spec excludes unnamed fields from
@@ -53,7 +53,7 @@ import ProductProofVisual from "../components/ProductProofVisual.astro";
       <p class="entry-box__caption type-caption">Illustrative example — the same fixed AAPL/NVDA data shown throughout this page, not a live account. Every ticker shows this same read until launch.</p>
       <div class="connect-stages">
         <div class="stage-row">
-          <span class="stage-chip">Any ticker · no connection</span>
+          <span class="stage-chip">Any ticker · no account, no connection</span>
           <span class="stage-arrow" aria-hidden="true">→</span>
           <span class="stage-chip">Your positions · your rules · your paths</span>
         </div>
@@ -144,8 +144,8 @@ import ProductProofVisual from "../components/ProductProofVisual.astro";
     <div class="door-grid">
       <article class="door">
         <p class="door__tag type-caption">The open door</p>
-        <h3 class="type-heading-2">Any ticker, no connection needed</h3>
-        <p class="door__body">Type any ticker — no connection needed — and get the same read, built from licensed data.</p>
+        <h3 class="type-heading-2">Any ticker, no account or connection needed</h3>
+        <p class="door__body">Type any ticker — no account, no connection needed — and get the same read, built from licensed data.</p>
         <ul class="door__checklist">
           <li><span class="chevron" aria-hidden="true">›</span> The key technical levels, the macro backdrop and market regime, the curated voices of prominent traders, the options math and flow, fundamentals, and news and catalysts — each with its source and timestamp.</li>
           <li><span class="chevron" aria-hidden="true">›</span> One conditional, multi-horizon outlook, each stated as a condition. Labeled AI synthesis; every figure from the data pipeline, not the model. Never a score, never a "buy" or "sell."</li>
@@ -227,7 +227,7 @@ import ProductProofVisual from "../components/ProductProofVisual.astro";
     <ol class="steps">
       <li>
         <span class="num" aria-hidden="true">1</span>
-        <p><span class="step-title">Analyze any ticker.</span> Type a ticker or ask in plain words. From licensed market and options data, TwiceOver synthesizes the key technical levels, the macro backdrop and market regime, the curated voices of prominent traders, and the options math and flow, all into one read — on any ticker, no broker connection required.</p>
+        <p><span class="step-title">Analyze any ticker.</span> Type a ticker or ask in plain words. From licensed market and options data, TwiceOver synthesizes the key technical levels, the macro backdrop and market regime, the curated voices of prominent traders, and the options math and flow, all into one read — on any ticker, no account or broker connection required.</p>
       </li>
       <li>
         <span class="num" aria-hidden="true">2</span>
@@ -291,6 +291,10 @@ import ProductProofVisual from "../components/ProductProofVisual.astro";
         <p>No. Every ticker gets the full read with no connection at all. Connecting read-only adds your own positions and your own rules to that same read — it's optional, always.</p>
       </details>
       <details>
+        <summary class="type-heading-2">Do I need to create an account to use it?</summary>
+        <p>No — that's a separate optional step, not a requirement. Every ticker gets the full read with no account, same as no connection. An account is only for saving your own rules, connecting your brokerage read-only, or subscribing to a paid plan.</p>
+      </details>
+      <details>
         <summary class="type-heading-2">Is my account data shared with anyone?</summary>
         <p>No. Your account data and its analysis are never exposed to, cached for, or reused by another user.</p>
       </details>
@@ -311,7 +315,7 @@ import ProductProofVisual from "../components/ProductProofVisual.astro";
     <div class="container closing-band__inner">
       <div>
         <p class="type-heading-1">See it on your own book.</p>
-        <p>Any ticker, no connection needed — or connect read-only for your own read.</p>
+        <p>Any ticker, no account or connection needed — or connect read-only for your own read.</p>
       </div>
       <div class="closing-band__actions">
         <a class="btn-quiet" href="/pricing">Pricing</a>
