@@ -18,11 +18,26 @@
 // 0027/0028) and US-venue-scoped by construction; inline qualifier, not a footnote,
 // to preserve tier-card symmetry (spec §6.2).
 import Base from "../layouts/Base.astro";
+
+// Offer JSON-LD (SEO audit 2026-07 finding 7) — the three Accepted prices, verbatim
+// from pricing-artifact.md §1 (human sign-off 2026-06-30). No numbers invented here.
+const productJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  name: "TwiceOver",
+  url: "https://twiceover.io/pricing/",
+  offers: [
+    { "@type": "Offer", name: "Free", price: "0", priceCurrency: "USD" },
+    { "@type": "Offer", name: "Core", price: "49", priceCurrency: "USD" },
+    { "@type": "Offer", name: "Premium", price: "99", priceCurrency: "USD" },
+  ],
+};
 ---
 <Base
   title="Pricing — TwiceOver"
   description="One simple monthly subscription. No per-analysis charges. Use it with or without a broker connection."
 >
+  <script type="application/ld+json" set:html={JSON.stringify(productJsonLd)} />
   <div class="page-title-block">
     <h1 class="type-heading-1">Simple subscription. You hold the decisions; we do the math.</h1>
     <p class="sub">One simple monthly subscription. No per-analysis charges. Use it with or without a broker connection — connecting read-only unlocks reads of your own positions against your own rules.</p>
