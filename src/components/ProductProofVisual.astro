@@ -1,6 +1,6 @@
 <div class="proof" aria-hidden="true">
   <svg class="proof__svg" viewBox="-32 -24 624 576" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="An illustrative TwiceOver read: an AAPL shares position, an NVDA bull call spread, and the rules checked against them.">
-    <!--
+    {/*
       Hero product-proof visual (site-prelaunch.md §2 Hero, v2.4). A fixed-geometry
       three-card layered-overlap collage. Ship this INLINE in the Astro component
       (not as <img>) so the page's @font-face (Source Serif 4 / Sans 3 / Code Pro)
@@ -13,7 +13,7 @@
       Every figure traces to read-held-position.md's canonical fixture; AAPL is the
       stock card's display label only (same NVDA shares-leg fixture). No invented
       market levels — qualitative descriptors only on the stock card.
-    -->
+    */}
     <defs>
       <filter id="cardShadow" x="-60%" y="-60%" width="220%" height="220%">
         <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#211D17" flood-opacity="0.13"/>
@@ -34,7 +34,7 @@
       </style>
     </defs>
 
-    <!-- Card 1 · AAPL stock (z1, drawn first) -->
+    {/* Card 1 · AAPL stock (z1, drawn first) */}
     <g transform="rotate(-0.5 170 115)" filter="url(#cardShadow)">
       <rect class="card" x="0" y="0" width="340" height="230" rx="8"/>
       <text class="kick" x="18" y="26">Your read · AAPL</text>
@@ -51,7 +51,7 @@
       <text class="val" x="322" y="206" text-anchor="end">near · mid · far</text>
     </g>
 
-    <!-- Card 2 · NVDA options (z2) -->
+    {/* Card 2 · NVDA options (z2) */}
     <g transform="rotate(0.6 395 300)" filter="url(#cardShadow)">
       <rect class="card" x="235" y="214" width="320" height="172" rx="8"/>
       <text class="kick" x="253" y="238">Your read · NVDA</text>
@@ -67,7 +67,7 @@
       <text class="val" x="537" y="377" text-anchor="end">hold · close · reduce · roll</text>
     </g>
 
-    <!-- Card 3 · rules chip (z3, on top) -->
+    {/* Card 3 · rules chip (z3, on top) */}
     <g transform="rotate(-0.4 335 443)" filter="url(#cardShadow)">
       <rect class="rcard" x="170" y="382" width="330" height="122" rx="6"/>
       <text class="kick" x="186" y="406">Your rules, checked every read</text>

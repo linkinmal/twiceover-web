@@ -20,11 +20,29 @@
 import Base from "../layouts/Base.astro";
 import RuleRow from "../components/RuleRow.astro";
 import ProductProofVisual from "../components/ProductProofVisual.astro";
+
+// Organization + WebSite JSON-LD (SEO audit 2026-07 finding 7) — brand-SERP/knowledge-panel
+// groundwork. No FAQPage schema: Google deprecated FAQ rich results 2026-05-07.
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "TwiceOver",
+  url: "https://twiceover.io",
+  email: "support@twiceover.io",
+};
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "TwiceOver",
+  url: "https://twiceover.io",
+};
 ---
 <Base
   title="TwiceOver — a second look at your own book"
   description="Connect your brokerage read-only and the read runs on the positions you actually hold — your rules, your horizons. Or take any ticker — no account, no connection needed. Depth, never a verdict."
 >
+  <script type="application/ld+json" set:html={JSON.stringify(organizationJsonLd)} />
+  <script type="application/ld+json" set:html={JSON.stringify(websiteJsonLd)} />
   {/* Hero — deep door leads the sub (ADR 0042, connect-led); demo retained above the fold.
       No pricing link in the reserved-box state: pricing via header nav + foot Pricing cue. */}
   <section class="hero">

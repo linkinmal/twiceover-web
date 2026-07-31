@@ -18,6 +18,7 @@
     "deploy": "bash scripts/deploy.sh"
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.3",
     "astro": "^5.0.0"
   },
   "devDependencies": {
