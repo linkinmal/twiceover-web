@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Content Signals Policy (https://contentsignals.org) — Growth SEO audit 2026-07-31,
+# stock-analyst-platform#1643. Founder ruling: search indexing and AI-answer citability
+# are wanted; training-data use is not.
+Content-signal: search=yes, ai-input=yes, ai-train=no
