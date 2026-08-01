@@ -1,0 +1,23 @@
+#!/bin/sh
+# Worktree-isolation gate (ADR 0025 Amendments 1-3, stock-analyst-platform #123).
+# Refuses a commit made directly in this repo's shared main checkout — every
+# session works in its own git worktree, never here. Silent inside any
+# worktree. Enable once per checkout: `git config core.hooksPath .githooks`
+# (same convention as stock-analyst-platform's doc-numbering hook — see
+# stock-analyst-platform docs/decisions/0025-concurrent-thread-git-isolation.md
+# Amendment 3). Bypass: `git commit --no-verify` (only with explicit user
+# instruction — see stock-analyst-platform CLAUDE.md).
+status=0
+
+gitdir=$(git rev-parse --git-dir 2>/dev/null)
+commondir=$(git rev-parse --git-common-dir 2>/dev/null)
+if [ "$gitdir" = "$commondir" ]; then
+  status=1
+  echo "✖ commit refused: this is the shared main checkout, not a worktree."
+  echo "  ADR 0025 (stock-analyst-platform, Amendments 1-3) — work in your own"
+  echo "  git worktree instead:"
+  echo "    git worktree add ~/git/<repo>-wt/<role>-<issue>-<slug> -b <role>/<issue>-<slug> origin/main"
+  echo "  Bypass (only with explicit user instruction): git commit --no-verify"
+fi
+
+exit $status
