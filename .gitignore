@@ -17,3 +17,9 @@ node_modules/
 # Wrangler / OS
 .wrangler/
 .DS_Store
+
+# Local worktrees under the old .claude/worktrees/ convention (ADR 0025 Amendment 3,
+# stock-analyst-platform #123) — new worktrees live at ~/git/twiceover-web-wt/ (sibling
+# dir, outside this tree entirely); this stays only to keep any grandfathered local
+# worktree from being committed by accident.
+.claude/worktrees/
