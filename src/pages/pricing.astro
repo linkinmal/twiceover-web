@@ -2,25 +2,32 @@
 // Pricing (site-prelaunch.md §3) — copy verbatim from "Page: Pricing" (#41, FINAL).
 // Monthly-only: no annual figures landed, so the designed billing toggle ships dormant
 // (NOT built — zero JS, per the design's own conditional + PM annual-pricing decision).
-// Premium softened (PM 2026-06-12): no real-time data-tier claim — "expanded data & signal
-// coverage (finalized at launch)". Connection-optional: works with or without a broker
-// connection. Figures ($49/$99) are the Accepted prices (pricing-artifact.md §1, human
-// sign-off 2026-06-30), matching FastSpring's catalog exactly. No card CTA in #39 — no
-// checkout exists. Tier symmetry is a compliance feature (spec §6.2): never differentiate.
+// Connection-optional: works with or without a broker connection. Core's $49 is the
+// Accepted price (pricing-artifact.md §1, human sign-off 2026-06-30), matching
+// FastSpring's catalog exactly. No card CTA in #39 — no checkout exists. Tier symmetry
+// is a compliance feature (spec §6.2): never differentiate.
 // Free card (2026-07-22, stock-analyst-platform#1307): shipped decoupled from the
 // trial-launch reveal (consult 0182, ADR 0145 item 6) — Free needs neither ORATS (#97)
-// nor a live checkout, so it ships alone. The chooser block, Core's trial CTA, and
-// Premium's "No trial —" line stay gated on #97/#31 and are NOT part of this change.
+// nor a live checkout, so it ships alone. The chooser block and Core's trial CTA stay
+// gated on #97/#31 and are NOT part of this change.
 // Trimmed from the #1307 canonical draft (human direction 2026-07-22): dropped
 // "— ongoing, not a trial" and the standalone "No card required" line as redundant
 // on a card with no CTA/checkout to contrast against. "Any ticker" → "any US-listed
 // ticker" per consult 0416 (PM ruling): the product is US-only by design (ADR
 // 0027/0028) and US-venue-scoped by construction; inline qualifier, not a footnote,
 // to preserve tier-card symmetry (spec §6.2).
+// Premium card removed (2026-08-02, stock-analyst-platform#1766/#1767): realizes
+// pricing-artifact.md's go-live gate (human direction, 2026-07-22) — while #1304
+// (live analyst research) is open, Premium is held out of checkout/pricing entirely
+// (hidden, not offered), matching the in-app Plans page's Free/Core state. Re-add
+// trigger: when #1304 and the deferred-layers.lit flip both close, re-add as its own
+// copy PR (content preserved in site-copy-twiceover.md's git history pre-2026-08-02).
 import Base from "../layouts/Base.astro";
 
-// Offer JSON-LD (SEO audit 2026-07 finding 7) — the three Accepted prices, verbatim
-// from pricing-artifact.md §1 (human sign-off 2026-06-30). No numbers invented here.
+// Offer JSON-LD (SEO audit 2026-07 finding 7) — the Accepted prices, verbatim from
+// pricing-artifact.md §1 (human sign-off 2026-06-30). No numbers invented here.
+// Premium omitted (#1766/#1767) — the go-live gate holds it out of pricing entirely;
+// a structured-data Offer is as much an advertisement of it as the visible card.
 const productJsonLd = {
   "@context": "https://schema.org",
   "@type": "Product",
@@ -29,7 +36,6 @@ const productJsonLd = {
   offers: [
     { "@type": "Offer", name: "Free", price: "0", priceCurrency: "USD" },
     { "@type": "Offer", name: "Core", price: "49", priceCurrency: "USD" },
-    { "@type": "Offer", name: "Premium", price: "99", priceCurrency: "USD" },
   ],
 };
 ---
@@ -63,15 +69,6 @@ const productJsonLd = {
         <li>Your own rules, evaluated on live data</li>
         <li>Macro/regime context and the research layer</li>
         <li>Licensed market and options data</li>
-      </ul>
-    </li>
-    <li class="tier">
-      <h2 class="type-heading-2">Premium</h2>
-      <p class="price type-display">$99<span class="per">/mo</span></p>
-      <ul>
-        <li>Everything in Core</li>
-        <li>Higher usage limits</li>
-        <li>Expanded data and signal coverage <em>(finalized at launch)</em></li>
       </ul>
     </li>
   </ul>
