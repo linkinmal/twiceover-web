@@ -583,7 +583,7 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
   gap: var(--space-300);
-  max-width: 66rem; /* sized for 3 tiers; 2 (Free/Core) fit within it while Premium is gated out (#1766/#1767) */
+  max-width: 44rem; /* tiers × 22rem (2 tiers: Free/Core, Premium gated out #1766/#1767) */
   margin-block: var(--space-600);
   padding: 0;
   list-style: none;
