@@ -469,6 +469,7 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 @media (min-width: 960px) { .showcase-grid { grid-template-columns: repeat(3, 1fr); } }
 .showcase-card { display: flex; flex-direction: column; gap: var(--space-200); }
 .showcase-card__caption { margin: 0; color: var(--color-text-long-form); font-size: var(--font-size-300); }
+.showcase__disclosure { color: var(--color-text-muted); margin: var(--space-400) 0 0; }
 
 /* Outlook artifact — the reserved accent surface (ADR 0008), same tokens as the
    app's Paths/Outlook pair. Never rendered without the label + non-personalization
