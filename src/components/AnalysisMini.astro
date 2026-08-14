@@ -1,0 +1,75 @@
+---
+// Per-section miniature fixture render used by AnalysisBand.astro's eight cards.
+// Illustrative-only figures (site-prelaunch.md §2 carousel band) — same canonical
+// NVDA/AAPL fixture used throughout the page, no invented market data.
+interface Props {
+  kind: "fund" | "tech" | "sect" | "peer" | "news" | "voic" | "macr" | "outl";
+}
+const { kind } = Astro.props;
+---
+<div class="band-mini">
+  {kind === "fund" && (
+    <>
+      <div class="kv-grid">
+        <div><span class="kl">Revenue</span><span class="kv">$88.5B</span></div>
+        <div><span class="kl">EPS</span><span class="kv">$8.32</span></div>
+        <div><span class="kl">Mkt cap</span><span class="kv">$2.8T</span></div>
+      </div>
+      <div class="row"><span>Next earnings</span><span class="v">Aug 27</span></div>
+    </>
+  )}
+  {kind === "tech" && (
+    <>
+      <div class="row"><span>50-DMA</span><span class="v">$175.43</span></div>
+      <div class="row"><span>200-DMA</span><span class="v">$168.90</span></div>
+      <div class="row"><span>RSI</span><span class="v">64</span></div>
+      <div class="row"><span>52-week range</span><span class="v">$156–$198</span></div>
+    </>
+  )}
+  {kind === "sect" && (
+    <>
+      <p class="narr">Technology — sector strength increasing; valuation premium compressing.</p>
+      <p class="sub">unit narrative · the sector, not the stock</p>
+    </>
+  )}
+  {kind === "peer" && (
+    <>
+      <div class="chip-pair">
+        <span>P/E 32.1 <em style="font-style:normal;color:var(--color-text-muted)">vs 28.5</em></span>
+        <span>3M +8.2% <em style="font-style:normal;color:var(--color-text-muted)">vs +4.1%</em></span>
+      </div>
+      <div class="row"><span>MSFT</span><span class="v">P/E 28.3 · +5.2%</span></div>
+      <p class="sub">open table · subject vs peer median</p>
+    </>
+  )}
+  {kind === "news" && (
+    <>
+      <p class="narr"><strong>Earnings</strong> · Aug 14 — beats Q2 estimates <span class="sub">· Reuters</span></p>
+      <p class="sub">why it matters: could signal AI demand continuing</p>
+      <div class="row"><span>Catalysts</span><span class="v">Aug 27 earnings</span></div>
+    </>
+  )}
+  {kind === "voic" && (
+    <>
+      <div class="voice-row"><span class="voice-avatar" aria-hidden="true"></span><span class="sub">(fund)</span></div>
+      <p class="narr">constructive on the AI chip cycle — characterized, never reproduced.</p>
+      <p class="sub">up to three voices · curated · attributed</p>
+    </>
+  )}
+  {kind === "macr" && (
+    <>
+      <div class="row"><span>Tactical</span><span class="v">Fed on hold</span></div>
+      <div class="row"><span>Strategic</span><span class="v">Soft landing</span></div>
+      <div class="axis" aria-hidden="true"><i></i></div>
+      <div class="axis-labels"><span>defensive</span><span>Balanced</span><span>risk-on</span></div>
+    </>
+  )}
+  {kind === "outl" && (
+    <>
+      <p class="sub" style="padding-bottom:4px">Synthesis</p>
+      <div class="horizon"><b>NEAR · DAYS–WEEKS</b><i>constructive while the recent range holds</i></div>
+      <div class="horizon"><b>MID · 1–3 MONTHS</b><i>structure intact absent a trend change</i></div>
+      <div class="horizon"><b>FAR · QUARTERS</b><i>hinges on how the macro regime resolves</i></div>
+    </>
+  )}
+</div>

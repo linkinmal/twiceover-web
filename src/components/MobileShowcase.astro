@@ -1,0 +1,67 @@
+---
+// Mobile-app showcase (site-prelaunch.md §2 Home, v2.13 — new section, realizes
+// stock-analyst-platform #2179). Static phone mockup only — no JS, CSS-only shimmer
+// on the two "loading" skeleton rows. Per mobile-installed-app.md v1.1 masthead/
+// cards/tabs anatomy.
+import RuleRow from "./RuleRow.astro";
+---
+<section class="mobile-showcase" aria-labelledby="mobile-showcase-heading">
+  <div class="container mobile-showcase__inner">
+    <div>
+      <h2 id="mobile-showcase-heading" class="type-heading-1 section-heading">The same read, on your phone.</h2>
+      <p class="mobile-showcase__sub">
+        TwiceOver is coming to iPhone and Android — the full read, your rules checked every time you
+        open it, and a clear note when data is stale rather than a stale number shown as current.
+        Nothing is cut down for mobile.
+      </p>
+      <span class="mobile-showcase__pill">iOS &amp; Android · coming soon</span>
+    </div>
+
+    <div class="phone" role="img" aria-label="TwiceOver on a phone, showing a read for NVDA with the Read, Rules and Account tabs">
+      <div class="phone__screen">
+        <div class="phone__masthead">
+          <span class="phone__mark" aria-hidden="true"><i></i><i></i></span>
+          <span class="phone__word">TwiceOver</span>
+        </div>
+        <div class="phone__body">
+          <p class="phone__halfbanner">NVDA · Interactive Brokers · synced 09:02 ET</p>
+          <div class="phone__card">
+            <p class="phone__card-title">Your 100 shares</p>
+            <p class="phone__pnl">+$2,612 <span class="phone__pnl-pct">(+16.5%)</span></p>
+          </div>
+          <div class="phone__card">
+            <p class="phone__card-title phone__card-title--small">Your rules, on live data</p>
+            <RuleRow state="not-met" name="Stock target 25%" pnl="+16.5%" />
+            <RuleRow state="approaching" name="Option target 60%" pnl="+49.4%" />
+          </div>
+          <div class="phone__card">
+            <p class="phone__card-title phone__card-title--small">Technicals &amp; levels</p>
+            <div class="phone__row"><span>50-DMA</span><span class="v">$175.43</span></div>
+            <div class="phone__row"><span>RSI</span><span class="v">64</span></div>
+            <div class="phone__skel" style="width:64%" aria-hidden="true"></div>
+          </div>
+          <div class="phone__card">
+            <p class="phone__card-title phone__card-title--small">Macro &amp; regime</p>
+            <div class="phone__skel" style="width:88%" aria-hidden="true"></div>
+            <div class="phone__skel" style="width:70%" aria-hidden="true"></div>
+          </div>
+          <div class="phone__fastcut" aria-hidden="true"><span>Paths ↓</span><span>Outlook ↓</span></div>
+        </div>
+        <div class="phone__tabbar">
+          <div class="phone__tab phone__tab--on">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M3 4h12M3 9h12M3 14h8" stroke="currentColor" stroke-width="1.5"/></svg>
+            Read
+          </div>
+          <div class="phone__tab">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M9 5.5v3.5l2.5 1.5" stroke="currentColor" stroke-width="1.5"/></svg>
+            Rules
+          </div>
+          <div class="phone__tab">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><circle cx="9" cy="6.5" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M3.5 15c1-3 3-4.5 5.5-4.5s4.5 1.5 5.5 4.5" stroke="currentColor" stroke-width="1.5"/></svg>
+            Account
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

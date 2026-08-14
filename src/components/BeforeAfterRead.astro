@@ -1,0 +1,125 @@
+---
+// The before/after read (site-prelaunch.md §2 Home, v2.13 — realizes stock-analyst-
+// platform #2179). Replaces the old three-artifact showcase band: one document, two
+// tab-selected states. The eight analysis rows are identical in both — that constancy
+// is the argument, not a prose claim about it. Every figure is the canonical NVDA
+// fixture already used elsewhere on this page (hero, demo-read reveal, two doors).
+import RuleRow from "./RuleRow.astro";
+---
+<section class="xf-section" aria-labelledby="xf-heading">
+  <div class="container">
+    <h2 id="xf-heading" class="type-heading-1 section-heading">And what it looks like on your own book.</h2>
+    <p class="xf-section-sub">
+      Connecting read-only doesn't change the analysis. It changes what the analysis is measured
+      against — your legs, your average, your own rules, and the paths open on what you actually hold.
+    </p>
+
+    <div class="xf-tabs" role="tablist" aria-label="Show the read with or without a connection">
+      <button class="xf-tab is-on" id="xfTabOpen" type="button" role="tab" aria-selected="true">Any US-listed ticker</button>
+      <button class="xf-tab" id="xfTabConn" type="button" role="tab" aria-selected="false">Connected read-only</button>
+    </div>
+
+    <div class="xf-card" id="xfCard" aria-hidden="true">
+      <div class="xf-head">
+        <span class="xf-ticker">NVDA</span>
+        <span class="xf-sync">Interactive Brokers · synced 09:02 ET</span>
+        <span class="xf-pills"><span>Paths ↓</span><span>Outlook ↓</span></span>
+      </div>
+
+      <div class="xf-personal">
+        <div class="xf-personal-inner">
+          <p class="xf-label">Your position</p>
+          <div class="xf-row"><span>100 shares · avg $158.40</span><span class="v v--pos">+$2,612 (+16.5%)</span></div>
+          <div class="xf-row"><span>Bull call spread · Aug 21</span><span class="v v--pos">+$612 (+49.4%)</span></div>
+          <div class="xf-row xf-row--sub"><span>max profit $1,760 · max loss $1,240 · BE $181.20</span><span></span></div>
+          <p class="xf-label">Your rules, on live data</p>
+          <RuleRow state="not-met" name="Stock target 25%" pnl="+16.5%" />
+          <RuleRow state="approaching" name="Option target 60%" pnl="+49.4%" />
+          <p class="xf-label">Your paths</p>
+          <div class="xf-row"><span>Make no change · close · reduce · roll</span><span class="v">each with its math</span></div>
+        </div>
+      </div>
+
+      <div class="xf-analysis">
+        <p class="xf-label xf-analysis-label">NVDA analysis <em>— identical either way</em></p>
+        <div class="xf-row"><span>Fundamentals</span><span class="v">Rev $88.5B · EPS $8.32</span></div>
+        <div class="xf-row"><span>Technicals &amp; levels</span><span class="v">50-DMA $175.43 · RSI 64</span></div>
+        <div class="xf-row"><span>News &amp; catalysts</span><span class="v">Aug 14 · earnings beat</span></div>
+        <div class="xf-row"><span>Voices</span><span class="v">curated · attributed</span></div>
+        <div class="xf-row"><span>Sector regime</span><span class="v">strength increasing</span></div>
+        <div class="xf-row"><span>Peers &amp; relative position</span><span class="v">P/E 32.1 vs 28.5</span></div>
+        <div class="xf-row"><span>Macro &amp; regime</span><span class="v">balanced risk appetite</span></div>
+        <div class="xf-row"><span>Outlook</span><span class="v">near · mid · far</span></div>
+      </div>
+    </div>
+
+    <p class="xf-thesis">The eight analysis sections are identical in both. Connecting doesn't add sections — it measures them against what you actually hold.</p>
+    <p class="xf-section-sub type-caption" style="margin-top: var(--space-150)">Illustrative example — the same fixed NVDA data shown throughout this page, not a live account.</p>
+
+    {/* The card is aria-hidden (it cycles on a 5s timer — nothing should announce on
+        a loop); the full content of both states is exposed once here as static prose. */}
+    <div class="visually-hidden">
+      <p>Without a connection, a read of NVDA carries eight analysis sections: fundamentals; technicals and levels; news and catalysts; voices; sector regime; peers and relative position; macro and regime; and the outlook.</p>
+      <p>Connected read-only, those same eight sections are unchanged, and the read additionally carries your position and its structure, your own rules checked against live data, your scenarios, and your paths — each with its full math.</p>
+    </div>
+  </div>
+</section>
+
+{/* Progressive enhancement ONLY — both states are reachable via the tab buttons with
+    this script absent (they'd just require a manual click instead of auto-cycling).
+    No fetch/XHR/WebSocket/sendBeacon, no .value read anywhere (ci/check-demo-control.mjs
+    scans every inline script in the document, not only the entry-box one). */}
+<script is:inline>
+  (function () {
+    var card = document.getElementById("xfCard");
+    var tabOpen = document.getElementById("xfTabOpen");
+    var tabConn = document.getElementById("xfTabConn");
+    if (!card || !tabOpen || !tabConn) return;
+
+    var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var timer = null;
+    var onScreen = true;
+    var held = false;
+    var connected = false;
+
+    function set(next) {
+      connected = next;
+      card.classList.toggle("is-conn", connected);
+      tabConn.classList.toggle("is-on", connected);
+      tabOpen.classList.toggle("is-on", !connected);
+      tabConn.setAttribute("aria-selected", String(connected));
+      tabOpen.setAttribute("aria-selected", String(!connected));
+    }
+    function restart() {
+      if (timer) clearInterval(timer);
+      timer = setInterval(function () {
+        if (!reduced && !held && onScreen) set(!connected);
+      }, 5000);
+    }
+    function pick(next) {
+      set(next);
+      restart();
+    }
+
+    tabOpen.addEventListener("click", function () { pick(false); });
+    tabConn.addEventListener("click", function () { pick(true); });
+    card.addEventListener("mouseenter", function () { held = true; });
+    card.addEventListener("mouseleave", function () { held = false; });
+    var tabs = document.querySelector('[aria-label="Show the read with or without a connection"]');
+    if (tabs) {
+      tabs.addEventListener("mouseenter", function () { held = true; });
+      tabs.addEventListener("mouseleave", function () { held = false; });
+    }
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(
+        function (rows) {
+          rows.forEach(function (r) { onScreen = r.isIntersecting; });
+        },
+        { rootMargin: "80px" },
+      ).observe(card);
+    }
+
+    set(false);
+    restart();
+  })();
+</script>
