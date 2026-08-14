@@ -383,6 +383,71 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 
 .section-heading { margin: var(--space-600) 0 var(--space-400); }
 
+/* ── Analysis band (v2.13, new, #2179) — full-bleed, continuously scrolling row of
+   the eight analysis sections. Both the visible set and its loop duplicate are
+   server-rendered (AnalysisBand.astro); the duplicate is aria-hidden. Motion is
+   opt-in (site convention): the track only animates under prefers-reduced-motion:
+   no-preference, and falls back to a plain horizontally-scrollable row otherwise —
+   both are equally reachable, the animation is a courtesy, not a requirement. */
+.band {
+  margin-inline: calc(50% - 50vw);
+  background: var(--color-bg-raised);
+  border-block: 1px solid var(--color-border-strong);
+}
+.band__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-200);
+  max-width: 72rem;
+  margin-inline: auto;
+  padding: var(--space-400) var(--space-200) var(--space-050);
+}
+@media (min-width: 640px) { .band__head { padding-inline: var(--space-300); } }
+.band__head span { color: var(--color-text-muted); font-size: var(--font-size-200); }
+.band__wrap { overflow: hidden; }
+.band__track { display: flex; width: max-content; padding: var(--space-300) 0 var(--space-400); }
+@media (prefers-reduced-motion: no-preference) {
+  .band__track { animation: band-flow 54s linear infinite; }
+  .band:hover .band__track, .band:focus-within .band__track { animation-play-state: paused; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .band__wrap { overflow-x: auto; }
+}
+@keyframes band-flow { to { transform: translateX(-50%); } }
+.band__cell {
+  width: 17rem;
+  flex: none;
+  padding-inline: var(--space-200);
+  border-right: 1px solid var(--color-border-default);
+}
+.band__cell-name { margin: 0 0 var(--space-150); font-family: var(--font-family-serif); font-weight: var(--font-weight-semibold); font-size: var(--font-size-300); }
+.band__cell-index { font-family: var(--font-family-mono); font-weight: var(--font-weight-regular); font-size: var(--font-size-200); color: var(--color-text-muted); margin-left: var(--space-100); }
+.band__cell-tag { margin: 0 0 var(--space-150); color: var(--color-text-secondary); font-size: var(--font-size-200); }
+
+/* Section miniatures inside each band cell (AnalysisMini.astro). */
+.band-mini { background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-small); padding: var(--space-150) var(--space-200); font-size: var(--font-size-200); color: var(--color-text-secondary); }
+.band-mini .row { display: flex; justify-content: space-between; gap: var(--space-150); padding-block: var(--space-100); border-top: 1px solid var(--color-border-default); }
+.band-mini .row:first-child { border-top: 0; }
+.band-mini .row .v { font-family: var(--font-family-mono); font-size: var(--font-size-100); color: var(--color-text-secondary); white-space: nowrap; }
+.band-mini .narr { margin: 0; font-size: var(--font-size-200); line-height: var(--font-line-height-default); color: var(--color-text-secondary); }
+.band-mini .sub { margin: var(--space-050) 0; font-size: var(--font-size-100); color: var(--color-text-muted); }
+.band-mini .kv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-100); padding-bottom: var(--space-150); }
+.band-mini .kv-grid .kl { display: block; font-size: var(--font-size-100); text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-muted); }
+.band-mini .kv-grid .kv { font-family: var(--font-family-mono); font-size: var(--font-size-200); color: var(--color-text-primary); }
+.band-mini .chip-pair { display: flex; gap: var(--space-100); padding-bottom: var(--space-150); }
+.band-mini .chip-pair span { flex: 1; border: 1px solid var(--color-border-default); border-radius: var(--radius-small); padding: var(--space-050) var(--space-100); font-family: var(--font-family-mono); font-size: var(--font-size-100); color: var(--color-text-secondary); }
+.band-mini .axis { position: relative; height: 3px; background: var(--color-border-default); border-radius: 2px; margin: var(--space-150) var(--space-025) var(--space-050); }
+.band-mini .axis i { position: absolute; top: -3.5px; left: 55%; width: 10px; height: 10px; border-radius: 50%; background: var(--color-accent-default); }
+.band-mini .axis-labels { display: flex; justify-content: space-between; font-size: var(--font-size-100); color: var(--color-text-muted); }
+.band-mini .horizon { border-top: 1px solid var(--color-border-default); padding-block: var(--space-100); }
+.band-mini .horizon:first-child { border-top: 0; }
+.band-mini .horizon b { font-family: var(--font-family-mono); font-weight: var(--font-weight-medium); font-size: var(--font-size-100); letter-spacing: 0.08em; color: var(--color-accent-default); display: block; }
+.band-mini .horizon i { font-style: normal; color: var(--color-text-secondary); }
+.band-mini .voice-row { display: flex; align-items: center; gap: var(--space-150); padding-bottom: var(--space-150); }
+.band-mini .voice-avatar { width: 20px; height: 20px; border-radius: 50%; background: var(--color-border-strong); flex: none; }
+
 /* ── Depth strip (v2.3, new) — full-bleed background, column-width content ── */
 .depth-strip {
   margin-inline: calc(50% - 50vw);
@@ -482,18 +547,102 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .door__decor--positions .position-row + .position-row { border-top: 1px solid var(--color-border-default); }
 .door__decor--positions .position-row span:first-child { font-family: var(--font-family-mono); color: var(--color-text-primary); }
 
-/* ── Showcase band (v2.3, new — full-bleed surface.panel) ────────────────── */
-.showcase {
-  margin-inline: calc(50% - 50vw);
-  background: var(--surface-panel);
-  border-top: 2px solid var(--color-border-strong);
-  padding-block: var(--space-600);
+/* ── Before/after read (v2.13, replaces the old three-artifact showcase band,
+   #2179) — one document, two tab-selected states. The personal half materializes
+   via a grid-template-rows 0fr→1fr transition; the analysis half never moves its
+   own content — that constancy is the argument. Auto-cycles every 5s, pausing on
+   hover and off-screen (BeforeAfterRead.astro); prefers-reduced-motion stops both
+   the cycle and the transition, but the tabs still switch state on click. ────── */
+.xf-section { padding-block: var(--space-600); }
+.xf-section-sub { max-width: 60ch; margin: 0 0 var(--space-400); color: var(--color-text-secondary); font-size: var(--font-size-400); }
+.xf-tabs { display: flex; gap: var(--space-100); margin: 0 0 var(--space-300); }
+.xf-tab {
+  border: 1px solid var(--color-border-strong);
+  background: transparent;
+  color: var(--color-text-muted);
+  border-radius: 999px;
+  padding: var(--space-100) var(--space-300);
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-200);
+  cursor: pointer;
+  transition: background-color 150ms, color 150ms, border-color 150ms;
 }
-.showcase-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-400); }
-@media (min-width: 960px) { .showcase-grid { grid-template-columns: repeat(3, 1fr); } }
-.showcase-card { display: flex; flex-direction: column; gap: var(--space-200); }
-.showcase-card__caption { margin: 0; color: var(--color-text-long-form); font-size: var(--font-size-300); }
-.showcase__disclosure { color: var(--color-text-muted); margin: var(--space-400) 0 0; }
+.xf-tab.is-on { background: var(--color-accent-default); border-color: var(--color-accent-default); color: var(--color-text-on-accent); font-weight: var(--font-weight-medium); }
+.xf-card { border: 1px solid var(--color-border-strong); border-radius: var(--radius-medium); background: var(--color-bg-raised); padding: var(--space-400); }
+@media (max-width: 639px) { .xf-card { padding: var(--space-300) var(--space-200); } }
+.xf-head { display: flex; align-items: baseline; gap: var(--space-200); flex-wrap: wrap; padding-bottom: var(--space-200); border-bottom: 1px solid var(--color-border-default); }
+.xf-ticker { font-family: var(--font-family-mono); font-weight: var(--font-weight-semibold); font-size: var(--font-size-500); }
+.xf-sync, .xf-pills { opacity: 0; transform: translateY(-3px); }
+@media (prefers-reduced-motion: no-preference) {
+  .xf-sync, .xf-pills { transition: opacity 250ms ease, transform 250ms ease; }
+}
+.xf-sync { font-size: var(--font-size-100); color: var(--color-text-muted); }
+.xf-pills { margin-left: auto; display: flex; gap: var(--space-100); }
+.xf-pills span { border: 1px solid var(--color-accent-default); color: var(--color-accent-default); border-radius: 999px; font-size: var(--font-size-100); padding: 2px var(--space-150); }
+.xf-card.is-conn .xf-sync, .xf-card.is-conn .xf-pills { opacity: 1; transform: translateY(0); }
+
+.xf-personal { display: grid; grid-template-rows: 0fr; opacity: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .xf-personal { transition: grid-template-rows 550ms cubic-bezier(.22,.9,.3,1), opacity 400ms ease; }
+}
+.xf-card.is-conn .xf-personal { grid-template-rows: 1fr; opacity: 1; }
+.xf-personal-inner { overflow: hidden; min-height: 0; }
+.xf-label { font-family: var(--font-family-mono); font-size: var(--font-size-100); letter-spacing: 0.09em; text-transform: uppercase; color: var(--color-text-muted); margin: var(--space-300) 0 var(--space-050); }
+.xf-label:first-child { margin-top: 0; }
+.xf-analysis-label em { font-style: normal; text-transform: none; letter-spacing: 0; color: var(--color-accent-default); font-size: var(--font-size-100); }
+.xf-row { display: flex; justify-content: space-between; gap: var(--space-200); font-size: var(--font-size-200); color: var(--color-text-secondary); padding-block: var(--space-100); border-top: 1px solid var(--color-border-default); }
+.xf-row--sub { border-top: 0; padding-top: 0; }
+.xf-row--sub span:first-child { font-family: var(--font-family-mono); font-size: var(--font-size-100); color: var(--color-text-muted); }
+.xf-row .v { font-family: var(--font-family-mono); font-size: var(--font-size-200); white-space: nowrap; }
+.xf-row .v--pos { color: var(--color-signal-positive, #197A4B); }
+.xf-analysis .rule-row { padding-block: var(--space-100); border-top: 1px solid var(--color-border-default); }
+.xf-thesis { font-size: var(--font-size-300); color: var(--color-text-secondary); max-width: 68ch; margin: var(--space-300) 0 0; }
+@media (max-width: 559px) {
+  .xf-row { flex-direction: column; gap: var(--space-050); }
+}
+
+/* ── Mobile-app showcase (v2.13, new, #2179) — full-bleed, phone mockup. CSS-only
+   shimmer on the two "loading" skeleton rows; no JS. ─────────────────────────── */
+.mobile-showcase { padding-block: var(--space-600); border-top: 1px solid var(--color-border-default); }
+.mobile-showcase__inner { display: grid; grid-template-columns: 1fr; gap: var(--space-600); align-items: center; }
+@media (min-width: 820px) { .mobile-showcase__inner { grid-template-columns: 1fr auto; } }
+.mobile-showcase__sub { max-width: 56ch; margin: 0; color: var(--color-text-secondary); font-size: var(--font-size-400); }
+.mobile-showcase__pill { display: inline-block; border: 1px solid var(--color-border-strong); border-radius: 999px; padding: var(--space-100) var(--space-300); font-size: var(--font-size-200); color: var(--color-text-secondary); margin-top: var(--space-300); }
+
+.phone { width: 17rem; height: 34.75rem; border-radius: 38px; background: var(--color-text-primary); padding: var(--space-150); box-shadow: 0 18px 40px color-mix(in srgb, var(--color-text-primary) 22%, transparent); margin-inline: auto; }
+.phone__screen { width: 100%; height: 100%; border-radius: 30px; background: var(--color-bg-canvas); overflow: hidden; display: flex; flex-direction: column; position: relative; }
+.phone__masthead { display: flex; align-items: center; gap: var(--space-100); padding: var(--space-600) var(--space-200) var(--space-150); border-bottom: 1px solid var(--color-border-default); }
+.phone__mark { display: flex; gap: 3px; align-items: flex-end; }
+.phone__mark i { display: block; width: 4px; height: 14px; background: var(--color-text-primary); border-radius: 1px; }
+.phone__mark i:last-child { height: 10px; opacity: 0.55; }
+.phone__word { font-family: var(--font-family-serif); font-weight: var(--font-weight-semibold); font-size: var(--font-size-300); }
+.phone__body { flex: 1; overflow: hidden; padding: var(--space-200) var(--space-200) 0; position: relative; }
+.phone__halfbanner { font-family: var(--font-family-mono); font-size: var(--font-size-100); color: var(--color-text-muted); letter-spacing: 0.05em; margin: var(--space-050) 0 var(--space-150); }
+.phone__card { background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-small); padding: var(--space-150) var(--space-200); margin-bottom: var(--space-150); }
+.phone__card-title { font-family: var(--font-family-serif); font-weight: var(--font-weight-semibold); font-size: var(--font-size-200); margin: 0 0 2px; }
+.phone__card-title--small { font-size: var(--font-size-100); }
+.phone__pnl { font-family: var(--font-family-mono); font-size: var(--font-size-300); color: var(--color-signal-positive, #197A4B); margin: 0; }
+.phone__pnl-pct { font-size: var(--font-size-100); }
+.phone__row { display: flex; justify-content: space-between; font-size: var(--font-size-100); color: var(--color-text-secondary); padding: var(--space-050) 0; border-top: 1px solid var(--color-border-default); }
+.phone__row:first-of-type { border-top: 0; }
+.phone__row .v { font-family: var(--font-family-mono); }
+.phone__skel { height: 8px; border-radius: 4px; background: var(--color-border-default); margin: var(--space-100) 0; position: relative; overflow: hidden; }
+@media (prefers-reduced-motion: no-preference) {
+  .phone__skel::after {
+    content: "";
+    position: absolute; inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-bg-raised) 70%, transparent), transparent);
+    animation: phone-shimmer 1.8s infinite;
+  }
+}
+@keyframes phone-shimmer { to { transform: translateX(100%); } }
+.phone__fastcut { position: absolute; right: var(--space-200); bottom: 64px; display: flex; flex-direction: column; gap: var(--space-100); }
+.phone__fastcut span { background: var(--color-bg-raised); border: 1px solid var(--color-border-strong); border-radius: 999px; font-size: var(--font-size-100); padding: var(--space-050) var(--space-150); color: var(--color-text-secondary); box-shadow: 0 2px 6px color-mix(in srgb, var(--color-text-primary) 12%, transparent); }
+.phone__tabbar { border-top: 1px solid var(--color-border-strong); background: var(--color-bg-canvas); display: grid; grid-template-columns: 1fr 1fr 1fr; height: 54px; align-items: center; }
+.phone__tab { text-align: center; font-size: var(--font-size-100); color: var(--color-text-secondary); }
+.phone__tab--on { color: var(--color-accent-default); font-weight: var(--font-weight-medium); }
+.phone__tab svg { display: block; margin: 0 auto 2px; color: currentColor; }
 
 /* Outlook artifact — the reserved accent surface (ADR 0008), same tokens as the
    app's Paths/Outlook pair. Never rendered without the label + non-personalization
@@ -515,10 +664,6 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .levels-artifact { width: 100%; height: auto; }
 .levels-artifact__line { stroke: var(--color-border-strong); stroke-width: 1.5; }
 .levels-artifact__fib { stroke: var(--text-link); stroke-width: 1.5; }
-
-.rules-artifact { display: flex; flex-direction: column; gap: var(--space-150); }
-.rules-artifact .rule-row { padding-block: var(--space-100); border-bottom: 1px solid var(--color-border-default); }
-.rules-artifact .rule-row:last-child { border-bottom: none; }
 
 /* ── Trust plate (v2.3, new — the one register break, scoped dark section) ── */
 .trust-plate {

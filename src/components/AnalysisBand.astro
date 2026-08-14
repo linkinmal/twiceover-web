@@ -1,0 +1,81 @@
+---
+// Flowing analysis band (site-prelaunch.md §2 Home, v2.13 — realizes stock-analyst-
+// platform #2179, build reference ai-team/design/assets/landing-carousel-hero-refresh-
+// 2026-08-14.html "Option 3"). Eight analysis-section cards, continuous right-to-left
+// scroll — full-bleed, no connection needed, one illustrative sample read.
+//
+// Both the visible set and its loop duplicate are server-rendered (no client-side DOM
+// injection): the page has real content and a working two-column reflow with no JS at
+// all; the is:inline script at the foot only pauses the CSS animation off-screen
+// (battery/CPU courtesy, not a functional requirement).
+//
+// Two tagline notes (Engineer confirmation per site-prelaunch.md v2.13 §6, flagged
+// back to Designer — not silently edited):
+//   - Peers & relative position: the artifact's "Valuation and growth against its
+//     closest peers" does not hold against SectorSection.tsx's actual render (P/E +
+//     3-month return only — no growth/earnings metric is rendered anywhere in that
+//     component). Shipping the literal rendered fields instead, pending Designer's
+//     ruling on the wording.
+//   - Macro & regime: "The backdrop — rates, risk appetite, volatility" DOES hold
+//     against MacroSection.tsx's actual render (Risk appetite row, Fed path Δ/real
+//     yield, VIX term) — shipped as specified. (v2.13's own citation of this tagline's
+//     source as SectorRegimeSection is itself wrong — that component is the separate
+//     "Sector regime" card above; flagged to Designer as a doc fix, not a copy fix.)
+const ANALYSIS = [
+  { name: "Fundamentals", tagline: "Margins, growth, valuation — the numbers in context.", kind: "fund" },
+  { name: "Technicals & levels", tagline: "The averages, momentum, and range it's measured against.", kind: "tech" },
+  { name: "Sector regime", tagline: "How the sector itself is trading.", kind: "sect" },
+  { name: "Peers & relative position", tagline: "P/E and 3-month return against its closest peers.", kind: "peer" },
+  { name: "News & catalysts", tagline: "What just changed, and what's scheduled next.", kind: "news" },
+  { name: "Voices", tagline: "What prominent market voices are saying — attributed.", kind: "voic" },
+  { name: "Macro & regime", tagline: "The backdrop — rates, risk appetite, volatility.", kind: "macr" },
+  { name: "Outlook", tagline: "Near, mid and far — each stated as a condition.", kind: "outl" },
+] as const;
+
+import AnalysisMini from "./AnalysisMini.astro";
+---
+<section class="band" aria-labelledby="band-heading">
+  <div class="band__head">
+    <h2 id="band-heading" class="type-heading-1">What's in every read</h2>
+    <span>eight sections · no connection needed · one sample read</span>
+  </div>
+  <div class="band__wrap">
+    <div class="band__track" id="bandTrack">
+      {ANALYSIS.map((sec, i) => (
+        <div class="band__cell">
+          <p class="band__cell-name">{sec.name}<span class="band__cell-index">{i + 1}/8</span></p>
+          <p class="band__cell-tag">{sec.tagline}</p>
+          <AnalysisMini kind={sec.kind} />
+        </div>
+      ))}
+      {ANALYSIS.map((sec, i) => (
+        <div class="band__cell" aria-hidden="true">
+          <p class="band__cell-name">{sec.name}<span class="band__cell-index">{i + 1}/8</span></p>
+          <p class="band__cell-tag">{sec.tagline}</p>
+          <AnalysisMini kind={sec.kind} />
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+{/* Progressive enhancement ONLY — the band scrolls via CSS (@keyframes band-flow,
+    gated to prefers-reduced-motion: no-preference) with no JS at all. This adds one
+    thing on top: pausing the animation when the band is off-screen, so it doesn't
+    run unseen (mirrors the before/after card's own off-screen pause). No fetch/XHR/
+    WebSocket, no .value read — nothing here is subject to ci/check-demo-control.mjs's
+    scope, but it follows the same discipline as the script that is. */}
+<script is:inline>
+  (function () {
+    var track = document.getElementById("bandTrack");
+    if (!track || !("IntersectionObserver" in window)) return;
+    new IntersectionObserver(
+      function (rows) {
+        rows.forEach(function (r) {
+          track.style.animationPlayState = r.isIntersecting ? "running" : "paused";
+        });
+      },
+      { rootMargin: "80px" },
+    ).observe(track);
+  })();
+</script>

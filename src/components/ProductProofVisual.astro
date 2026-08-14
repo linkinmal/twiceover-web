@@ -1,18 +1,17 @@
 <div class="proof" aria-hidden="true">
-  <svg class="proof__svg" viewBox="-32 -24 624 576" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="An illustrative TwiceOver read: an AAPL shares position, an NVDA bull call spread, and the rules checked against them.">
+  <svg class="proof__svg" viewBox="0 0 560 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A TwiceOver read for NVDA: positions and rules, the ticker analysis panel, and the Paths and Outlook container">
     {/*
-      Hero product-proof visual (site-prelaunch.md §2 Hero, v2.4). A fixed-geometry
-      three-card layered-overlap collage. Ship this INLINE in the Astro component
-      (not as <img>) so the page's @font-face (Source Serif 4 / Sans 3 / Code Pro)
-      and :root design tokens (--color-*) resolve — the fill/stroke use var(token,
-      hexFallback), so it degrades gracefully if opened standalone. It is a fixed
-      viewBox, so it scales as ONE unit — it can never reflow or let cards collide
-      (the recurring CSS-collage failure). aria-hidden the wrapper in the page (it
-      is decorative; the caption below carries the disclosure). Cap its width in
-      the hero column (~min(440px, 100%)) and center on mobile.
-      Every figure traces to read-held-position.md's canonical fixture; AAPL is the
-      stock card's display label only (same NVDA shares-leg fixture). No invented
-      market levels — qualitative descriptors only on the stock card.
+      Hero product-proof visual (site-prelaunch.md §2 Hero, v2.13 — remade illustration,
+      realizes stock-analyst-platform #2179, build reference ai-team/design/assets/
+      landing-carousel-hero-refresh-2026-08-14.html). Ship this INLINE (not as <img>) so
+      the page's @font-face and :root design tokens resolve — fill/stroke use
+      var(token, hexFallback), so it degrades gracefully if opened standalone. Fixed
+      viewBox: scales as ONE unit, can never reflow or let the three layered cards
+      collide (the recurring CSS-collage failure, #422/#423).
+      Every figure traces to read-held-position.md's canonical fixture (same NVDA
+      shares-leg + bull-call-spread fixture used throughout this page). The gold
+      "Your Paths" chip reuses the accent-surface tokens (ADR 0008) — the same reserved
+      Paths/Outlook standout treatment as .outlook-artifact elsewhere on this page.
     */}
     <defs>
       <filter id="cardShadow" x="-60%" y="-60%" width="220%" height="220%">
@@ -20,65 +19,96 @@
         <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#211D17" flood-opacity="0.07"/>
       </filter>
       <style>
-        .card  { fill: var(--color-bg-surface, #FCFAF4); stroke: var(--color-border-strong, #CFC7B6); stroke-width:1; }
-        .rcard { fill: var(--color-bg-raised, #FFFFFF);   stroke: var(--color-border-strong, #CFC7B6); stroke-width:1; }
-        .kick  { font-family:'Source Sans 3',sans-serif; font-size:11px; fill: var(--color-text-muted, #6B6358); }
-        .ttl   { font-family:'Source Serif 4',Georgia,serif; font-weight:600; font-size:16px; fill: var(--color-text-primary, #211D17); }
-        .lbl   { font-family:'Source Sans 3',sans-serif; font-size:12.5px; fill: var(--color-text-secondary, #4C463D); }
-        .val   { font-family:'Source Code Pro',monospace; font-weight:500; font-size:12px; fill: var(--color-text-primary, #211D17); }
-        .pnl   { font-family:'Source Code Pro',monospace; font-weight:500; font-size:16px; fill: var(--color-signal-positive, #197A4B); }
-        .pnlsub{ font-family:'Source Code Pro',monospace; font-weight:500; font-size:13px; fill: var(--color-text-secondary, #4C463D); }
-        .rnm   { font-family:'Source Sans 3',sans-serif; font-size:12.5px; fill: var(--color-text-primary, #211D17); }
-        .rst   { font-family:'Source Code Pro',monospace; font-weight:500; font-size:12px; fill: var(--color-text-secondary, #4C463D); }
-        .hr    { stroke: var(--color-border-default, #E2DCCF); stroke-width:1; }
+        .card   { fill: var(--color-bg-surface, #FCFAF4); stroke: var(--color-border-strong, #CFC7B6); stroke-width:1; }
+        .rcard  { fill: var(--color-bg-raised, #FFFFFF);  stroke: var(--color-border-strong, #CFC7B6); stroke-width:1; }
+        .kick   { font-family:'Source Sans 3',sans-serif; font-size:11px; fill: var(--color-text-muted, #6B6358); }
+        .ttl    { font-family:'Source Serif 4',Georgia,serif; font-weight:600; font-size:15px; fill: var(--color-text-primary, #211D17); }
+        .lbl    { font-family:'Source Sans 3',sans-serif; font-size:12.5px; fill: var(--color-text-secondary, #4C463D); }
+        .val    { font-family:'Source Code Pro',monospace; font-weight:500; font-size:10.5px; fill: var(--color-text-secondary, #4C463D); }
+        .pnl    { font-family:'Source Code Pro',monospace; font-weight:500; font-size:13px; fill: var(--color-signal-positive, #197A4B); }
+        .rnm    { font-family:'Source Sans 3',sans-serif; font-size:12px; fill: var(--color-text-primary, #211D17); }
+        .rst    { font-family:'Source Code Pro',monospace; font-size:10.5px; fill: var(--color-text-secondary, #4C463D); }
+        .sub    { font-family:'Source Sans 3',sans-serif; font-size:10px; fill: var(--color-text-muted, #6B6358); }
+        .hr     { stroke: var(--color-border-default, #E2DCCF); stroke-width:1; }
+        .pill   { fill: none; stroke: var(--color-accent-default, #23436F); }
+        .pilltxt{ font-family:'Source Sans 3',sans-serif; font-size:10.5px; fill: var(--color-accent-default, #23436F); }
+        .gold     { fill: var(--accent-surface-container, #F5EEDF); stroke: var(--accent-surface-border, #C9B27E); }
+        .goldline { stroke: var(--accent-surface-border, #C9B27E); stroke-opacity: .5; }
+        .gttl   { font-family:'Source Serif 4',Georgia,serif; font-weight:600; fill: var(--accent-surface-marker, #211D17); }
+        .gsub   { font-family:'Source Sans 3',sans-serif; fill: var(--accent-surface-on-surface-muted, #60594F); }
+        .gval   { font-family:'Source Code Pro',monospace; fill: var(--accent-surface-on-surface, #4C463D); }
       </style>
     </defs>
 
-    {/* Card 1 · AAPL stock (z1, drawn first) */}
-    <g transform="rotate(-0.5 170 115)" filter="url(#cardShadow)">
-      <rect class="card" x="0" y="0" width="340" height="230" rx="8"/>
-      <text class="kick" x="18" y="26">Your read · AAPL</text>
-      <text class="ttl"  x="18" y="52">100 shares</text>
-      <text class="pnl"  x="18" y="84">+$2,612 <tspan class="pnlsub">(+16.5%)</tspan></text>
-      <line class="hr" x1="18" y1="102" x2="322" y2="102"/>
-      <text class="lbl" x="18"  y="126">Key levels</text>
-      <text class="val" x="322" y="126" text-anchor="end">support · resistance</text>
-      <line class="hr" x1="18" y1="142" x2="322" y2="142"/>
-      <text class="lbl" x="18"  y="166">Macro &amp; regime</text>
-      <text class="val" x="322" y="166" text-anchor="end">in plain language</text>
-      <line class="hr" x1="18" y1="182" x2="322" y2="182"/>
-      <text class="lbl" x="18"  y="206">Outlook</text>
-      <text class="val" x="322" y="206" text-anchor="end">near · mid · far</text>
+    {/* Sheet · the 8-section analysis panel (z1, drawn first) */}
+    <g transform="rotate(-0.5 356 170)" filter="url(#cardShadow)">
+      <rect class="card" x="170" y="16" width="372" height="308" rx="10"/>
+      <text class="ttl" x="192" y="52">NVDA ANALYSIS</text>
+      <text class="kick" x="192" y="70">identical for every reader</text>
+      <text class="sub" x="520" y="70" text-anchor="end">core · full profile</text>
+      <line class="hr" x1="192" y1="84" x2="520" y2="84"/>
+      <text class="lbl" x="192" y="110">Fundamentals</text>
+      <text class="val" x="520" y="110" text-anchor="end">Rev $88.5B · EPS $8.32</text>
+      <line class="hr" x1="192" y1="120" x2="520" y2="120"/>
+      <text class="lbl" x="192" y="138">Technicals &amp; levels</text>
+      <text class="val" x="520" y="138" text-anchor="end">50-DMA $175.43 · RSI 64</text>
+      <line class="hr" x1="192" y1="148" x2="520" y2="148"/>
+      <text class="lbl" x="192" y="166">Sector regime</text>
+      <text class="val" x="520" y="166" text-anchor="end">strength increasing</text>
+      <line class="hr" x1="192" y1="176" x2="520" y2="176"/>
+      <text class="lbl" x="192" y="194">Peers &amp; relative position</text>
+      <text class="val" x="520" y="194" text-anchor="end">P/E 32.1 vs 28.5</text>
+      <line class="hr" x1="192" y1="204" x2="520" y2="204"/>
+      <text class="lbl" x="192" y="222">News &amp; catalysts</text>
+      <text class="val" x="520" y="222" text-anchor="end">Aug 14 · earnings beat</text>
+      <line class="hr" x1="192" y1="232" x2="520" y2="232"/>
+      <text class="lbl" x="192" y="250">Voices</text>
+      <text class="val" x="520" y="250" text-anchor="end">curated · attributed</text>
+      <line class="hr" x1="192" y1="260" x2="520" y2="260"/>
+      <text class="lbl" x="192" y="278">Macro &amp; regime</text>
+      <text class="val" x="520" y="278" text-anchor="end">balanced risk appetite</text>
+      <line class="hr" x1="192" y1="288" x2="520" y2="288"/>
+      <text class="sub" x="192" y="308">…and Outlook, below</text>
     </g>
 
-    {/* Card 2 · NVDA options (z2) */}
-    <g transform="rotate(0.6 395 300)" filter="url(#cardShadow)">
-      <rect class="card" x="235" y="214" width="320" height="172" rx="8"/>
-      <text class="kick" x="253" y="238">Your read · NVDA</text>
-      <text class="ttl"  x="253" y="263">Bull call spread · Aug 21</text>
-      <line class="hr" x1="253" y1="279" x2="537" y2="279"/>
-      <text class="lbl" x="253" y="301">Max profit / loss</text>
-      <text class="val" x="537" y="301" text-anchor="end">$880 / $620</text>
-      <line class="hr" x1="253" y1="317" x2="537" y2="317"/>
-      <text class="lbl" x="253" y="339">Breakeven</text>
-      <text class="val" x="537" y="339" text-anchor="end">$181.20</text>
-      <line class="hr" x1="253" y1="355" x2="537" y2="355"/>
-      <text class="lbl" x="253" y="377">Paths</text>
-      <text class="val" x="537" y="377" text-anchor="end">hold · close · reduce · roll</text>
+    {/* Positions &amp; rules card (z2) */}
+    <g transform="rotate(0.4 193 255)" filter="url(#cardShadow)">
+      <rect class="rcard" x="18" y="110" width="350" height="290" rx="10"/>
+      <text class="ttl" x="40" y="150" font-family="Source Code Pro, monospace" font-weight="600" font-size="19">NVDA</text>
+      <rect class="pill" x="226" y="132" width="60" height="22" rx="11"/>
+      <text class="pilltxt" x="256" y="147" text-anchor="middle">Paths ↓</text>
+      <rect class="pill" x="292" y="132" width="70" height="22" rx="11"/>
+      <text class="pilltxt" x="327" y="147" text-anchor="middle">Outlook ↓</text>
+      <text class="sub" x="40" y="168">Interactive Brokers · synced 09:02 ET</text>
+      <line class="hr" x1="40" y1="182" x2="346" y2="182"/>
+      <text class="ttl" x="40" y="206" font-size="14">Your 100 shares</text>
+      <text class="pnl" x="346" y="206" text-anchor="end">+$2,612 (+16.5%)</text>
+      <text class="rst" x="40" y="223" font-size="9.5">avg $158.40</text>
+      <line class="hr" x1="40" y1="236" x2="346" y2="236"/>
+      <text class="ttl" x="40" y="260" font-size="14">Your bull call spread · Aug 21</text>
+      <text class="pnl" x="346" y="260" text-anchor="end">+$612 (+49.4%)</text>
+      <text class="rst" x="40" y="277" font-size="9.5">max profit $1,760 · max loss $1,240 · BE $181.20</text>
+      <line class="hr" x1="40" y1="290" x2="346" y2="290"/>
+      <text class="kick" x="40" y="313">Your rules, on live data</text>
+      <circle cx="46" cy="332" r="5" fill="none" stroke="var(--color-text-secondary, #4C463D)" stroke-width="1.3"/>
+      <text class="rnm" x="58" y="336">Stock target 25%</text>
+      <text class="rst" x="346" y="336" text-anchor="end">not met · +16.5%</text>
+      <circle cx="46" cy="356" r="5" fill="none" stroke="var(--color-text-secondary, #4C463D)" stroke-width="1.3"/>
+      <path d="M46 351 A5 5 0 0 1 46 361 Z" fill="var(--color-text-secondary, #4C463D)"/>
+      <text class="rnm" x="58" y="360">Option target 60%</text>
+      <text class="rst" x="346" y="360" text-anchor="end">approaching · +49.4%</text>
     </g>
 
-    {/* Card 3 · rules chip (z3, on top) */}
-    <g transform="rotate(-0.4 335 443)" filter="url(#cardShadow)">
-      <rect class="rcard" x="170" y="382" width="330" height="122" rx="6"/>
-      <text class="kick" x="186" y="406">Your rules, checked every read</text>
-      <line class="hr" x1="186" y1="418" x2="484" y2="418"/>
-      <circle cx="192" cy="436" r="5" fill="none" stroke="#6B6358" stroke-width="1.5"/>
-      <text class="rnm" x="206" y="440">Stock target 25%</text>
-      <text class="rst" x="484" y="440" text-anchor="end">not met · +16.5%</text>
-      <circle cx="192" cy="468" r="5" fill="none" stroke="#4C463D" stroke-width="1.5"/>
-      <path d="M192 463 A5 5 0 0 1 192 473 Z" fill="#4C463D"/>
-      <text class="rnm" x="206" y="472">Option target 60%</text>
-      <text class="rst" x="484" y="472" text-anchor="end">approaching · +49.4%</text>
+    {/* Your Paths / Outlook — the reserved accent-surface chip (z3, on top) */}
+    <g transform="rotate(-0.3 371 471)" filter="url(#cardShadow)">
+      <rect class="gold" x="200" y="418" width="342" height="106" rx="10"/>
+      <text class="gttl" x="222" y="446" font-size="13">Your Paths</text>
+      <text class="gsub" x="520" y="446" text-anchor="end" font-size="9.5">the menu, with the math</text>
+      <text class="gval" x="222" y="464" font-size="10">make no change · close · reduce · roll</text>
+      <line class="goldline" x1="222" y1="476" x2="520" y2="476"/>
+      <text class="gttl" x="222" y="496" font-size="12">Outlook</text>
+      <text class="gsub" x="520" y="496" text-anchor="end" font-size="9">Synthesis</text>
+      <text class="gval" x="222" y="512" font-size="10">near · mid · far</text>
     </g>
   </svg>
 

@@ -18,8 +18,10 @@
 // pending the PM/Growth copy-slot pass before this ships past a preview deploy,
 // same status as the rest of the page's placeholder text (site-prelaunch.md v2.3).
 import Base from "../layouts/Base.astro";
-import RuleRow from "../components/RuleRow.astro";
 import ProductProofVisual from "../components/ProductProofVisual.astro";
+import AnalysisBand from "../components/AnalysisBand.astro";
+import BeforeAfterRead from "../components/BeforeAfterRead.astro";
+import MobileShowcase from "../components/MobileShowcase.astro";
 
 // Organization + WebSite JSON-LD (SEO audit 2026-07 finding 7) — brand-SERP/knowledge-panel
 // groundwork. No FAQPage schema: Google deprecated FAQ rich results 2026-05-07.
@@ -55,7 +57,7 @@ const websiteJsonLd = {
       </p>
       {/* Reserved — "Connect read-only →" quiet-outline CTA: built and wired to the app at
           launch (#32). No interim OAuth plumbing pre-launch. */}
-      <p class="demo-turn">Or, take any US-listed ticker — no account, no connection needed.</p>
+      <p class="demo-turn">Or, take any US-listed ticker — no connection needed.</p>
       {/* Built (v2.6, #1240, ADR 0383) — the entry-box row, fixture-only. No JavaScript
           required: action="#demo-read" + the input carries no `name` attribute, so a real
           no-JS submit serializes nothing (the HTML forms spec excludes unnamed fields from
@@ -79,6 +81,11 @@ const websiteJsonLd = {
     </div>
     <ProductProofVisual />
   </section>
+
+  {/* Analysis band (v2.13, new, #2179) — the eight analysis sections, flowing
+      continuously. Placed directly below the hero, above the demo reveal: it
+      establishes depth before the reveal proves it on one example. */}
+  <AnalysisBand />
 
   {/* The reveal — directly below the hero, where the control is. Never inside the open-door
       card (Two-doors' own "neither door is visually promoted" rule forbids one card growing
@@ -126,7 +133,7 @@ const websiteJsonLd = {
     </div>
 
     <footer class="demo-read__foot">
-      <p><strong>The demo shows 2 of the read's sections.</strong> The full read adds the technical levels, macro backdrop and market regime, fundamentals, and the options math — no account needed. Curated voices and the news wire come with Core.</p>
+      <p><strong>The demo shows 2 of the read's sections.</strong> The full read adds the macro backdrop and market regime, the options math and flow, and fundamentals — each with its source and timestamp, no account needed. Curated voices and the news wire come with Core.</p>
       <p class="demo-read__bridge">Connected read-only, this same read also carries the positions you actually hold, your own rules, and your paths — with the full math.</p>
     </footer>
   </section>
@@ -162,10 +169,10 @@ const websiteJsonLd = {
     <div class="door-grid">
       <article class="door">
         <p class="door__tag type-caption">The open door</p>
-        <h3 class="type-heading-2">Any US-listed ticker, no account or connection needed</h3>
-        <p class="door__body">Type any US-listed ticker — no account, no connection needed — and get the same read, built from licensed data.</p>
+        <h3 class="type-heading-2">Any US-listed ticker, no connection needed</h3>
+        <p class="door__body">Type any US-listed ticker — no connection needed — and get the same read, built from licensed data.</p>
         <ul class="door__checklist">
-          <li><span class="chevron" aria-hidden="true">›</span> The key technical levels, the macro backdrop and market regime, and fundamentals — each with its source and timestamp. Curated voices and the news wire are part of Core.</li>
+          <li><span class="chevron" aria-hidden="true">›</span> The key technical levels, the macro backdrop and market regime, the options math and flow, and fundamentals — each with its source and timestamp. Curated voices and the news wire are part of Core.</li>
           <li><span class="chevron" aria-hidden="true">›</span> One conditional, multi-horizon outlook, each stated as a condition. Labeled AI synthesis; every figure from the data pipeline, not the model. Never a score, never a "buy" or "sell."</li>
           <li><span class="chevron" aria-hidden="true">›</span> A menu of structures, with the full math — net debit/credit, breakevens, max profit, max loss — and trigger levels. No ranking, no "do this."</li>
         </ul>
@@ -193,60 +200,18 @@ const websiteJsonLd = {
     </div>
   </section>
 
-  {/* Showcase band (v2.3, new — full-bleed surface.panel) — three static artifacts. */}
-  <section class="showcase" aria-labelledby="showcase-band">
-    <div class="container">
-      <h2 id="showcase-band" class="type-heading-1 section-heading">What's inside every read</h2>
-      <div class="showcase-grid">
-        <article class="showcase-card">
-          <div class="outlook-artifact">
-            <p class="outlook-artifact__label type-caption">AI synthesis · conditional</p>
-            <p class="outlook-artifact__caption type-caption">Figures cited below are from the data pipeline, not the model.</p>
-            <div class="outlook-artifact__horizon">
-              <p class="type-caption">NEAR · DAYS–WEEKS</p>
-              <p>While the position holds above its recent range, the near-term read stays constructive; a decisive break lower shifts it.</p>
-            </div>
-            <div class="outlook-artifact__horizon">
-              <p class="type-caption">MID · 1–3 MONTHS</p>
-              <p>Absent a change in the broader trend, the mid-term structure remains intact.</p>
-            </div>
-            <div class="outlook-artifact__horizon">
-              <p class="type-caption">FAR · QUARTERS</p>
-              <p>Longer-term, the far read depends on how the current macro regime resolves.</p>
-            </div>
-            <p class="outlook-artifact__nonpersonal type-caption">This analysis does not consider your positions, rules, or account.</p>
-          </div>
-          <p class="showcase-card__caption">A single conditional read — near, mid, and far — never a score, never a verdict.</p>
-        </article>
-
-        <article class="showcase-card">
-          <svg class="levels-artifact" viewBox="0 0 300 140" role="img" aria-label="Illustrative support, resistance, and Fibonacci lines">
-            <line x1="10" y1="30" x2="290" y2="30" class="levels-artifact__line" />
-            <line x1="10" y1="70" x2="290" y2="70" class="levels-artifact__fib" stroke-dasharray="6 6" />
-            <line x1="10" y1="112" x2="290" y2="112" class="levels-artifact__line" />
-          </svg>
-          <p class="showcase-card__caption">Support, resistance, and Fibonacci confluence — the structure every technical read stands on.</p>
-        </article>
-
-        <article class="showcase-card">
-          <div class="rules-artifact">
-            <RuleRow state="approaching" name="Option profit target 60%" scope="bull call spread" pnl="P&L +49.4%" />
-            <RuleRow state="not-met" name="Stock profit target 25%" scope="shares" pnl="P&L +16.5%" />
-            <RuleRow state="not-met" name="DTE threshold 21" scope="bull call spread" pnl="24 DTE" />
-          </div>
-          <p class="showcase-card__caption">Your own thresholds, evaluated against where the position stands right now.</p>
-        </article>
-      </div>
-      <p class="showcase__disclosure type-caption">Illustrative example — the same fixed AAPL/NVDA data shown throughout this page, not a live account.</p>
-    </div>
-  </section>
+  {/* Before/after read + mobile-app showcase (v2.13, replaces the old three-artifact
+      showcase band, #2179 — build reference ai-team/design/assets/landing-carousel-
+      hero-refresh-2026-08-14.html). */}
+  <BeforeAfterRead />
+  <MobileShowcase />
 
   <section aria-labelledby="how-it-works">
     <h2 id="how-it-works" class="type-heading-1 section-heading">How it works</h2>
     <ol class="steps">
       <li>
         <span class="num" aria-hidden="true">1</span>
-        <p><span class="step-title">Analyze any US-listed ticker.</span> Type a ticker or ask in plain words. From licensed market and options data, TwiceOver synthesizes the key technical levels, the macro backdrop and market regime, fundamentals, and the options math, all into one read — on any US-listed ticker, no account or broker connection required. Curated voices and the news wire are part of Core.</p>
+        <p><span class="step-title">Analyze any US-listed ticker.</span> Type a ticker or ask in plain words. From licensed market and options data, TwiceOver synthesizes the key technical levels, the macro backdrop and market regime, fundamentals, and the options math and flow, all into one read — on any US-listed ticker, no broker connection required. Curated voices and the news wire are part of Core.</p>
       </li>
       <li>
         <span class="num" aria-hidden="true">2</span>
@@ -353,7 +318,7 @@ const websiteJsonLd = {
     <div class="container closing-band__inner">
       <div>
         <p class="type-heading-1">See it on your own book.</p>
-        <p>Any US-listed ticker, no account or connection needed — or connect read-only for your own read.</p>
+        <p>Any US-listed ticker, no connection needed — or connect read-only for your own read.</p>
       </div>
       <div class="closing-band__actions">
         <a class="btn-quiet" href="/pricing">Pricing</a>
