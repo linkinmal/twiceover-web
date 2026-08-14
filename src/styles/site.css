@@ -60,6 +60,41 @@ body {
   .container { padding-inline: var(--space-300); }
 }
 
+/* ── Section grounds (#2216) ────────────────────────────────────────────────────
+   Every top-level section declares a ground, and no two adjacent sections share one.
+   Before this, six sections declared none at all and simply inherited the body canvas,
+   so four ran consecutively on one identical ground — doors → before/after → mobile →
+   how-it-works, ~2,500px with a single border.default hairline between them.
+
+   The scale is three warm tones the site already owns, chosen because they are the ones
+   that demonstrably read as separate on this canvas:
+     recessed  surface.panel  #EEE7D6   Δ(9,12,20) from canvas
+     ground    bg.canvas      #F7F3EA
+     lifted    bg.raised      #FFFFFF   Δ(8,12,21) from canvas
+   bg.surface (#FCFAF4) is deliberately NOT in it: at Δ(5,7,10) — about 2% relative
+   luminance — it cannot carry a ground change, which is why the two sections that used
+   it were separated by their hairlines alone and not by their grounds at all.
+
+   `--ground-fill` lets a section pick its tone without re-stating the bleed geometry.
+   The margin/padding pair escapes `main.container` and re-pads content back to the
+   column, so a section gets a full-width ground with no inner wrapper. */
+.section-ground {
+  --ground-fill: var(--color-bg-canvas);
+  background: var(--ground-fill);
+  margin-inline: calc(50% - 50vw);
+  padding-inline: max(var(--space-200), calc(50vw - 36rem + var(--space-200)));
+  padding-block: var(--space-600);
+  border-top: 1px solid var(--color-border-strong);
+}
+@media (min-width: 640px) {
+  .section-ground { padding-inline: max(var(--space-300), calc(50vw - 36rem + var(--space-300))); }
+}
+.section-ground--lifted { --ground-fill: var(--color-bg-raised); }
+.section-ground--recessed { --ground-fill: var(--surface-panel); }
+/* A section that already wraps its content in .container has been re-padded to the
+   column once, by the ground. Let the inner wrapper go inert rather than pad twice. */
+.section-ground > .container { max-width: none; padding-inline: 0; }
+
 /* Links: accent; hover accent.hover + underline; visited = unvisited. */
 a { color: var(--color-accent-default); text-decoration: none; }
 a:hover { color: var(--color-accent-hover); text-decoration: underline; }
@@ -442,7 +477,7 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .depth-strip {
   margin-inline: calc(50% - 50vw);
   border-block: 1px solid var(--color-border-strong);
-  background: var(--color-bg-surface);
+  background: var(--surface-panel); /* was bg.surface — 2% off canvas, no ground change (#2216) */
 }
 .depth-strip__inner { display: grid; grid-template-columns: 1fr; }
 @media (min-width: 640px) { .depth-strip__inner { grid-template-columns: repeat(4, 1fr); } }
@@ -465,7 +500,7 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .connect {
   margin-inline: calc(50% - 50vw);
   border-block: 1px solid var(--color-border-strong);
-  background: var(--color-bg-surface);
+  background: var(--color-bg-raised); /* was bg.surface — 2% off canvas, no ground change (#2216) */
   padding-block: var(--space-600);
 }
 .connect__head {
@@ -593,22 +628,25 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 
 /* ── Mobile-app showcase (v2.13, new, #2179) — full-bleed, phone mockup. CSS-only
    shimmer on the two "loading" skeleton rows; no JS. ─────────────────────────── */
-.mobile-showcase { padding-block: var(--space-600); border-top: 1px solid var(--color-border-default); }
+/* ground + strong hairline now come from .section-ground (#2216) */
 .mobile-showcase__inner { display: grid; grid-template-columns: 1fr; gap: var(--space-600); align-items: center; }
 @media (min-width: 820px) { .mobile-showcase__inner { grid-template-columns: 1fr auto; } }
 .mobile-showcase__sub { max-width: 56ch; margin: 0; color: var(--color-text-secondary); font-size: var(--font-size-400); }
 .mobile-showcase__pill { display: inline-block; border: 1px solid var(--color-border-strong); border-radius: 999px; padding: var(--space-100) var(--space-300); font-size: var(--font-size-200); color: var(--color-text-secondary); margin-top: var(--space-300); }
 
-.phone { width: 17rem; height: 34.75rem; border-radius: 38px; background: var(--color-text-primary); padding: var(--space-150); box-shadow: 0 18px 40px color-mix(in srgb, var(--color-text-primary) 22%, transparent); margin-inline: auto; }
+.phone { width: 19rem; height: 41rem; border-radius: 38px; background: var(--color-text-primary); padding: var(--space-150); box-shadow: 0 18px 40px color-mix(in srgb, var(--color-text-primary) 22%, transparent); margin-inline: auto; }
 .phone__screen { width: 100%; height: 100%; border-radius: 30px; background: var(--color-bg-canvas); overflow: hidden; display: flex; flex-direction: column; position: relative; }
-.phone__masthead { display: flex; align-items: center; gap: var(--space-100); padding: var(--space-600) var(--space-200) var(--space-150); border-bottom: 1px solid var(--color-border-default); }
+.phone__masthead { display: flex; align-items: center; gap: var(--space-100); padding: var(--space-300) var(--space-200) var(--space-150); border-bottom: 1px solid var(--color-border-default); }
 .phone__mark { display: flex; gap: 3px; align-items: flex-end; }
 .phone__mark i { display: block; width: 4px; height: 14px; background: var(--color-text-primary); border-radius: 1px; }
 .phone__mark i:last-child { height: 10px; opacity: 0.55; }
 .phone__word { font-family: var(--font-family-serif); font-weight: var(--font-weight-semibold); font-size: var(--font-size-300); }
-.phone__body { flex: 1; overflow: hidden; padding: var(--space-200) var(--space-200) 0; position: relative; }
+/* The screen is a scroll viewport, so the stack running past the bottom edge is honest —
+   but a hard crop reads as a layout bug. The mask fades the last few pixels into the tab
+   bar so "there is more below" is the read, not "this is broken" (#2216). */
+.phone__body { flex: 1; overflow: hidden; padding: var(--space-200) var(--space-200) 0; position: relative; -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent); }
 .phone__halfbanner { font-family: var(--font-family-mono); font-size: var(--font-size-100); color: var(--color-text-muted); letter-spacing: 0.05em; margin: var(--space-050) 0 var(--space-150); }
-.phone__card { background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-small); padding: var(--space-150) var(--space-200); margin-bottom: var(--space-150); }
+.phone__card { background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-small); padding: var(--space-150); margin-bottom: var(--space-150); }
 .phone__card-title { font-family: var(--font-family-serif); font-weight: var(--font-weight-semibold); font-size: var(--font-size-200); margin: 0 0 2px; }
 .phone__card-title--small { font-size: var(--font-size-100); }
 .phone__pnl { font-family: var(--font-family-mono); font-size: var(--font-size-300); color: var(--color-signal-positive, #197A4B); margin: 0; }
@@ -627,8 +665,26 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   }
 }
 @keyframes phone-shimmer { to { transform: translateX(100%); } }
-.phone__fastcut { position: absolute; right: var(--space-200); bottom: 64px; display: flex; flex-direction: column; gap: var(--space-100); }
-.phone__fastcut span { background: var(--color-bg-raised); border: 1px solid var(--color-border-strong); border-radius: 999px; font-size: var(--font-size-100); padding: var(--space-050) var(--space-150); color: var(--color-text-secondary); box-shadow: 0 2px 6px color-mix(in srgb, var(--color-text-primary) 12%, transparent); }
+/* Fast-cut pair, PARKED state (read-components.md §5) — two identical pills SIDE BY SIDE,
+   right-aligned in the header row's empty space, on the reserved accent surface (ADR 0008):
+   the same accent-surface.* bindings the real pills carry, never neutral chrome. In flow,
+   not absolute: parked at scroll-top "they block nothing," and a static mockup depicts
+   scroll-top by definition — drawing the floating state made them occlude the rules card. */
+.phone__fastcut { display: flex; justify-content: flex-end; gap: var(--space-150); margin-bottom: var(--space-150); }
+.phone__fastcut span { background: var(--accent-surface-pill); border: 1px solid var(--accent-surface-border); border-radius: 999px; font-size: var(--font-size-100); font-weight: var(--font-weight-medium); padding: var(--space-050) var(--space-150); color: var(--accent-surface-marker); }
+/* Rule rows at phone scale (#2216). The shared .rule-row sets name/state at font-size.300
+   — right for the 44rem read column, oversized in a 17rem phone, where it both outweighed
+   every neighbouring card and wrapped: `margin-left: auto` on the pnl then threw the state
+   word and the figure to opposite edges of a second line, cut loose from the name above.
+   Compact scale keeps the row one line, which is the only shape that reads as one rule. */
+.phone .rule-row { gap: var(--space-050); flex-wrap: nowrap; padding-block: 2px; }
+.phone .rule-row__marker { font-size: var(--font-size-200); }
+.phone .rule-row__name,
+.phone .rule-row__state { font-size: var(--font-size-100); }
+.phone .rule-row__name,
+.phone .rule-row__state { white-space: nowrap; }
+.phone .rule-row__pnl { font-size: var(--font-size-100); }
+
 .phone__tabbar { border-top: 1px solid var(--color-border-strong); background: var(--color-bg-canvas); display: grid; grid-template-columns: 1fr 1fr 1fr; height: 54px; align-items: center; }
 .phone__tab { text-align: center; font-size: var(--font-size-100); color: var(--color-text-secondary); }
 .phone__tab--on { color: var(--color-accent-default); font-weight: var(--font-weight-medium); }
@@ -721,7 +777,7 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .not-block p { margin: 0; }
 
 /* ── Closing band (v2.3 — promotes the old one-line pricing cue) ─────────── */
-.closing-band { margin-inline: calc(50% - 50vw); background: var(--surface-panel); }
+.closing-band { margin-inline: calc(50% - 50vw); background: var(--surface-panel); border-top: 1px solid var(--color-border-strong); }
 .closing-band__inner {
   display: flex;
   flex-direction: column;

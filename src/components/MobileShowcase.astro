@@ -5,14 +5,13 @@
 // cards/tabs anatomy.
 import RuleRow from "./RuleRow.astro";
 ---
-<section class="mobile-showcase" aria-labelledby="mobile-showcase-heading">
+<section class="mobile-showcase section-ground" aria-labelledby="mobile-showcase-heading">
   <div class="container mobile-showcase__inner">
     <div>
       <h2 id="mobile-showcase-heading" class="type-heading-1 section-heading">The same read, on your phone.</h2>
       <p class="mobile-showcase__sub">
         TwiceOver is coming to iPhone and Android — the full read, your rules checked every time you
-        open it, and a clear note when data is stale rather than a stale number shown as current.
-        Nothing is cut down for mobile.
+        open it. Nothing is cut down for mobile.
       </p>
       <span class="mobile-showcase__pill">iOS &amp; Android · coming soon</span>
     </div>
@@ -25,6 +24,11 @@ import RuleRow from "./RuleRow.astro";
         </div>
         <div class="phone__body">
           <p class="phone__halfbanner">NVDA · Interactive Brokers · synced 09:02 ET</p>
+          {/* Fast-cut pair in its PARKED state — read-components.md §5: two identical
+              accent pills, side by side, right-aligned in the header row's empty space,
+              where "at scroll-top they block nothing." A static mockup depicts scroll-top
+              by definition, so the floating-over-content state is the wrong one to draw. */}
+          <div class="phone__fastcut" aria-hidden="true"><span>Paths ↓</span><span>Outlook ↓</span></div>
           <div class="phone__card">
             <p class="phone__card-title">Your 100 shares</p>
             <p class="phone__pnl">+$2,612 <span class="phone__pnl-pct">(+16.5%)</span></p>
@@ -45,7 +49,6 @@ import RuleRow from "./RuleRow.astro";
             <div class="phone__skel" style="width:88%" aria-hidden="true"></div>
             <div class="phone__skel" style="width:70%" aria-hidden="true"></div>
           </div>
-          <div class="phone__fastcut" aria-hidden="true"><span>Paths ↓</span><span>Outlook ↓</span></div>
         </div>
         <div class="phone__tabbar">
           <div class="phone__tab phone__tab--on">
