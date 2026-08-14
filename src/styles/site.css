@@ -180,8 +180,8 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   display: flex;
   flex-direction: column;
   gap: var(--space-600);
-  padding-top: var(--space-400);
-  padding-bottom: var(--space-600);
+  padding-top: var(--space-300);
+  padding-bottom: var(--space-400);
   background: var(--color-bg-canvas);
 }
 @media (min-width: 960px) {
@@ -272,7 +272,7 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 }
 .entry-box__submit:hover { background: var(--color-accent-hover); }
 .entry-box__submit:active { background: var(--color-accent-active); }
-.entry-box__caption { max-width: 36rem; color: var(--color-text-muted); margin: var(--space-150) 0 0; }
+.entry-box__caption { max-width: 36rem; color: var(--color-text-muted); margin: var(--space-100) 0 0; font-size: var(--font-size-100); line-height: var(--font-line-height-default); }
 
 /* Stacked below md. `flex: 1 1 14rem` is a WIDTH basis in a row and a HEIGHT basis
    once the base breakpoint stacks the form into a column (renders a ~14rem-tall
@@ -336,16 +336,6 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   font-weight: var(--font-weight-medium);
   color: var(--color-text-primary);
 }
-.connect-stages { display: flex; flex-direction: column; gap: var(--space-100); margin-top: var(--space-300); }
-.connect-stages .stage-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-150); }
-.connect-stages .stage-chip {
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-small);
-  padding: var(--space-100) var(--space-150);
-  font-size: var(--font-size-200);
-  color: var(--color-text-secondary);
-}
-.connect-stages .stage-arrow { color: var(--color-text-muted); }
 
 /* ── Hero product-proof visual (v2.5 — fixed-geometry SVG, #432) ─────────
    Two prior CSS-collage builds (#422/#423) both reflowed/collided on prod —
@@ -402,10 +392,10 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   gap: var(--space-200);
   max-width: 72rem;
   margin-inline: auto;
-  padding: var(--space-400) var(--space-200) var(--space-050);
+  padding: var(--space-300) var(--space-200) var(--space-200);
 }
+.band__head h2 { margin: 0; }
 @media (min-width: 640px) { .band__head { padding-inline: var(--space-300); } }
-.band__head span { color: var(--color-text-muted); font-size: var(--font-size-200); }
 .band__wrap { overflow: hidden; }
 .band__track { display: flex; width: max-content; padding: var(--space-300) 0 var(--space-400); }
 @media (prefers-reduced-motion: no-preference) {
@@ -445,8 +435,8 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .band-mini .horizon:first-child { border-top: 0; }
 .band-mini .horizon b { font-family: var(--font-family-mono); font-weight: var(--font-weight-medium); font-size: var(--font-size-100); letter-spacing: 0.08em; color: var(--color-accent-default); display: block; }
 .band-mini .horizon i { font-style: normal; color: var(--color-text-secondary); }
-.band-mini .voice-row { display: flex; align-items: center; gap: var(--space-150); padding-bottom: var(--space-150); }
-.band-mini .voice-avatar { width: 20px; height: 20px; border-radius: 50%; background: var(--color-border-strong); flex: none; }
+.band-mini .handle { font-family: var(--font-family-mono); color: var(--color-text-secondary); }
+.band-mini .src { color: var(--color-accent-default); white-space: nowrap; }
 
 /* ── Depth strip (v2.3, new) — full-bleed background, column-width content ── */
 .depth-strip {
