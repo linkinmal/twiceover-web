@@ -403,6 +403,30 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .depth-stat__figure { margin: 0 0 var(--space-100); color: var(--color-text-primary); }
 .depth-stat__caption { margin: 0; color: var(--color-text-secondary); font-size: var(--font-size-300); }
 
+/* ── Connect band (new, #2208) — full-bleed, same visual language as the depth
+   strip immediately above it (border-strong rule, bg-surface), between How it
+   works and the Trust plate. Copy: site-copy-twiceover.md "Connect section"
+   (Growth, consult 0672). */
+.connect {
+  margin-inline: calc(50% - 50vw);
+  border-block: 1px solid var(--color-border-strong);
+  background: var(--color-bg-surface);
+  padding-block: var(--space-600);
+}
+.connect__head {
+  margin: 0 0 var(--space-200);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-serif);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--font-line-height-tight);
+  letter-spacing: var(--font-letter-spacing-tight);
+  font-size: var(--font-size-700);
+  max-width: 20ch;
+}
+.connect__body { margin: 0 0 var(--space-200); max-width: 58ch; font-size: var(--font-size-400); color: var(--color-text-secondary); }
+.connect__body strong { font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
+.connect__disclosure { margin: 0; max-width: 58ch; color: var(--color-text-muted); }
+
 /* ── Two doors (v2.3, replaces "What you see") ───────────────────────────── */
 .door-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-300); }
 @media (min-width: 640px) { .door-grid { grid-template-columns: 1fr 1fr; } }

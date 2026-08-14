@@ -126,7 +126,7 @@ const websiteJsonLd = {
     </div>
 
     <footer class="demo-read__foot">
-      <p><strong>2 of the 13 sections in every read.</strong> The full read adds the macro backdrop and market regime, the curated voices of prominent traders, the options math and flow, fundamentals, and news and catalysts — each with its source and timestamp.</p>
+      <p><strong>The demo shows 2 of the read's sections.</strong> The full read adds the technical levels, macro backdrop and market regime, fundamentals, and the options math — no account needed. Curated voices and the news wire come with Core.</p>
       <p class="demo-read__bridge">Connected read-only, this same read also carries the positions you actually hold, your own rules, and your paths — with the full math.</p>
     </footer>
   </section>
@@ -136,8 +136,8 @@ const websiteJsonLd = {
   <section class="depth-strip" aria-label="TwiceOver at a glance">
     <div class="container depth-strip__inner">
       <div class="depth-stat">
-        <p class="depth-stat__figure type-display">13</p>
-        <p class="depth-stat__caption">Sections in every read — technicals, options math, news, and the synthesis, every time.</p>
+        <p class="depth-stat__figure type-display">8</p>
+        <p class="depth-stat__caption">Analysis sections the engine draws on.</p>
       </div>
       <div class="depth-stat">
         <p class="depth-stat__figure type-display">4</p>
@@ -165,7 +165,7 @@ const websiteJsonLd = {
         <h3 class="type-heading-2">Any US-listed ticker, no account or connection needed</h3>
         <p class="door__body">Type any US-listed ticker — no account, no connection needed — and get the same read, built from licensed data.</p>
         <ul class="door__checklist">
-          <li><span class="chevron" aria-hidden="true">›</span> The key technical levels, the macro backdrop and market regime, the curated voices of prominent traders, the options math and flow, fundamentals, and news and catalysts — each with its source and timestamp.</li>
+          <li><span class="chevron" aria-hidden="true">›</span> The key technical levels, the macro backdrop and market regime, and fundamentals — each with its source and timestamp. Curated voices and the news wire are part of Core.</li>
           <li><span class="chevron" aria-hidden="true">›</span> One conditional, multi-horizon outlook, each stated as a condition. Labeled AI synthesis; every figure from the data pipeline, not the model. Never a score, never a "buy" or "sell."</li>
           <li><span class="chevron" aria-hidden="true">›</span> A menu of structures, with the full math — net debit/credit, breakevens, max profit, max loss — and trigger levels. No ranking, no "do this."</li>
         </ul>
@@ -246,13 +246,32 @@ const websiteJsonLd = {
     <ol class="steps">
       <li>
         <span class="num" aria-hidden="true">1</span>
-        <p><span class="step-title">Analyze any US-listed ticker.</span> Type a ticker or ask in plain words. From licensed market and options data, TwiceOver synthesizes the key technical levels, the macro backdrop and market regime, the curated voices of prominent traders, and the options math and flow, all into one read — on any US-listed ticker, no account or broker connection required.</p>
+        <p><span class="step-title">Analyze any US-listed ticker.</span> Type a ticker or ask in plain words. From licensed market and options data, TwiceOver synthesizes the key technical levels, the macro backdrop and market regime, fundamentals, and the options math, all into one read — on any US-listed ticker, no account or broker connection required. Curated voices and the news wire are part of Core.</p>
       </li>
       <li>
         <span class="num" aria-hidden="true">2</span>
         <p><span class="step-title">Connect read-only to make it yours</span> <span class="optional">(optional)</span>. Link your brokerage <strong>read-only</strong> and the same read runs on the positions you actually hold, measured against <strong>your own rules</strong>. TwiceOver can never place, change, or cancel an order, and never touches your funds.</p>
       </li>
     </ol>
+  </section>
+
+  {/* Connect section (new, #2208, realizes #2190) — answers "will it work with my
+      broker?" and "how much work is this?", the two questions that stall a signup
+      and that nothing above this point on the page addresses. Placed here, not
+      after Two doors: the heading needs How-it-works step 2 ("Connect read-only to
+      make it yours") as its antecedent, and escalates into the Trust plate's
+      structural guarantees directly below. Never after Two doors — that section's
+      "neither door is visually promoted" invariant (site-prelaunch.md §2) would be
+      broken by giving the deep door alone a dedicated follow-on section. Copy:
+      Growth, consult 0672 (site-copy-twiceover.md "Connect section", Option 1) —
+      supersedes the PM-verified #2190 three-step copy per two founder rejections
+      of that structure in Designer review. */}
+  <section class="connect" aria-labelledby="connect-heading">
+    <div class="container">
+      <h2 id="connect-heading" class="connect__head">Same broker. Nothing new.</h2>
+      <p class="connect__body">Interactive Brokers, Schwab, Fidelity, Robinhood, E*Trade, tastytrade, Webull, Vanguard and more — read-only, with <strong>the login you already have</strong>. TwiceOver can never place, change, or cancel an order, and never touches your funds.</p>
+      <p class="connect__disclosure type-caption">Connections run through SnapTrade (SOC 2 Type II) and are authorized by your broker — credentials are entered there, never with TwiceOver.</p>
+    </div>
   </section>
 
   {/* Trust plate (v2.3, new — the one deliberate register break, dark-variant Ledger
