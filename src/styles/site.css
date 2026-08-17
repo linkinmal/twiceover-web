@@ -469,7 +469,9 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .band-mini .horizon { border-top: 1px solid var(--color-border-default); padding-block: var(--space-100); }
 .band-mini .horizon:first-child { border-top: 0; }
 .band-mini .horizon b { font-family: var(--font-family-mono); font-weight: var(--font-weight-medium); font-size: var(--font-size-100); letter-spacing: 0.08em; color: var(--color-accent-default); display: block; }
-.band-mini .horizon i { font-style: normal; color: var(--color-text-secondary); }
+.band-mini .horizon .proj { display: block; padding-top: var(--space-050); font-size: var(--font-size-100); color: var(--color-text-muted); }
+.band-mini .horizon .proj-v { font-family: var(--font-family-mono); font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
+.band-mini .horizon i { display: block; padding-top: var(--space-050); font-style: normal; color: var(--color-text-secondary); }
 .band-mini .handle { font-family: var(--font-family-mono); color: var(--color-text-secondary); }
 .band-mini .src { color: var(--color-accent-default); white-space: nowrap; }
 
