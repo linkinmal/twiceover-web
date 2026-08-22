@@ -24,17 +24,14 @@
 // Core's two sub-lines are the negative-option disclosure (ADR 0145, FTC/EU-UK
 // auto-renewal) — verbatim, legal-flagged; they are not decoration and never ship
 // without the CTA they qualify, nor it without them.
-// Trimmed from the #1307 canonical draft (human direction 2026-07-22): dropped
-// "— ongoing, not a trial" and the standalone "No card required" line as redundant
-// on a card with no CTA/checkout to contrast against.
-//   ^ PREMISE FALSIFIED BY THIS CHANGE (#2513/#2514) — that trim was conditional on the
-//   page having no checkout to contrast against, and this commit adds one. Both trimmed
-//   lines are still in the ratified copy (site-copy-twiceover.md §Pricing) and both now
-//   have exactly the contrast they were dropped for lacking: Free is "ongoing, not a
-//   trial" beside a 14-day trial, and "No card required" beside a card-required CTA.
-//   NOT restored here — the trim was a direct human direction and the restore is a PM/
-//   copy call, not an Engineer one. Raised on #2513 for a ruling; if it lands, it is a
-//   two-line addition to the Free card's list.
+// Trimmed from the #1307 canonical draft (human direction 2026-07-22), then restored
+// (2026-08-22, stock-analyst-platform#2567): "— ongoing, not a trial" and the standalone
+// "No card required" line were dropped as redundant on a card with no CTA/checkout to
+// contrast against. #2513/#2514 falsified that premise by adding one — both lines now
+// have exactly the contrast they were dropped for lacking (Free is "ongoing, not a
+// trial" beside a 14-day trial; "No card required" beside a card-required CTA) — and
+// the PM's site-copy-twiceover.md re-derivation (routed from #2544) ratified restoring
+// them as part of the same pass that added the Sector/Voices/news-wire bullets below.
 // "Any ticker" → "any US-listed
 // ticker" per consult 0416 (PM ruling): the product is US-only by design (ADR
 // 0027/0028) and US-venue-scoped by construction; inline qualifier, not a footnote,
@@ -51,6 +48,15 @@
 // analyst research Core "—" per pricing-artifact.md §3) on a page public+indexed since
 // 2026-07-21. Narrowed to what's actually served; re-add each half as its own bullet
 // when that layer ships and is licensed (site-copy-twiceover.md §Pricing has the ruling).
+// Free/Core bullets re-derived against live production flag state (2026-08-22,
+// stock-analyst-platform#2544/#2567): both cards omitted three things the product
+// already serves live. Sector regime & peer positioning (always-on, no tier gate —
+// layers.ts's `sector` carries no LAYER_MIN_TIER entry, #1233) belongs on both cards;
+// curated voices and the licensed news wire are Core-minimum entitlements
+// (LAYER_MIN_TIER: { voices: 'core', news: 'core' }) that were never listed on Core at
+// all — voices.lit retired (#2064), so "coming soon" no longer applies. Options
+// analytics stays correctly absent from both cards — that layer is still dark
+// (DEFERRED_LAYERS, ADR 0560).
 import Base from "../layouts/Base.astro";
 
 // Offer JSON-LD (SEO audit 2026-07 finding 7) — the Accepted prices, verbatim from
@@ -83,9 +89,10 @@ const productJsonLd = {
       <h2 class="type-heading-2">Free</h2>
       <p class="price type-display">$0</p>
       <ul>
-        <li>15 reads a month</li>
+        <li>15 reads a month — ongoing, not a trial</li>
         <li>The synthesis read on any US-listed ticker</li>
-        <li>Key technical levels (basic), SEC/EDGAR fundamentals, macro regime context</li>
+        <li>Key technical levels (basic), macro and sector regime, peer positioning, and SEC/EDGAR fundamentals</li>
+        <li>No card required</li>
       </ul>
       <a class="btn-quiet tier__cta" href="/go/try">Run a free read</a>
     </li>
@@ -97,7 +104,8 @@ const productJsonLd = {
         <li>Held-position reads and new-idea reads</li>
         <li>Options math &amp; structure engine (breakevens, max profit/loss, collateral, P&amp;L)</li>
         <li>Your own rules, evaluated on live data</li>
-        <li>Macro/regime context</li>
+        <li>Macro and sector regime, with peer positioning</li>
+        <li>Curated voices, plus the licensed news wire</li>
         <li>Licensed market data</li>
       </ul>
       <a class="btn-quiet tier__cta" href="/go/plan">Start 14-day trial</a>
