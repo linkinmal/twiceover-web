@@ -22,6 +22,12 @@
 // (hidden, not offered), matching the in-app Plans page's Free/Core state. Re-add
 // trigger: when #1304 and the deferred-layers.lit flip both close, re-add as its own
 // copy PR (content preserved in site-copy-twiceover.md's git history pre-2026-08-02).
+// Core card's options/research bullets narrowed (2026-08-22, stock-analyst-platform#2519,
+// ADR 0741): "Licensed market and options data" and "...and the research layer" claimed
+// two layers served on no tier (options-iv/options-chain/flow dark per ADR 0560 item 1;
+// analyst research Core "—" per pricing-artifact.md §3) on a page public+indexed since
+// 2026-07-21. Narrowed to what's actually served; re-add each half as its own bullet
+// when that layer ships and is licensed (site-copy-twiceover.md §Pricing has the ruling).
 import Base from "../layouts/Base.astro";
 
 // Offer JSON-LD (SEO audit 2026-07 finding 7) — the Accepted prices, verbatim from
@@ -67,8 +73,8 @@ const productJsonLd = {
         <li>Held-position reads and new-idea reads</li>
         <li>Options math &amp; structure engine (breakevens, max profit/loss, collateral, P&amp;L)</li>
         <li>Your own rules, evaluated on live data</li>
-        <li>Macro/regime context and the research layer</li>
-        <li>Licensed market and options data</li>
+        <li>Macro/regime context</li>
+        <li>Licensed market data</li>
       </ul>
     </li>
   </ul>
