@@ -1,5 +1,15 @@
-<div class="proof" aria-hidden="true">
-  <svg class="proof__svg" viewBox="0 0 620 430" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A TwiceOver read for NVDA: your positions and rules, the analysis sheet, and the Paths and Outlook panel">
+<figure class="proof">
+  {/* The entry-box's old caption (v2.6–v2.19) moved here, founder-directed 2026-08-22 —
+      site-prelaunch.md §2/§6 v2.19 had it stay under the entry box; overridden per #2520's
+      close. <figcaption> is the correct primitive for what this text has always actually
+      been: a caption ON this SVG (the fixed illustrative figures), not on the entry box
+      above it — v2.19's own "doing the SVG's job instead of the box's" reasoning argued for
+      exactly this placement without landing there. Also restores the vertical space the
+      caption cost .hero__copy, which the founder asked for directly: the right column
+      absorbs it into its own footprint (a proof__caption rule existed, unused, since v2.16
+      retired the near-identical caption this one now revives). SVG stays aria-hidden —
+      decorative; this caption carries the disclosure for a screen reader same as sighted. */}
+  <svg class="proof__svg" aria-hidden="true" viewBox="0 0 620 430" xmlns="http://www.w3.org/2000/svg">
     {/*
       Hero product-proof visual v2 (site-prelaunch.md §2 Hero — realizes stock-analyst-platform
       #2214, correcting the v2.13 composition shipped in twiceover-web 3442d48).
@@ -116,4 +126,5 @@
       <text class="gval" x="352" y="396" font-size="10">near · mid · far</text>
     </g>
   </svg>
-</div>
+  <figcaption class="proof__caption type-caption">Illustrative example — the same fixed AAPL/NVDA data shown throughout this page, not a live account.</figcaption>
+</figure>

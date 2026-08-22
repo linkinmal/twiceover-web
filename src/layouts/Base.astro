@@ -56,7 +56,17 @@ const ogImageURL = new URL("/og-image.png", Astro.site).href;
           <nav class="site-nav" aria-label="Primary">
             <a href="/pricing">Pricing</a>
           </nav>
-          <a class="btn-quiet" href="/go/signin">Sign in</a>
+          {/* Sign in / Sign up pair, founder-directed 2026-08-22 (#2520) — site-prelaunch.md
+              §1 reserved only one button; app-shell.md §1a's logged-out masthead spec is the
+              pattern actually reused here: a plain-text "Sign in" link plus a "Sign up" ghost
+              button, same visual weight class as .btn-quiet everywhere else on this page —
+              never two competing button styles in the bar. Both open the same combined
+              app.twiceover.io entry screen via /go/signin (AuthFlow.tsx: "Sign in or create
+              your account" — the system doesn't know which until the visitor completes it);
+              the two labels exist only so a returning visitor and a new one each scan for
+              their own word. */}
+          <a class="site-header__signin" href="/go/signin">Sign in</a>
+          <a class="btn-quiet" href="/go/signin">Sign up</a>
         </div>
       </div>
     </header>

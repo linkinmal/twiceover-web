@@ -60,79 +60,30 @@ const websiteJsonLd = {
           here; the app owns the actual OAuth flow. */}
       <a class="btn-quiet hero__cta" href="/go/connect">Connect read-only →</a>
       <p class="demo-turn">Or, take any US-listed ticker — no connection needed.</p>
-      {/* Built (v2.6, #1240, ADR 0383) — the entry-box row, fixture-only. No JavaScript
-          required: action="#demo-read" + the input carries no `name` attribute, so a real
-          no-JS submit serializes nothing (the HTML forms spec excludes unnamed fields from
-          a "successful control") — the typed value cannot reach a URL, a server log, or a
-          CDN access log. The reveal below is CSS `:target`, the single show/hide mechanism
-          the optional enhancement script (end of body) drives too, rather than duplicating
-          it. Field/button geometry, copy, and both security layers: site-prelaunch.md §2/§6. */}
-      <form class="entry-box" id="demo-form" action="#demo-read" novalidate>
-        <label class="visually-hidden" for="demo-ticker">A ticker</label>
-        <input id="demo-ticker" type="text" autocomplete="off" spellcheck="false" placeholder="A ticker — NVDA" />
+      {/* The live ticker handoff (#2520, ADR 0383 Amendment 1, consult 0739) — replaces the
+          v2.6 fixture-only demo. A plain HTML GET submit, no JavaScript anywhere: the browser
+          serializes `ticker` and navigates same-origin to /go/try, whose Worker bounds the
+          value to /^[A-Z]{1,6}$/ and 302s to the app. Three attributes are pinned exactly and
+          enforced by ci/check-entry-box.mjs — name="ticker", method="get", action="/go/try";
+          `method` is never `post` (a body travels off-URL) and `action` is never external.
+          The app prefills and focuses its own box but NEVER auto-submits: the second press is
+          the assent act, under the US-residency notice that renders on the app origin only
+          (ADR 0442 Amendment 1 R5). Deliberately absent: any script reading .value, and any
+          fetch/XHR/WebSocket/sendBeacon on this page. */}
+      <form class="entry-box" id="entry-form" action="/go/try" method="get" novalidate>
+        <label class="visually-hidden" for="entry-ticker">A ticker</label>
+        <input id="entry-ticker" name="ticker" type="text" autocomplete="off" spellcheck="false" placeholder="A ticker — NVDA" />
         <button type="submit" class="entry-box__submit">Get the read</button>
       </form>
-      <p class="entry-box__caption type-caption">Illustrative example — the same fixed data for every ticker until launch, not a live account.</p>
     </div>
     <ProductProofVisual />
   </section>
 
   {/* Analysis band (v2.13, new, #2179) — the eight analysis sections, flowing
-      continuously. Placed directly below the hero, above the demo reveal: it
-      establishes depth before the reveal proves it on one example. */}
+      continuously. Placed directly below the hero — the fixture-demo reveal it
+      used to sit above retired v2.19; the live ticker handoff now sends that
+      same visitor to a real read instead. */}
   <AnalysisBand />
-
-  {/* The reveal — directly below the hero, where the control is. Never inside the open-door
-      card (Two-doors' own "neither door is visually promoted" rule forbids one card growing
-      over its sibling). No `hidden` attribute: visibility is CSS `:target` (site.css) — the
-      no-JS anchor-jump and the JS-enhanced path share the one mechanism, never two that could
-      drift apart. No connect CTA inside the panel — the "neither door is visually
-      promoted" symmetric-weight rule below applies here too. */}
-  <section class="demo-read" id="demo-read" tabindex="-1" aria-labelledby="demo-read-title">
-    <header class="demo-read__head">
-      <p class="demo-read__tag type-caption">Example read</p>
-      <h3 id="demo-read-title" class="type-heading-2">AAPL · 100 shares &nbsp;+&nbsp; NVDA · bull call spread</h3>
-      <p class="demo-read__disclosure">The same fixed example for every ticker — not a read of what you typed. Live reads open at launch.</p>
-    </header>
-
-    <div class="demo-read__body">
-      <div class="demo-read__col">
-        <p class="demo-read__section-label type-caption">Key levels</p>
-        <svg class="levels-artifact" viewBox="0 0 300 140" role="img" aria-label="Illustrative support, resistance, and Fibonacci lines">
-          <line x1="10" y1="30" x2="290" y2="30" class="levels-artifact__line" />
-          <line x1="10" y1="70" x2="290" y2="70" class="levels-artifact__fib" stroke-dasharray="6 6" />
-          <line x1="10" y1="112" x2="290" y2="112" class="levels-artifact__line" />
-        </svg>
-        <p class="demo-read__caption">Support, resistance, and Fibonacci confluence — the structure every technical read stands on.</p>
-      </div>
-
-      <div class="demo-read__col">
-        <p class="demo-read__section-label type-caption">Outlook — near, mid, far</p>
-        <div class="outlook-artifact">
-          <p class="outlook-artifact__label type-caption">AI synthesis · conditional</p>
-          <p class="outlook-artifact__caption type-caption">Figures cited below are from the data pipeline, not the model.</p>
-          <div class="outlook-artifact__horizon">
-            <p class="type-caption">NEAR · DAYS–WEEKS</p>
-            <p>While the position holds above its recent range, the near-term read stays constructive; a decisive break lower shifts it.</p>
-          </div>
-          <div class="outlook-artifact__horizon">
-            <p class="type-caption">MID · 1–3 MONTHS</p>
-            <p>Absent a change in the broader trend, the mid-term structure remains intact.</p>
-          </div>
-          <div class="outlook-artifact__horizon">
-            <p class="type-caption">FAR · QUARTERS</p>
-            <p>Longer-term, the far read depends on how the current macro regime resolves.</p>
-          </div>
-          <p class="outlook-artifact__nonpersonal type-caption">This analysis does not consider your positions, rules, or account.</p>
-        </div>
-      </div>
-    </div>
-
-    <footer class="demo-read__foot">
-      <p><strong>The demo shows 2 of the read's sections.</strong> The full read adds the macro backdrop and market regime, the options math and flow, and fundamentals — each with its source and timestamp, no account needed. Curated voices and the news wire come with Core.</p>
-      <p class="demo-read__bridge">Connected read-only, this same read also carries the positions you actually hold, your own rules, and your paths — with the full math.</p>
-    </footer>
-  </section>
 
   {/* Depth strip (v2.3, new) — four structural facts about the product's construction,
       never a performance/returns claim (spec §2). */}
@@ -324,28 +275,4 @@ const websiteJsonLd = {
     </div>
   </section>
 
-  {/* Progressive enhancement ONLY (#1240, ADR 0383, site-prelaunch.md §6 v2.6(c)) — the
-      reveal works with this script absent (native anchor-jump + CSS :target on .demo-read).
-      This adds focus management and the entrance animation on top of the same mechanism, so
-      there is one show/hide rule, not two that could drift apart. is:inline: the raw source
-      ships verbatim in dist/index.html, so ci/check-demo-control.mjs asserts the exact bytes
-      that ship rather than following a bundler hop. What is deliberately absent below: no
-      fetch/XHR/WebSocket/sendBeacon, and no read of the input's .value anywhere. */}
-  <script is:inline>
-    (function () {
-      var form = document.getElementById("demo-form");
-      var panel = document.getElementById("demo-read");
-      if (!form || !panel) return;
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        var first = location.hash !== "#demo-read";
-        location.hash = "demo-read";
-        if (first) {
-          panel.classList.add("is-entering");
-          panel.addEventListener("animationend", function () { panel.classList.remove("is-entering"); }, { once: true });
-        }
-        panel.focus();
-      });
-    })();
-  </script>
 </Base>

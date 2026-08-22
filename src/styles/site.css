@@ -161,6 +161,33 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
    three drifting anchor points (site-prelaunch §1, #1754). */
 .site-header__actions { display: flex; align-items: center; gap: var(--space-200); }
 
+/* Sign in — plain text link beside the Sign up ghost button (#2520, app-shell.md §1a's
+   pair pattern). Deliberately NOT .btn-quiet: two adjacent outline buttons read as two
+   competing primary actions, which is the thing that spec rules out. Same 44px target
+   and vertical rhythm as .site-nav a so the three items sit on one baseline. */
+.site-header__signin {
+  font-size: var(--font-size-300);
+  color: var(--text-link);
+  padding: var(--space-150) var(--space-100);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+.site-header__signin:hover { text-decoration: underline; }
+
+/* Below md the three-item group (lockup + Pricing + Sign in + Sign up) overruns the
+   container — measured 392px of content in a 375px bar, clipping "Sign up" (#2520).
+   The plain-text "Sign in" is the one that drops, NOT the button: both hrefs are the
+   SAME /go/signin destination and the app opens one combined screen ("Sign in or create
+   your account"), so nothing becomes unreachable — only the second scanning label is
+   lost, and on a marketing page the new visitor is the one who needs their word visible.
+   Undesigned case: site-prelaunch.md §1 specced one button and never a mobile treatment
+   for a pair — flagged to Designer on #2520 rather than left to drift. */
+@media (max-width: 639px) {
+  .site-header__signin { display: none; }
+}
+
 /* ── Footer ───────────────────────────────────────────────────────────── */
 .site-footer { border-top: 1px solid var(--color-border-default); }
 .site-footer .container { padding-block: var(--space-600); }
@@ -313,7 +340,6 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 }
 .entry-box__submit:hover, .btn-filled:hover { background: var(--color-accent-hover); text-decoration: none; }
 .entry-box__submit:active, .btn-filled:active { background: var(--color-accent-active); }
-.entry-box__caption { max-width: 36rem; color: var(--color-text-muted); margin: var(--space-100) 0 0; font-size: var(--font-size-100); line-height: var(--font-line-height-default); }
 
 /* Stacked below md. `flex: 1 1 14rem` is a WIDTH basis in a row and a HEIGHT basis
    once the base breakpoint stacks the form into a column (renders a ~14rem-tall
@@ -323,50 +349,6 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   .entry-box input { flex: 0 0 auto; width: 100%; }
   .entry-box__submit { width: 100%; }
 }
-
-/* ── The reveal panel — directly below the hero, where the control is ───────
-   :target, not [hidden]: one mechanism serves the no-JS anchor-jump AND the
-   JS-enhanced path (the enhancement script just sets location.hash + manages
-   focus/animation on top of this same rule, instead of duplicating show/hide
-   logic in two places that could drift apart). */
-.demo-read {
-  display: none;
-  margin-top: var(--space-400);
-  background: var(--color-bg-raised);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-medium);
-  padding: var(--space-400);
-}
-.demo-read:target { display: block; }
-.demo-read:focus { outline: none; }
-.demo-read:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
-
-@media (prefers-reduced-motion: no-preference) {
-  .demo-read.is-entering { animation: demo-read-in 220ms ease-out both; }
-}
-@keyframes demo-read-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: none; }
-}
-
-.demo-read__head { border-bottom: 1px solid var(--color-border-default); padding-bottom: var(--space-300); margin-bottom: var(--space-300); }
-.demo-read__tag { color: var(--color-text-muted); margin: 0 0 var(--space-050); }
-.demo-read__head h3 { margin: 0 0 var(--space-150); font-family: var(--font-family-mono); font-size: var(--font-size-400); letter-spacing: 0; }
-/* The disclosure is the one line that keeps this honest, so it is body-weight
-   text, not a caption — it must not be scannable-past. */
-.demo-read__disclosure { margin: 0; color: var(--color-text-primary); font-weight: var(--font-weight-medium); }
-
-.demo-read__body { display: grid; grid-template-columns: 1fr; gap: var(--space-400); }
-@media (min-width: 640px) { .demo-read__body { grid-template-columns: 1fr 1fr; } }
-.demo-read__col { display: flex; flex-direction: column; gap: var(--space-200); }
-.demo-read__section-label { color: var(--color-text-muted); margin: 0; text-transform: uppercase; letter-spacing: 0.06em; }
-.demo-read__caption { margin: 0; color: var(--color-text-long-form); font-size: var(--font-size-300); }
-
-.demo-read__foot { margin-top: var(--space-400); padding-top: var(--space-300); border-top: 1px solid var(--color-border-default); }
-.demo-read__foot p { margin: 0 0 var(--space-150); color: var(--color-text-secondary); font-size: var(--font-size-200); }
-.demo-read__foot p:last-child { margin-bottom: 0; }
-.demo-read__foot strong { color: var(--color-text-primary); font-weight: var(--font-weight-medium); }
-.demo-read__bridge { color: var(--color-text-long-form) !important; }
 
 /* ── Hero: "Or" demo turn + stage indicator (ADR 0042 — connect-led) ──────── */
 /* Deep door leads in .sub; "Or, take any ticker" follows as the demo-retention
@@ -389,7 +371,11 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--space-300);
+  /* A <figure> since #2520 — zero its UA default margin (1em 40px) explicitly. Same class
+     of surplus as the .band__head h2 margin v2.16 found: a UA default surviving inside a
+     flex container, invisible until measured. */
+  margin: 0;
+  gap: var(--space-150);
   padding-block: var(--space-300);
 }
 .proof__svg {
@@ -399,7 +385,17 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   height: auto;
   margin-inline: auto;
 }
-.proof__caption { color: var(--color-text-muted); margin: 0; }
+/* The figure's caption (#2520) — carries the hero's illustrative-data disclosure
+   (site-prelaunch.md:119, founder-kept). Matches .proof__svg's max-width and centering so
+   it aligns to the image's edges rather than the column's. font-size-100 is the same
+   fine-print size it used under the entry box, unchanged by the move. */
+.proof__caption {
+  max-width: min(440px, 100%);
+  margin: 0 auto;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-100);
+  line-height: var(--font-line-height-default);
+}
 
 /* Rule-state row (read-components.md §2) — geometric marker, no signal color. */
 .rule-row { display: flex; align-items: baseline; gap: var(--space-150); flex-wrap: wrap; }
