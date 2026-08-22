@@ -743,10 +743,35 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .faq__kicker { color: var(--color-text-muted); margin: 0 0 var(--space-100); }
 .faq__intro h2 { margin: 0 0 var(--space-200); }
 .faq__intro p:last-child { color: var(--color-text-secondary); }
+/* Group labels (#2534) reuse the section's own kicker recipe verbatim — same
+   color token, no new one minted — as real <h3> landmarks between groups. */
+.faq__group-label { color: var(--color-text-muted); margin: 0 0 var(--space-100); }
+.faq__group-label:not(:first-child) { margin-top: var(--space-400); }
 .faq__list details { border-top: 1px solid var(--color-border-strong); padding-block: var(--space-300); }
-.faq__list details:last-child { border-bottom: 1px solid var(--color-border-strong); }
-.faq__list summary { cursor: pointer; color: var(--color-text-primary); }
+.faq__list details:last-of-type { border-bottom: 1px solid var(--color-border-strong); }
+.faq__list summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-200);
+  cursor: pointer;
+  color: var(--color-text-primary);
+  list-style: none; /* Firefox's native marker — ::-webkit-details-marker below is WebKit-only */
+}
 .faq__list summary::-webkit-details-marker { display: none; }
+/* Chevron (#2532) — site-prelaunch.md claimed rotation since v2.3 but nothing
+   ever replaced the suppressed native marker. Pure CSS, keyed to [open]. */
+.faq__chevron {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: var(--color-text-muted);
+  transition: transform 0.15s ease;
+}
+.faq__list details[open] > summary .faq__chevron { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) {
+  .faq__chevron { transition: none; }
+}
 .faq__list details p { margin: var(--space-200) 0 0; color: var(--color-text-secondary); }
 
 .steps { list-style: none; margin: 0; padding: 0; }
