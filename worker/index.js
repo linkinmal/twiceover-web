@@ -16,10 +16,10 @@
 
 // The site→app routing contract (ai-team/growth/site-app-seam.md §3, #1754): every
 // crossing from twiceover-web to app.twiceover.io goes through one of these same-origin
-// /go/* redirects — no page ever links straight to the app origin. All three land on the
-// identical app entry point (auth-screens.md State A); the app decides what a visitor
-// sees from there. Three distinct site routes exist to keep each site surface a
-// separately measurable click (MQ2), not because the app treats them differently.
+// /go/* redirects — no page ever links straight to the app origin. Each is also a
+// separately measurable click (MQ2). CORRECTED for stock-analyst-platform#2541 (ADR 0742):
+// they no longer all land on the identical app entry point — /go/signin and /go/connect
+// deep-link their own hash routes, and the app decides what a visitor actually sees there.
 //   /go/try     — the hero entry-box demo (ticker forwarding is a separate, gated build)
 //   /go/connect — the hero + closing-band "Connect read-only →" CTA
 //   /go/signin  — the header "Sign in" slot
@@ -34,13 +34,19 @@ const APP_TRY_URL = "https://app.twiceover.io/";
  * `/go/signin` opens the app's auth screen (`#signin`) directly instead of dropping the visitor on
  * the app root to go find it — the founder's ask, and `#signin` is an established deep-link target
  * (`apps/web/src/shell/route.ts` parses it; `PlansSurface.tsx` already links `#signin?intent=`).
- * `/go/connect` deliberately still lands on the root: opening the connector needs an account AND a
- * Core trial first, which is an unsolved UX problem tracked as stock-analyst-platform#2527, not a
- * destination change to make here.
+ *
+ * `/go/connect` deep-links `#connection` (stock-analyst-platform#2541, ADR 0742). **This reverses
+ * this comment's own previous claim** that it "deliberately still lands on the root" because
+ * "opening the connector needs an account AND a Core trial first, which is an unsolved UX problem":
+ * #2527 solved it. The app's `ConnectionRoute` now gates that hash itself — entitled visitors reach
+ * the connector, Free ones are sent to `#plans?dest=connection`, signed-out ones to
+ * `#signin?intent=core&dest=connection` — so the site can point straight at the thing its CTA
+ * names, and the three transitions behind it are disclosed there (ADR 0748) rather than hidden
+ * behind a generic landing.
  */
 const GO_DESTINATIONS = {
   "/go/try": APP_TRY_URL,
-  "/go/connect": APP_TRY_URL,
+  "/go/connect": `${APP_TRY_URL}#connection`,
   "/go/signin": `${APP_TRY_URL}#signin`,
 };
 
