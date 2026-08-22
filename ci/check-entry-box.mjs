@@ -156,6 +156,33 @@ if (workerSource) {
       `[security] worker/index.js must bound the forwarded ticker with /^[A-Z]{1,6}$/ before it leaves this origin (consult 0739 trip-wire: "the forwarded value is ever anything other than the bounded ticker pattern")`,
     );
   }
+  // Per-route destinations must stay a CLOSED LITERAL MAP built from the hardcoded app URL.
+  // Consult 0739's trip-wire: "/go/try's destination host ever becomes anything other than the
+  // hardcoded APP_TRY_URL (i.e. ever dynamic or attacker-influenceable)". A `next=`/`redirect_to=`
+  // style param feeding the redirect is the classic open-redirect shape this bars structurally.
+  const destMap = workerSource.match(/const GO_DESTINATIONS = \{[\s\S]*?\n\};/)?.[0] ?? "";
+  if (!destMap) {
+    failures.push(`[security] worker/index.js must declare a literal GO_DESTINATIONS map — the /go/* destinations may not be computed`);
+  } else {
+    if (/searchParams|request\.|url\.search|headers\.get/.test(destMap)) {
+      failures.push(
+        `[security] GO_DESTINATIONS must be built only from hardcoded literals — it references request input, which makes a /go/* destination attacker-influenceable (consult 0739 trip-wire)`,
+      );
+    }
+    for (const [, value] of destMap.matchAll(/"\/go\/[a-z]+":\s*([^,\n]+)/g)) {
+      if (!/^(APP_TRY_URL|`\$\{APP_TRY_URL\}[^`]*`)$/.test(value.trim())) {
+        failures.push(
+          `[security] every GO_DESTINATIONS value must derive from the hardcoded APP_TRY_URL, got: ${value.trim()}`,
+        );
+      }
+    }
+  }
+  if (/\bsearchParams\.get\(\s*["'`](next|redirect_to|redirect|returnTo|return_to|url|dest)["'`]/.test(workerSource)) {
+    failures.push(
+      `[security] worker/index.js must never read a caller-supplied redirect target from the query string — the /go/* destinations are a closed literal map`,
+    );
+  }
+
   // The typed value must never reach analytics — consult 0163's guardrail, restated as
   // 0739's trip-wire ("the ticker value starts being captured into twiceover-web's own
   // analytics/metrics"). readUtm is the only thing that feeds writeSiteMetric's blobs.

@@ -135,7 +135,8 @@ describe("fetch — /go/* routes", () => {
     const response = await worker.fetch(new Request("https://twiceover.io/go/signin"), env);
 
     expect(response.status).toBe(302);
-    expect(response.headers.get("location")).toBe("https://app.twiceover.io/");
+    // #2520: /go/signin's destination is the auth screen, not the app root.
+    expect(response.headers.get("location")).toBe("https://app.twiceover.io/#signin");
   });
 
   it("never redirects an unrecognized /go/* path — falls through to the static asset (404)", async () => {
@@ -268,5 +269,66 @@ describe("fetch — /go/try ticker handoff", () => {
     const call = env.SITE_METRICS.writeDataPoint.mock.calls[0][0];
     expect(JSON.stringify(call)).not.toContain("NVDA");
     expect(call.blobs).toEqual(["/go/try", "", "ph", "", "", ""]);
+  });
+});
+
+/* ── Per-route destinations (#2520, founder-directed) ─────────────────────
+   /go/signin opens the app's auth screen directly rather than dropping the visitor on
+   the app root to find it — `#signin` is an established deep-link target in the app
+   (`PlansSurface.tsx` already uses `#signin?intent=`). Destinations stay HARDCODED per
+   route, never derived from request input: consult 0739's trip-wire fires if a /go/*
+   destination ever becomes dynamic or attacker-influenceable. */
+
+describe("fetch — per-route app destinations", () => {
+  function fakeEnv() {
+    return { SITE_METRICS: { writeDataPoint: vi.fn() }, ASSETS: { fetch: vi.fn() } };
+  }
+
+  beforeEach(() => vi.clearAllMocks());
+
+  it("sends /go/signin straight to the app's auth screen", async () => {
+    const env = fakeEnv();
+    const response = await worker.fetch(new Request("https://twiceover.io/go/signin"), env);
+
+    expect(response.status).toBe(302);
+    expect(response.headers.get("location")).toBe("https://app.twiceover.io/#signin");
+  });
+
+  it("keeps the fragment after the query string when UTM rides along", async () => {
+    const env = fakeEnv();
+    const response = await worker.fetch(
+      new Request("https://twiceover.io/go/signin?utm_source=ph"),
+      env,
+    );
+
+    const location = response.headers.get("location");
+    expect(location).toBe("https://app.twiceover.io/?utm_source=ph#signin");
+    const url = new URL(location);
+    expect(url.hash).toBe("#signin");
+    expect(url.searchParams.get("utm_source")).toBe("ph");
+  });
+
+  it.each([
+    ["/go/try", "https://app.twiceover.io/"],
+    ["/go/connect", "https://app.twiceover.io/"],
+  ])("leaves %s on the app root (unchanged)", async (path, expected) => {
+    const env = fakeEnv();
+    const response = await worker.fetch(new Request(`https://twiceover.io${path}`), env);
+
+    expect(response.headers.get("location")).toBe(expected);
+  });
+
+  it("never lets a request influence the destination host", async () => {
+    const env = fakeEnv();
+    const response = await worker.fetch(
+      new Request(
+        "https://twiceover.io/go/signin?next=https://evil.example&redirect_to=https://evil.example",
+      ),
+      env,
+    );
+
+    const location = response.headers.get("location");
+    expect(new URL(location).origin).toBe("https://app.twiceover.io");
+    expect(location).not.toContain("evil.example");
   });
 });

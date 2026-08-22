@@ -25,7 +25,26 @@
 //   /go/signin  — the header "Sign in" slot
 const APP_TRY_URL = "https://app.twiceover.io/";
 
-const GO_PATHS = new Set(["/go/try", "/go/connect", "/go/signin"]);
+/**
+ * Per-route app destination — HARDCODED, one literal per route, never derived from anything in the
+ * request (#2520, founder-directed). Consult 0739's trip-wire is explicit that a /go/* destination
+ * becoming "dynamic or attacker-influenceable" reopens it, so this stays a closed literal map: no
+ * `next=`/`redirect_to=` param is read, and an unlisted path can't reach the redirect at all.
+ *
+ * `/go/signin` opens the app's auth screen (`#signin`) directly instead of dropping the visitor on
+ * the app root to go find it — the founder's ask, and `#signin` is an established deep-link target
+ * (`apps/web/src/shell/route.ts` parses it; `PlansSurface.tsx` already links `#signin?intent=`).
+ * `/go/connect` deliberately still lands on the root: opening the connector needs an account AND a
+ * Core trial first, which is an unsolved UX problem tracked as stock-analyst-platform#2527, not a
+ * destination change to make here.
+ */
+const GO_DESTINATIONS = {
+  "/go/try": APP_TRY_URL,
+  "/go/connect": APP_TRY_URL,
+  "/go/signin": `${APP_TRY_URL}#signin`,
+};
+
+const GO_PATHS = new Set(Object.keys(GO_DESTINATIONS));
 
 const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign"];
 
@@ -125,7 +144,7 @@ export default {
         // A metrics write must never break the redirect.
       }
       return Response.redirect(
-        buildAppRedirect(APP_TRY_URL, url.searchParams, {
+        buildAppRedirect(GO_DESTINATIONS[url.pathname], url.searchParams, {
           forwardTicker: url.pathname === "/go/try",
         }),
         302,
