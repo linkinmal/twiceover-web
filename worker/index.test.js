@@ -308,14 +308,40 @@ describe("fetch — per-route app destinations", () => {
     expect(url.searchParams.get("utm_source")).toBe("ph");
   });
 
-  it.each([
-    ["/go/try", "https://app.twiceover.io/"],
-    ["/go/connect", "https://app.twiceover.io/"],
-  ])("leaves %s on the app root (unchanged)", async (path, expected) => {
+  it("leaves /go/try on the app root (unchanged)", async () => {
     const env = fakeEnv();
-    const response = await worker.fetch(new Request(`https://twiceover.io${path}`), env);
+    const response = await worker.fetch(new Request("https://twiceover.io/go/try"), env);
 
-    expect(response.headers.get("location")).toBe(expected);
+    expect(response.headers.get("location")).toBe("https://app.twiceover.io/");
+  });
+
+  // stock-analyst-platform#2541, ADR 0742 — /go/connect now deep-links the connector instead of
+  // dropping the visitor on the app root. The app's own three-rung gate decides what they actually
+  // see there (entitled -> the connector; Free -> the plans sheet; signed out -> sign-in carrying
+  // intent=core&dest=connection), which is why the site can point straight at it.
+  it("deep-links /go/connect to the app's connection route (ADR 0742)", async () => {
+    const env = fakeEnv();
+    const response = await worker.fetch(new Request("https://twiceover.io/go/connect"), env);
+    const location = response.headers.get("location");
+
+    expect(location).toBe("https://app.twiceover.io/#connection");
+    expect(new URL(location).hash).toBe("#connection");
+  });
+
+  it("keeps /go/connect's destination hardcoded — no request input can steer it", async () => {
+    const env = fakeEnv();
+    const response = await worker.fetch(
+      new Request(
+        "https://twiceover.io/go/connect?next=https://evil.example/&redirect_to=https://evil.example/&dest=rules",
+      ),
+      env,
+    );
+    const location = response.headers.get("location");
+
+    // Consult 0739's trip-wire: only the three UTM keys are ever forwarded, and the destination
+    // itself comes from the literal map, never from anything on the request.
+    expect(location).toBe("https://app.twiceover.io/#connection");
+    expect(location).not.toContain("evil.example");
   });
 
   it("never lets a request influence the destination host", async () => {

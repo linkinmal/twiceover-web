@@ -59,6 +59,13 @@ const websiteJsonLd = {
           /go/connect redirect to the app's entry point. No interim OAuth plumbing
           here; the app owns the actual OAuth flow. */}
       <a class="btn-quiet hero__cta" href="/go/connect">Connect read-only →</a>
+      {/* Caption (site-prelaunch.md §2 Hero v2.23, ADR 0748) — the "landing surface" half of the
+          founder's framing on stock-analyst-platform#2527: the button's own label is locked (ADR
+          0042/0074) and names only the last of the three transitions behind it, so this line names
+          the plan and the trial before any press. Deliberately NOT fine print — it reads as an
+          inducement. It carries none of ADR 0145 item 3's amount/date/cancellation facts, which
+          stay owned by trial-ux.md's approved lines wherever those render. */}
+      <p class="hero__cta-caption type-caption">Part of Core. Starts with a 14-day free trial.</p>
       <p class="demo-turn">Or, take any US-listed ticker — no connection needed.</p>
       {/* The live ticker handoff (#2520, ADR 0383 Amendment 1, consult 0739) — replaces the
           v2.6 fixture-only demo. A plain HTML GET submit, no JavaScript anywhere: the browser
