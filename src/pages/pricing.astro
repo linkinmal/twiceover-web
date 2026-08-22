@@ -4,15 +4,38 @@
 // (NOT built — zero JS, per the design's own conditional + PM annual-pricing decision).
 // Connection-optional: works with or without a broker connection. Core's $49 is the
 // Accepted price (pricing-artifact.md §1, human sign-off 2026-06-30), matching
-// FastSpring's catalog exactly. No card CTA in #39 — no checkout exists. Tier symmetry
-// is a compliance feature (spec §6.2): never differentiate.
+// FastSpring's catalog exactly. Tier symmetry is a compliance feature (spec §6.2):
+// never differentiate.
 // Free card (2026-07-22, stock-analyst-platform#1307): shipped decoupled from the
 // trial-launch reveal (consult 0182, ADR 0145 item 6) — Free needs neither ORATS (#97)
-// nor a live checkout, so it ships alone. The chooser block and Core's trial CTA stay
-// gated on #97/#31 and are NOT part of this change.
+// nor a live checkout, so it shipped alone, ahead of its CTA.
+// CTAs lit (2026-08-22, stock-analyst-platform#2513/#2514) — BOTH cards, one change,
+// because §6.2 makes a CTA on one card and none on the other the asymmetry the rule
+// exists to prevent. This REPLACES this comment's own previous claim that "the chooser
+// block and Core's trial CTA stay gated on #97/#31": both halves of that gate are dead.
+// #31 closed `not_planned` (the pre-Dodo MoR application), and ADR 0560 item 3 superseded
+// the #97 half on 2026-08-02 — "The Core trial offer is un-gated from ORATS… Core is
+// offered at go-live" — because structure math is broker-fed, not vendor-fed. What
+// actually gated the CTAs was live MoR checkout (#1459/#201/#1458, all closed) and the
+// Core card's own unserved-layer claim (#2519, closed 2026-08-22).
+// The chooser block remains unbuilt — it is separate copy, not part of #2513/#2514.
+// Labels differ per site-copy-twiceover.md §Pricing (signed off); the CTA *treatment* is
+// identical, which is what §6.2 and site-prelaunch.md §3's "equal weight" govern.
+// Core's two sub-lines are the negative-option disclosure (ADR 0145, FTC/EU-UK
+// auto-renewal) — verbatim, legal-flagged; they are not decoration and never ship
+// without the CTA they qualify, nor it without them.
 // Trimmed from the #1307 canonical draft (human direction 2026-07-22): dropped
 // "— ongoing, not a trial" and the standalone "No card required" line as redundant
-// on a card with no CTA/checkout to contrast against. "Any ticker" → "any US-listed
+// on a card with no CTA/checkout to contrast against.
+//   ^ PREMISE FALSIFIED BY THIS CHANGE (#2513/#2514) — that trim was conditional on the
+//   page having no checkout to contrast against, and this commit adds one. Both trimmed
+//   lines are still in the ratified copy (site-copy-twiceover.md §Pricing) and both now
+//   have exactly the contrast they were dropped for lacking: Free is "ongoing, not a
+//   trial" beside a 14-day trial, and "No card required" beside a card-required CTA.
+//   NOT restored here — the trim was a direct human direction and the restore is a PM/
+//   copy call, not an Engineer one. Raised on #2513 for a ruling; if it lands, it is a
+//   two-line addition to the Free card's list.
+// "Any ticker" → "any US-listed
 // ticker" per consult 0416 (PM ruling): the product is US-only by design (ADR
 // 0027/0028) and US-venue-scoped by construction; inline qualifier, not a footnote,
 // to preserve tier-card symmetry (spec §6.2).
@@ -64,6 +87,7 @@ const productJsonLd = {
         <li>The synthesis read on any US-listed ticker</li>
         <li>Key technical levels (basic), SEC/EDGAR fundamentals, macro regime context</li>
       </ul>
+      <a class="btn-quiet tier__cta" href="/go/try">Run a free read</a>
     </li>
     <li class="tier">
       <h2 class="type-heading-2">Core</h2>
@@ -76,6 +100,9 @@ const productJsonLd = {
         <li>Macro/regime context</li>
         <li>Licensed market data</li>
       </ul>
+      <a class="btn-quiet tier__cta" href="/go/plan">Start 14-day trial</a>
+      <p class="tier__disclosure">Free for 14 days. Then $49/month, charged automatically to the card you save at checkout.</p>
+      <p class="tier__disclosure">Cancel any time before the trial ends — one click in Settings, no charge. We email you three days before.</p>
     </li>
   </ul>
 

@@ -860,6 +860,11 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-medium);
   padding: var(--space-400);
+  /* Flex column so the card's CTA (and, on Core, its disclosure lines) are laid out as
+     siblings of the feature list rather than inline flow — see `.tier__cta` below for why
+     the buttons are list-attached rather than bottom-aligned. */
+  display: flex;
+  flex-direction: column;
 }
 .tier h2 { margin: 0; }
 .tier .price {
@@ -870,9 +875,37 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 }
 .tier .price .per { font-size: var(--font-size-300); font-weight: var(--font-weight-regular); letter-spacing: var(--font-letter-spacing-normal); color: var(--color-text-muted); }
 .tier .price-note { font-size: var(--font-size-200); color: var(--color-text-muted); margin: var(--space-050) 0 0; min-height: 1.5em; }
-.tier ul { list-style: none; margin: var(--space-400) 0 0; padding: 0; color: var(--color-text-secondary); }
+.tier ul { list-style: none; margin: var(--space-400) 0 var(--space-400); padding: 0; color: var(--color-text-secondary); }
 .tier li { margin-bottom: var(--space-150); }
 .tier li::before { content: "– "; }
+/* Card CTA (site-prelaunch.md §3: "each card gains the same quiet outline button — equal
+   weight"; stock-analyst-platform#2513/#2514). Identical `.btn-quiet` on both tiers — the
+   labels differ because the actions differ, nothing else does. `align-self` keeps the button
+   at its content's width inside the flex column instead of stretching edge to edge.
+   The button sits directly under its own feature list (the list's `margin-block-end` is the
+   gap), so each card reads as list-then-action. Two alternatives were built and MEASURED
+   rather than eyeballed, and both were worse:
+     - `margin-block-start:auto` (bottom-flush groups) put the two buttons 150px apart and
+       stranded Free's at the card floor under ~200px of dead space — symmetric by the ruler,
+       visibly broken on screen.
+     - Any `.tier ul + .tier__cta` spacing rule beside an `auto` margin silently outranks it
+       (0,2,1 vs 0,1,0) and replaces the alignment with a fixed margin, which looks exactly
+       like working spacing while doing the opposite.
+   The buttons therefore do NOT share a y-position — Core's list is twice Free's. That is a
+   layout question, not a build one: raised for the Designer gate on the PR with the rect
+   measurements, not settled here. */
+.tier__cta { align-self: flex-start; }
+/* Core's two negative-option disclosure lines (FTC / EU-UK auto-renewal, ADR 0145). Quiet
+   caption directly under the button they qualify — they are what makes an auto-renewing
+   trial CTA lawful to offer, so they travel WITH the CTA and never wrap to another region.
+   Free carries none because Free auto-charges nothing: §6.2 bars ranking tiers, not a
+   disclosure one tier owes and the other does not. */
+.tier__disclosure {
+  font-size: var(--font-size-200);
+  color: var(--color-text-muted);
+  max-width: 42ch;
+  margin: var(--space-150) 0 0;
+}
 .mor-line { font-size: var(--font-size-200); color: var(--color-text-muted); max-width: 65ch; margin-block: 0 var(--space-600); }
 
 /* ── Policy template ─────────────────────────────────────────────────── */
