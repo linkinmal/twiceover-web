@@ -67,14 +67,26 @@ const websiteJsonLd = {
           enforced by ci/check-entry-box.mjs — name="ticker", method="get", action="/go/try";
           `method` is never `post` (a body travels off-URL) and `action` is never external.
           The app prefills and focuses its own box but NEVER auto-submits: the second press is
-          the assent act, under the US-residency notice that renders on the app origin only
-          (ADR 0442 Amendment 1 R5). Deliberately absent: any script reading .value, and any
-          fetch/XHR/WebSocket/sendBeacon on this page. */}
+          the assent act, now under this page's own notice below (#2545) as well as the
+          app-side notice on direct/bare-URL app arrivals (ADR 0442 Amendment 1 R5). Deliberately
+          absent: any script reading .value, and any fetch/XHR/WebSocket/sendBeacon on this page. */}
       <form class="entry-box" id="entry-form" action="/go/try" method="get" novalidate>
         <label class="visually-hidden" for="entry-ticker">A ticker</label>
         <input id="entry-ticker" name="ticker" type="text" autocomplete="off" spellcheck="false" placeholder="A ticker — NVDA" />
         <button type="submit" class="entry-box__submit">Get the read</button>
       </form>
+      {/* R5 notice, site-side (#2545, site-prelaunch.md §2 v2.24, consult 0745/0747) — the
+          click-through population's own act, the same click that already exists, now doing
+          double duty. Bare copy, no "confirms"/"continuing" clause: the human was shown that
+          tradeoff and chose the bare version twice, knowingly (consult 0747 Outcome) — not a
+          paraphrase target. Same slot the entry-box's below-box states have used since v2.6
+          (vacated earlier today, #2520, when the old illustrative caption moved to
+          ProductProofVisual's <figcaption>). The app-side JurisdictionNotice.tsx is
+          unchanged (PR #622) and covers direct/bare-URL app arrivals separately — this does
+          not replace it. Version/replay wiring for future copy drift is flagged, not decided
+          (site-prelaunch.md §2 v2.24) — Architect's call, tracked separately as
+          stock-analyst-platform#2549, not this issue. */}
+      <p class="entry-box__notice type-caption">US residents only.</p>
     </div>
     <ProductProofVisual />
   </section>

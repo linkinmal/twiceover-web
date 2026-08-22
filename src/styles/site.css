@@ -350,6 +350,19 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   .entry-box__submit { width: 100%; }
 }
 
+/* R5 notice (#2545, site-prelaunch.md §2 v2.24) — width/color/spacing only; font
+   metrics come from the .type-caption utility class applied alongside this one in
+   markup (build-tokens.mjs's typography.* composite classes carry no color). Same
+   convention as the app-side notice and AuthFlow.tsx's signup-time line — color.text
+   .secondary, no box/border/icon/bold. max-width matches .entry-box's own 36rem so
+   the notice reads as "full width to match" the row above it. */
+.entry-box__notice {
+  width: 100%;
+  max-width: 36rem;
+  margin: var(--space-100) 0 0;
+  color: var(--color-text-secondary);
+}
+
 /* ── Hero: "Or" demo turn + stage indicator (ADR 0042 — connect-led) ──────── */
 /* Deep door leads in .sub; "Or, take any ticker" follows as the demo-retention
    guardrail (immediately above the fold). No separate connect-turn section. */
