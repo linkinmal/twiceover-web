@@ -95,7 +95,7 @@ describe("fetch — /go/* routes", () => {
 
   beforeEach(() => vi.clearAllMocks());
 
-  it.each(["/go/connect", "/go/signin", "/go/try"])(
+  it.each(["/go/connect", "/go/signin", "/go/try", "/go/plan"])(
     "redirects %s to the app root, forwarding only UTM and dropping every other param",
     async (path) => {
       const env = fakeEnv();
@@ -137,6 +137,49 @@ describe("fetch — /go/* routes", () => {
     expect(response.status).toBe(302);
     // #2520: /go/signin's destination is the auth screen, not the app root.
     expect(response.headers.get("location")).toBe("https://app.twiceover.io/#signin");
+  });
+
+  /* stock-analyst-platform#2514, site-app-seam.md §3 row 4 (v1.1 correction). The Core
+     card's "Start 14-day trial" CTA carries its plan intent to the app, and BOTH halves
+     of how it does that are silent-failure seams the doc had to correct twice:
+       - the carrier is `intent`, not `plan` — the app's `plan` field is a pre-ADR-0404
+         dead branch that reaches nothing;
+       - it must ride INSIDE the hash fragment. `authHashRoute.ts` parses by splitting the
+         hash on "?" and reading THAT substring; a real query param is never read.
+     Either mistake still returns a 302 to the right origin, which is why status- and
+     origin-level assertions cannot catch it — this asserts the hash itself. */
+  it("carries the Core plan intent inside the hash fragment, where the app's parser reads it", async () => {
+    const env = fakeEnv();
+    const response = await worker.fetch(
+      new Request("https://twiceover.io/go/plan?utm_source=ph&foo=SECRET"),
+      env,
+    );
+
+    expect(response.status).toBe(302);
+    const location = new URL(response.headers.get("location"));
+    // The intent lives in the hash — not in searchParams, where it would be dropped on the floor.
+    expect(location.hash).toBe("#signin?intent=core");
+    expect(location.searchParams.has("intent")).toBe(false);
+    // UTM still rides the query string, unchanged by the hash carrier sitting beside it.
+    expect(location.searchParams.get("utm_source")).toBe("ph");
+    expect(location.searchParams.has("foo")).toBe(false);
+    // The app's own parser is the authority on that string — mirror its split here so a
+    // future edit to the destination that breaks parsing fails this test, not production.
+    const [routeName, query = ""] = location.hash.replace(/^#/, "").split("?");
+    expect(routeName).toBe("signin");
+    expect(new URLSearchParams(query).get("intent")).toBe("core");
+  });
+
+  it("does not forward a ticker on /go/plan — only /go/try opts in", async () => {
+    const env = fakeEnv();
+    const response = await worker.fetch(
+      new Request("https://twiceover.io/go/plan?ticker=NVDA"),
+      env,
+    );
+
+    const location = new URL(response.headers.get("location"));
+    expect(location.searchParams.has("ticker")).toBe(false);
+    expect(location.hash).toBe("#signin?intent=core");
   });
 
   it("never redirects an unrecognized /go/* path — falls through to the static asset (404)", async () => {

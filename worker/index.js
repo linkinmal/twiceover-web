@@ -21,8 +21,10 @@
 // they no longer all land on the identical app entry point — /go/signin and /go/connect
 // deep-link their own hash routes, and the app decides what a visitor actually sees there.
 //   /go/try     — the hero entry-box demo (ticker forwarding is a separate, gated build)
+//               — and /pricing's Free card "Run a free read" CTA (#2513)
 //   /go/connect — the hero + closing-band "Connect read-only →" CTA
 //   /go/signin  — the header "Sign in" slot
+//   /go/plan    — /pricing's Core card "Start 14-day trial" CTA (#2514)
 const APP_TRY_URL = "https://app.twiceover.io/";
 
 /**
@@ -43,11 +45,22 @@ const APP_TRY_URL = "https://app.twiceover.io/";
  * `#signin?intent=core&dest=connection` — so the site can point straight at the thing its CTA
  * names, and the three transitions behind it are disclosed there (ADR 0748) rather than hidden
  * behind a generic landing.
+ *
+ * `/go/plan` opens the auth screen carrying the Core plan intent (stock-analyst-platform#2514,
+ * site-app-seam.md §3 row 4). Two details there are load-bearing, and §3 v1.1 had to correct both
+ * after the app shipped — each fails SILENTLY, returning a correct-looking 302 to the right origin:
+ *   - the carrier is **`intent`**, not `plan`. The app's `plan` field is a pre-ADR-0404 dead branch
+ *     that `authHashRoute.ts` no longer reads at all.
+ *   - it rides **inside the hash fragment**, never the query string. `parseAuthHashRoute()` splits
+ *     the hash on "?" and parses that substring; `buildAppRedirect()` re-serializes onto
+ *     `searchParams`, which that parser never looks at. So the intent is baked into this literal
+ *     rather than passed as a param — the UTM keys still ride the query beside it, untouched.
  */
 const GO_DESTINATIONS = {
   "/go/try": APP_TRY_URL,
   "/go/connect": `${APP_TRY_URL}#connection`,
   "/go/signin": `${APP_TRY_URL}#signin`,
+  "/go/plan": `${APP_TRY_URL}#signin?intent=core`,
 };
 
 const GO_PATHS = new Set(Object.keys(GO_DESTINATIONS));
