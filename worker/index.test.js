@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { readUtm, refererOrigin, isHtmlPageView, buildAppRedirect } from "./index.js";
+import {
+  readUtm,
+  refererOrigin,
+  isHtmlPageView,
+  buildAppRedirect,
+  readTicker,
+} from "./index.js";
 import worker from "./index.js";
 
 const SELF = "https://twiceover.io";
@@ -129,7 +135,8 @@ describe("fetch — /go/* routes", () => {
     const response = await worker.fetch(new Request("https://twiceover.io/go/signin"), env);
 
     expect(response.status).toBe(302);
-    expect(response.headers.get("location")).toBe("https://app.twiceover.io/");
+    // #2520: /go/signin's destination is the auth screen, not the app root.
+    expect(response.headers.get("location")).toBe("https://app.twiceover.io/#signin");
   });
 
   it("never redirects an unrecognized /go/* path — falls through to the static asset (404)", async () => {
@@ -139,5 +146,189 @@ describe("fetch — /go/* routes", () => {
 
     expect(response.status).toBe(404);
     expect(env.SITE_METRICS.writeDataPoint).not.toHaveBeenCalled();
+  });
+});
+
+/* ── Live ticker handoff (#2520, consult 0739) ────────────────────────────
+   The entry-box's real GET submit carries `ticker` to /go/try. Two invariants
+   Security's close pins: the value is bounded to /^[A-Z]{1,6}$/ BEFORE it
+   leaves this Worker, and it is written with URLSearchParams.set() — never
+   concatenated into the Location header (the CRLF-injection seam). */
+
+describe("readTicker", () => {
+  it("normalizes a typed symbol the way the app does — trimmed and upper-cased", () => {
+    expect(readTicker(new URLSearchParams("ticker=nvda"))).toBe("NVDA");
+    expect(readTicker(new URLSearchParams("ticker=%20aapl%20"))).toBe("AAPL");
+    expect(readTicker(new URLSearchParams("ticker=BRK"))).toBe("BRK");
+  });
+
+  it("accepts the full bounded range and nothing past it", () => {
+    expect(readTicker(new URLSearchParams("ticker=F"))).toBe("F");
+    expect(readTicker(new URLSearchParams("ticker=ABCDEF"))).toBe("ABCDEF");
+    expect(readTicker(new URLSearchParams("ticker=ABCDEFG"))).toBeNull();
+  });
+
+  it("rejects anything that is not a plain alphabetic symbol", () => {
+    for (const bad of ["NVDA1", "NV DA", "NV.DA", "BRK-B", "", "   ", "<script>", "%00"]) {
+      expect(readTicker(new URLSearchParams(`ticker=${encodeURIComponent(bad)}`))).toBeNull();
+    }
+  });
+
+  it("returns null when the param is absent entirely", () => {
+    expect(readTicker(new URLSearchParams("utm_source=ph"))).toBeNull();
+  });
+
+  it("rejects a CRLF payload rather than normalizing it into something forwardable", () => {
+    const crlf = "NVDA\r\nLocation: https://evil.example";
+    expect(readTicker(new URLSearchParams(`ticker=${encodeURIComponent(crlf)}`))).toBeNull();
+  });
+});
+
+describe("buildAppRedirect — ticker forwarding", () => {
+  const base = "https://app.twiceover.io/";
+
+  it("forwards a valid ticker only when the caller opts in, alongside UTM", () => {
+    const url = new URL(
+      buildAppRedirect(base, new URLSearchParams("ticker=nvda&utm_source=ph"), {
+        forwardTicker: true,
+      }),
+    );
+    expect(url.searchParams.get("ticker")).toBe("NVDA");
+    expect(url.searchParams.get("utm_source")).toBe("ph");
+  });
+
+  it("does not forward the ticker by default — the other /go/* routes are unchanged", () => {
+    const url = new URL(buildAppRedirect(base, new URLSearchParams("ticker=NVDA")));
+    expect(url.searchParams.has("ticker")).toBe(false);
+  });
+
+  it("drops an out-of-pattern value instead of forwarding it", () => {
+    const url = new URL(
+      buildAppRedirect(base, new URLSearchParams("ticker=NOT_A_TICKER"), { forwardTicker: true }),
+    );
+    expect(url.searchParams.has("ticker")).toBe(false);
+  });
+
+  it("cannot be made to emit a Location carrying a raw CR or LF", () => {
+    const url = buildAppRedirect(
+      base,
+      new URLSearchParams(`ticker=${encodeURIComponent("A\r\nX: y")}`),
+      { forwardTicker: true },
+    );
+    expect(url).not.toMatch(/[\r\n]/);
+    expect(url).toBe("https://app.twiceover.io/");
+  });
+});
+
+describe("fetch — /go/try ticker handoff", () => {
+  function fakeEnv() {
+    return { SITE_METRICS: { writeDataPoint: vi.fn() }, ASSETS: { fetch: vi.fn() } };
+  }
+
+  beforeEach(() => vi.clearAllMocks());
+
+  it("carries the typed ticker to the app, normalized", async () => {
+    const env = fakeEnv();
+    const response = await worker.fetch(
+      new Request("https://twiceover.io/go/try?ticker=nvda&utm_source=ph"),
+      env,
+    );
+
+    expect(response.status).toBe(302);
+    const location = new URL(response.headers.get("location"));
+    expect(location.origin + location.pathname).toBe("https://app.twiceover.io/");
+    expect(location.searchParams.get("ticker")).toBe("NVDA");
+    expect(location.searchParams.get("utm_source")).toBe("ph");
+  });
+
+  it.each(["/go/connect", "/go/signin"])(
+    "does not carry a ticker on %s — only /go/try forwards it",
+    async (path) => {
+      const env = fakeEnv();
+      const response = await worker.fetch(new Request(`https://twiceover.io${path}?ticker=NVDA`), env);
+
+      expect(new URL(response.headers.get("location")).searchParams.has("ticker")).toBe(false);
+    },
+  );
+
+  it("drops an invalid ticker and still redirects cleanly", async () => {
+    const env = fakeEnv();
+    const response = await worker.fetch(
+      new Request("https://twiceover.io/go/try?ticker=%3Cscript%3E"),
+      env,
+    );
+
+    expect(response.status).toBe(302);
+    expect(response.headers.get("location")).toBe("https://app.twiceover.io/");
+  });
+
+  it("never writes the typed ticker into site metrics (consult 0739 / 0163 trip-wire)", async () => {
+    const env = fakeEnv();
+    await worker.fetch(new Request("https://twiceover.io/go/try?ticker=NVDA&utm_source=ph"), env);
+
+    const call = env.SITE_METRICS.writeDataPoint.mock.calls[0][0];
+    expect(JSON.stringify(call)).not.toContain("NVDA");
+    expect(call.blobs).toEqual(["/go/try", "", "ph", "", "", ""]);
+  });
+});
+
+/* ── Per-route destinations (#2520, founder-directed) ─────────────────────
+   /go/signin opens the app's auth screen directly rather than dropping the visitor on
+   the app root to find it — `#signin` is an established deep-link target in the app
+   (`PlansSurface.tsx` already uses `#signin?intent=`). Destinations stay HARDCODED per
+   route, never derived from request input: consult 0739's trip-wire fires if a /go/*
+   destination ever becomes dynamic or attacker-influenceable. */
+
+describe("fetch — per-route app destinations", () => {
+  function fakeEnv() {
+    return { SITE_METRICS: { writeDataPoint: vi.fn() }, ASSETS: { fetch: vi.fn() } };
+  }
+
+  beforeEach(() => vi.clearAllMocks());
+
+  it("sends /go/signin straight to the app's auth screen", async () => {
+    const env = fakeEnv();
+    const response = await worker.fetch(new Request("https://twiceover.io/go/signin"), env);
+
+    expect(response.status).toBe(302);
+    expect(response.headers.get("location")).toBe("https://app.twiceover.io/#signin");
+  });
+
+  it("keeps the fragment after the query string when UTM rides along", async () => {
+    const env = fakeEnv();
+    const response = await worker.fetch(
+      new Request("https://twiceover.io/go/signin?utm_source=ph"),
+      env,
+    );
+
+    const location = response.headers.get("location");
+    expect(location).toBe("https://app.twiceover.io/?utm_source=ph#signin");
+    const url = new URL(location);
+    expect(url.hash).toBe("#signin");
+    expect(url.searchParams.get("utm_source")).toBe("ph");
+  });
+
+  it.each([
+    ["/go/try", "https://app.twiceover.io/"],
+    ["/go/connect", "https://app.twiceover.io/"],
+  ])("leaves %s on the app root (unchanged)", async (path, expected) => {
+    const env = fakeEnv();
+    const response = await worker.fetch(new Request(`https://twiceover.io${path}`), env);
+
+    expect(response.headers.get("location")).toBe(expected);
+  });
+
+  it("never lets a request influence the destination host", async () => {
+    const env = fakeEnv();
+    const response = await worker.fetch(
+      new Request(
+        "https://twiceover.io/go/signin?next=https://evil.example&redirect_to=https://evil.example",
+      ),
+      env,
+    );
+
+    const location = response.headers.get("location");
+    expect(new URL(location).origin).toBe("https://app.twiceover.io");
+    expect(location).not.toContain("evil.example");
   });
 });

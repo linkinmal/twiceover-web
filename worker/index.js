@@ -25,7 +25,26 @@
 //   /go/signin  — the header "Sign in" slot
 const APP_TRY_URL = "https://app.twiceover.io/";
 
-const GO_PATHS = new Set(["/go/try", "/go/connect", "/go/signin"]);
+/**
+ * Per-route app destination — HARDCODED, one literal per route, never derived from anything in the
+ * request (#2520, founder-directed). Consult 0739's trip-wire is explicit that a /go/* destination
+ * becoming "dynamic or attacker-influenceable" reopens it, so this stays a closed literal map: no
+ * `next=`/`redirect_to=` param is read, and an unlisted path can't reach the redirect at all.
+ *
+ * `/go/signin` opens the app's auth screen (`#signin`) directly instead of dropping the visitor on
+ * the app root to go find it — the founder's ask, and `#signin` is an established deep-link target
+ * (`apps/web/src/shell/route.ts` parses it; `PlansSurface.tsx` already links `#signin?intent=`).
+ * `/go/connect` deliberately still lands on the root: opening the connector needs an account AND a
+ * Core trial first, which is an unsolved UX problem tracked as stock-analyst-platform#2527, not a
+ * destination change to make here.
+ */
+const GO_DESTINATIONS = {
+  "/go/try": APP_TRY_URL,
+  "/go/connect": APP_TRY_URL,
+  "/go/signin": `${APP_TRY_URL}#signin`,
+};
+
+const GO_PATHS = new Set(Object.keys(GO_DESTINATIONS));
 
 const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign"];
 
@@ -60,16 +79,41 @@ export function isHtmlPageView(request, response) {
   );
 }
 
+/** The bounded ticker pattern — identical to twiceover-app's admission-client.ts. */
+export const TICKER_PATTERN = /^[A-Z]{1,6}$/;
+
+/**
+ * The typed ticker, normalized then bounded — or null when absent or out of pattern.
+ * Normalize-then-validate (not validate-only) so a lower-case "nvda" is carried rather
+ * than silently dropped; anything still outside /^[A-Z]{1,6}$/ after that is discarded,
+ * never forwarded. Public data by construction (consult 0739), so it may travel in a
+ * query string to our own Worker — but it is never written to site metrics (consult 0163).
+ */
+export function readTicker(searchParams) {
+  const raw = searchParams.get("ticker");
+  if (!raw) return null;
+  const normalized = raw.trim().toUpperCase();
+  return TICKER_PATTERN.test(normalized) ? normalized : null;
+}
+
 /**
  * Build the /go/try -> app redirect URL by re-serializing ONLY the three UTM keys onto the
  * app base (consult 0163 finding). The incoming query string is NEVER spread or passed
  * through — any other param a link generator or user appended is dropped here.
  */
-export function buildAppRedirect(baseUrl, searchParams) {
+export function buildAppRedirect(baseUrl, searchParams, { forwardTicker = false } = {}) {
   const dest = new URL(baseUrl);
   for (const key of UTM_KEYS) {
     const value = searchParams.get(key);
     if (value) dest.searchParams.set(key, value);
+  }
+  // Only /go/try opts in (#2520). Every value goes through URLSearchParams.set(), never
+  // string concatenation — consult 0739's added guardrail: concatenating an unvalidated
+  // value into the Location header is the CRLF-injection seam. Bounding it here as well
+  // is defence in depth; twiceover-app's admission-client.ts validates it again on arrival.
+  if (forwardTicker) {
+    const ticker = readTicker(searchParams);
+    if (ticker) dest.searchParams.set("ticker", ticker);
   }
   return dest.toString();
 }
@@ -99,7 +143,12 @@ export default {
       } catch {
         // A metrics write must never break the redirect.
       }
-      return Response.redirect(buildAppRedirect(APP_TRY_URL, url.searchParams), 302);
+      return Response.redirect(
+        buildAppRedirect(GO_DESTINATIONS[url.pathname], url.searchParams, {
+          forwardTicker: url.pathname === "/go/try",
+        }),
+        302,
+      );
     }
 
     // Serve the asset first, then record a page view only for real HTML documents. An AE
