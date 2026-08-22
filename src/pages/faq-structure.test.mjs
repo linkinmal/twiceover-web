@@ -1,6 +1,6 @@
-// Source-level regression coverage for the FAQ section grouping (#2534) — no
-// DOM parser dependency in this repo's tooling, so this asserts against the
-// .astro/.css source text directly, the same style ci/check-a11y-decor.mjs
+// Source-level regression coverage for the FAQ section (#2534 grouping, #2532
+// chevron) — no DOM parser dependency in this repo's tooling, so this asserts
+// against the .astro/.css source text directly, the same style ci/check-a11y-decor.mjs
 // uses against built HTML. Scenario-grain: one Given/When per test, every
 // promised facet soft-asserted together (conventions.md §Testing, ADR 0062).
 
@@ -109,5 +109,31 @@ describe("FAQ grouping (#2534)", () => {
     for (const v of newVars) {
       expect(restOfFile.includes(`var(${v})`), `${v} is already used elsewhere, not newly minted here`).toBe(true);
     }
+  });
+});
+
+describe("FAQ chevron (#2532)", () => {
+  it("gives every item a chevron affordance that rotates open, cross-browser", () => {
+    const chevronCount = (faqList.match(/faq__chevron/g) || []).length;
+    // One SVG per summary (11 markup occurrences) — CSS selectors add more hits below.
+    expect(chevronCount, "a chevron element in every one of the eleven summaries").toBeGreaterThanOrEqual(11);
+    expect(faqList, "chevron is an aria-hidden decorative SVG, matching the trust-card icon convention").toMatch(
+      /<svg class="faq__chevron"[^>]*viewBox="0 0 24 24"[^>]*aria-hidden="true"/
+    );
+
+    expect(css, "rotation is keyed to the native [open] state, no JS").toMatch(
+      /\.faq__list details\[open\]\s*>\s*summary \.faq__chevron\s*{[^}]*transform:\s*rotate\(180deg\)/
+    );
+    expect(css, "reduced-motion users don't get the transition").toMatch(
+      /@media \(prefers-reduced-motion: reduce\)\s*{\s*\.faq__chevron\s*{\s*transition:\s*none/
+    );
+
+    // Cross-browser marker suppression: the legacy WebKit rule stays, plus the
+    // standards-track list-style fallback Firefox needs (::-webkit-details-marker
+    // is WebKit-only and does nothing in Firefox).
+    expect(css).toMatch(/\.faq__list summary::-webkit-details-marker\s*{\s*display:\s*none/);
+    expect(css, "list-style: none suppresses Firefox's native marker too").toMatch(
+      /\.faq__list summary\s*{[^}]*list-style:\s*none/
+    );
   });
 });
