@@ -156,8 +156,10 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   align-items: center;
 }
 .site-nav a:hover { color: var(--color-text-primary); text-decoration: none; }
-/* Reserved zone right of the nav (~7rem) for the future Sign in — layout affordance
-   only (site-prelaunch §1): the flex row simply ends with the nav; no markup ships. */
+/* Right-side group (nav + Sign in), so both sit flush right of the lockup as one
+   unit — site-header .container's own space-between then reads as two groups, not
+   three drifting anchor points (site-prelaunch §1, #1754). */
+.site-header__actions { display: flex; align-items: center; gap: var(--space-200); }
 
 /* ── Footer ───────────────────────────────────────────────────────────── */
 .site-footer { border-top: 1px solid var(--color-border-default); }
@@ -236,8 +238,9 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   margin: var(--space-300) 0 0;
 }
 .hero .sub strong { font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
-/* Reserved (ADR 0042, #32+): the "Connect read-only →" CTA — built and wired at
-   app-launch. Hero is a stacked flex column — it appends without recomposition. */
+/* "Connect read-only →" CTA (ADR 0042, #1754) — hero is a stacked flex column, so
+   this appends between .sub and .demo-turn without recomposing the layout. */
+.hero__cta { margin-top: var(--space-300); }
 
 .visually-hidden {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
@@ -287,8 +290,11 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
    style, ADR 0383). Lifted from twiceover-app's own EntryInput.css
    `.entry-input__submit` so the site's one live control matches the product's real
    submit rather than inventing a third register. text.on-accent on accent.default
-   is an existing gated pairing (design-system.md, 9.98:1 light). */
-.entry-box__submit {
+   is an existing gated pairing (design-system.md, 9.98:1 light). `.btn-filled`
+   (#1754) is the same treatment under a reusable name — site-prelaunch.md §1 names
+   the closing band's primary button as "the other place this filled style is
+   expected to land," not a general promotion beyond these two. */
+.entry-box__submit, .btn-filled {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
@@ -305,8 +311,8 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   cursor: pointer;
   transition: background-color 150ms;
 }
-.entry-box__submit:hover { background: var(--color-accent-hover); }
-.entry-box__submit:active { background: var(--color-accent-active); }
+.entry-box__submit:hover, .btn-filled:hover { background: var(--color-accent-hover); text-decoration: none; }
+.entry-box__submit:active, .btn-filled:active { background: var(--color-accent-active); }
 .entry-box__caption { max-width: 36rem; color: var(--color-text-muted); margin: var(--space-100) 0 0; font-size: var(--font-size-100); line-height: var(--font-line-height-default); }
 
 /* Stacked below md. `flex: 1 1 14rem` is a WIDTH basis in a row and a HEIGHT basis
@@ -790,7 +796,6 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 @media (min-width: 640px) { .closing-band__inner { flex-direction: row; align-items: center; justify-content: space-between; } }
 .closing-band__inner p:last-child { margin: var(--space-100) 0 0; color: var(--color-text-secondary); }
 .closing-band__actions { display: flex; align-items: center; gap: var(--space-200); flex-shrink: 0; }
-.closing-band__soon { color: var(--color-text-muted); }
 
 /* ── Pricing ──────────────────────────────────────────────────────────── */
 .page-title-block { padding-block-start: var(--space-600); }

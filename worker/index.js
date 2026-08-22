@@ -2,8 +2,8 @@
 // Realizes ADR 0136 Option D — cookieless, first-party site measurement written to the
 // SITE_METRICS Analytics Engine dataset. Two call sites:
 //   1. a page-view record on every HTML page served (MQ1, MQ3-referrer/UTM, MQ4);
-//   2. a click-event record on /go/try, the free-read CTA's same-origin redirect (MQ2),
-//      which 302s to the app forwarding ONLY the three UTM keys.
+//   2. a click-event record on every /go/* route (MQ2), each a same-origin redirect
+//      to app.twiceover.io forwarding ONLY the three UTM keys.
 //
 // Emitted fields are EXACTLY six, exhaustively (ADR 0136 / consult 0163):
 //   path, referrer (origin only), utm_source, utm_medium, utm_campaign, country.
@@ -14,10 +14,18 @@
 // run_worker_first:true (wrangler.jsonc) lets this Worker see page navigations before
 // falling through to env.ASSETS.fetch(request); assets otherwise serve without it.
 
-// The free-read CTA hands off here. app.twiceover.io serves the read at its root; the
-// exact free-read landing path is the #431 site->app seam's to finalize (the visible CTA
-// is Reserved until app-launch #32 — this route is the ready mechanism it will point at).
+// The site→app routing contract (ai-team/growth/site-app-seam.md §3, #1754): every
+// crossing from twiceover-web to app.twiceover.io goes through one of these same-origin
+// /go/* redirects — no page ever links straight to the app origin. All three land on the
+// identical app entry point (auth-screens.md State A); the app decides what a visitor
+// sees from there. Three distinct site routes exist to keep each site surface a
+// separately measurable click (MQ2), not because the app treats them differently.
+//   /go/try     — the hero entry-box demo (ticker forwarding is a separate, gated build)
+//   /go/connect — the hero + closing-band "Connect read-only →" CTA
+//   /go/signin  — the header "Sign in" slot
 const APP_TRY_URL = "https://app.twiceover.io/";
+
+const GO_PATHS = new Set(["/go/try", "/go/connect", "/go/signin"]);
 
 const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign"];
 
@@ -83,11 +91,11 @@ export default {
     const url = new URL(request.url);
     const country = (request.cf && request.cf.country) || "";
 
-    // MQ2 — free-read CTA click. Log, then 302 to the app forwarding only UTM.
-    if (url.pathname === "/go/try") {
+    // MQ2 — a /go/* CTA click. Log, then 302 to the app forwarding only UTM.
+    if (GO_PATHS.has(url.pathname)) {
       const referrer = refererOrigin(request.headers.get("referer"), url.origin);
       try {
-        writeSiteMetric(env, { path: "/go/try", referrer, ...readUtm(url.searchParams), country });
+        writeSiteMetric(env, { path: url.pathname, referrer, ...readUtm(url.searchParams), country });
       } catch {
         // A metrics write must never break the redirect.
       }
