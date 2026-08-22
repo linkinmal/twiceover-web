@@ -1,8 +1,8 @@
 ---
-// Global chrome (site-prelaunch.md §1): header (lockup + Pricing nav), footer
-// (policy links · shared disclaimer · © line + two-tone wordmark), skip link.
-// The header's reserved sign-in zone and the hero's reserved action row ship as
-// layout affordances only — no markup (site-prelaunch.md §6).
+// Global chrome (site-prelaunch.md §1): header (lockup + Pricing nav + Sign in),
+// footer (policy links · shared disclaimer · © line + two-tone wordmark), skip link.
+// Sign in (#1754, site-app-seam.md §3/§4) is a same-origin /go/signin redirect —
+// no app-origin link ships from the site directly (site-app-seam.md §2 rule).
 import "../styles/tokens.css";
 import "../styles/site.css";
 import Mark from "../components/Mark.astro";
@@ -52,9 +52,12 @@ const ogImageURL = new URL("/og-image.png", Astro.site).href;
           <Mark />
           <span class="wordmark">TwiceOver</span>
         </a>
-        <nav class="site-nav" aria-label="Primary">
-          <a href="/pricing">Pricing</a>
-        </nav>
+        <div class="site-header__actions">
+          <nav class="site-nav" aria-label="Primary">
+            <a href="/pricing">Pricing</a>
+          </nav>
+          <a class="btn-quiet" href="/go/signin">Sign in</a>
+        </div>
       </div>
     </header>
     <main id="main" class="container">

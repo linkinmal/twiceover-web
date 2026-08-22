@@ -5,12 +5,12 @@
 // (demo-retention guardrail). Copy slots pending Growth #63 (site-copy-twiceover.md
 // reconciliation per ADR 0042 pivot) for the hero/how-it-works/what-its-not text —
 // do not reword; layout must not change when #63 lands.
-// COPY + STRUCTURE: "Connect read-only →" CTA and header sign-in slot stay RESERVED,
-// not built (ADR 0042/0074, deferred to app-launch, #32/#416 closed — the human
-// declined reopening the reservation 2026-07-05; Base.astro / §1). The entry-box
-// row is narrowly OUT of that reservation as of v2.6 — built below, fixture-only,
-// no backend call (#1240, ADR 0383, site-prelaunch.md §2/§6, Designer artifact
-// ai-team/design/assets/fixture-demo-open-door.html).
+// The "Connect read-only →" CTA and header sign-in slot were reserved (ADR 0042/0074)
+// until app-launch (#32); both are now built (#1754, site-app-seam.md §3/§4) as
+// same-origin /go/* redirects — see Base.astro for the header slot. The entry-box row
+// was built earlier, v2.6, fixture-only, no backend call (#1240, ADR 0383,
+// site-prelaunch.md §2/§6, Designer artifact ai-team/design/assets/fixture-demo-open-door.html)
+// — its live handoff (carrying the typed ticker) is a separate, still-gated build.
 // v2.3 NEW SECTIONS (Depth strip, Two doors, Showcase band, Trust plate, FAQ):
 // copy below is Engineer-drafted structural placeholder text — facts already
 // established elsewhere (the constitution's own data/privacy rules, the NVDA
@@ -55,8 +55,10 @@ const websiteJsonLd = {
         you actually hold — measured against <strong>your own rules</strong>, across near-, mid-,
         and far-term horizons. <strong>Depth, never a verdict.</strong>
       </p>
-      {/* Reserved — "Connect read-only →" quiet-outline CTA: built and wired to the app at
-          launch (#32). No interim OAuth plumbing pre-launch. */}
+      {/* "Connect read-only →" quiet-outline CTA (#1754, ADR 0042/0074) — same-origin
+          /go/connect redirect to the app's entry point. No interim OAuth plumbing
+          here; the app owns the actual OAuth flow. */}
+      <a class="btn-quiet hero__cta" href="/go/connect">Connect read-only →</a>
       <p class="demo-turn">Or, take any US-listed ticker — no connection needed.</p>
       {/* Built (v2.6, #1240, ADR 0383) — the entry-box row, fixture-only. No JavaScript
           required: action="#demo-read" + the input carries no `name` attribute, so a real
@@ -84,7 +86,8 @@ const websiteJsonLd = {
       card (Two-doors' own "neither door is visually promoted" rule forbids one card growing
       over its sibling). No `hidden` attribute: visibility is CSS `:target` (site.css) — the
       no-JS anchor-jump and the JS-enhanced path share the one mechanism, never two that could
-      drift apart. No connect CTA inside: still reserved (ADR 0042/0074). */}
+      drift apart. No connect CTA inside the panel — the "neither door is visually
+      promoted" symmetric-weight rule below applies here too. */}
   <section class="demo-read" id="demo-read" tabindex="-1" aria-labelledby="demo-read-title">
     <header class="demo-read__head">
       <p class="demo-read__tag type-caption">Example read</p>
@@ -304,9 +307,10 @@ const websiteJsonLd = {
     </div>
   </section>
 
-  {/* Closing band (v2.3 — promotes the old one-line pricing cue). Button targets
-      follow whatever the reserved CTA/entry-box decision resolves to (ADR 0074) —
-      placeholder labels only. */}
+  {/* Closing band (v2.3 — promotes the old one-line pricing cue). Primary + ghost
+      button pair (site-prelaunch.md §2), resolved (#1754): primary shares the hero
+      CTA's route and copy — "same destination, same intent" (site-app-seam.md §3) —
+      ghost stays the existing Pricing link. */}
   <section class="closing-band">
     <div class="container closing-band__inner">
       <div>
@@ -314,8 +318,8 @@ const websiteJsonLd = {
         <p>Any US-listed ticker, no connection needed — or connect read-only for your own read.</p>
       </div>
       <div class="closing-band__actions">
+        <a class="btn-filled" href="/go/connect">Connect read-only →</a>
         <a class="btn-quiet" href="/pricing">Pricing</a>
-        <span class="closing-band__soon type-caption">Launching soon.</span>
       </div>
     </div>
   </section>
