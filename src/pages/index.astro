@@ -25,12 +25,17 @@ import MobileShowcase from "../components/MobileShowcase.astro";
 
 // Organization + WebSite JSON-LD (SEO audit 2026-07 finding 7) — brand-SERP/knowledge-panel
 // groundwork. No FAQPage schema: Google deprecated FAQ rich results 2026-05-07.
+// sameAs/logo (SEO re-audit 2026-08-23, stock-analyst-platform#2634): the X account didn't exist in
+// July, does now — sameAs links the two brand surfaces for knowledge-panel eligibility and AI-answer
+// entity resolution. logo points at the existing square PWA icon (already served, no new asset).
 const organizationJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
   name: "TwiceOver",
   url: "https://twiceover.io",
   email: "support@twiceover.io",
+  sameAs: ["https://x.com/twiceover_io"],
+  logo: "https://twiceover.io/icon-192.png",
 };
 const websiteJsonLd = {
   "@context": "https://schema.org",
