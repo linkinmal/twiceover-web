@@ -63,14 +63,32 @@ import Base from "../layouts/Base.astro";
 // pricing-artifact.md §1 (human sign-off 2026-06-30). No numbers invented here.
 // Premium omitted (#1766/#1767) — the go-live gate holds it out of pricing entirely;
 // a structured-data Offer is as much an advertisement of it as the visible card.
+// url/availability/per-offer url (SEO re-audit 2026-08-23, stock-analyst-platform#2634): the site is
+// trailingSlash: "never", so the old "/pricing/" 307-redirected to the real canonical — dropped the
+// trailing slash. Each offer now also carries its own url (the live CTA it's actually redeemed
+// through, already on the page below) and availability, per Google's Offer recommendations.
 const productJsonLd = {
   "@context": "https://schema.org",
   "@type": "Product",
   name: "TwiceOver",
-  url: "https://twiceover.io/pricing/",
+  url: "https://twiceover.io/pricing",
   offers: [
-    { "@type": "Offer", name: "Free", price: "0", priceCurrency: "USD" },
-    { "@type": "Offer", name: "Core", price: "49", priceCurrency: "USD" },
+    {
+      "@type": "Offer",
+      name: "Free",
+      price: "0",
+      priceCurrency: "USD",
+      availability: "https://schema.org/InStock",
+      url: "https://twiceover.io/go/try",
+    },
+    {
+      "@type": "Offer",
+      name: "Core",
+      price: "49",
+      priceCurrency: "USD",
+      availability: "https://schema.org/InStock",
+      url: "https://twiceover.io/go/plan",
+    },
   ],
 };
 ---
