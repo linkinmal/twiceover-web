@@ -23,11 +23,13 @@ beforeAll(() => {
   faqList = astro.slice(start, end);
 });
 
-const ORIGINAL_SIX = [
+const BEFORE_SIGNUP_GROUP = [
   "What is TwiceOver, exactly?",
   "Can TwiceOver trade on my behalf?",
   "Where does the data come from?",
   "Do I need to connect my brokerage to use it?",
+  "Do I need a card to connect my brokerage?",
+  "What does a connected free account actually see?",
   "Do I need to create an account to use it?",
   "Is my account data shared with anyone?",
 ];
@@ -41,7 +43,7 @@ const NEW_FIVE = [
 ];
 
 describe("FAQ grouping (#2534)", () => {
-  it("splits the eleven items into two labeled groups in spec order, unreordered within each", () => {
+  it("splits the thirteen items into two labeled groups in spec order, unreordered within each", () => {
     const beforeIdx = faqList.indexOf(">Before you sign up<");
     const onceIdx = faqList.indexOf(">Once you're in<");
     expect(beforeIdx, '"Before you sign up" heading present').toBeGreaterThan(-1);
@@ -56,7 +58,7 @@ describe("FAQ grouping (#2534)", () => {
 
     // Every question lands on the correct side of the group boundary, unreordered.
     let cursor = beforeIdx;
-    for (const q of ORIGINAL_SIX) {
+    for (const q of BEFORE_SIGNUP_GROUP) {
       const idx = faqList.indexOf(q, cursor);
       expect(idx, `"${q}" present after the group-1 heading`).toBeGreaterThan(-1);
       expect(idx, `"${q}" appears before group 2 starts`).toBeLessThan(onceIdx);
@@ -73,7 +75,7 @@ describe("FAQ grouping (#2534)", () => {
   it("keeps accordion mechanics unchanged — exactly one open item, borders on every entry", () => {
     const detailsCount = (faqList.match(/<details/g) || []).length;
     const openCount = (faqList.match(/<details open/g) || []).length;
-    expect(detailsCount, "eleven total items").toBe(11);
+    expect(detailsCount, "thirteen total items").toBe(13);
     expect(openCount, "only one item starts open").toBe(1);
     // The one open item is the very first item of the whole list, not per-group.
     const firstDetailsIdx = faqList.indexOf("<details");
@@ -115,8 +117,8 @@ describe("FAQ grouping (#2534)", () => {
 describe("FAQ chevron (#2532)", () => {
   it("gives every item a chevron affordance that rotates open, cross-browser", () => {
     const chevronCount = (faqList.match(/faq__chevron/g) || []).length;
-    // One SVG per summary (11 markup occurrences) — CSS selectors add more hits below.
-    expect(chevronCount, "a chevron element in every one of the eleven summaries").toBeGreaterThanOrEqual(11);
+    // One SVG per summary (13 markup occurrences) — CSS selectors add more hits below.
+    expect(chevronCount, "a chevron element in every one of the thirteen summaries").toBeGreaterThanOrEqual(13);
     expect(faqList, "chevron is an aria-hidden decorative SVG, matching the trust-card icon convention").toMatch(
       /<svg class="faq__chevron"[^>]*viewBox="0 0 24 24"[^>]*aria-hidden="true"/
     );
