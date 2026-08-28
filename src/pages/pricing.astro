@@ -57,6 +57,16 @@
 // all — voices.lit retired (#2064), so "coming soon" no longer applies. Options
 // analytics stays correctly absent from both cards — that layer is still dark
 // (DEFERRED_LAYERS, ADR 0560).
+// Free card gains broker connect + structure math (2026-08-28, PM,
+// stock-analyst-platform#2822, realizes epic #2811; ADR 0751 Amendment 2, human
+// sign-off "go with A"). pricing-artifact.md §3's Broker read row now reads
+// `1 broker` on Free too (was `—`), and a new Position & structure math row is
+// `✓ (when connected)` on all three tiers — untiered: @twiceover/options-math
+// computes it from the broker-reported legs plus the live quote, no vendor licence,
+// no LAYER_MIN_TIER entry. Two bullets added below, worded to the artifact row
+// exactly. Still correctly absent from Free: options analytics (dark at every tier,
+// ADR 0560, unaffected), curated voices, and the licensed news wire (Core-minimum,
+// unchanged) — the two rows a connected Free account still lacks vs. Core.
 import Base from "../layouts/Base.astro";
 
 // Offer JSON-LD (SEO audit 2026-07 finding 7) — the Accepted prices, verbatim from
@@ -109,6 +119,8 @@ const productJsonLd = {
       <ul>
         <li>10 reads a month — ongoing, not a trial</li>
         <li>The synthesis read on any US-listed ticker</li>
+        <li>Read-only broker connection</li>
+        <li>Position &amp; structure math on your connected book (breakeven, max profit/loss, net debit/credit, your rules on live data)</li>
         <li>Key technical levels (basic), macro and sector regime, peer positioning, and SEC/EDGAR fundamentals</li>
         <li>No card required</li>
       </ul>
