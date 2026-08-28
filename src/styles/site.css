@@ -268,14 +268,6 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 /* "Connect read-only →" CTA (ADR 0042, #1754) — hero is a stacked flex column, so
    this appends between .sub and .demo-turn without recomposing the layout. */
 .hero__cta { margin-top: var(--space-300); }
-/* Caption beneath the CTA (site-prelaunch.md §2 v2.23, ADR 0748) — space.100, tight to the button
-   it explains rather than a fourth stacked paragraph competing with the H1/sub/demo-turn rhythm
-   above it. No new token: typography.caption + color.text.muted, the same weight the entry-box's
-   own illustrative-data caption uses below. */
-.hero__cta-caption {
-  margin: var(--space-100) 0 0;
-  color: var(--color-text-muted);
-}
 
 .visually-hidden {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
