@@ -67,6 +67,12 @@
 // exactly. Still correctly absent from Free: options analytics (dark at every tier,
 // ADR 0560, unaffected), curated voices, and the licensed news wire (Core-minimum,
 // unchanged) — the two rows a connected Free account still lacks vs. Core.
+// Core gains its own cap line (2026-08-28, stock-analyst-platform#2862, realizes ADR
+// 0788 + consult 0792): "600 reads a month — a full book pass, every day" — verbatim,
+// the same wording ADR 0788 names as Core's primary differentiator over Free and that
+// the landing page's Pricing strip already carries (#2812). Placed first, mirroring
+// Free's own cap-first bullet above; this page was the one gap left after #2843 moved
+// Free's cap to 10 without touching Core's.
 import Base from "../layouts/Base.astro";
 
 // Offer JSON-LD (SEO audit 2026-07 finding 7) — the Accepted prices, verbatim from
@@ -130,6 +136,7 @@ const productJsonLd = {
       <h2 class="type-heading-2">Core</h2>
       <p class="price type-display">$49<span class="per">/mo</span></p>
       <ul>
+        <li>600 reads a month — a full book pass, every day</li>
         <li>Read-only broker connection</li>
         <li>Held-position reads and new-idea reads</li>
         <li>Options math &amp; structure engine (breakevens, max profit/loss, collateral, P&amp;L)</li>
