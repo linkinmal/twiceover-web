@@ -40,11 +40,20 @@ const APP_TRY_URL = "https://app.twiceover.io/";
  * `/go/connect` deep-links `#connection` (stock-analyst-platform#2541, ADR 0742). **This reverses
  * this comment's own previous claim** that it "deliberately still lands on the root" because
  * "opening the connector needs an account AND a Core trial first, which is an unsolved UX problem":
- * #2527 solved it. The app's `ConnectionRoute` now gates that hash itself — entitled visitors reach
- * the connector, Free ones are sent to `#plans?dest=connection`, signed-out ones to
- * `#signin?intent=core&dest=connection` — so the site can point straight at the thing its CTA
- * names, and the three transitions behind it are disclosed there (ADR 0748) rather than hidden
- * behind a generic landing.
+ * #2527 solved it. The app's `ConnectionRoute` gates that hash itself, so the site can point
+ * straight at the thing its CTA names rather than hiding it behind a generic landing.
+ *
+ * **What that gate does is no longer what this comment used to say** (ADR 0742 Amendment 1 and ADR
+ * 0748 Amendment 3, both 2026-08-28, off the founder decision on epic
+ * stock-analyst-platform#2811 — a signed-up Free account may connect a brokerage read-only).
+ * `ConnectionRoute` now branches on **session status alone**: any signed-in visitor reaches the
+ * connector, Free included, and a signed-out one goes to `#signin?dest=connection`. The two claims
+ * this comment carried are both dead — Free is not sent to `#plans?dest=connection` (that road is
+ * deleted, not widened), and the sign-in target no longer carries `intent=core` (nothing is left for
+ * it to select). The "three transitions" framing goes with them: there are two, and Amendment 3
+ * struck this page's own caption that disclosed the third (stock-analyst-platform#2852).
+ *
+ * `/go/plan` below is unaffected — that is the subscribe road, where a Core intent is still real.
  *
  * `/go/plan` opens the auth screen carrying the Core plan intent (stock-analyst-platform#2514,
  * site-app-seam.md §3 row 4). Two details there are load-bearing, and §3 v1.1 had to correct both
