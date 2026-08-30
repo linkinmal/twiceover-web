@@ -59,22 +59,10 @@ import AnalysisMini from "./AnalysisMini.astro";
 </section>
 
 {/* Progressive enhancement ONLY — the band scrolls via CSS (@keyframes band-flow,
-    gated to prefers-reduced-motion: no-preference) with no JS at all. This adds one
-    thing on top: pausing the animation when the band is off-screen, so it doesn't
-    run unseen (mirrors the before/after card's own off-screen pause). No fetch/XHR/
-    WebSocket, no .value read — nothing here is subject to ci/check-entry-box.mjs's
-    scope, but it follows the same discipline as the script that is. */}
-<script is:inline>
-  (function () {
-    var track = document.getElementById("bandTrack");
-    if (!track || !("IntersectionObserver" in window)) return;
-    new IntersectionObserver(
-      function (rows) {
-        rows.forEach(function (r) {
-          track.style.animationPlayState = r.isIntersecting ? "running" : "paused";
-        });
-      },
-      { rootMargin: "80px" },
-    ).observe(track);
-  })();
-</script>
+    gated to prefers-reduced-motion: no-preference) with no JS at all. The one thing on
+    top — pausing the animation when the band is off-screen — lives in
+    public/js/analysis-band.js, moved out of an `is:inline` block verbatim so the site's
+    CSP keeps `script-src 'self'` strict with no inline exception
+    (stock-analyst-platform#2976, consult 0811 Amendment 1). `defer` runs it after parse;
+    it is null-guarded and reads no layout, so the timing is equivalent to inline here. */}
+<script src="/js/analysis-band.js" defer></script>

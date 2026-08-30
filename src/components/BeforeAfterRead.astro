@@ -66,60 +66,10 @@ import RuleRow from "./RuleRow.astro";
 </section>
 
 {/* Progressive enhancement ONLY — both states are reachable via the tab buttons with
-    this script absent (they'd just require a manual click instead of auto-cycling).
-    No fetch/XHR/WebSocket/sendBeacon, no .value read anywhere (ci/check-entry-box.mjs
-    scans every inline script in the document, not only the entry-box one). */}
-<script is:inline>
-  (function () {
-    var card = document.getElementById("xfCard");
-    var tabOpen = document.getElementById("xfTabOpen");
-    var tabConn = document.getElementById("xfTabConn");
-    if (!card || !tabOpen || !tabConn) return;
-
-    var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var timer = null;
-    var onScreen = true;
-    var held = false;
-    var connected = false;
-
-    function set(next) {
-      connected = next;
-      card.classList.toggle("is-conn", connected);
-      tabConn.classList.toggle("is-on", connected);
-      tabOpen.classList.toggle("is-on", !connected);
-      tabConn.setAttribute("aria-selected", String(connected));
-      tabOpen.setAttribute("aria-selected", String(!connected));
-    }
-    function restart() {
-      if (timer) clearInterval(timer);
-      timer = setInterval(function () {
-        if (!reduced && !held && onScreen) set(!connected);
-      }, 5000);
-    }
-    function pick(next) {
-      set(next);
-      restart();
-    }
-
-    tabOpen.addEventListener("click", function () { pick(false); });
-    tabConn.addEventListener("click", function () { pick(true); });
-    card.addEventListener("mouseenter", function () { held = true; });
-    card.addEventListener("mouseleave", function () { held = false; });
-    var tabs = document.querySelector('[aria-label="Show the read with or without a connection"]');
-    if (tabs) {
-      tabs.addEventListener("mouseenter", function () { held = true; });
-      tabs.addEventListener("mouseleave", function () { held = false; });
-    }
-    if ("IntersectionObserver" in window) {
-      new IntersectionObserver(
-        function (rows) {
-          rows.forEach(function (r) { onScreen = r.isIntersecting; });
-        },
-        { rootMargin: "80px" },
-      ).observe(card);
-    }
-
-    set(false);
-    restart();
-  })();
-</script>
+    this script absent (they'd just require a manual click instead of auto-cycling). The
+    tab-cycle body lives in public/js/before-after-read.js, moved out of an `is:inline`
+    block verbatim so the site's CSP keeps `script-src 'self'` strict with no inline
+    exception (stock-analyst-platform#2976, consult 0811 Amendment 1). `defer` runs it
+    after parse; it is null-guarded and reads no layout, so the timing is equivalent to
+    inline here. */}
+<script src="/js/before-after-read.js" defer></script>

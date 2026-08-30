@@ -12,7 +12,10 @@
 // source level (denylist + writeDataPoint allowlist + console.* coverage) on every deploy.
 //
 // run_worker_first:true (wrangler.jsonc) lets this Worker see page navigations before
-// falling through to env.ASSETS.fetch(request); assets otherwise serve without it.
+// falling through to env.ASSETS.fetch(request); assets otherwise serve without it. That
+// same property is why the site's Content-Security-Policy is set here (see
+// CONTENT_SECURITY_POLICY below, stock-analyst-platform#2976): this is the one place both
+// the /go/* redirect and the static-asset response can be given the identical header.
 
 // The site→app routing contract (ai-team/growth/site-app-seam.md §3, #1754): every
 // crossing from twiceover-web to app.twiceover.io goes through one of these same-origin
@@ -73,6 +76,44 @@ const GO_DESTINATIONS = {
 };
 
 const GO_PATHS = new Set(Object.keys(GO_DESTINATIONS));
+
+/**
+ * The site-wide Content-Security-Policy (stock-analyst-platform#2976, ADR 0810 build order
+ * item 2, corrected by consult 0811 Amendment 1). Set here rather than in a static-assets
+ * _headers file because the /go/* branch below never touches the asset pipeline at all —
+ * this Worker is the one place both response paths can carry the same policy.
+ *
+ * `connect-src 'none'` is the load-bearing one: it makes fetch / XHR / WebSocket /
+ * sendBeacon structurally impossible in the browser regardless of what any future script
+ * on this site contains, backstopping ci/check-entry-box.mjs's build-time scan of the same
+ * calls. `script-src 'self'` stays strict with no exception — the two formerly inline
+ * blocks now ship from public/js/ (consult 0811 Amendment 1, corrected (b)).
+ *
+ * `style-src` carries 'unsafe-inline' as a HUMAN-DECIDED carve-out, not Security's
+ * recommendation. Security recommended 'unsafe-hashes' plus a per-value sha256 allowlist
+ * over the 14 inline style= attributes and the SVG <style> block; the human chose
+ * 'unsafe-inline' in chat 2026-08-30, accepting the residual UI-redress / CSS-injection
+ * risk that a hash allowlist would have closed. Recorded in consult 0811 Amendment 1
+ * §Carve-out decision; narrowing it later is a build change, not a directive rewrite.
+ */
+const CONTENT_SECURITY_POLICY =
+  "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; " +
+  "img-src 'self'; font-src 'self'; manifest-src 'self'; connect-src 'none'; " +
+  "form-action 'self'; base-uri 'none'; frame-ancestors 'none'";
+
+/**
+ * Attach the policy to a response that may not accept header writes. Both sources here —
+ * Response.redirect() and env.ASSETS.fetch() — return responses whose headers are
+ * immutable in the Workers runtime, where a direct .set() silently no-ops rather than
+ * throwing (ADR 0810 Amendment 3, condition 3). Re-wrapping is the fix; the accompanying
+ * test asserts a NEW object comes back, because header-presence alone cannot tell the two
+ * implementations apart outside the real runtime.
+ */
+function withCsp(response) {
+  const out = new Response(response.body, response);
+  out.headers.set("Content-Security-Policy", CONTENT_SECURITY_POLICY);
+  return out;
+}
 
 const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign"];
 
@@ -171,11 +212,13 @@ export default {
       } catch {
         // A metrics write must never break the redirect.
       }
-      return Response.redirect(
-        buildAppRedirect(GO_DESTINATIONS[url.pathname], url.searchParams, {
-          forwardTicker: url.pathname === "/go/try",
-        }),
-        302,
+      return withCsp(
+        Response.redirect(
+          buildAppRedirect(GO_DESTINATIONS[url.pathname], url.searchParams, {
+            forwardTicker: url.pathname === "/go/try",
+          }),
+          302,
+        ),
       );
     }
 
@@ -190,6 +233,6 @@ export default {
         // Serving the page takes priority over recording the metric.
       }
     }
-    return response;
+    return withCsp(response);
   },
 };
