@@ -201,6 +201,10 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   align-items: center;
 }
 .footer-links a:hover { color: var(--color-text-primary); }
+/* Icon-only sibling — same tap-target height as the text links (inherited via
+   `.footer-links a`), plus a min-width so the 15×15 mark still gets a 44px
+   target (a text link's own label already provides that width). */
+.footer-social { min-width: 44px; justify-content: center; }
 .disclaimer {
   font-size: var(--font-size-200);
   line-height: var(--font-line-height-default);
