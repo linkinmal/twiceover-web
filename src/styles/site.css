@@ -363,8 +363,17 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 /* ── Ticker typeahead listbox (ADR 0810 item 6, stock-analyst-platform#2965) ─────
    Consult 0812 (Designer) ruled FULL R1–R8 parity with the app's SymbolCombobox for
    this surface — explicitly not a reduced variant — so this is that component's CSS
-   with three substitutions the site's token set forces, each noted below. Structure and
-   geometry are otherwise unchanged from twiceover-app apps/web/src/read/SymbolCombobox.css.
+   with one substitution the site's token set genuinely cannot bridge, noted below.
+   Structure and geometry are otherwise unchanged from
+   twiceover-app apps/web/src/read/SymbolCombobox.css.
+
+   `layer.popover` and `color.bg.inset` were believed absent from the site's token set
+   and shipped here as two literals at first. They were not absent — the site's copy of
+   the token file had drifted from canonical, missing both groups and the primitive
+   shades `bg.inset` aliases to. Synced in (this same PR, stock-analyst-platform#2965):
+   `tokens/twiceover.tokens.json` now carries `layer` and `bg.inset`,
+   `scripts/build-tokens.mjs` emits `--layer-*`, and this file uses the real custom
+   properties below instead of the two literals.
 
    The listbox is CREATED and REMOVED, never hidden: R3 is "no matches, no listbox —
    never an empty state, never 'No results,' never a count," so there is no closed
@@ -380,19 +389,16 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   top: calc(100% + var(--space-100));
   left: 0;
   right: 0;
-  /* SUBSTITUTION 1 — `layer.popover` is not in the site's token set (the token file has
-     no `layer` group at all; consult 0812 ruled layer.popover only for the app-side
-     masthead). Literal, same posture as `min-height: 44px` below. 20 is that ruling's
-     own value, and the site's only other z-index is the header's 10. */
-  z-index: 20;
+  z-index: var(--layer-popover);
   background: var(--color-bg-raised);
   border: 1px solid var(--color-border-interactive);
   border-radius: var(--radius-medium);
-  /* SUBSTITUTION 2 — `elevation.medium` is app-only by its own token description and is
-     kept out of site CSS by build-tokens.mjs's containment lint BY DESIGN. Consult 0812
-     ruled the literal instead, deliberately unbridged: these are elevation.light.medium
-     and elevation.dark.medium verbatim at time of writing. If the token ever becomes
-     site-safe, these two lines are what to replace. */
+  /* SUBSTITUTION — `elevation.medium` genuinely IS app-only: it sits outside `themes.*`
+     at the canonical file's own JSON root, alongside signal/health/motion/path-card, and
+     build-tokens.mjs's containment lint refuses to let it reach site CSS BY DESIGN — not
+     drift, this one is the real thing. Consult 0812 ruled the literal for exactly that
+     reason: elevation.light.medium / elevation.dark.medium verbatim at time of writing.
+     If the token family is ever made site-safe, these two lines are what to replace. */
   box-shadow: 0px 4px 16px 0px #211D171F;
   padding: var(--space-100);
   margin: 0;
@@ -432,34 +438,17 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 }
 
 /* Arrowed-to (R7) and hover paint the same way — aria-activedescendant moves focus
-   nowhere, so there is no :focus state on an option to style.
-
-   SUBSTITUTION 3 — `color.bg.inset`, which the app's SymbolCombobox.css uses here, is
-   not in the site's token set at all: the site's bg group has only canvas/surface/raised.
-   Consult 0812's token-by-token audit named bg.raised, text.secondary, the border tokens,
-   radius.medium and font.family.mono, and flagged elevation.medium alone as unbridged —
-   it did not reach this one, which is R7's only VISIBLE affordance.
-
-   Carried as a literal, the same call 0812 made for the shadow directly above, and for the
-   same reason. The obvious in-token substitute (`bg.canvas`) is wrong twice: the site's
-   canvas is a different value from the app's (#F7F3EA vs #E8E3D8), and in DARK it sits
-   BELOW bg.raised (#1A1713 against #2E2920) where the signed concept's inset sits ABOVE
-   it (#363128) — it would invert the highlight's direction in one theme only, which is
-   exactly the kind of divergence a light-mode screenshot never shows. These two values are
-   `bg.inset` light/dark verbatim from the app's token file, identical to the signed
-   concept's own `--inset` (assets/typeahead-prose-rule-2026-08-29.html). Deliberately
-   unbridged; if the token ever becomes site-safe, these are what to replace.
-   Flagged to the Designer on the PR — theirs to confirm, not the Engineer's to rule. */
-.symbol-combobox__option[data-active="true"] { background: #F4F0E6; }
-[data-theme="dark"] .symbol-combobox__option[data-active="true"] { background: #363128; }
+   nowhere, so there is no :focus state on an option to style. R7's only visible
+   affordance — the row the arrow keys are on — is `color.bg.inset`, the real token
+   (see the drift note at the top of this block). */
+.symbol-combobox__option[data-active="true"] { background: var(--color-bg-inset); }
 
 /* Hover is guarded by `hover: hover`. On touch, an unguarded :hover sticks after a tap — and it
    paints identically to [data-active], which is R7's ONLY affordance for "the option you arrowed
    onto." A stuck hover on a touch device therefore shows a highlighted row the keyboard never
    selected, which is precisely the state R7 exists to keep unambiguous. */
 @media (hover: hover) {
-  .symbol-combobox__option:hover { background: #F4F0E6; }
-  [data-theme="dark"] .symbol-combobox__option:hover { background: #363128; }
+  .symbol-combobox__option:hover { background: var(--color-bg-inset); }
 }
 
 .symbol-combobox__option-symbol {
