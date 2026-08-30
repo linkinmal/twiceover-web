@@ -84,11 +84,30 @@ const websiteJsonLd = {
           the assent act, covered by the app-side notice on direct/bare-URL app arrivals
           (ADR 0442 Amendment 1 R5) — this page no longer carries its own notice (ADR 0442
           Amendment 3, stock-analyst-platform#2960: founder call, site-side leg retired).
-          Deliberately absent: any script reading .value, and any fetch/XHR/WebSocket/sendBeacon
-          on this page. */}
+          CORRECTED (ADR 0810 build order item 6, stock-analyst-platform#2965): this page used to
+          state "Deliberately absent: any script reading .value, and any fetch/XHR/WebSocket/
+          sendBeacon on this page." Half of that is no longer true and the sentence does not
+          survive the mechanism changing. What holds now:
+            - a script DOES read this field's value, on every keystroke — the ticker/company-name
+              typeahead (src/typeahead/, R1–R8 of read-components.md §6), signed off as a carve-out
+              (ADR 0810) and reviewed by Security (consult 0811). It ships as a bundle under
+              /_astro/, never inline: an inline script reading a field remains barred outright by
+              ci/check-entry-box.mjs, and the Worker's script-src 'self' admits no inline exception.
+            - the transmission ban is UNCHANGED and now enforced twice. No script on this page opens
+              a connection of any kind; ci/check-entry-box.mjs scans every bundled body for the
+              barred calls at build time, and the Worker's Content-Security-Policy `connect-src
+              'none'` backstops it in the browser at runtime.
+          The typeahead consults a committed, EDGAR-derived symbol index bundled with the site and
+          nothing else — it never speaks to a server, and selecting a suggestion fills the field
+          but NEVER submits (R6). The press below stays the one and only assent act. With the
+          script absent or failed, this form is exactly the plain HTML GET it always was. */}
       <form class="entry-box" id="entry-form" action="/go/try" method="get" novalidate>
         <label class="visually-hidden" for="entry-ticker">A ticker</label>
-        <input id="entry-ticker" name="ticker" type="text" autocomplete="off" spellcheck="false" placeholder="A ticker — NVDA" />
+        {/* The wrapper is what the listbox anchors to (position: relative in site.css), and it
+            carries the input's flex sizing so the row's geometry is unchanged. */}
+        <div class="symbol-combobox entry-box__field-wrap">
+          <input id="entry-ticker" name="ticker" type="text" autocomplete="off" spellcheck="false" placeholder="A ticker — NVDA" />
+        </div>
         <button type="submit" class="entry-box__submit">Get the read</button>
       </form>
     </div>
@@ -326,3 +345,19 @@ const websiteJsonLd = {
   </section>
 
 </Base>
+
+{/* The typeahead mount (ADR 0810 item 6, stock-analyst-platform#2965). A plain Astro script
+    element — no `is:inline` — so Astro compiles it to an external bundle under /_astro/,
+    declared in ci/check-entry-box.mjs's EXPECTED_SCRIPTS and scanned there, body and
+    transitively imported chunks alike. Inline is not an option: the Worker's CSP is
+    script-src 'self' with no inline exception (consult 0811 Amendment 1).
+
+    NB — the words "script element" above are spelled out deliberately. An Astro comment is
+    still tokenized as HTML, so a literal script tag written inside one OPENS a real script
+    element at that point: it breaks `astro dev`'s dependency scan (esbuild parses the prose
+    after it as JavaScript) while `astro build` completes without complaint. Caught live here
+    on 2026-08-30 — the same hazard applies to any tag name written in a comment on this page. */}
+<script>
+  import { mountEntryBoxTypeahead } from "../typeahead/ticker-typeahead.js";
+  mountEntryBoxTypeahead();
+</script>
