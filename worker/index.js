@@ -95,11 +95,24 @@ const GO_PATHS = new Set(Object.keys(GO_DESTINATIONS));
  * 'unsafe-inline' in chat 2026-08-30, accepting the residual UI-redress / CSS-injection
  * risk that a hash allowlist would have closed. Recorded in consult 0811 Amendment 1
  * §Carve-out decision; narrowing it later is a build change, not a directive rewrite.
+ *
+ * `form-action 'self' https://app.twiceover.io` — HOTFIX, same day as first ship. The
+ * hero entry-box's <form id="entry-form" method="get" action="/go/try"> submits
+ * same-origin (fine under 'self' alone), but this Worker's own /go/try response is a
+ * 302 to app.twiceover.io — and Chrome enforces form-action against the REDIRECT a form
+ * submission lands on, not only the form's own action= target. 'self' alone blocked that
+ * hop outright, breaking the site's real, JS-free ticker-read demo in production. No
+ * build-time scan or curl-based runtime check surfaces this — it is browser-only CSP
+ * enforcement over a live redirect chain; it was caught by loading the page in a real
+ * browser and submitting the form. https://app.twiceover.io is the identical literal
+ * GO_DESTINATIONS already permits as the only possible /go/* target (Security-reviewed
+ * as a closed, non-attacker-influenceable map) — naming it here is not a new exposure,
+ * only stating explicitly what the redirect already always did.
  */
 const CONTENT_SECURITY_POLICY =
   "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; " +
   "img-src 'self'; font-src 'self'; manifest-src 'self'; connect-src 'none'; " +
-  "form-action 'self'; base-uri 'none'; frame-ancestors 'none'";
+  "form-action 'self' https://app.twiceover.io; base-uri 'none'; frame-ancestors 'none'";
 
 /**
  * Attach the policy to a response that may not accept header writes. Both sources here —

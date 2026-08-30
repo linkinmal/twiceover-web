@@ -411,10 +411,27 @@ describe("fetch — per-route app destinations", () => {
    immutable in the Workers runtime, where a direct .set() silently no-ops. That failure
    is invisible to a header-presence assertion under Node/undici, which is why the
    identity assertion below (response !== the object the path started from) is the one
-   that actually pins the mechanism. */
+   that actually pins the mechanism.
+
+   HOTFIX (live incident, deployed then reverted-in-place same day): the first shipped
+   form-action 'self' broke the hero entry-box's real submit — Chrome enforces
+   form-action against the REDIRECT a form submission lands on, not only the form's own
+   action= target. entry-form submits to /go/try (same-origin, fine); the Worker then
+   302s to https://app.twiceover.io — cross-origin — and Chrome blocked that hop outright
+   ("Sending form data to ... violates ... form-action 'self'"). No build-time scan or
+   curl-based runtime check can see this: it is browser CSP enforcement over a live
+   redirect chain, invisible to Node/undici and to wrangler dev + curl alike. It was
+   caught only by loading the real page in a browser and submitting the form. The fix
+   below is not something these unit tests can prove on their own for the same reason —
+   they assert the header STRING is correct, never that a browser actually admits the
+   redirect. That confirmation is a manual browser check, done alongside this change and
+   after every future edit to this directive. https://app.twiceover.io is the identical
+   literal GO_DESTINATIONS already permits as the only possible /go/* target (Security-
+   reviewed as non-attacker-influenceable) — this widens form-action to name it
+   explicitly, nothing more. */
 
 const EXPECTED_CSP =
-  "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self'; manifest-src 'self'; connect-src 'none'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'";
+  "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self'; manifest-src 'self'; connect-src 'none'; form-action 'self' https://app.twiceover.io; base-uri 'none'; frame-ancestors 'none'";
 
 const GO_LOCATIONS = {
   "/go/try": "https://app.twiceover.io/",
