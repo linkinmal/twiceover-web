@@ -59,9 +59,12 @@ export function createSymbolCombobox({ input, loadIndex = loadSymbolIndex }) {
 
   input.setAttribute('role', 'combobox');
   input.setAttribute('aria-expanded', 'false');
-  input.setAttribute('aria-controls', listboxId);
   input.setAttribute('aria-autocomplete', 'list');
   input.setAttribute('autocomplete', 'off');
+  // `aria-controls` is deliberately NOT set here. R3 means the listbox element exists only while
+  // open, so a constant `aria-controls` would point at no element in the default state of every
+  // page load and after every close — a dangling IDREF is an ARIA validation failure that some
+  // screen readers report. It is set and removed alongside `aria-expanded` instead.
 
   function closeList() {
     if (listboxEl) {
@@ -70,6 +73,7 @@ export function createSymbolCombobox({ input, loadIndex = loadSymbolIndex }) {
     }
     input.setAttribute('aria-expanded', 'false');
     input.removeAttribute('aria-activedescendant');
+    input.removeAttribute('aria-controls'); // never point at an element that is not in the DOM
   }
 
   /** R3 — an empty result renders NO listbox at all: not an empty state, not a "No results" row,
@@ -118,11 +122,26 @@ export function createSymbolCombobox({ input, loadIndex = loadSymbolIndex }) {
       nameEl.textContent = name;
       option.append(symbolEl, nameEl);
 
-      // mousedown, not click: the field's own blur would otherwise close the list before a click
-      // could land. `preventDefault` keeps focus in the field, so R6's "returns focus" is never a
-      // focus that left.
+      // Two handlers, and the split is load-bearing (R6's trip-wire: "reopens if any build submits
+      // on select, for any reason").
+      //
+      // `mousedown` ONLY holds focus. It must not select, because selecting here removes the
+      // listbox synchronously — and `preventDefault` on mousedown does not suppress the `click`
+      // that follows. On this site's STACKED mobile layout the first option sits almost exactly on
+      // top of the "Get the read" submit button (option +16px..+60px below the field, button
+      // +12px..+56px — a 44px overlap), so deleting the option mid-gesture leaves the tap's own
+      // click to hit-test onto the submit button underneath and GET /go/try: a read the visitor
+      // never assented to, from a tap they aimed at a suggestion. That is the classic touch
+      // click-through, and it is invisible on a desktop mouse.
+      //
+      // Selecting on `click` keeps the option under the pointer until the click has been
+      // dispatched, so there is nothing to fall through to. The blur race the mousedown guard
+      // exists for is still closed: preventing mousedown's default stops the focus change, so the
+      // field never blurs and the list is still standing when click arrives.
       option.addEventListener('mousedown', (event) => {
         event.preventDefault();
+      });
+      option.addEventListener('click', () => {
         choose(symbol);
       });
 
@@ -130,6 +149,7 @@ export function createSymbolCombobox({ input, loadIndex = loadSymbolIndex }) {
     });
 
     input.setAttribute('aria-expanded', 'true');
+    input.setAttribute('aria-controls', listboxId);
     if (activeOption >= 0) input.setAttribute('aria-activedescendant', `${optionIdPrefix}-${activeOption}`);
     else input.removeAttribute('aria-activedescendant');
   }
@@ -166,7 +186,19 @@ export function createSymbolCombobox({ input, loadIndex = loadSymbolIndex }) {
     requestedIndex = true;
     void loadIndex().then((rows) => {
       index = rows;
-      render(); // the visitor may already have typed while the chunk was in flight
+
+      // An empty result is how `symbol-index.js` reports a failed load (R3: a failure is silence,
+      // not an error). Clearing the flag is what makes its documented "the next focus retries"
+      // true — the loader clears its own memo, but with this flag latched no second call was ever
+      // made, so the retry it describes could not happen.
+      if (rows.length === 0) requestedIndex = false;
+
+      // Only render if the field is STILL the focused element. The chunk is ~342 KB, so a visitor
+      // who focuses, types, and then tabs or taps toward the submit button can easily be gone
+      // before it lands — and rendering then pops a z-index:20 listbox over the submit button with
+      // focus nowhere in the control and `aria-expanded="true"` on an unfocused input. Their next
+      // tap lands on the listbox instead of the button they were aiming at.
+      if (document.activeElement === input) render();
     });
   });
 
@@ -206,9 +238,14 @@ export function createSymbolCombobox({ input, loadIndex = loadSymbolIndex }) {
     }
   });
 
-  // Focus leaving the whole control closes the list — not the input alone, since a pointer press on
-  // an option is a legitimate focus target within it (ADR 0810 Amendment 2 makes this the host's
-  // whole control, not the combobox's DOM subtree).
+  // The field losing focus closes the list. This is scoped to the INPUT deliberately, and it is
+  // sound here only because of two facts that hold on this surface: the options are `<li>`s, which
+  // are not focusable, and their `mousedown` default is prevented, so a pointer press on an option
+  // never moves focus and so never fires this. (ADR 0810 Amendment 2's wider "the host's whole
+  // control" boundary answers a different problem — the app masthead's field COLLAPSES on focus
+  // leave, so it must not collapse when a user tabs to the adjacent submit button. Nothing
+  // collapses here; the field stays exactly where it is, so closing the list on the input's own
+  // blur costs a tabbing user nothing.)
   input.addEventListener('blur', () => {
     if (isOpen()) closeList();
   });

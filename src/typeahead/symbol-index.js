@@ -22,7 +22,9 @@
  * entry box's own function is untouched — with this file absent entirely, the form still submits.
  */
 
-const EMPTY = [];
+/** Frozen: this exact array is handed to callers and assigned as the combobox's index, so a
+ *  shared mutable singleton would let one caller's mutation reach every other. */
+const EMPTY = Object.freeze([]);
 
 /** The one-shot memo. Holds the in-flight promise (not just the settled value) so two focus events
  *  in the same tick share one chunk load rather than racing two. */

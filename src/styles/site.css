@@ -363,7 +363,7 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 /* ── Ticker typeahead listbox (ADR 0810 item 6, stock-analyst-platform#2965) ─────
    Consult 0812 (Designer) ruled FULL R1–R8 parity with the app's SymbolCombobox for
    this surface — explicitly not a reduced variant — so this is that component's CSS
-   with two substitutions the site's token set forces, both noted below. Structure and
+   with three substitutions the site's token set forces, each noted below. Structure and
    geometry are otherwise unchanged from twiceover-app apps/web/src/read/SymbolCombobox.css.
 
    The listbox is CREATED and REMOVED, never hidden: R3 is "no matches, no listbox —
@@ -450,13 +450,16 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
    concept's own `--inset` (assets/typeahead-prose-rule-2026-08-29.html). Deliberately
    unbridged; if the token ever becomes site-safe, these are what to replace.
    Flagged to the Designer on the PR — theirs to confirm, not the Engineer's to rule. */
-.symbol-combobox__option[data-active="true"],
-.symbol-combobox__option:hover {
-  background: #F4F0E6;
-}
-[data-theme="dark"] .symbol-combobox__option[data-active="true"],
-[data-theme="dark"] .symbol-combobox__option:hover {
-  background: #363128;
+.symbol-combobox__option[data-active="true"] { background: #F4F0E6; }
+[data-theme="dark"] .symbol-combobox__option[data-active="true"] { background: #363128; }
+
+/* Hover is guarded by `hover: hover`. On touch, an unguarded :hover sticks after a tap — and it
+   paints identically to [data-active], which is R7's ONLY affordance for "the option you arrowed
+   onto." A stuck hover on a touch device therefore shows a highlighted row the keyboard never
+   selected, which is precisely the state R7 exists to keep unambiguous. */
+@media (hover: hover) {
+  .symbol-combobox__option:hover { background: #F4F0E6; }
+  [data-theme="dark"] .symbol-combobox__option:hover { background: #363128; }
 }
 
 .symbol-combobox__option-symbol {

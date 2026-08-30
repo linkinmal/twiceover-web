@@ -75,9 +75,11 @@ const websiteJsonLd = {
           (ADR 0042/0074). */}
       <p class="demo-turn">Or, take any US-listed ticker — no connection needed.</p>
       {/* The live ticker handoff (#2520, ADR 0383 Amendment 1, consult 0739) — replaces the
-          v2.6 fixture-only demo. A plain HTML GET submit, no JavaScript anywhere: the browser
-          serializes `ticker` and navigates same-origin to /go/try, whose Worker bounds the
-          value to /^[A-Z]{1,6}$/ and 302s to the app. Three attributes are pinned exactly and
+          v2.6 fixture-only demo. A plain HTML GET submit: the browser serializes `ticker` and
+          navigates same-origin to /go/try, whose Worker bounds the value to /^[A-Z]{1,6}$/ and
+          302s to the app. ("no JavaScript anywhere" struck — the typeahead below is JavaScript
+          on this page; the SUBMIT is still a plain GET the browser performs, and the form works
+          unchanged with the script absent.) Three attributes are pinned exactly and
           enforced by ci/check-entry-box.mjs — name="ticker", method="get", action="/go/try";
           `method` is never `post` (a body travels off-URL) and `action` is never external.
           The app prefills and focuses its own box but NEVER auto-submits: the second press is

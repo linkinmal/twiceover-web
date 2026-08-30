@@ -50,7 +50,9 @@
  *      the same shape as the `src=`-exclusion this rewrite exists to close: the scan would
  *      have looked complete while never opening the larger half of what ships. Every
  *      resolved specifier must ALSO satisfy the same-origin path shape, so a chunk cannot
- *      reach off-origin where a <script src> could not.
+ *      reach off-origin where a <script src> could not — and an import whose specifier is NOT
+ *      a string literal fails the scan outright, since a chunk that cannot be resolved cannot
+ *      be read, and silently walking past it is the very hole this clause closes.
  *
  * Deliberately NOT asserted: the count of <script type="application/ld+json"> data
  * blocks. Those are non-executable (the HTML spec never runs them, and CSP's script-src
@@ -134,15 +136,26 @@ function parseScripts(html) {
 }
 
 /**
- * The relative import specifiers a built bundle carries — both static (`from"./x.js"`) and
- * dynamic (`import("./x.js")`). Rollup emits chunk references in exactly these two shapes.
+ * The import specifiers a built bundle carries — both static (`from"./x.js"`) and dynamic
+ * (`import("./x.js")`). Rollup emits chunk references in exactly these two shapes.
+ *
+ * Returns `{ specifiers, unresolved }`. **`unresolved` is the point:** an `import(` or `from`
+ * whose specifier is NOT a literal — held in a variable, or concatenated — matches no literal
+ * pattern, and a scanner that simply found nothing there would report a clean tree while never
+ * opening the chunk. That is the exact failure shape clause 5 exists to end ("the scan would have
+ * looked complete"), one level further down, so an unextractable specifier FAILS CLOSED rather
+ * than passing silently. Rollup does not emit computed specifiers today; this is about what the
+ * gate can honestly assert, not about what today's bundler happens to do.
  */
 function importSpecifiers(body) {
-  const found = [];
+  const specifiers = [];
   for (const m of body.matchAll(/(?:\bimport\s*\(|\bfrom\s*|\bimport\s*)["']([^"']+)["']/g)) {
-    found.push(m[1]);
+    specifiers.push(m[1]);
   }
-  return found;
+  // Every `import(` / `from` occurrence, literal or not. A count mismatch means at least one
+  // specifier is computed and therefore unreadable by this scan.
+  const occurrences = [...body.matchAll(/\bimport\s*\(|\bfrom\s*["']|\bimport\s*["']/g)].length;
+  return { specifiers, unresolved: Math.max(0, occurrences - specifiers.length) };
 }
 
 /** Resolve one specifier against the root-relative path of the bundle that imports it. */
@@ -183,7 +196,14 @@ function scanBundleTree(src, readAsset, rel, seen, failures) {
     }
   }
 
-  for (const specifier of importSpecifiers(body)) {
+  const { specifiers, unresolved } = importSpecifiers(body);
+  if (unresolved > 0) {
+    failures.push(
+      `[security] ${rel}: bundled script ${src} carries ${unresolved} import(s) whose specifier is not a string literal — a computed specifier cannot be resolved, so the chunk it pulls in cannot be scanned. The scan fails closed rather than reporting a tree it could not walk.`,
+    );
+  }
+
+  for (const specifier of specifiers) {
     const resolved = resolveSpecifier(src, specifier);
     if (resolved === null) {
       // A non-relative specifier in a BUILT bundle is either an unbundled dependency (which

@@ -93,7 +93,8 @@ describe('R5 — symbol block first, then name block, lexical within each, eight
     expect.soft(oneLetter.entries.map(([s]) => s)).toEqual(['MSFT', 'MU']); // lexical, not index order
     expect.soft(oneLetter.symbolMatchCount).toBe(2); // every row a symbol match — no divider drawn
 
-    // "mu" — MU by symbol, then the name block.
+    // "mu" — MU by symbol; no name in this fixture has a word starting "mu", so the name block
+    // is empty and every returned row is a symbol match.
     const twoLetter = matchSymbols('mu', INDEX);
     expect.soft(twoLetter.entries.map(([s]) => s)).toEqual(['MU']);
     expect.soft(twoLetter.symbolMatchCount).toBe(1);
@@ -108,23 +109,48 @@ describe('R5 — symbol block first, then name block, lexical within each, eight
   });
 
   it('never claims a row for both blocks, and caps at eight', () => {
-    // 12 rows all matching by symbol, plus one matching only by name.
+    // 12 rows matching by symbol, plus one matching only by name. The query is TWO characters on
+    // purpose: at one character `nameEligible` is false (R5 — "the name block needs two"), so a
+    // one-character query can never populate the name block and this case would assert nothing
+    // about the two blocks at all.
     const wide = [
-      ...Array.from({ length: 12 }, (_, i) => [`A${String.fromCharCode(65 + i)}`, 'Unrelated Corp']),
+      ...Array.from({ length: 12 }, (_, i) => [`AL${String.fromCharCode(65 + i)}`, 'Unrelated Corp']),
       ['ZZZ', 'Alpha Holdings'],
     ];
-    const result = matchSymbols('a', wide);
+    const result = matchSymbols('al', wide);
     expect.soft(result.entries).toHaveLength(MAX_SUGGESTIONS);
     expect.soft(MAX_SUGGESTIONS).toBe(8);
     // The cap cut into the symbol block, so symbolMatchCount never exceeds what was returned.
     expect.soft(result.symbolMatchCount).toBe(8);
-    expect.soft(result.entries.every(([s]) => s.startsWith('A'))).toBe(true);
+    expect.soft(result.entries.every(([s]) => s.startsWith('AL'))).toBe(true);
+    // ZZZ matches by NAME ("Alpha") and is a real candidate here — it is excluded by the cap,
+    // not by being ineligible, which is what makes the ordering assertion below meaningful.
+    expect.soft(result.entries.some(([s]) => s === 'ZZZ')).toBe(false);
+  });
+
+  it('puts the symbol block BEFORE the name block — the order, not just the membership', () => {
+    // Reversing `[...bySymbol, ...byName]` in the matcher passes every other behavioural case in
+    // this file; only the byte-identity hash catches it, and a hash is re-recorded on any
+    // legitimate upstream change. This asserts the order itself, so the ordering survives a
+    // re-record. Both blocks are non-empty and the cap does not bite.
+    const index = [
+      ['ALPH', 'Unrelated Corp'], // symbol match only
+      ['ZZZ', 'Alpha Holdings'], // name match only ("Alpha" is a word prefix of "al")
+    ];
+    const result = matchSymbols('al', index);
+    expect.soft(result.entries.map(([s]) => s)).toEqual(['ALPH', 'ZZZ']);
+    expect.soft(result.symbolMatchCount).toBe(1); // the divider index: one symbol row precedes it
   });
 });
 
 describe('R8 — the typeahead reaches nothing but the index it is handed', () => {
-  /** Every source file that ships INTO the entry-box bundle. Listed here rather than globbed so
-   *  adding a fourth file is a deliberate act that names itself in this test. */
+  /** Every source file in THIS DIRECTORY that ships into the entry-box bundle. Listed rather than
+   *  globbed so adding a fourth is a deliberate act that names itself here.
+   *
+   *  Deliberately NOT the whole bundle: `index.astro`'s own mount script is compiled in too, and
+   *  lives outside this directory. That file is covered where it actually matters — the gate
+   *  (`ci/check-entry-box.mjs`) scans the BUILT bundle and every chunk it imports, which is the
+   *  only check that sees what really shipped. This one is the fast, source-level echo of it. */
   const SHIPPED = ['symbol-suggestions.ts', 'symbol-index.js', 'ticker-typeahead.js'];
 
   it('carries no network primitive in any shipped source, inline or in a comment', () => {

@@ -31,7 +31,7 @@
  */
 
 import { readFileSync, writeFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 /**
  * The Worker's `TICKER_PATTERN`, mirrored from `worker/index.js`.
@@ -121,6 +121,8 @@ async function main() {
 }
 
 // Import-safe: the test imports `buildIndex`/`serializeIndex` without reaching sec.gov.
-if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+// `pathToFileURL`, not a `file://` template — the latter breaks on a path with spaces or
+// non-ASCII characters, silently turning this into a module that never runs its own main().
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   await main();
 }
