@@ -81,6 +81,23 @@ const ogImageURL = new URL("/og-image.png", Astro.site).href;
           <a href="/refunds">Refunds</a>
           <a href="/cookies">Cookies</a>
           <a href="/contact">Contact</a>
+          {/* Trailing icon-only X link (v2.29, closing #2880/#2893) — site-prelaunch.md
+              §Footer Row 1: discoverable link to @twiceover_io, right-aligned after
+              Contact, no new brand mark or color — this is the platform's own logomark. */}
+          <a
+            class="footer-social"
+            href="https://x.com/twiceover_io"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="TwiceOver on X (opens in a new tab)"
+          >
+            <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false">
+              <path
+                fill="currentColor"
+                d="M18.42 2h3.35l-7.33 8.38L23 22h-6.9l-5.4-6.62L4.5 22H1.14l7.84-8.97L1 2h7.06l4.88 6.05L18.42 2zm-1.18 18h1.86L7.6 3.9H5.6L17.24 20z"
+              />
+            </svg>
+          </a>
         </nav>
         <Disclaimer />
         <div class="footer-meta">
