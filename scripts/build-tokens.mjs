@@ -1,7 +1,11 @@
 #!/usr/bin/env node
 /**
- * tokens/twiceover.tokens.json (DTCG, byte-identical copy of the canonical file in
- * stock-analyst-platform /ai-team/design/tokens/) -> src/styles/tokens.css
+ * tokens/twiceover.tokens.json (DTCG, MEANT to be a byte-identical copy of the canonical file
+ * in stock-analyst-platform /ai-team/design/tokens/ — nothing enforces that today, and it had
+ * drifted: two groups (`bg.inset`, `layer`) plus the primitive shades they alias to were
+ * missing until stock-analyst-platform#2965 added them back by hand. See that issue's follow-up
+ * for the wider drift and the unenforced claim this sentence itself is an instance of.)
+ * -> src/styles/tokens.css
  *
  * Per ADR 0004 / consultation 0005: dependency-free; emits SEMANTIC-ONLY custom
  * properties (aliases resolved, primitives inlined — color.warm-ink.* / color.navy.*
@@ -199,6 +203,14 @@ for (const [name, def] of Object.entries(tokens.space)) {
 for (const [name, def] of Object.entries(tokens.radius)) {
   if (name.startsWith("$")) continue;
   css.push(`  --radius-${name}: ${resolve(def.$value)};`);
+}
+// layer.* (ADR 0570) — theme-invariant z-index scale, added stock-analyst-platform#2965. Not
+// app-only: unlike signal/health/elevation/motion/path-card (containment-linted below), the
+// canonical file places `layer` at the JSON root alongside space/radius, and consult 0812
+// already scoped `layer.popover` for site use. Emits --layer-raised/-popover/-overlay.
+for (const [name, def] of Object.entries(tokens.layer)) {
+  if (name.startsWith("$")) continue;
+  css.push(`  --layer-${name}: ${resolve(def.$value)};`);
 }
 css.push("}");
 

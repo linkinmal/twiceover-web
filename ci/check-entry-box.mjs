@@ -42,6 +42,17 @@
  *   4. the forbidden-call scan runs on external bundle BODIES too, read off disk, not
  *      just on inline bodies. This is the actual hole being closed: the point is to see
  *      what ships, and what ships is the bundle.
+ *   5. that scan follows each bundle's OWN import specifiers, transitively. Added for
+ *      stock-analyst-platform#2965: the typeahead lazy-loads its 342 KB symbol index as
+ *      `import("./symbol-index.<hash>.js")`, a chunk referenced from inside the bundle and
+ *      from no HTML at all — so clause 4 alone would have read the 4 KB entry bundle and
+ *      never the 342 KB one it pulls in. That is clause 4's own hole one level down, and
+ *      the same shape as the `src=`-exclusion this rewrite exists to close: the scan would
+ *      have looked complete while never opening the larger half of what ships. Every
+ *      resolved specifier must ALSO satisfy the same-origin path shape, so a chunk cannot
+ *      reach off-origin where a <script src> could not — and an import whose specifier is NOT
+ *      a string literal fails the scan outright, since a chunk that cannot be resolved cannot
+ *      be read, and silently walking past it is the very hole this clause closes.
  *
  * Deliberately NOT asserted: the count of <script type="application/ld+json"> data
  * blocks. Those are non-executable (the HTML spec never runs them, and CSP's script-src
@@ -69,11 +80,19 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 // would be a false invariant, which is the failure this rewrite exists to end, not repeat.
 // Their bodies are now scanned off disk as external bundles (clause 4 below), which is
 // strictly more coverage than the inline scan they had before.
+//
+// The THIRD external script (external: 2 -> 3, stock-analyst-platform#2965, ADR 0810 build
+// order item 6) is the ticker typeahead: an ordinary Astro <script> in index.astro, which
+// Astro compiles to /_astro/index.astro_astro_type_script_index_0_lang.<hash>.js. It is the
+// first script on this site that reads the entry field's .value, signed off as a carve-out
+// (ADR 0810) and Security-reviewed (consult 0811). It is deliberately NOT `is:inline` — an
+// inline script reading a field stays barred below, and the Worker's `script-src 'self'`
+// admits no inline exception.
 const EXPECTED_SCRIPTS = {
   "404.html": { inline: 0, external: 0 },
   "contact/index.html": { inline: 0, external: 0 },
   "cookies/index.html": { inline: 0, external: 0 },
-  "index.html": { inline: 0, external: 2 },
+  "index.html": { inline: 0, external: 3 },
   "pricing/index.html": { inline: 0, external: 0 },
   "privacy/index.html": { inline: 0, external: 0 },
   "refunds/index.html": { inline: 0, external: 0 },
@@ -114,6 +133,95 @@ function parseScripts(html) {
     }
   }
   return { data, inline, external };
+}
+
+/**
+ * The import specifiers a built bundle carries — both static (`from"./x.js"`) and dynamic
+ * (`import("./x.js")`). Rollup emits chunk references in exactly these two shapes.
+ *
+ * Returns `{ specifiers, unresolved }`. **`unresolved` is the point:** an `import(` or `from`
+ * whose specifier is NOT a literal — held in a variable, or concatenated — matches no literal
+ * pattern, and a scanner that simply found nothing there would report a clean tree while never
+ * opening the chunk. That is the exact failure shape clause 5 exists to end ("the scan would have
+ * looked complete"), one level further down, so an unextractable specifier FAILS CLOSED rather
+ * than passing silently. Rollup does not emit computed specifiers today; this is about what the
+ * gate can honestly assert, not about what today's bundler happens to do.
+ */
+function importSpecifiers(body) {
+  const specifiers = [];
+  for (const m of body.matchAll(/(?:\bimport\s*\(|\bfrom\s*|\bimport\s*)["']([^"']+)["']/g)) {
+    specifiers.push(m[1]);
+  }
+  // Every `import(` / `from` occurrence, literal or not. A count mismatch means at least one
+  // specifier is computed and therefore unreadable by this scan.
+  const occurrences = [...body.matchAll(/\bimport\s*\(|\bfrom\s*["']|\bimport\s*["']/g)].length;
+  return { specifiers, unresolved: Math.max(0, occurrences - specifiers.length) };
+}
+
+/** Resolve one specifier against the root-relative path of the bundle that imports it. */
+function resolveSpecifier(importerSrc, specifier) {
+  if (!specifier.startsWith(".")) return null; // bare or absolute — not a relative chunk
+  const dir = importerSrc.slice(0, importerSrc.lastIndexOf("/"));
+  const parts = `${dir}/${specifier}`.split("/");
+  const out = [];
+  for (const part of parts) {
+    if (part === "." || part === "") continue;
+    if (part === "..") out.pop();
+    else out.push(part);
+  }
+  return `/${out.join("/")}`;
+}
+
+/**
+ * Scan one bundle and everything it imports, transitively (clause 5).
+ *
+ * `seen` is shared across a page's scripts so a chunk two bundles share is read once, and so a
+ * cyclic import graph terminates.
+ */
+function scanBundleTree(src, readAsset, rel, seen, failures) {
+  if (seen.has(src)) return;
+  seen.add(src);
+
+  const body = readAsset(src);
+  if (body === null) {
+    failures.push(`[structure] ${rel}: script src ${src} does not resolve to a built asset — the bundle body cannot be scanned`);
+    return;
+  }
+
+  for (const re of FORBIDDEN_CALLS) {
+    if (re.test(body)) {
+      failures.push(
+        `[security] ${rel}: bundled script ${src} calls ${re.source} — this site navigates, it never transmits (consult 0811; the CSP's connect-src 'none' backstops this at the browser)`,
+      );
+    }
+  }
+
+  const { specifiers, unresolved } = importSpecifiers(body);
+  if (unresolved > 0) {
+    failures.push(
+      `[security] ${rel}: bundled script ${src} carries ${unresolved} import(s) whose specifier is not a string literal — a computed specifier cannot be resolved, so the chunk it pulls in cannot be scanned. The scan fails closed rather than reporting a tree it could not walk.`,
+    );
+  }
+
+  for (const specifier of specifiers) {
+    const resolved = resolveSpecifier(src, specifier);
+    if (resolved === null) {
+      // A non-relative specifier in a BUILT bundle is either an unbundled dependency (which
+      // would fail at runtime with no import map) or an off-origin module URL — the exact reach
+      // the <script src> shape check bars, arriving one level down instead.
+      failures.push(
+        `[security] ${rel}: bundled script ${src} imports a non-relative specifier "${specifier}" — every chunk must be a relative same-origin sibling, never a bare or off-origin module`,
+      );
+      continue;
+    }
+    if (!EXTERNAL_SRC_SHAPE.test(resolved)) {
+      failures.push(
+        `[security] ${rel}: bundled script ${src} imports ${resolved}, which is outside /_astro/ or /js/ — a chunk may not escape the build directories`,
+      );
+      continue;
+    }
+    scanBundleTree(resolved, readAsset, rel, seen, failures);
+  }
 }
 
 /**
@@ -159,6 +267,7 @@ export function scanPages(pages, expected = EXPECTED_SCRIPTS, readAsset = () => 
       }
     }
 
+    const seenBundles = new Set();
     for (const e of external) {
       if (!EXTERNAL_SRC_SHAPE.test(e.src)) {
         failures.push(
@@ -166,18 +275,8 @@ export function scanPages(pages, expected = EXPECTED_SCRIPTS, readAsset = () => 
         );
         continue;
       }
-      const bundle = readAsset(e.src);
-      if (bundle === null) {
-        failures.push(`[structure] ${rel}: script src ${e.src} does not resolve to a built asset — the bundle body cannot be scanned`);
-        continue;
-      }
-      for (const re of FORBIDDEN_CALLS) {
-        if (re.test(bundle)) {
-          failures.push(
-            `[security] ${rel}: bundled script ${e.src} calls ${re.source} — this site navigates, it never transmits (consult 0811; the CSP's connect-src 'none' backstops this at the browser)`,
-          );
-        }
-      }
+      // Clause 5: the bundle AND every chunk it imports, transitively.
+      scanBundleTree(e.src, readAsset, rel, seenBundles, failures);
     }
 
     for (const s of inline) {
@@ -394,7 +493,7 @@ function main() {
     process.exit(1);
   }
   console.log(
-    `Entry box security check passed: ${pages.length} built page(s) against the declared script expectation (no undeclared script, inline or bundled; every src root-relative same-origin; no fetch/XHR/WebSocket/sendBeacon in any inline or bundled body; no inline handlers), name="ticker", method="get", action="/go/try", URLSearchParams-encoded + pattern-bounded forwarding.`,
+    `Entry box security check passed: ${pages.length} built page(s) against the declared script expectation (no undeclared script, inline or bundled; every src root-relative same-origin; no fetch/XHR/WebSocket/sendBeacon in any inline body, bundle, or transitively imported chunk; no inline handlers), name="ticker", method="get", action="/go/try", URLSearchParams-encoded + pattern-bounded forwarding.`,
   );
 }
 

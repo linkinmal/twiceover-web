@@ -15,6 +15,7 @@
     "check:worker": "node ci/check-worker-source.mjs",
     "test": "vitest run",
     "gen:favicons": "node scripts/gen-favicons.mjs",
+    "symbol-index:generate": "node scripts/gen-symbol-index.mjs",
     "deploy": "bash scripts/deploy.sh"
   },
   "dependencies": {
@@ -26,6 +27,7 @@
     "@fontsource-variable/source-sans-3": "^5.2.9",
     "@fontsource-variable/source-serif-4": "^5.2.9",
     "@resvg/resvg-js": "^2.6.2",
+    "jsdom": "^30.0.1",
     "vitest": "^3.0.0",
     "wrangler": "^4.0.0"
   }
