@@ -401,3 +401,101 @@ describe("fetch — per-route app destinations", () => {
     expect(location).not.toContain("evil.example");
   });
 });
+
+/* ── Content-Security-Policy (stock-analyst-platform#2976, ADR 0810 build order item 2,
+   consult 0811 Amendment 1) ──────────────────────────────────────────────────────────
+   The Worker runs first on every request (run_worker_first:true), so it is the one place
+   both response paths — the /go/* redirect and the env.ASSETS.fetch fall-through — can
+   carry the same header. Both are asserted here, and both are asserted to arrive on a
+   CLONE: Response.redirect() and ASSETS.fetch() each return a response whose headers are
+   immutable in the Workers runtime, where a direct .set() silently no-ops. That failure
+   is invisible to a header-presence assertion under Node/undici, which is why the
+   identity assertion below (response !== the object the path started from) is the one
+   that actually pins the mechanism. */
+
+const EXPECTED_CSP =
+  "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self'; manifest-src 'self'; connect-src 'none'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'";
+
+const GO_LOCATIONS = {
+  "/go/try": "https://app.twiceover.io/",
+  "/go/connect": "https://app.twiceover.io/#connection",
+  "/go/signin": "https://app.twiceover.io/#signin",
+  "/go/plan": "https://app.twiceover.io/#signin?intent=core",
+};
+
+describe("fetch — Content-Security-Policy", () => {
+  function fakeEnv() {
+    return { SITE_METRICS: { writeDataPoint: vi.fn() }, ASSETS: { fetch: vi.fn() } };
+  }
+
+  beforeEach(() => vi.clearAllMocks());
+
+  it.each(["/go/try", "/go/connect", "/go/signin", "/go/plan"])(
+    "carries the exact directive set on the %s redirect, without disturbing the redirect itself",
+    async (path) => {
+      const env = fakeEnv();
+      const response = await worker.fetch(new Request(`https://twiceover.io${path}`), env);
+
+      expect(response.headers.get("content-security-policy")).toBe(EXPECTED_CSP);
+      expect(response.status).toBe(302);
+      expect(response.headers.get("location")).toBe(GO_LOCATIONS[path]);
+    },
+  );
+
+  it("carries the exact directive set on a served asset, preserving status, type and body", async () => {
+    const env = fakeEnv();
+    const asset = new Response("<!DOCTYPE html><p>hi</p>", {
+      status: 200,
+      headers: { "content-type": "text/html; charset=utf-8" },
+    });
+    env.ASSETS.fetch.mockResolvedValue(asset);
+
+    const response = await worker.fetch(new Request("https://twiceover.io/"), env);
+
+    expect(response.headers.get("content-security-policy")).toBe(EXPECTED_CSP);
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toBe("text/html; charset=utf-8");
+    expect(await response.text()).toBe("<!DOCTYPE html><p>hi</p>");
+  });
+
+  it("carries it on a non-HTML asset and on a 404 too — the header is not gated on the page-view branch", async () => {
+    for (const [status, type] of [
+      [200, "image/svg+xml"],
+      [404, "text/html; charset=utf-8"],
+    ]) {
+      const env = fakeEnv();
+      env.ASSETS.fetch.mockResolvedValue(new Response("x", { status, headers: { "content-type": type } }));
+      const response = await worker.fetch(new Request("https://twiceover.io/favicon.svg"), env);
+      expect(response.headers.get("content-security-policy")).toBe(EXPECTED_CSP);
+      expect(response.status).toBe(status);
+    }
+  });
+
+  /* The mechanism assertion, not the outcome assertion. A direct
+     `assetResponse.headers.set(...)` passes every expectation above under Node/undici and
+     silently no-ops against the Workers runtime's immutable-headers guard (ADR 0810
+     Amendment 3 condition 3). Only "a new Response object came back" distinguishes them. */
+  it("returns a mutable clone on both paths, never the immutable response it started from", async () => {
+    const env = fakeEnv();
+    const asset = new Response("<p>hi</p>", { headers: { "content-type": "text/html" } });
+    env.ASSETS.fetch.mockResolvedValue(asset);
+
+    const served = await worker.fetch(new Request("https://twiceover.io/"), env);
+    expect(served).not.toBe(asset);
+
+    const redirected = await worker.fetch(new Request("https://twiceover.io/go/try"), env);
+    expect(redirected.headers.get("content-security-policy")).toBe(EXPECTED_CSP);
+  });
+
+  it("sets the header exactly once, never appending a second policy", async () => {
+    const env = fakeEnv();
+    env.ASSETS.fetch.mockResolvedValue(
+      new Response("<p>hi</p>", { headers: { "content-type": "text/html" } }),
+    );
+    const response = await worker.fetch(new Request("https://twiceover.io/"), env);
+
+    const all = [...response.headers].filter(([k]) => k === "content-security-policy");
+    expect(all).toHaveLength(1);
+    expect(all[0][1]).not.toMatch(/default-src[\s\S]*default-src/);
+  });
+});

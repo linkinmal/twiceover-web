@@ -59,18 +59,21 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 // One row per built page. `inline` counts executable inline <script> blocks (data blocks
 // excluded); `external` counts <script src=…> tags.
 //
-// index.html's two inline scripts are the AnalysisBand scroll-driven animation
-// (src/components/AnalysisBand.astro) and the BeforeAfterRead tab toggle
-// (src/components/BeforeAfterRead.astro), both authored `is:inline`. They are declared
-// here rather than asserted away because they genuinely ship today — a gate asserting
-// "zero scripts anywhere" against a build carrying two would be a false invariant, which
-// is the failure this rewrite exists to end, not repeat. They drop to 0 when the CSP work
-// moves them to public/js/ (stock-analyst-platform#2964, CSP half).
+// index.html's two scripts are the AnalysisBand scroll-driven animation
+// (public/js/analysis-band.js) and the BeforeAfterRead tab toggle
+// (public/js/before-after-read.js). Both were `is:inline` blocks declared here as
+// `inline: 2` while the CSP work was pending; stock-analyst-platform#2976 moved them to
+// public/js/ verbatim so the site's CSP can keep `script-src 'self'` strict with no inline
+// exception (consult 0811 Amendment 1, corrected condition 4(iii)). They are counted, not
+// asserted away — a gate claiming "zero scripts anywhere" against a build carrying two
+// would be a false invariant, which is the failure this rewrite exists to end, not repeat.
+// Their bodies are now scanned off disk as external bundles (clause 4 below), which is
+// strictly more coverage than the inline scan they had before.
 const EXPECTED_SCRIPTS = {
   "404.html": { inline: 0, external: 0 },
   "contact/index.html": { inline: 0, external: 0 },
   "cookies/index.html": { inline: 0, external: 0 },
-  "index.html": { inline: 2, external: 0 },
+  "index.html": { inline: 0, external: 2 },
   "pricing/index.html": { inline: 0, external: 0 },
   "privacy/index.html": { inline: 0, external: 0 },
   "refunds/index.html": { inline: 0, external: 0 },
