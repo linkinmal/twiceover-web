@@ -5,7 +5,12 @@
 // cards/tabs anatomy.
 import RuleRow from "./RuleRow.astro";
 ---
-<section class="mobile-showcase section-ground" aria-labelledby="mobile-showcase-heading">
+{/* --lifted — Designer ruling on #3008, 2026-08-31 (Option 1). Takes the lift BeforeAfterRead
+    gave up above: a phone mockup reads correctly as a lifted object photographed on a surface,
+    where the plain-content `doors` section (the other candidate) would have been assigned a lift
+    only to satisfy the alternation rule. Also closes the doors -> MobileShowcase clash the
+    reorder opened when BeforeAfterRead, which used to separate them, moved to 3rd. */}
+<section class="mobile-showcase section-ground section-ground--lifted" aria-labelledby="mobile-showcase-heading">
   <div class="container mobile-showcase__inner">
     <div>
       <h2 id="mobile-showcase-heading" class="type-heading-1 section-heading">The same read, on your phone.</h2>
