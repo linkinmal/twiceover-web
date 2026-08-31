@@ -16,7 +16,17 @@
  *
  * **No account-derived mark.** No cost basis, no P&L shading, nothing keyed to a position — the
  * builder takes no position data at all, which makes it structural rather than a rule to remember.
+ *
+ * **A crowded level is withheld as a PAIR — rule and both label lines together, never the label
+ * alone** (stock-analyst-platform#3019, lightweight-log 2026-08-31; Designer BLOCK on this PR, ruled
+ * Option 2). Two admitted levels close in price can sit closer together than their two-line label
+ * blocks are tall — measured on this fixture at 1.97–7.62px of overlap — and §4b bars a rule rendered
+ * without its name+value, so dropping just the label is not a legal fix. Mirrors twiceover-app
+ * `TechnicalsPriceChart.tsx`'s independent fix (twiceover-app PR #1096, same Architect ruling): reuses
+ * `clearOfPlaced`, already exported by `payoff-chart.mjs`, rather than a second copy of it.
  */
+
+import { clearOfPlaced } from "./payoff-chart.mjs";
 
 const ESCAPES = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" };
 function esc(s) {
@@ -28,6 +38,14 @@ function n(v) {
   return Number(v.toFixed(2));
 }
 
+/** Minimum centre-to-centre vertical spacing, in viewBox units, between two levels' rules before their
+ *  label blocks smear together. Each level carries two 8.5px-type lines (name at `y-1`, value at
+ *  `y+8`); #3019/this PR's own pinned test measured 1.97–7.62px of real overlap at 17–18.5px of
+ *  separation, so the true footprint runs past the bare 9px line spacing once glyph ascent/descent are
+ *  counted. Set with headroom over the worst measured overlap, matching twiceover-app's identically
+ *  reasoned `LEVEL_LABEL_MIN_GAP`. */
+const LEVEL_LABEL_MIN_GAP = 26;
+
 /**
  * @param {ReturnType<import("./technicals-chart.mjs").priceLineChartModel>} m
  * @param {{ compact: boolean }} opts
@@ -37,10 +55,20 @@ export function technicalsPriceSvgBody(m, { compact }) {
   const parts = [];
   const plotRight = m.width - m.padRight;
 
+  // Withhold a crowded level as a pair (#3019). `m.levels` is already in nearest-to-price priority
+  // order — the same order `technicals-chart.mjs`'s own admission sort produces — so the nearer,
+  // more likely to be what the reader is orienting by, wins a collision and the further one yields.
+  const placedLevelYs = [];
+  const shownLevels = m.levels.filter((level) => {
+    if (!clearOfPlaced(placedLevelYs, level.y, LEVEL_LABEL_MIN_GAP)) return false;
+    placedLevelYs.push(level.y);
+    return true;
+  });
+
   // Level rules first, so the price line draws OVER them. A rule NEVER renders without both its name
   // and its value — a bare rule is a §4b forbidden state, which is why the two texts are emitted in
   // the same block as the line rather than anywhere they could be dropped independently.
-  for (const level of m.levels) {
+  for (const level of shownLevels) {
     parts.push(
       `<line class="t-level" x1="${m.padLeft}" y1="${n(level.y)}" x2="${n(plotRight)}" y2="${n(level.y)}"/>`,
       `<text class="t-level-name" x="${n(plotRight + 4)}" y="${n(level.y - 1)}">${esc(level.name)}</text>`,

@@ -182,18 +182,21 @@ describe("priceLineChartModel — the site's own fixture (#2992)", () => {
     expect(comp.ticks.map((t) => t.label)).toEqual(["May", "Jul", "Aug"]);
   });
 
-  it("KNOWN, MEASURED: the 50-DMA and 200-DMA labels collide (#2992, flagged to Designer)", () => {
+  it("still ADMITS both close-together MAs — the crowding is the render's problem, not the model's", () => {
     // 175.43 and 168.90 are 6.53 apart in a 42-point domain, which at the desktop plot's 116px is
     // ~18px — narrower than the two-line label block those rules each carry (name at y-1, value at
     // y+8, ~8.5px type). Measured on the built page: 1.97px overlap at 620, 5.23px in the band
     // card, 7.62px at the compact width.
     //
-    // This is UPSTREAM behaviour, not a porting slip — twiceover-app's own component has no
-    // crowding rule for this chart, so the same data collides there. Pinned here rather than
-    // silently tolerated: if a later change makes the gap WORSE this fails, and if the Designer
-    // rules for a crowding rule the expectation flips to a real clearance.
+    // The fix (#3019, Designer/Architect-ruled Option 2) deliberately does NOT live here: the model
+    // stays pure domain arithmetic and admits both, and `technicals-svg.test.mjs` asserts that the
+    // RENDER withholds the farther one as a pair — rule and both label lines together, never the
+    // label alone (§4b). Pinned in both places so the boundary between them cannot drift: if the
+    // gap changes here the number below fails, and if the withholding stops the sibling suite does.
+    // twiceover-app's `TechnicalsPriceChart.tsx` carries the identical split (PR #1096).
     const byY = [...desk.levels].sort((a, b) => a.y - b.y);
     const gaps = byY.slice(1).map((l, i) => l.y - byY[i].y);
+    expect(desk.levels.map((l) => l.name)).toContain("200-DMA");
     expect(Math.min(...gaps)).toBeLessThan(18.5);
     expect(Math.min(...gaps)).toBeGreaterThan(17);
   });
