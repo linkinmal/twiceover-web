@@ -158,3 +158,105 @@ describe("the site's fixture — the 2x Jul 17 175C/190C bull call spread", () =
     expect.soft(m.zeroY).toBeLessThan(m.height - m.padBottom);
   });
 });
+
+describe("payoffChartModel — domain pad tracks kinkSpan, not the kink price level (stock-analyst-platform#3006/#3009)", () => {
+  /**
+   * Ported alongside the fix itself from twiceover-app `apps/web/src/read/payoff-chart.ts` (`3359866`).
+   * `SINGLE_KINK_PAD_RATIO` (formerly `PAD_FLOOR_RATIO`) is documented as the pad for a TRUE
+   * single-kink structure — `kinkSpan` is 0, there is nothing else to derive a pad from. It used to
+   * reach the domain via `max()` on every structure regardless of kink count, dominating whenever
+   * `kinkSpan < magnitude` — nearly always true for a real multi-kink spread. Nothing above this point
+   * in the file catches that: every case there either has a single kink or a span that already exceeds
+   * its own bugged floor's neighborhood, so the regression shipped invisibly. These cases isolate the
+   * property directly.
+   */
+
+  it("the NVDA fixture (2x Jul 17 175C/190C) — the worked regression case", () => {
+    // kinkSpan=15, magnitude=182.5. Buggy: floorPad = max(182.5*0.15,1) = 27.375, which then WINS the
+    // max() against kinkSpan*0.15=2.25 — domain ~[147.63, 217.38], ~70pt, 21% of frame on a $182
+    // stock. Fixed: kinkSpan alone drives the pad, since kinkSpan > 0.
+    const kinks = [175, 190];
+    const sample = (p) => Math.min(Math.max(p - 175, 0), 15) * 100 * 2 - 1240;
+    const m = payoffChartModel({
+      kinks,
+      breakevens: [181.2],
+      sample,
+      lastClose: null,
+      compact: false,
+    });
+    expect.soft(m.domainLo).toBeCloseTo(172.75, 5);
+    expect.soft(m.domainHi).toBeCloseTo(192.25, 5);
+    const domainWidth = m.domainHi - m.domainLo;
+    expect.soft(domainWidth).toBeCloseTo(19.5, 5);
+    // The buggy value was ~69.75 — this is the number that would come back if the floor still won.
+    expect(domainWidth).toBeLessThan(30);
+  });
+
+  it("the SAME kink span pads identically at a low price level and a high one", () => {
+    // The buggy floor is magnitude-relative, so two structures with an IDENTICAL span but different
+    // price levels padded differently — a defect no single-price-level fixture can catch on its own.
+    const padHiFor = (kinkLo, span) => {
+      const kinks = [kinkLo, kinkLo + span];
+      // Flat on both sides of a [kinkLo, kinkLo+span] band — a bull-call-spread shape at any price
+      // level, so `loSideFlatAtKink`/`hiSideUnbounded` resolve the same way regardless of magnitude.
+      const sample = (p) => Math.min(Math.max(p - kinkLo, 0), span) * 100 - 500;
+      const m = payoffChartModel({
+        kinks,
+        breakevens: [kinkLo + span / 2],
+        sample,
+        lastClose: null,
+        compact: false,
+      });
+      return m.domainHi - (kinkLo + span);
+    };
+    // Span 20, above the pad's own `, 1)` absolute floor (20*0.15=3), so this isolates the actual
+    // property rather than two calls that both happen to bottom out at the floor.
+    const padAt10 = padHiFor(10, 20);
+    const padAt500 = padHiFor(500, 20);
+    expect(padAt10).toBeCloseTo(padAt500, 5);
+    expect(padAt10).toBeCloseTo(3, 5);
+    // Nowhere near a magnitude-relative pad at these levels (10*0.15=1.5, 500*0.15=75) — the two price
+    // levels would have differed by 50x under the bug.
+    expect(Math.abs(10 * 0.15 - padAt10)).toBeGreaterThan(0.5);
+  });
+
+  it("a DIFFERENT kink span pads proportionally, at the SAME price level", () => {
+    const padHiFor = (span) => {
+      const kinkLo = 175;
+      const kinks = [kinkLo, kinkLo + span];
+      const sample = (p) => Math.min(Math.max(p - kinkLo, 0), span) * 100 - 500;
+      const m = payoffChartModel({
+        kinks,
+        breakevens: [kinkLo + span / 2],
+        sample,
+        lastClose: null,
+        compact: false,
+      });
+      return m.domainHi - (kinkLo + span);
+    };
+    expect(padHiFor(30)).toBeCloseTo(padHiFor(15) * 2, 5);
+  });
+
+  it("a TRUE single-kink structure (naked call, span 0) is unaffected — still magnitude-relative", () => {
+    // The rename's whole point: the single-kink branch keeps doing exactly what it always documented
+    // doing. A naked call at a HIGH price level pads more than one at a low price level, because there
+    // is genuinely no span to pad from instead.
+    const padFor = (strike) => {
+      const kinks = [strike];
+      const sample = (p) => Math.max(p - strike, 0) * 100 - 500;
+      const m = payoffChartModel({
+        kinks,
+        breakevens: [strike + 5],
+        sample,
+        lastClose: null,
+        compact: false,
+      });
+      return strike - m.domainLo; // the flat low side's own pad
+    };
+    expect(padFor(500)).toBeGreaterThan(padFor(50));
+    // Exact, not just directional — a slipped SINGLE_KINK_PAD_RATIO shifts both by the same factor,
+    // which the inequality above cannot see.
+    expect(padFor(50)).toBeCloseTo(50 * 0.15, 5);
+    expect(padFor(500)).toBeCloseTo(500 * 0.15, 5);
+  });
+});

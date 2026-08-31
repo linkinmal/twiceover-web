@@ -32,9 +32,20 @@ const BOUNDED_PAD_RATIO = 0.15;
  *  as unmistakably still climbing at the frame edge. The low side never uses this: it has a real
  *  floor ($0) to extend to instead of an arbitrary multiple. */
 const UNBOUNDED_PAD_MULTIPLIER = 3;
-/** Floor for a single-kink structure, whose kink span is 0 — a fraction of the kink's own price
- *  magnitude, the role `DOMAIN_PAD_FLOOR_RATIO` plays on the Outlook chart's value axis. */
-const PAD_FLOOR_RATIO = 0.15;
+/**
+ * Padding for a TRUE single-kink structure (`kinkSpan` is 0, e.g. a naked call) — a fraction of the
+ * kink's own price magnitude, the role `DOMAIN_PAD_FLOOR_RATIO` plays on the Outlook chart's value
+ * axis. There is no kink span to derive a pad from in this case, hence the fallback to magnitude.
+ *
+ * Renamed from `PAD_FLOOR_RATIO` (stock-analyst-platform#3006/#3009, ported from twiceover-app
+ * `apps/web/src/read/payoff-chart.ts` `3359866`): the old name and its `max()` against
+ * `BOUNDED_PAD_RATIO` made this reach the domain on EVERY structure, not just the single-kink one its
+ * own comment described — dominating whenever `kinkSpan < magnitude`, which is nearly always true for
+ * a real multi-kink spread (a 15-point kink span on a $182 stock gave a ~70pt domain, 21% of the frame
+ * occupied by the structure, against the signed artifact's 45%). It is now gated to the single-kink
+ * case by `kinkSpan > 0` below, never combined with the multi-kink pad.
+ */
+const SINGLE_KINK_PAD_RATIO = 0.15;
 
 /**
  * Is `x` far enough from every already-placed label to carry its own text?
@@ -71,8 +82,13 @@ export function payoffChartModel({ kinks, breakevens, sample, lastClose, compact
   const kinkHi = Math.max(...kinks);
   const kinkSpan = kinkHi - kinkLo;
   const magnitude = (Math.abs(kinkLo) + Math.abs(kinkHi)) / 2;
-  const floorPad = Math.max(magnitude * PAD_FLOOR_RATIO, 1);
-  const basePad = Math.max(kinkSpan * BOUNDED_PAD_RATIO, floorPad);
+  // Multi-kink (a real spread): span-relative, with only a small absolute floor to guard a near-zero
+  // span. Single-kink (kinkSpan is 0, e.g. a naked call): no span to derive from, so magnitude-relative
+  // instead. These two are never combined — that was the defect.
+  const basePad =
+    kinkSpan > 0
+      ? Math.max(kinkSpan * BOUNDED_PAD_RATIO, 1)
+      : Math.max(magnitude * SINGLE_KINK_PAD_RATIO, 1);
 
   const loSideFlatAtKink = Math.abs(probeSlope(sample, kinkLo, -1)) <= SLOPE_EPSILON;
   const hiSideUnbounded = Math.abs(probeSlope(sample, kinkHi, 1)) > SLOPE_EPSILON;
