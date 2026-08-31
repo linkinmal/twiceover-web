@@ -2,6 +2,17 @@
 // Per-section miniature fixture render used by AnalysisBand.astro's eight cards.
 // Illustrative-only figures (site-prelaunch.md §2 carousel band) — same canonical
 // NVDA/AAPL fixture used throughout the page, no invented market data.
+// The Outlook card's three projections come from the page's ONE fixture (charts/site-fixture.mjs),
+// not from literals here. Route (b), founder-decided 2026-08-31 (#2987): the published 184 / 195 /
+// 210 climbed monotonically and are replaced by the dip-shaped 178 / 192 / 205 EVERYWHERE the site
+// states them. This card was the "everywhere" — three figures in markup, beside a hero chart that
+// had already been corrected twice, which is precisely why they now share a source.
+import { HERO_OUTLOOK, money } from "../charts/site-fixture.mjs";
+
+const projection = Object.fromEntries(
+  HERO_OUTLOOK.horizons.map((h) => [h.horizon, money(h.price).replace(/\.00$/, "")]),
+);
+
 interface Props {
   kind: "fund" | "tech" | "sect" | "peer" | "news" | "voic" | "macr" | "outl";
 }
@@ -69,17 +80,17 @@ const { kind } = Astro.props;
       <p class="sub" style="padding-bottom:4px">Synthesis</p>
       <div class="horizon">
         <b>NEAR · DAYS–WEEKS</b>
-        <span class="proj">Our projection lands at <span class="proj-v">$184</span></span>
+        <span class="proj">Our projection lands at <span class="proj-v">{projection.near}</span></span>
         <i>constructive while the recent range holds</i>
       </div>
       <div class="horizon">
         <b>MID · 1–3 MONTHS</b>
-        <span class="proj">Our projection lands at <span class="proj-v">$195</span></span>
+        <span class="proj">Our projection lands at <span class="proj-v">{projection.mid}</span></span>
         <i>structure intact absent a trend change</i>
       </div>
       <div class="horizon">
         <b>FAR · QUARTERS</b>
-        <span class="proj">Our projection lands at <span class="proj-v">$210</span></span>
+        <span class="proj">Our projection lands at <span class="proj-v">{projection.far}</span></span>
         <i>hinges on how the macro regime resolves</i>
       </div>
       <p class="sub" style="padding-top:4px">Our projection, not a guarantee — you decide.</p>

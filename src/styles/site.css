@@ -493,20 +493,112 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   gap: var(--space-150);
   padding-block: var(--space-300);
 }
-.proof__svg {
-  display: block;
-  width: 100%;
-  max-width: min(440px, 100%);
-  height: auto;
-  margin-inline: auto;
+/* The Outlook band (#2987) — the reserved accent surface (ADR 0008) carrying the projection path
+   chart, the same treatment the app gives this object. Replaces .proof__svg, whose fixed-viewBox
+   three-card composition named the product's output without showing any of it.
+   No max-width and no auto inline margin: the band fills the hero column. An auto cross-axis margin
+   on a flex item disables its stretch, which had it shrink-to-fit to 400px — 77px of chart the
+   column was already giving it. */
+.proof__band {
+  container-type: inline-size;
+  background: var(--accent-surface-container);
+  border: 1px solid var(--accent-surface-border);
+  border-radius: var(--radius-medium);
+  padding: var(--space-200);
 }
+.proof__band-hd {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-200);
+  flex-wrap: wrap;
+}
+.proof__band-ttl {
+  font-family: var(--font-family-serif);
+  font-weight: var(--font-weight-semibold);
+  color: var(--accent-surface-on-surface);
+}
+.proof__band-note {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-100);
+  color: var(--accent-surface-on-surface-muted);
+}
+/* The chart's ONE figure, as a caption above the plot rather than SVG text inside it — the signed
+   artifact's placement, reached after four in-plot attempts. On the dip shape the path descends into
+   the label's own band and the near dot lands on it; no vertical offset solves furniture placed in
+   the data's own region, so the label leaves the plot. */
+.proof__chartcap {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-100);
+  color: var(--accent-surface-on-surface-muted);
+  margin: var(--space-050) 0 0;
+}
+.proof__hzrow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-150);
+  margin-top: var(--space-150);
+}
+.proof__hz {
+  border-top: 1px solid color-mix(in srgb, var(--accent-surface-border) 45%, transparent);
+  padding-top: var(--space-050);
+}
+.proof__hz-k {
+  font-family: var(--font-family-serif);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-100);
+  letter-spacing: 0.09em;
+  color: var(--accent-surface-marker);
+}
+.proof__hz-v {
+  font-family: var(--font-family-serif);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-400);
+  color: var(--accent-surface-on-surface);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.25;
+}
+
+/* The chart. Both of the component's own breakpoint states are emitted (the page runs no layout
+   JavaScript); one is shown, the other is display:none — which also takes it out of the
+   accessibility tree, so the shared aria-label is never announced twice. */
+.k-chart { display: block; width: 100%; height: auto; margin-top: var(--space-100); }
+.k-chart--desk { display: none; }
+/* Selected by the CHART's own rendered width, not the viewport's — the compact state exists for a
+   narrow chart, and this chart sits in a column whose width is not a function of the viewport alone.
+   The threshold is where the desktop state's 8.5px date sub-label reaches the size the signed
+   artifact renders it at (620 * 7.3/8.5 ≈ 532): below that, the desktop geometry's dates fall under
+   7px on screen, while the compact geometry's clear 11px. Measured, not guessed — the hero column
+   tops out near 443px today, so this resolves to the compact state there, and flips on its own if
+   that column is ever widened. Never a transform of one state into the other: the compact state
+   re-spaces the axis and steps its type down, and scaling would squash it off its own metrics. */
+@container (min-width: 532px) {
+  .k-chart--desk { display: block; }
+  .k-chart--phone { display: none; }
+}
+
+/* Ink bindings only — NO signal colour anywhere. The Outlook is indicative by construction, and a
+   green or red path would read as a verdict on a page whose claim is "Depth, never a verdict". */
+.k-spotline { stroke: var(--accent-surface-on-surface-muted); stroke-width: 1; stroke-dasharray: 1 4; opacity: 0.75; }
+.k-today { stroke: var(--accent-surface-on-surface-muted); stroke-width: 1; stroke-dasharray: 2 3; opacity: 0.85; }
+.k-seg { stroke: var(--accent-surface-marker); stroke-width: 2; }
+.k-origin { fill: var(--accent-surface-on-surface); stroke: var(--accent-surface-container); stroke-width: 2; }
+.k-point { fill: var(--accent-surface-marker); stroke: var(--accent-surface-container); stroke-width: 2; }
+.k-dark { fill: var(--accent-surface-on-surface-muted); font-family: var(--font-family-mono); font-size: 10px; }
+.k-tick { fill: var(--accent-surface-marker); font-family: var(--font-family-serif); font-weight: var(--font-weight-semibold); font-size: 10px; letter-spacing: 0.5px; }
+.k-sub { fill: var(--accent-surface-on-surface-muted); font-family: var(--font-family-mono); font-size: 8.5px; }
+.k-hit { fill: transparent; }
+/* The axis type steps DOWN with the compact viewBox (9 / 7.5 against 10 / 8.5), selected by the
+   chart's own state class — not by a second query, which could disagree with the geometry. */
+.k-chart--phone .k-tick { font-size: 9px; }
+.k-chart--phone .k-sub { font-size: 7.5px; }
 /* The figure's caption (#2520) — carries the hero's illustrative-data disclosure
-   (site-prelaunch.md:119, founder-kept). Matches .proof__svg's max-width and centering so
-   it aligns to the image's edges rather than the column's. font-size-100 is the same
-   fine-print size it used under the entry box, unchanged by the move. */
+   (site-prelaunch.md:119, founder-kept). Aligns to the Outlook band's edges by simply sharing the
+   column with it: the max-width and auto centering this rule used to carry existed to match
+   .proof__svg's own 440px cap, and both went with that element (#2987). font-size-100 is the same
+   fine-print size it used under the entry box, unchanged by either move. */
 .proof__caption {
-  max-width: min(440px, 100%);
-  margin: 0 auto;
+  margin: 0;
   color: var(--color-text-muted);
   font-size: var(--font-size-100);
   line-height: var(--font-line-height-default);
