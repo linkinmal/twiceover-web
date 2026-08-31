@@ -1,11 +1,20 @@
 #!/usr/bin/env node
 /**
- * tokens/twiceover.tokens.json (DTCG, MEANT to be a byte-identical copy of the canonical file
- * in stock-analyst-platform /ai-team/design/tokens/ — nothing enforces that today, and it had
- * drifted: two groups (`bg.inset`, `layer`) plus the primitive shades they alias to were
- * missing until stock-analyst-platform#2965 added them back by hand. See that issue's follow-up
- * for the wider drift and the unenforced claim this sentence itself is an instance of.)
- * -> src/styles/tokens.css
+ * tokens/twiceover.tokens.json (DTCG, a byte-identical copy of the canonical file in
+ * stock-analyst-platform /ai-team/design/tokens/) -> src/styles/tokens.css
+ *
+ * That copy is now ENFORCED at both ends (stock-analyst-platform#2991): `build-tokens.test.mjs`
+ * beside this file asserts the digest here, and that repo's `.githooks/pre-commit` refuses a commit
+ * touching the canonical file while the recorded digest still names the old bytes. Neither repo's
+ * CI can reach the other, so a digest asserted on only one side is a one-ended declaration — which
+ * is what this header used to be, and what let the two files drift apart across nine minor versions
+ * (the site emitting the pre-Studio palette, canvas and accent surface both stale) until #2991
+ * measured it. #2965 had found one slice of that drift by accident weeks earlier.
+ *
+ * App-only families (signal, health, elevation, motion, path-card) DO ride along in this file and
+ * are meant to: the walk below only visits themes.* plus the named site-safe groups, so they never
+ * reach the emitted CSS, and the containment lint at the bottom checks that OUTPUT rather than this
+ * input. Byte-identity is therefore the whole file, not a site-safe subset of it.
  *
  * Per ADR 0004 / consultation 0005: dependency-free; emits SEMANTIC-ONLY custom
  * properties (aliases resolved, primitives inlined — color.warm-ink.* / color.navy.*
