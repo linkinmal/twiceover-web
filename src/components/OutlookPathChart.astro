@@ -1,0 +1,54 @@
+---
+/**
+ * The Outlook projection path chart, inline SVG — the product's real object drawn in the site's own
+ * tokens, not a screenshot of it (stock-analyst-platform#2987, site-prelaunch.md §2 Hero; build
+ * reference `site-charts-hero-2026-08-30.html` §3 Option A).
+ *
+ * A raster was the alternative and it loses on four counts: it cannot take the site's tokens, so it
+ * breaks in dark mode; it kills selectable text; it needs a build step and a new asset; and it would
+ * carry its figures as pixels nobody can correct. Inline SVG themes, scales, and stays text.
+ *
+ * **Both breakpoints are rendered, and one is chosen in CSS.** The product component picks its state
+ * from a viewport hook; this page is static and runs no JavaScript for layout, so both of the
+ * component's own states are emitted and a media query shows one. Never a transform of the other —
+ * the compact state re-spaces the axis and steps its type down to 9/7.5, and scaling the desktop
+ * chart into a phone slot would squash the type off its own metrics.
+ */
+import { projectionChartModel } from "../charts/outlook-chart.mjs";
+import { outlookPathSvgBody } from "../charts/outlook-svg.mjs";
+import { HERO_OUTLOOK, HORIZON_CARDS } from "../charts/site-fixture.mjs";
+
+const LABEL = "Projection path across three horizons — shape only; every figure is stated in the rows below";
+const labels = Object.fromEntries(HORIZON_CARDS.map((c) => [c.key, c.label]));
+const horizons = HERO_OUTLOOK.horizons;
+
+const states = [false, true].map((compact) => {
+  const m = projectionChartModel({ ...HERO_OUTLOOK, compact });
+  return {
+    compact,
+    viewBox: `0 0 ${m.width} ${m.height}`,
+    body: outlookPathSvgBody(m, { compact, horizons, labels }),
+  };
+});
+const [desktop, phone] = states;
+---
+
+{/* Two renders of the same component, one per breakpoint — `compact: false` and `compact: true`.
+    Only one is ever in the layout; the other is display:none, which also removes it from the
+    accessibility tree, so the duplicated aria-label is never announced twice. */}
+<svg
+  class="k-chart k-chart--desk"
+  viewBox={desktop.viewBox}
+  role="img"
+  aria-label={LABEL}
+  xmlns="http://www.w3.org/2000/svg"
+  set:html={desktop.body}
+/>
+<svg
+  class="k-chart k-chart--phone"
+  viewBox={phone.viewBox}
+  role="img"
+  aria-label={LABEL}
+  xmlns="http://www.w3.org/2000/svg"
+  set:html={phone.body}
+/>

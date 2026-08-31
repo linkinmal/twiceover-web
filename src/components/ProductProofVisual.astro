@@ -1,130 +1,58 @@
+---
+/**
+ * The hero visual — the Outlook band carrying the product's real projection path chart
+ * (stock-analyst-platform#2987, Option A, founder-approved 2026-08-30; site-prelaunch.md §2 Hero,
+ * build reference `ai-team/design/assets/site-charts-hero-2026-08-30.html` §3).
+ *
+ * **What this replaces, and why.** The previous visual was a hand-drawn three-card composition: an
+ * analysis sheet, a positions card, and a "Your Paths / Outlook" chip reading `near · mid · far` as
+ * plain text. It NAMED the product's output without showing any of it. The headline already promises
+ * "near-, mid- and far-term horizons"; this is the visual that states exactly that sentence, in the
+ * real component, on the real geometry.
+ *
+ * The three cards' other content did not move here — the positions card, the rules rows and the
+ * analysis sheet all already exist further down the page as real text (`BeforeAfterRead`,
+ * `AnalysisMini`), which is where they belong and where they are selectable and translatable.
+ *
+ * **The last-close figure sits ABOVE the plot, not in it.** That is the signed artifact's placement,
+ * reached after four in-plot attempts: on the dip shape the path descends into the label's own band
+ * and the near dot lands on it. No vertical offset solves furniture placed in the data's own region.
+ */
+import OutlookPathChart from "./OutlookPathChart.astro";
+import {
+  AS_OF_CLOCK,
+  HERO_OUTLOOK,
+  HORIZON_CARDS,
+  LAST_CLOSE_CAPTION,
+  money,
+} from "../charts/site-fixture.mjs";
+
+const byKey = Object.fromEntries(HERO_OUTLOOK.horizons.map((h) => [h.horizon, h.price]));
+---
+
 <figure class="proof">
+  {/* The accent surface, as a band — the same reserved Paths/Outlook treatment the app gives this
+      object (ADR 0008), retoned to the app's bronze in this change. */}
+  <div class="proof__band">
+    <div class="proof__band-hd">
+      <span class="proof__band-ttl">Outlook</span>
+      <span class="proof__band-note">synthesis · conditional · as of {AS_OF_CLOCK}</span>
+    </div>
+    <p class="proof__chartcap">{LAST_CLOSE_CAPTION}</p>
+    <OutlookPathChart />
+    <div class="proof__hzrow">
+      {HORIZON_CARDS.map((c) => (
+        <div class="proof__hz">
+          <div class="proof__hz-k">{c.label}</div>
+          <div class="proof__hz-v">{money(byKey[c.key])}</div>
+        </div>
+      ))}
+    </div>
+  </div>
   {/* The entry-box's old caption (v2.6–v2.19) moved here, founder-directed 2026-08-22 —
       site-prelaunch.md §2/§6 v2.19 had it stay under the entry box; overridden per #2520's
       close. <figcaption> is the correct primitive for what this text has always actually
-      been: a caption ON this SVG (the fixed illustrative figures), not on the entry box
-      above it — v2.19's own "doing the SVG's job instead of the box's" reasoning argued for
-      exactly this placement without landing there. Also restores the vertical space the
-      caption cost .hero__copy, which the founder asked for directly: the right column
-      absorbs it into its own footprint (a proof__caption rule existed, unused, since v2.16
-      retired the near-identical caption this one now revives). SVG stays aria-hidden —
-      decorative; this caption carries the disclosure for a screen reader same as sighted. */}
-  <svg class="proof__svg" aria-hidden="true" viewBox="0 0 620 430" xmlns="http://www.w3.org/2000/svg">
-    {/*
-      Hero product-proof visual v2 (site-prelaunch.md §2 Hero — realizes stock-analyst-platform
-      #2214, correcting the v2.13 composition shipped in twiceover-web 3442d48).
-      Ship this INLINE (not as <img>) so the page's @font-face and :root design tokens
-      resolve — fill/stroke use var(token, hexFallback), so it degrades gracefully if
-      opened standalone. Fixed viewBox: scales as ONE unit, can never reflow or let the
-      three layered cards collide (the recurring CSS-collage failure, #422/#423).
-      Composition rules this file exists to satisfy (all three were violated by v1):
-      no text collisions, no partial occlusion (a card either fully covers a neighbour's
-      content or clears it — v1 hid all eight sheet labels under the positions card),
-      complete sheet rows (five full label+value pairs, kicker states the true count,
-      instead of orphaning eight bare values). Landscape 620x430 (was 560x540) — the
-      taller canvas was pushing the analysis band below the fold (#2214).
-      Every figure traces to read-held-position.md's canonical fixture (same NVDA
-      shares-leg + bull-call-spread fixture used throughout this page). The gold
-      "Your Paths" chip reuses the accent-surface tokens (ADR 0008) — the same reserved
-      Paths/Outlook standout treatment as .outlook-artifact elsewhere on this page.
-    */}
-    <defs>
-      <filter id="cardShadow" x="-60%" y="-60%" width="220%" height="220%">
-        <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#211D17" flood-opacity="0.13"/>
-        <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#211D17" flood-opacity="0.07"/>
-      </filter>
-      <style>
-        .card   { fill: var(--color-bg-surface, #FCFAF4); stroke: var(--color-border-strong, #CFC7B6); stroke-width:1; }
-        .rcard  { fill: var(--color-bg-raised, #FFFFFF);  stroke: var(--color-border-strong, #CFC7B6); stroke-width:1; }
-        .kick   { font-family:'Source Sans 3',sans-serif; fill: var(--color-text-muted, #6B6358); }
-        .ttl    { font-family:'Source Serif 4',Georgia,serif; font-weight:600; fill: var(--color-text-primary, #211D17); }
-        .lbl    { font-family:'Source Sans 3',sans-serif; fill: var(--color-text-secondary, #4C463D); }
-        .val    { font-family:'Source Code Pro',monospace; font-weight:500; fill: var(--color-text-secondary, #4C463D); }
-        .pnl    { font-family:'Source Code Pro',monospace; font-weight:500; fill: var(--color-signal-positive, #197A4B); }
-        .rnm    { font-family:'Source Sans 3',sans-serif; fill: var(--color-text-primary, #211D17); }
-        .rst    { font-family:'Source Code Pro',monospace; fill: var(--color-text-secondary, #4C463D); }
-        .hr     { stroke: var(--color-border-default, #E2DCCF); stroke-width:1; }
-        .pill   { fill: none; stroke: var(--color-accent-default, #23436F); }
-        .pilltxt{ font-family:'Source Sans 3',sans-serif; fill: var(--color-accent-default, #23436F); }
-        .gold     { fill: var(--accent-surface-container, #F5EEDF); stroke: var(--accent-surface-border, #C9B27E); }
-        .goldline { stroke: var(--accent-surface-border, #C9B27E); stroke-opacity: .5; }
-        .gttl   { font-family:'Source Serif 4',Georgia,serif; font-weight:600; fill: var(--accent-surface-marker, #211D17); }
-        .gsub   { font-family:'Source Sans 3',sans-serif; fill: var(--accent-surface-on-surface-muted, #60594F); }
-        .gval   { font-family:'Source Code Pro',monospace; fill: var(--accent-surface-on-surface, #4C463D); }
-      </style>
-    </defs>
-
-    {/* z1 · Analysis sheet (back) · x 296–612, y 16–306. Content column x 340→592,
-        entirely clear of the positions card's x=324 right edge. Five complete rows;
-        the kicker carries the true count instead of orphaning eight bare values. */}
-    <g transform="rotate(-0.6 454 161)" filter="url(#cardShadow)">
-      <rect class="card" x="296" y="16" width="316" height="290" rx="10"/>
-      <text class="ttl" x="340" y="46" font-size="14">NVDA ANALYSIS</text>
-      <text class="kick" x="592" y="46" font-size="9.5" text-anchor="end">core · full profile</text>
-      <text class="kick" x="340" y="63" font-size="9.5">eight sections · identical for every reader</text>
-      <line class="hr" x1="340" y1="76" x2="592" y2="76"/>
-      <text class="lbl" x="340" y="98" font-size="11">Fundamentals</text>
-      <text class="val" x="592" y="98" font-size="9" text-anchor="end">Rev $88.5B · EPS $8.32</text>
-      <line class="hr" x1="340" y1="109" x2="592" y2="109"/>
-      <text class="lbl" x="340" y="131" font-size="11">Technicals &amp; levels</text>
-      <text class="val" x="592" y="131" font-size="9" text-anchor="end">50-DMA $175.43 · RSI 64</text>
-      <line class="hr" x1="340" y1="142" x2="592" y2="142"/>
-      <text class="lbl" x="340" y="164" font-size="11">News &amp; catalysts</text>
-      <text class="val" x="592" y="164" font-size="9" text-anchor="end">Aug 14 · earnings beat</text>
-      <line class="hr" x1="340" y1="175" x2="592" y2="175"/>
-      <text class="lbl" x="340" y="197" font-size="11">Voices</text>
-      <text class="val" x="592" y="197" font-size="9" text-anchor="end">curated · attributed</text>
-      <line class="hr" x1="340" y1="208" x2="592" y2="208"/>
-      <text class="lbl" x="340" y="230" font-size="11">Macro &amp; regime</text>
-      <text class="val" x="592" y="230" font-size="9" text-anchor="end">balanced risk appetite</text>
-      <line class="hr" x1="340" y1="241" x2="592" y2="241"/>
-      <text class="kick" x="340" y="263" font-size="9.5">…and Sector regime, Peers, and Outlook</text>
-    </g>
-
-    {/* z2 · Your positions & rules (front-left) · x 8–324, y 64–326. The expiry moved
-        OFF the title line onto its own detail row — v1's "Your bull call spread · Aug 21"
-        overran its row and collided with the right-aligned P&L. */}
-    <g transform="rotate(0.4 166 195)" filter="url(#cardShadow)">
-      <rect class="rcard" x="8" y="64" width="316" height="262" rx="10"/>
-      <text x="30" y="100" font-family="Source Code Pro, monospace" font-weight="600" font-size="18" fill="var(--color-text-primary, #211D17)">NVDA</text>
-      <rect class="pill" x="178" y="84" width="54" height="21" rx="10.5"/>
-      <text class="pilltxt" x="205" y="98" font-size="9.5" text-anchor="middle">Paths ↓</text>
-      <rect class="pill" x="238" y="84" width="64" height="21" rx="10.5"/>
-      <text class="pilltxt" x="270" y="98" font-size="9.5" text-anchor="middle">Outlook ↓</text>
-      <text class="kick" x="30" y="118" font-size="10">Interactive Brokers · synced 09:02 ET</text>
-      <line class="hr" x1="30" y1="130" x2="302" y2="130"/>
-      <text class="ttl" x="30" y="152" font-size="13">Your 100 shares</text>
-      <text class="pnl" x="302" y="152" font-size="12" text-anchor="end">+$2,612 (+16.5%)</text>
-      <text class="rst" x="30" y="167" font-size="9">avg $158.40</text>
-      <line class="hr" x1="30" y1="178" x2="302" y2="178"/>
-      <text class="ttl" x="30" y="200" font-size="13">Your bull call spread</text>
-      <text class="pnl" x="302" y="200" font-size="12" text-anchor="end">+$612 (+49.4%)</text>
-      <text class="rst" x="30" y="215" font-size="9">Aug 21 expiry · BE $181.20</text>
-      <text class="rst" x="30" y="228" font-size="9">max profit $1,760 · max loss $1,240</text>
-      <line class="hr" x1="30" y1="240" x2="302" y2="240"/>
-      <text class="kick" x="30" y="260" font-size="10">Your rules, on live data</text>
-      <circle cx="36" cy="278" r="5" fill="none" stroke="var(--color-text-secondary, #4C463D)" stroke-width="1.3"/>
-      <text class="rnm" x="48" y="282" font-size="11">Stock target 25%</text>
-      <text class="rst" x="302" y="282" font-size="9" text-anchor="end">not met · +16.5%</text>
-      <circle cx="36" cy="302" r="5" fill="none" stroke="var(--color-text-secondary, #4C463D)" stroke-width="1.3"/>
-      <path d="M36 297 A5 5 0 0 1 36 307 Z" fill="var(--color-text-secondary, #4C463D)"/>
-      <text class="rnm" x="48" y="306" font-size="11">Option target 60%</text>
-      <text class="rst" x="302" y="306" font-size="9" text-anchor="end">approaching · +49.4%</text>
-    </g>
-
-    {/* z3 · Your Paths / Outlook (front-right) · x 330–612, y 300–412. Left edge
-        x=330 clears the positions card's right edge (324) entirely, so it overlaps
-        only the sheet's empty bottom margin. */}
-    <g transform="rotate(-0.3 471 356)" filter="url(#cardShadow)">
-      <rect class="gold" x="330" y="300" width="282" height="112" rx="10"/>
-      <text class="gttl" x="352" y="326" font-size="13">Your Paths</text>
-      <text class="gsub" x="590" y="326" font-size="9.5" text-anchor="end">the menu, with the math</text>
-      <text class="gval" x="352" y="345" font-size="10">make no change · close · reduce · roll</text>
-      <line class="goldline" x1="352" y1="358" x2="590" y2="358"/>
-      <text class="gttl" x="352" y="378" font-size="12">Outlook</text>
-      <text class="gsub" x="590" y="378" font-size="9" text-anchor="end">Synthesis</text>
-      <text class="gval" x="352" y="396" font-size="10">near · mid · far</text>
-    </g>
-  </svg>
+      been: a caption ON this visual (the fixed illustrative figures), not on the entry box
+      above it. Carried across this change verbatim, per #2987. */}
   <figcaption class="proof__caption type-caption">Illustrative example — the same fixed AAPL/NVDA data shown throughout this page, not a live account.</figcaption>
 </figure>
