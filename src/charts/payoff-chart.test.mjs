@@ -172,9 +172,9 @@ describe("payoffChartModel — domain pad tracks kinkSpan, not the kink price le
    */
 
   it("the NVDA fixture (2x Jul 17 175C/190C) — the worked regression case", () => {
-    // kinkSpan=15, magnitude=182.5. Buggy: floorPad = max(182.5*0.15,1) = 27.375, which then WINS the
-    // max() against kinkSpan*0.15=2.25 — domain ~[147.63, 217.38], ~70pt, 21% of frame on a $182
-    // stock. Fixed: kinkSpan alone drives the pad, since kinkSpan > 0.
+    // kinkSpan=15, magnitude=182.5. Buggy: floorPad = max(182.5*0.15,1) = 27.375, which then WON the
+    // max() against the kink-span pad — domain ~[147.63, 217.38], ~70pt, 21% of frame on a $182
+    // stock. Fixed: kinkSpan alone drives the pad, since kinkSpan > 0, giving 15*0.40 = 6.0 a side.
     const kinks = [175, 190];
     const sample = (p) => Math.min(Math.max(p - 175, 0), 15) * 100 * 2 - 1240;
     const m = payoffChartModel({
@@ -184,10 +184,10 @@ describe("payoffChartModel — domain pad tracks kinkSpan, not the kink price le
       lastClose: null,
       compact: false,
     });
-    expect.soft(m.domainLo).toBeCloseTo(172.75, 5);
-    expect.soft(m.domainHi).toBeCloseTo(192.25, 5);
+    expect.soft(m.domainLo).toBeCloseTo(169.0, 5);
+    expect.soft(m.domainHi).toBeCloseTo(196.0, 5);
     const domainWidth = m.domainHi - m.domainLo;
-    expect.soft(domainWidth).toBeCloseTo(19.5, 5);
+    expect.soft(domainWidth).toBeCloseTo(27.0, 5);
     // The buggy value was ~69.75 — this is the number that would come back if the floor still won.
     expect(domainWidth).toBeLessThan(30);
   });
@@ -209,12 +209,12 @@ describe("payoffChartModel — domain pad tracks kinkSpan, not the kink price le
       });
       return m.domainHi - (kinkLo + span);
     };
-    // Span 20, above the pad's own `, 1)` absolute floor (20*0.15=3), so this isolates the actual
+    // Span 20, above the pad's own `, 1)` absolute floor (20*0.40=8), so this isolates the actual
     // property rather than two calls that both happen to bottom out at the floor.
     const padAt10 = padHiFor(10, 20);
     const padAt500 = padHiFor(500, 20);
     expect(padAt10).toBeCloseTo(padAt500, 5);
-    expect(padAt10).toBeCloseTo(3, 5);
+    expect(padAt10).toBeCloseTo(8, 5);
     // Nowhere near a magnitude-relative pad at these levels (10*0.15=1.5, 500*0.15=75) — the two price
     // levels would have differed by 50x under the bug.
     expect(Math.abs(10 * 0.15 - padAt10)).toBeGreaterThan(0.5);

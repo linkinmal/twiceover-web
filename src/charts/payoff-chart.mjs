@@ -25,9 +25,21 @@
  */
 
 const SLOPE_EPSILON = 0.01;
-/** Bounded-side padding: a fraction of the kink span, so the domain extends just past the outermost
- *  kink, where the line is already flat. */
-const BOUNDED_PAD_RATIO = 0.15;
+/**
+ * Bounded-side padding: a fraction of the kink span, so the domain extends just past the outermost
+ * kink, where the line is already flat.
+ *
+ * **The value is bounded above by the label-crowding rules, not by a target occupancy**
+ * (stock-analyst-platform#3011/#3012). Widening the domain pushes the breakeven, the strikes and the
+ * last close toward each other in pixel space, and `payoff-svg.mjs` withholds a label once two of
+ * them crowd. Measured against those placement rules, the admissible band is `r <= 0.546` — above
+ * that the DESKTOP "last close" word drops, which the signed artifact draws unconditionally. 0.40
+ * sits inside it with headroom; it was chosen over the previous 0.15 because at 0.15 the compact
+ * chart put "Max loss" directly on the payoff line. Re-tuning means re-measuring that band, not
+ * matching a percentage — the mockup's hardcoded `pLo`/`pHi` are explicitly excluded from the build
+ * by `read-held-position.md` v2.94, so its 45.5% occupancy is not a criterion.
+ */
+const BOUNDED_PAD_RATIO = 0.4;
 /** High-side-only padding when unbounded — several multiples of the bounded pad, so the slope reads
  *  as unmistakably still climbing at the frame edge. The low side never uses this: it has a real
  *  floor ($0) to extend to instead of an arbitrary multiple. */
@@ -41,9 +53,9 @@ const UNBOUNDED_PAD_MULTIPLIER = 3;
  * `apps/web/src/read/payoff-chart.ts` `3359866`): the old name and its `max()` against
  * `BOUNDED_PAD_RATIO` made this reach the domain on EVERY structure, not just the single-kink one its
  * own comment described — dominating whenever `kinkSpan < magnitude`, which is nearly always true for
- * a real multi-kink spread (a 15-point kink span on a $182 stock gave a ~70pt domain, 21% of the frame
- * occupied by the structure, against the signed artifact's 45%). It is now gated to the single-kink
- * case by `kinkSpan > 0` below, never combined with the multi-kink pad.
+ * a real multi-kink spread (a 15-point kink span on a $182 stock gave a ~70pt domain, with the
+ * structure occupying 21% of the frame). It is now gated to the single-kink case by `kinkSpan > 0`
+ * below, never combined with the multi-kink pad.
  */
 const SINGLE_KINK_PAD_RATIO = 0.15;
 
