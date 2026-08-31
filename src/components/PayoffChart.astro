@@ -1,0 +1,48 @@
+---
+/**
+ * The position payoff chart, inline SVG — the object the struck text row was already describing
+ * (stock-analyst-platform#2994, founder-approved 2026-08-31; site-prelaunch.md v2.32 §2 Before/after
+ * read, build reference `site-charts-hero-2026-08-30.html` §7).
+ *
+ * It replaces `max profit $1,760 · max loss $1,240 · BE $181.20` — a payoff chart's three labels with
+ * the chart removed. And it lands in the one region of that section that is *supposed* to differ:
+ * the section's whole argument is that the eight analysis rows are identical either way and only the
+ * personal half changes, so a chart in the personal half strengthens it. A payoff chart is precisely
+ * what connecting adds and what no unconnected read can draw.
+ *
+ * **Monochrome, where the app's copy of this chart is signal-coloured — deliberately, and flagged.**
+ * The app sanctions green/red on this one chart's zones (read-held-position.md §1 v2.94). The site
+ * cannot follow it there today: `scripts/build-tokens.mjs`'s containment lint blocks every
+ * `--color-signal-*` property from the site CSS by decision (#34, consult 0067 Q5), and silencing a
+ * decision-backed guard is not the Engineer's call. It is also not obviously the right thing to want
+ * here: a green-washed profit region on a public page, over an illustrative position, edges toward
+ * the same promise-reading the founder rejected for the hero path shape. Nothing is lost meanwhile —
+ * the two regions differ in texture and are labelled in words, which is what carries the distinction
+ * even in the app (colour never carries meaning alone, WCAG 1.4.1).
+ */
+import { payoffChartModel } from "../charts/payoff-chart.mjs";
+import { payoffSvgBody } from "../charts/payoff-svg.mjs";
+import { SPOT, SPREAD, SPREAD_PAYOFF } from "../charts/site-fixture.mjs";
+
+const LABEL =
+  "Profit and loss at expiry across the share price — the loss is capped below the lower strike and the profit at the upper; every figure is stated in the rows above";
+
+const states = [false, true].map((compact) => {
+  const m = payoffChartModel({ ...SPREAD_PAYOFF, compact });
+  return {
+    viewBox: `0 0 ${m.width} ${m.height}`,
+    body: payoffSvgBody(m, {
+      compact,
+      lastClose: SPOT,
+      strikes: [SPREAD.lowerStrike, SPREAD.upperStrike],
+      breakeven: SPREAD.breakeven,
+      contracts: SPREAD.contracts,
+      id: compact ? "phone" : "desk",
+    }),
+  };
+});
+const [desktop, phone] = states;
+---
+
+<svg class="pf-chart pf-chart--desk" viewBox={desktop.viewBox} role="img" aria-label={LABEL} xmlns="http://www.w3.org/2000/svg" set:html={desktop.body} />
+<svg class="pf-chart pf-chart--phone" viewBox={phone.viewBox} role="img" aria-label={LABEL} xmlns="http://www.w3.org/2000/svg" set:html={phone.body} />

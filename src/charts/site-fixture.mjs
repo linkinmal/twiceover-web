@@ -68,3 +68,42 @@ export function money(v) {
 /** The hero's caption above the plot — the chart's one figure, and the only place the site states it.
  *  Composed here so the price can never disagree with `SPOT`. */
 export const LAST_CLOSE_CAPTION = `last close ${money(SPOT)} · ${LAST_CLOSE_DATE}`;
+
+/**
+ * Structure 1 of the page's held position — a **2× Jul 17 175C/190C bull call spread**, the exact
+ * structure `ai-team/design/read-held-position.md` line 37 makes canonical: "+2 Jul 17 175C / −2 Jul
+ * 17 190C, net debit $6.20/spread ($1,240 total) … max profit $1,760, max loss $1,240, breakeven
+ * $181.20". Not the chart artifact's covered call — a covered-call shape here would contradict the
+ * row directly above it.
+ *
+ * `sample` is the whole-position P&L at expiry, in dollars, and is the ONLY source of a P&L figure
+ * on the chart: nothing is transcribed. Every published figure falls out of it —
+ * `sample(175) = −1240`, `sample(181.20) = 0`, `sample(190) = +1760` — which is what
+ * `payoff-chart.test.mjs` asserts rather than trusting the three numbers to have been typed right.
+ */
+export const SPREAD = {
+  lowerStrike: 175,
+  upperStrike: 190,
+  contracts: 2,
+  netDebit: 1240,
+  breakeven: 181.2,
+  expiry: "Jul 17",
+  /** Per-contract multiplier — 100 shares, the standard US equity option. */
+  multiplier: 100,
+};
+
+/** Whole-position profit/loss at expiry, in dollars, at a given share price. */
+export function spreadPnlAt(price) {
+  const { lowerStrike, upperStrike, contracts, multiplier, netDebit } = SPREAD;
+  const intrinsic = Math.min(Math.max(price - lowerStrike, 0), upperStrike - lowerStrike);
+  return intrinsic * multiplier * contracts - netDebit;
+}
+
+/** The payoff chart's input, as the ported model takes it. */
+export const SPREAD_PAYOFF = {
+  kinks: [SPREAD.lowerStrike, SPREAD.upperStrike],
+  breakevens: [SPREAD.breakeven],
+  sample: spreadPnlAt,
+  lastClose: SPOT,
+};
+

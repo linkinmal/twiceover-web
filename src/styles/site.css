@@ -856,13 +856,14 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   .xf-personal { transition: grid-template-rows 550ms cubic-bezier(.22,.9,.3,1), opacity 400ms ease; }
 }
 .xf-card.is-conn .xf-personal { grid-template-rows: 1fr; opacity: 1; }
-.xf-personal-inner { overflow: hidden; min-height: 0; }
+/* container-type gives the payoff chart inside it something to size against (#2994) — its
+   breakpoint follows the chart's own rendered width, not the viewport's. inline-size only: a
+   `size` containment would fight the 0fr/1fr grid-row reveal animation on .xf-personal above. */
+.xf-personal-inner { overflow: hidden; min-height: 0; container-type: inline-size; }
 .xf-label { font-family: var(--font-family-mono); font-size: var(--font-size-100); letter-spacing: 0.09em; text-transform: uppercase; color: var(--color-text-muted); margin: var(--space-300) 0 var(--space-050); }
 .xf-label:first-child { margin-top: 0; }
 .xf-analysis-label em { font-style: normal; text-transform: none; letter-spacing: 0; color: var(--color-accent-default); font-size: var(--font-size-100); }
 .xf-row { display: flex; justify-content: space-between; gap: var(--space-200); font-size: var(--font-size-200); color: var(--color-text-secondary); padding-block: var(--space-100); border-top: 1px solid var(--color-border-default); }
-.xf-row--sub { border-top: 0; padding-top: 0; }
-.xf-row--sub span:first-child { font-family: var(--font-family-mono); font-size: var(--font-size-100); color: var(--color-text-muted); }
 .xf-row .v { font-family: var(--font-family-mono); font-size: var(--font-size-200); white-space: nowrap; }
 .xf-row .v--pos { color: var(--color-signal-positive, #197A4B); }
 .xf-analysis .rule-row { padding-block: var(--space-100); border-top: 1px solid var(--color-border-default); }
@@ -1159,3 +1160,60 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .toc a:hover { color: var(--color-text-primary); }
 
 main { padding-block-end: var(--space-800); }
+
+/* Payoff chart (#2994) — the object the struck `max profit · max loss · BE` row was already
+   describing, in the before/after's personal block. MONOCHROME where the app's copy of this chart is
+   signal-coloured: the containment lint (consult 0067 Q5) keeps every --color-signal-* property out
+   of the site's CSS, and the loss/profit distinction is carried by TEXTURE and by WORDS regardless —
+   which is what carries it in the app too, since colour never carries meaning alone (WCAG 1.4.1). */
+.pf-chart { display: block; width: 100%; height: auto; margin: var(--space-150) 0 var(--space-100); }
+.pf-chart--desk { display: none; }
+/* Same rule as the Outlook chart's: the state follows the chart's own rendered width, not the
+   viewport's. 532 is where the desktop geometry's 9px axis figures reach ~7.7px on screen. */
+@container (min-width: 532px) {
+  .pf-chart--desk { display: block; }
+  .pf-chart--phone { display: none; }
+}
+/* Zones — texture first. The loss side hatches, the profit side is a flat tint; the two differ in
+   texture before anything else, and each is worded inside the plot. */
+.pf-hatch { stroke: var(--color-text-muted); stroke-width: 1; opacity: 0.55; }
+.pf-zone-profit { fill: var(--color-text-primary); opacity: 0.05; }
+.pf-word {
+  fill: var(--color-text-secondary);
+  font-family: var(--font-family-sans);
+  font-size: 10.5px;
+  font-weight: var(--font-weight-semibold);
+  paint-order: stroke;
+  stroke: var(--color-bg-surface);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+/* Axes */
+.pf-grid { stroke: var(--color-border-default); stroke-width: 1; opacity: 0.28; }
+/* The one gridline that is a fact rather than a scale mark — solid and unfaded. */
+.pf-zero { stroke: var(--color-border-strong); stroke-width: 1; }
+.pf-axis { fill: var(--color-text-muted); font-family: var(--font-family-mono); font-size: 9px; }
+.pf-cap { fill: var(--color-text-secondary); font-family: var(--font-family-sans); font-size: 9px; }
+.pf-line { fill: none; stroke: var(--color-text-primary); stroke-width: 2.2; stroke-linejoin: round; }
+.pf-berule { stroke: var(--color-text-muted); stroke-width: 1.2; stroke-dasharray: 4 4; }
+.pf-bedot { fill: var(--color-bg-surface); stroke: var(--color-text-primary); stroke-width: 1.6; }
+/* The last close takes the reserved Paths/Outlook ink, as it does in the app — it is the read's own
+   price of record, not a feature of this structure. */
+.pf-spot { stroke: var(--accent-surface-border); stroke-width: 1.2; stroke-dasharray: 2 4; }
+.pf-spotlab { fill: var(--accent-surface-border); font-family: var(--font-family-sans); font-size: 9px; }
+.pf-maxloss-d { fill: var(--color-bg-surface); stroke: var(--color-text-primary); stroke-width: 1.6; }
+.pf-maxprof-d { fill: var(--color-text-primary); stroke: var(--color-bg-surface); stroke-width: 2; }
+.pf-figure { fill: var(--color-text-primary); font-family: var(--font-family-mono); font-size: 9.5px; }
+.pf-chart--phone .pf-figure { font-size: 8.5px; }
+.pf-chart--phone .pf-word { font-size: 9.5px; }
+.pf-halo {
+  paint-order: stroke;
+  stroke: var(--color-bg-surface);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+.pf-tick--strike { stroke: var(--color-text-primary); }
+.pf-tick--breakeven { stroke: var(--color-text-secondary); }
+.pf-tickfig { font-family: var(--font-family-mono); font-size: 9px; }
+.pf-tickfig--strike { fill: var(--color-text-primary); }
+.pf-tickfig--breakeven { fill: var(--color-text-secondary); }
