@@ -5,6 +5,8 @@
 // is the argument, not a prose claim about it. Every figure is the canonical NVDA
 // fixture already used elsewhere on this page (hero, demo-read reveal, two doors).
 import RuleRow from "./RuleRow.astro";
+import PayoffChart from "./PayoffChart.astro";
+import { SPREAD } from "../charts/site-fixture.mjs";
 ---
 {/* Base ground (canvas), not --lifted — Designer ruling on #3008, 2026-08-31 (Option 1). At 3rd
     position (moved from 5th, v2.36) this section sits directly after AnalysisBand, which is
@@ -34,8 +36,15 @@ import RuleRow from "./RuleRow.astro";
         <div class="xf-personal-inner">
           <p class="xf-label">Your position</p>
           <div class="xf-row"><span>100 shares · avg $158.40</span><span class="v v--pos">+$2,612 (+16.5%)</span></div>
-          <div class="xf-row"><span>Bull call spread · Aug 21</span><span class="v v--pos">+$612 (+49.4%)</span></div>
-          <div class="xf-row xf-row--sub"><span>max profit $1,760 · max loss $1,240 · BE $181.20</span><span></span></div>
+          {/* The expiry was `Aug 21` here, which is the fixture's ROLL target, not the held leg's
+              own expiry — read-held-position.md line 37 makes the structure "+2 Jul 17 175C / −2 Jul
+              17 190C", and Aug 21 is what §Roll rolls it OUT to. Corrected with the chart, because
+              the chart draws that structure's strikes and the row is what names them. */}
+          <div class="xf-row"><span>Bull call spread · {SPREAD.expiry} · {SPREAD.contracts}× {SPREAD.lowerStrike}/{SPREAD.upperStrike}</span><span class="v v--pos">+$612 (+49.4%)</span></div>
+          {/* Replaces `max profit $1,760 · max loss $1,240 · BE $181.20` — a payoff chart's three
+              labels with the chart removed. The chart states all three, drawn from the fixture's own
+              sampler, so the row is not kept alongside it. */}
+          <PayoffChart />
           <p class="xf-label">Your rules, on live data</p>
           <RuleRow state="not-met" name="Stock target 25%" pnl="+16.5%" />
           <RuleRow state="approaching" name="Option target 60%" pnl="+49.4%" />
