@@ -117,3 +117,81 @@ describe("the carousel's Outlook card and the hero cannot disagree", () => {
     expect.soft(mini).not.toMatch(/proj-v">\$(184|195|210)</);
   });
 });
+
+describe("Option A — the hero's presentation treatment (#2987, v2.35)", () => {
+  // Comments carry the same selector and property names as the rules they explain, so these scans
+  // run on a comment-stripped copy — otherwise a rule's own rationale answers for it.
+  const css = read("src/styles/site.css").replace(/\/\*[\s\S]*?\*\//g, "");
+
+  /**
+   * Every style rule as {selector, body}, at-rules unwrapped. A regex cannot do this — a
+   * `[^{}]*\{...\}` pattern reads `@media (min-width: 960px)` as a nested rule's selector.
+   */
+  const rules = (text) => {
+    const out = [];
+    const stack = [];
+    let buf = "";
+    for (const ch of text) {
+      if (ch === "{") {
+        stack.push(buf.trim());
+        buf = "";
+      } else if (ch === "}") {
+        const sel = stack.pop();
+        if (sel !== undefined && !sel.startsWith("@")) out.push({ selector: sel, body: buf });
+        buf = "";
+      } else buf += ch;
+    }
+    return out;
+  };
+  const all = rules(css);
+
+  it("elevates the band with a contact shadow AND an ambient one", () => {
+    const band = all.find((r) => r.selector === ".proof__band");
+    // Split on TOP-LEVEL commas only — `color-mix(in srgb, …)` carries commas of its own, and a
+    // lookahead-based split counts each one as another shadow layer.
+    const layers = [];
+    let depth = 0;
+    let cur = "";
+    for (const ch of band.body.match(/box-shadow:([^;]*);/s)[1]) {
+      if (ch === "(") depth++;
+      else if (ch === ")") depth--;
+      if (ch === "," && depth === 0) {
+        layers.push(cur);
+        cur = "";
+      } else cur += ch;
+    }
+    layers.push(cur);
+    expect(layers).toHaveLength(2);
+    expect(layers[0]).toMatch(/\b1px\b/); // contact
+    expect(layers[1]).toMatch(/\b36px\b/); // ambient
+    for (const l of layers) expect(l).toMatch(/color-mix\(in srgb, var\(--color-text-primary\)/);
+  });
+
+  it("gives that shadow a dark counterpart that does not mix the light ink", () => {
+    // --color-text-primary re-resolves to a near-white ink under a dark scope; mixing it there
+    // turns the shadow into a glow.
+    const dark = all.find((r) => r.selector === '[data-theme="dark"] .proof__band');
+    expect(dark, "no dark shadow rule for .proof__band").toBeDefined();
+    expect(dark.body).toMatch(/box-shadow:/);
+    expect(dark.body).not.toMatch(/color-mix/);
+  });
+
+  it("takes NO tilt and stages NO second card — G is withdrawn, B is not taken", () => {
+    // An EXACT set, not a "does it look like a chart" filter. Rotation is rare and deliberate on
+    // this page, so listing every one is cheap, and it fails on any new rotation anywhere. The
+    // chevron is the page's one rotation (an affordance on the FAQ disclosure).
+    const rotated = all.filter((r) => /transform:\s*rotate\(/.test(r.body)).map((r) => r.selector);
+    expect(new Set(rotated)).toEqual(new Set([".faq__list details[open] > summary .faq__chevron"]));
+    // And nothing re-introduces the staged card's own surfaces.
+    expect(css).not.toMatch(/\.hero-stage|\.pm-card|\.pm-chart/);
+  });
+
+  it("leaves the band the whole hero column — the treatment is elevation, not a re-layout", () => {
+    const band = all.find((r) => r.selector === ".proof__band");
+    expect(band.body).not.toMatch(/max-width|margin-inline|width:/);
+    // The hero's own column split is untouched by this issue.
+    const lg = css.slice(css.indexOf("@media (min-width: 960px)"));
+    expect(lg).toMatch(/\.hero__copy \{ flex: 1 1 52%; \}/);
+    expect(lg).toMatch(/\.proof \{ flex: 1 1 44%; \}/);
+  });
+});

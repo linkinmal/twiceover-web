@@ -505,6 +505,28 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   border: 1px solid var(--accent-surface-border);
   border-radius: var(--radius-medium);
   padding: var(--space-200);
+  /* The presentation treatment, Option A — elevation and nothing else (Designer ruling on #2987,
+     2026-08-31, founder call; site-prelaunch.md v2.35 §2 Hero). No tilt (Option B, not taken), no
+     second card (Option G, withdrawn at v2.34 — it specified a 740px composition for a 440px slot).
+     The hero is the only surface on the page that gets elevation at all.
+
+     Two shadows: a 1px contact shadow plus a soft ambient one, the reference's `0 1px 2px` +
+     `0 16px 36px -12px`. The site emits no shadow token — `elevation.*` is app-only under #34's
+     containment rule (consult 0067 Q5) — so these follow the site's own established idiom for the
+     same job (.door, .phone): a color-mix off --color-text-primary. The reference's own
+     rgba(33,29,23,.13) IS --color-text-primary at 13%, so this is that value in the site's
+     vocabulary, not an approximation of it. */
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--color-text-primary) 7%, transparent),
+    0 16px 36px -12px color-mix(in srgb, var(--color-text-primary) 13%, transparent);
+}
+/* --color-text-primary re-resolves to a near-WHITE ink under a dark scope, which would turn both
+   shadows into a glow. The site has no page-level dark mode today (only <section data-theme="dark">
+   for the trust plate), so this is unreachable — and so is .symbol-combobox__listbox's own dark
+   shadow rule, the convention this follows. `.door:hover` and `.phone` mix the same ink with no
+   dark rule at all; the first page-level dark build will want those too. */
+[data-theme="dark"] .proof__band {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 16px 36px -12px rgba(0, 0, 0, 0.5);
 }
 .proof__band-hd {
   display: flex;
