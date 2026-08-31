@@ -611,6 +611,45 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   .k-chart--phone { display: none; }
 }
 
+/* ── Technicals & levels price line (#2992) ─────────────────────────────────────────────────────
+   Ported from twiceover-app `TechnicalsPriceChart.css`. INK ONLY, and explicitly NOT the
+   `accent-surface.*` bindings the `.k-chart` rules above take: ADR 0008 Amendment 2 reserves that
+   bronze to the Outlook·Paths pair, and §4b names the neighbouring chart as the trap by file. The
+   two charts sitting in one stylesheet is exactly the confusion that rule exists for. */
+.t-chart { display: block; width: 100%; height: auto; }
+/* Both placements establish their own inline-size container, so the state above is chosen by the
+   CHART's rendered width rather than the viewport's — the band card is ~239px at every breakpoint
+   and would otherwise take the desktop geometry on a desktop viewport. */
+.steps__chart { container-type: inline-size; margin-top: var(--space-200); max-width: 620px; }
+.band-mini__chart { container-type: inline-size; margin-bottom: var(--space-100); }
+/* The compact-only variant has no desktop sibling to hide, so it always shows. */
+.t-chart--only { display: block; }
+.t-chart--desk { display: none; }
+/* Same container-query approach as `.k-chart` above, and the same reason: the compact state exists
+   for a narrow CHART, and neither placement's width is a function of the viewport alone — the band
+   card is a fixed ~239px at every breakpoint. Threshold derived the same way: the desktop state's
+   smallest type is 8.5px in a 620-unit viewBox, so at container width W it renders at 8.5·W/620;
+   holding that at or above 7px gives W >= 510.6, rounded to 512. Below it the compact geometry's
+   own 8.5px renders 14px+ in the same slot. Never a transform of one state into the other. */
+@container (min-width: 512px) {
+  .t-chart--desk { display: block; }
+  .t-chart--phone { display: none; }
+}
+/* 2px solid ink — must read as clearly heavier and more solid than any level rule beneath it. */
+.t-chart .t-line { fill: none; stroke: var(--color-text-primary); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+/* Dashed rules spanning the plot. Deliberately subordinate: 1.25px muted against the line's 2px
+   primary. A rule never renders without its name AND value (§4b forbidden state). */
+.t-chart .t-level { stroke: var(--color-text-muted); stroke-width: 1.25; stroke-dasharray: 3 3; }
+.t-chart .t-level-name { fill: var(--color-text-muted); font-size: 8.5px; }
+.t-chart .t-level-value { fill: var(--color-text-secondary); font-family: var(--font-family-mono); font-size: 8.5px; }
+.t-chart .t-tick { fill: var(--color-text-muted); font-size: 8.5px; }
+/* The last point, and the only figure on the line — every other point is bare, because the rows
+   beside the chart already state the MAs, RSI and range, and the line's job is shape. */
+.t-chart .t-last { fill: var(--color-text-primary); stroke: var(--color-bg-canvas); stroke-width: 2; }
+/* `paint-order: stroke` puts the canvas-coloured stroke BEHIND the glyphs — the knockout ring §4b
+   calls for, so the figure stays legible where it crosses the line or a rule. */
+.t-chart .t-lastv { fill: var(--color-text-primary); font-family: var(--font-family-mono); font-size: 9.5px; paint-order: stroke; stroke: var(--color-bg-canvas); stroke-width: 3px; stroke-linejoin: round; }
+
 /* Ink bindings only — NO signal colour anywhere. The Outlook is indicative by construction, and a
    green or red path would read as a verdict on a page whose claim is "Depth, never a verdict". */
 .k-spotline { stroke: var(--accent-surface-on-surface-muted); stroke-width: 1; stroke-dasharray: 1 4; opacity: 0.75; }
@@ -1047,6 +1086,11 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 
 .steps { list-style: none; margin: 0; padding: 0; }
 .steps li { display: flex; gap: var(--space-300); margin-bottom: var(--space-400); }
+/* Step 1 carries a chart beneath its paragraph (#2992), so its content needs its OWN column inside
+   the row — dropped straight into the `li`, the chart becomes a third flex ITEM beside the number
+   and the paragraph and shrink-to-fits to zero width. `min-width: 0` because a flex item's automatic
+   minimum size is its content, which would otherwise stop the chart's container ever narrowing. */
+.steps__body { flex: 1; min-width: 0; }
 .steps .num {
   font-family: var(--font-family-sans);
   font-size: var(--font-size-500);

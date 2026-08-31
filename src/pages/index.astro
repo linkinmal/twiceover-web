@@ -22,6 +22,7 @@ import ProductProofVisual from "../components/ProductProofVisual.astro";
 import AnalysisBand from "../components/AnalysisBand.astro";
 import BeforeAfterRead from "../components/BeforeAfterRead.astro";
 import MobileShowcase from "../components/MobileShowcase.astro";
+import TechnicalsPriceChart from "../components/TechnicalsPriceChart.astro";
 
 // Organization + WebSite JSON-LD (SEO audit 2026-07 finding 7) — brand-SERP/knowledge-panel
 // groundwork. No FAQPage schema: Google deprecated FAQ rich results 2026-05-07.
@@ -200,7 +201,19 @@ const websiteJsonLd = {
     <ol class="steps">
       <li>
         <span class="num" aria-hidden="true">1</span>
+        <div class="steps__body">
         <p><span class="step-title">Analyze any US-listed ticker.</span> Type a ticker or ask in plain words. From licensed market and options data, TwiceOver synthesizes the key technical levels, the macro backdrop and market regime, peer positioning, and fundamentals into one read — on any US-listed ticker, no broker connection required. Curated voices and the news wire are part of Core.</p>
+        {/* The chart step 1's own copy already promises ("the key technical levels") — this is the one
+            place on the page where a sentence named the artifact and the artifact was absent (#2992,
+            site-prelaunch.md v2.31 §2). The paragraph above is a PM/Growth copy slot (site-copy-
+            twiceover.md, final via #41) and ships VERBATIM — it is deliberately untouched.
+
+            NO CAPTION YET. v2.31 specifies one beneath the chart ("Every level named, valued, and
+            dated — from the data pipeline, not the model.") and marks it new copy PENDING A GROWTH
+            REVIEW. The issue is explicit that the chart is not blocked on it but the caption is, so
+            the slot ships empty rather than shipping unreviewed copy. Tracked on #2992. */}
+        <div class="steps__chart"><TechnicalsPriceChart /></div>
+        </div>
       </li>
       <li>
         <span class="num" aria-hidden="true">2</span>

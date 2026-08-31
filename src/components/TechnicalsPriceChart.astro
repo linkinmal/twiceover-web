@@ -1,0 +1,71 @@
+---
+/**
+ * The technicals & levels price line, inline SVG — the product's real object drawn in the site's own
+ * tokens, not a screenshot of it (stock-analyst-platform#2992, site-prelaunch.md v2.31 §2; build
+ * reference `site-charts-hero-2026-08-30.html` §6).
+ *
+ * Same porting rule and the same reasons as `OutlookPathChart.astro` beside it: a raster cannot take
+ * the site's tokens, kills selectable text, needs a build step and a new asset, and carries its
+ * figures as pixels nobody can correct.
+ *
+ * **`aria-hidden`, deliberately — and unlike the Outlook chart, which takes `role="img"` with a
+ * label.** §4b: the four fact rows beside the chart remain the full accessible text, and the line adds
+ * nothing a screen reader needs that those rows do not already state in real text. A label here would
+ * announce the same figures twice.
+ *
+ * **No account-derived mark**, in either placement: no cost basis, no P&L shading, nothing keyed to a
+ * position. §6 of the build reference draws an `avg 121.40` cost line and it is deliberately not
+ * ported — this panel is the public free read, cached across users, and the component takes no
+ * position data at all (#2992's hard constraint).
+ *
+ * **`variant`** picks which of the component's own two states to emit:
+ *   - `"responsive"` renders BOTH and lets a media query choose, the hero's established approach —
+ *     this page is static and runs no JavaScript for layout, so the product's viewport hook has no
+ *     equivalent here.
+ *   - `"compact"` renders ONLY the compact state, for the band card, which is a fixed ~239px slot at
+ *     every viewport. Never a scaled-down desktop chart: the compact state re-spaces its own axis and
+ *     thins its ticks, and scaling the desktop one into that slot would squash the type off its
+ *     metrics.
+ */
+import { priceLineChartModel } from "../charts/technicals-chart.mjs";
+import { technicalsPriceSvgBody } from "../charts/technicals-svg.mjs";
+import { TECHNICALS, TECHNICALS_SERIES } from "../charts/site-fixture.mjs";
+
+interface Props {
+  variant?: "responsive" | "compact";
+}
+const { variant = "responsive" } = Astro.props;
+
+const render = (compact) => {
+  const m = priceLineChartModel({ series: TECHNICALS_SERIES, technicals: TECHNICALS, compact });
+  // §4b's two-states rule: the caller renders the chart or renders nothing. `null` here would mean a
+  // fixture with fewer than two sessions, which the ported test pins against.
+  return m && { viewBox: `0 0 ${m.width} ${m.height}`, body: technicalsPriceSvgBody(m, { compact }) };
+};
+
+const desktop = variant === "responsive" ? render(false) : null;
+const compact = render(true);
+---
+
+{
+  desktop && (
+    <svg
+      class="t-chart t-chart--desk"
+      viewBox={desktop.viewBox}
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg"
+      set:html={desktop.body}
+    />
+  )
+}
+{
+  compact && (
+    <svg
+      class={`t-chart ${variant === "responsive" ? "t-chart--phone" : "t-chart--only"}`}
+      viewBox={compact.viewBox}
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg"
+      set:html={compact.body}
+    />
+  )
+}
