@@ -71,8 +71,29 @@ const { kind } = Astro.props;
     <>
       <div class="row"><span>Tactical</span><span class="v">Fed on hold</span></div>
       <div class="row"><span>Strategic</span><span class="v">Soft landing</span></div>
-      <div class="axis" aria-hidden="true"><i></i></div>
-      <div class="axis-labels"><span>defensive</span><span>Balanced</span><span>risk-on</span></div>
+      {/* The product's real `.macro-risk-axis` anatomy, not an invented bar-and-dot (#2995,
+          site-prelaunch.md v2.32 §2; build reference site-charts-hero-2026-08-30.html §8).
+          Hairline rule, three ticks with the zero tick full-height and heavier, a 2px marker, the
+          net value above the marker, and the product's own Cautious/Supportive bounds — never the
+          words "defensive / Balanced / risk-on", which the product does not use.
+
+          net +0.35 → (0.35 + 1) / 2 = 67.5%, the artifact's own figure and position. The two are
+          derived from one number in the real component; kept in step here by construction. */}
+      <div class="mra">
+        <span class="mra__num" style="left:67.5%">+0.35</span>
+        <div class="mra__rail" aria-hidden="true">
+          <span class="mra__line"></span>
+          <span class="mra__tick mra__tick--min" style="left:0%"></span>
+          <span class="mra__tick mra__tick--zero" style="left:50%"></span>
+          <span class="mra__tick mra__tick--max" style="left:100%"></span>
+          <span class="mra__mark" style="left:67.5%"></span>
+        </div>
+        <div class="mra__scale">
+          <span><span class="mra__bound">−1.00</span> <b>Cautious</b></span>
+          <span class="mra__bound">0</span>
+          <span><b>Supportive</b> <span class="mra__bound">+1.00</span></span>
+        </div>
+      </div>
     </>
   )}
   {kind === "outl" && (
