@@ -706,9 +706,38 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .band-mini .kv-grid .kv { font-family: var(--font-family-mono); font-size: var(--font-size-200); color: var(--color-text-primary); }
 .band-mini .chip-pair { display: flex; gap: var(--space-100); padding-bottom: var(--space-150); }
 .band-mini .chip-pair span { flex: 1; border: 1px solid var(--color-border-default); border-radius: var(--radius-small); padding: var(--space-050) var(--space-100); font-family: var(--font-family-mono); font-size: var(--font-size-100); color: var(--color-text-secondary); }
-.band-mini .axis { position: relative; height: 3px; background: var(--color-border-default); border-radius: 2px; margin: var(--space-150) var(--space-025) var(--space-050); }
-.band-mini .axis i { position: absolute; top: -3.5px; left: 55%; width: 10px; height: 10px; border-radius: 50%; background: var(--color-accent-default); }
-.band-mini .axis-labels { display: flex; justify-content: space-between; font-size: var(--font-size-100); color: var(--color-text-muted); }
+/* The macro card's risk-appetite axis (#2995) — the product's real `.macro-risk-axis` anatomy at
+   card scale, replacing an invented rounded bar with an accent dot at a hardcoded 55%. Ported from
+   twiceover-app `apps/web/src/read/MacroSection.css`, with the build reference
+   `site-charts-hero-2026-08-30.html` §8 (`.mra`) as the authority where the two differ.
+
+   §4c of read-components.md forbids an arc, a gradient, or a coloured zone on this object. The bar
+   this replaces was a rounded fill with a dot — closer to those forbidden states than to the real
+   thing, which is a hairline with ticks.
+
+   TWO deliberate divergences from the app's own CSS, both the artifact's calls, both flagged on the
+   PR rather than taken silently:
+   1. The marker and the net value use --color-text-primary, where the app colours both by lean
+      (--color-macro-lean-*). Those tokens exist in this repo's tokens.json but are not emitted to
+      site CSS, and the artifact paints ink here regardless of sign. Position and the value's own
+      sign already carry the direction.
+   2. The zero tick uses --color-text-muted, where the app uses --color-border-interactive. Again
+      the artifact's choice; it keeps the tick heavier than its neighbours without introducing an
+      interactive colour onto a non-interactive mark. */
+.band-mini .mra { position: relative; padding-top: 1.4rem; margin-top: var(--space-050); }
+.band-mini .mra__num { position: absolute; top: 0; transform: translateX(-50%); font-family: var(--font-family-mono); font-size: var(--font-size-200); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--color-text-primary); }
+.band-mini .mra__rail { position: relative; height: 15px; }
+.band-mini .mra__line { position: absolute; top: 7px; left: 0; right: 0; height: 1px; background: var(--color-border-strong); }
+.band-mini .mra__tick { position: absolute; top: 3px; width: 1px; height: 9px; background: var(--color-border-strong); transform: translateX(-50%); }
+/* The end ticks pull fully inside the rail rather than straddling its edge — otherwise half of each
+   sits outside the 0–100% span the marker is positioned against. */
+.band-mini .mra__tick--min { transform: none; }
+.band-mini .mra__tick--max { transform: translateX(-100%); }
+.band-mini .mra__tick--zero { top: 0; height: 15px; background: var(--color-text-muted); }
+.band-mini .mra__mark { position: absolute; top: 0; width: 2px; height: 15px; transform: translateX(-1px); background: var(--color-text-primary); }
+.band-mini .mra__scale { display: flex; justify-content: space-between; gap: var(--space-100); margin-top: var(--space-050); font-size: var(--font-size-100); color: var(--color-text-muted); }
+.band-mini .mra__scale b { font-weight: var(--font-weight-semibold); color: var(--color-text-secondary); }
+.band-mini .mra__bound { font-family: var(--font-family-mono); font-variant-numeric: tabular-nums; }
 .band-mini .horizon { border-top: 1px solid var(--color-border-default); padding-block: var(--space-100); }
 .band-mini .horizon:first-child { border-top: 0; }
 .band-mini .horizon b { font-family: var(--font-family-mono); font-weight: var(--font-weight-medium); font-size: var(--font-size-100); letter-spacing: 0.08em; color: var(--color-accent-default); display: block; }
