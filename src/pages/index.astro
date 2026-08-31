@@ -122,6 +122,11 @@ const websiteJsonLd = {
       same visitor to a real read instead. */}
   <AnalysisBand />
 
+  {/* Before/after read (v2.13, #2179 — build reference ai-team/design/assets/landing-
+      carousel-hero-refresh-2026-08-14.html). Moved 5th -> 3rd, directly after the analysis
+      band, per site-prelaunch.md v2.36 §2 (founder-directed 31 Aug, #3008). */}
+  <BeforeAfterRead />
+
   {/* Depth strip (v2.3, new) — four structural facts about the product's construction,
       never a performance/returns claim (spec §2). */}
   <section class="depth-strip" aria-label="TwiceOver at a glance">
@@ -184,10 +189,10 @@ const websiteJsonLd = {
     </div>
   </section>
 
-  {/* Before/after read + mobile-app showcase (v2.13, replaces the old three-artifact
-      showcase band, #2179 — build reference ai-team/design/assets/landing-carousel-
-      hero-refresh-2026-08-14.html). */}
-  <BeforeAfterRead />
+  {/* Mobile-app showcase (v2.13, part of the band that replaced the old three-artifact
+      showcase, #2179 — build reference ai-team/design/assets/landing-carousel-
+      hero-refresh-2026-08-14.html). Its own position in the DOM is unchanged by v2.36's
+      reorder; it simply follows `doors` now that BeforeAfterRead sits at 3rd. */}
   <MobileShowcase />
 
   <section class="section-ground section-ground--recessed" aria-labelledby="how-it-works">
