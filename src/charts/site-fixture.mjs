@@ -107,3 +107,81 @@ export const SPREAD_PAYOFF = {
   lastClose: SPOT,
 };
 
+/* ── Technicals & levels (#2992) ──────────────────────────────────────────────────────────────────
+   The four figures the `tech` band card already prints, restated here as the shape the ported
+   `priceLineChartModel` takes, so the chart and the rows beneath it can never disagree: they read
+   from ONE object. Values are the site's own fixture (site-prelaunch.md v2.31's correction — #2987's
+   original body named $147.20, which was the chart artifact's example ticker). */
+export const TECHNICALS = {
+  ma50: "175.43",
+  ma200: "168.90",
+  range52w: { high: "198.00", low: "156.00" },
+  rsi: "64",
+};
+
+/** The four rows, composed from the same object the chart's level candidates come from. The `range`
+ *  row prints both bounds where the chart draws them as two separate candidate levels. */
+const trimCents = (v) => v.replace(/\.00$/, "");
+export const TECHNICALS_ROWS = [
+  { label: "50-DMA", value: money(Number(TECHNICALS.ma50)) },
+  { label: "200-DMA", value: money(Number(TECHNICALS.ma200)) },
+  { label: "RSI", value: TECHNICALS.rsi },
+  {
+    // Whole dollars, as v2.31's fixture states this row ("52-week range $156–$198") — the same
+    // trailing-.00 trim the Outlook card applies to its horizon prices. The CHART draws these two
+    // bounds at their full 2-dp precision, which is the level rule's own value; the row is the
+    // range as the spec words it. Both read from TECHNICALS, so they cannot disagree on the number.
+    label: "52-week range",
+    value: `${trimCents(money(Number(TECHNICALS.range52w.low)))}–${trimCents(money(Number(TECHNICALS.range52w.high)))}`,
+  },
+];
+
+/**
+ * The 90-session close series.
+ *
+ * **The closes are the build reference's own generator, reproduced exactly** (§6 of
+ * `site-charts-hero-2026-08-30.html`, where it is marked "the artifact's own 90-session generator,
+ * verbatim"). Deterministic — a `sin`-based hash, not `Math.random()` — so the page renders the same
+ * line on every build, and the ported chart can be tested against fixed numbers.
+ *
+ * **The dates are NOT from the artifact**, which fakes three evenly spaced month labels rather than
+ * dating its sessions. The ported model composes ticks from each session's own date, so the series
+ * needs real ones: consecutive weekdays counted back from the last close. Weekends are skipped,
+ * holidays are not — this is illustrative fixture data, labelled as such on the page, and a real
+ * trading calendar is exactly the thing the product will not guess at. What matters for the port is
+ * that month boundaries fall where the dates actually cross a month, which they do.
+ */
+export const TECHNICALS_SERIES = (() => {
+  const n = 90;
+  const hash = (i) => {
+    const x = Math.sin(i * 12.9898) * 43758.5453;
+    return x - Math.floor(x);
+  };
+  const closes = [];
+  for (let i = 0; i < n; i++) {
+    const t = i / n;
+    const trend = 160 + 32 * t * t - 10 * Math.sin(t * Math.PI * 1.6);
+    let v = trend + (hash(i) - 0.5) * 8;
+    if (v > 197) v = 197 - hash(i) * 2;
+    if (v < 157) v = 157 + hash(i) * 2;
+    closes.push(v);
+  }
+  // The line ends on the page's own spot, with one session of easing into it so the last step is not
+  // a visible jump off the generated trend.
+  closes[n - 1] = SPOT;
+  closes[n - 2] = (closes[n - 2] + SPOT) / 2;
+
+  // Weekdays back from the last close (2026-08-28), then reversed into chronological order. Built in
+  // UTC throughout — a local-timezone Date would shift a session across a month boundary and move a
+  // tick, which is the one thing these dates are load-bearing for.
+  const dates = [];
+  const cursor = new Date(Date.UTC(2026, 7, 28));
+  while (dates.length < n) {
+    const day = cursor.getUTCDay();
+    if (day !== 0 && day !== 6) dates.push(cursor.toISOString().slice(0, 10));
+    cursor.setUTCDate(cursor.getUTCDate() - 1);
+  }
+  dates.reverse();
+
+  return closes.map((close, i) => ({ date: dates[i], close: close.toFixed(2) }));
+})();

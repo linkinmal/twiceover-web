@@ -7,7 +7,8 @@
 // 210 climbed monotonically and are replaced by the dip-shaped 178 / 192 / 205 EVERYWHERE the site
 // states them. This card was the "everywhere" — three figures in markup, beside a hero chart that
 // had already been corrected twice, which is precisely why they now share a source.
-import { HERO_OUTLOOK, money } from "../charts/site-fixture.mjs";
+import { HERO_OUTLOOK, money, TECHNICALS_ROWS } from "../charts/site-fixture.mjs";
+import TechnicalsPriceChart from "./TechnicalsPriceChart.astro";
 
 const projection = Object.fromEntries(
   HERO_OUTLOOK.horizons.map((h) => [h.horizon, money(h.price).replace(/\.00$/, "")]),
@@ -31,10 +32,18 @@ const { kind } = Astro.props;
   )}
   {kind === "tech" && (
     <>
-      <div class="row"><span>50-DMA</span><span class="v">$175.43</span></div>
-      <div class="row"><span>200-DMA</span><span class="v">$168.90</span></div>
-      <div class="row"><span>RSI</span><span class="v">64</span></div>
-      <div class="row"><span>52-week range</span><span class="v">$156–$198</span></div>
+      {/* The chart goes ABOVE the four rows, which stay (#2992) — that reproduces the real section's
+          composition rather than inventing a "mini". Its own compact state, never a shrunk desktop
+          chart: this card is a fixed ~239px slot at every viewport.
+
+          The rows now read from the SAME fixture object the chart's level candidates come from, so
+          the two literally cannot disagree — #2992 requires the card's chart and its rows to state
+          the same figures, and four hand-typed rows beside a computed chart is exactly the shape
+          that drifts. */}
+      <div class="band-mini__chart"><TechnicalsPriceChart variant="compact" /></div>
+      {TECHNICALS_ROWS.map((r) => (
+        <div class="row"><span>{r.label}</span><span class="v">{r.value}</span></div>
+      ))}
     </>
   )}
   {kind === "sect" && (
