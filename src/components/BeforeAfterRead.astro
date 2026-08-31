@@ -6,7 +6,11 @@
 // fixture already used elsewhere on this page (hero, demo-read reveal, two doors).
 import RuleRow from "./RuleRow.astro";
 ---
-<section class="xf-section section-ground section-ground--lifted" aria-labelledby="xf-heading">
+{/* Base ground (canvas), not --lifted — Designer ruling on #3008, 2026-08-31 (Option 1). At 3rd
+    position (moved from 5th, v2.36) this section sits directly after AnalysisBand, which is
+    itself --lifted; two lifted bands adjacent is the exact clash the ground rule forbids.
+    MobileShowcase takes the lift this section gives up, below. */}
+<section class="xf-section section-ground" aria-labelledby="xf-heading">
   <div class="container">
     <h2 id="xf-heading" class="type-heading-1 section-heading">And what it looks like on your own book.</h2>
     <p class="xf-section-sub">
