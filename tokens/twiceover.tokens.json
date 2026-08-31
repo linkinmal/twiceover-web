@@ -4,91 +4,247 @@
     "$type": "color",
     "warm-white": {
       "$description": "Light-theme paper ramp (warm ivory). 100 lightest. Light bg surfaces only. (300/canvas retired 2026-07-19, ADR 0340 — canvas now sources from color.stone; 100/200 unchanged, still used by bg.raised/bg.surface and reused as-is for surface.personal.)",
-      "100": { "$value": "#FFFFFF", "$description": "Overlays/dialogs (light bg.raised)." },
-      "200": { "$value": "#FCFAF4", "$description": "Content panels (light bg.surface); also the personal read-half's card fill (surface.personal, ADR 0340) — same value, distinct token, deliberately not coupled." },
-      "250": { "$value": "#F4F0E6", "$description": "Light bg.inset (ADR 0340 Amdt 2, 2026-07-19) — the recessed step BELOW surface/raised: hover fills on outline controls, quiet inset note blocks. 1.14:1 vs raised / 1.09:1 vs surface — a hover-weight step, deliberately far shallower than the 1.48:1 jump these consumers got when they used bg.canvas as their fill. Near but NOT equal to surface.panel.light (#F2EEE4) — a distinct role, kept as its own step so a future panel retune can't silently move every hover state in the app (same non-coupling reasoning as surface.personal)." }
+      "100": {
+        "$value": "#FFFFFF",
+        "$description": "Overlays/dialogs (light bg.raised)."
+      },
+      "200": {
+        "$value": "#FCFAF4",
+        "$description": "Content panels (light bg.surface); also the personal read-half's card fill (surface.personal, ADR 0340) — same value, distinct token, deliberately not coupled."
+      },
+      "250": {
+        "$value": "#F4F0E6",
+        "$description": "Light bg.inset (ADR 0340 Amdt 2, 2026-07-19) — the recessed step BELOW surface/raised: hover fills on outline controls, quiet inset note blocks. 1.14:1 vs raised / 1.09:1 vs surface — a hover-weight step, deliberately far shallower than the 1.48:1 jump these consumers got when they used bg.canvas as their fill. Near but NOT equal to surface.panel.light (#F2EEE4) — a distinct role, kept as its own step so a future panel retune can't silently move every hover state in the app (same non-coupling reasoning as surface.personal)."
+      }
     },
     "warm-graphite": {
       "$description": "Dark-theme surface ramp (warm graphite, not cool black). 800 lightest. Dark bg surfaces only, EXCEPT 900 (retained 2026-07-19, ADR 0340, for text.on-accent only — see below; no longer bg.canvas's source, that's color.stone now).",
-      "800": { "$value": "#2E2920", "$description": "Overlays/dialogs (dark bg.raised) — elevation lifts lighter." },
-      "820": { "$value": "#363128", "$description": "Dark bg.inset (ADR 0340 Amdt 2, 2026-07-19) — the dark counterpart of warm-white.250. NOTE the direction flip: in dark this step is LIGHTER than raised/surface, because dark elevation lifts rather than recesses (design-system.md's standing rule). 1.12:1 vs raised / 1.26:1 vs surface. This is the actual bug fix in dark, not just a softening — the consumers using bg.canvas here were DARKENING on hover (1.40:1 downward), the opposite of what dark elevation means." },
-      "850": { "$value": "#242019", "$description": "Content panels (dark bg.surface); also the personal read-half's card fill (surface.personal, ADR 0340) — same value, distinct token, deliberately not coupled." },
-      "900": { "$value": "#1A1713", "$description": "Dark ink for text.on-accent only (2026-07-19, ADR 0340 — this step's prior canvas role moved to color.stone.dark; kept here since dark text.on-accent still needs a near-black ink for the lifted-steel accent fill, unrelated to canvas)." }
+      "800": {
+        "$value": "#2E2920",
+        "$description": "Overlays/dialogs (dark bg.raised) — elevation lifts lighter."
+      },
+      "820": {
+        "$value": "#363128",
+        "$description": "Dark bg.inset (ADR 0340 Amdt 2, 2026-07-19) — the dark counterpart of warm-white.250. NOTE the direction flip: in dark this step is LIGHTER than raised/surface, because dark elevation lifts rather than recesses (design-system.md's standing rule). 1.12:1 vs raised / 1.26:1 vs surface. This is the actual bug fix in dark, not just a softening — the consumers using bg.canvas here were DARKENING on hover (1.40:1 downward), the opposite of what dark elevation means."
+      },
+      "850": {
+        "$value": "#242019",
+        "$description": "Content panels (dark bg.surface); also the personal read-half's card fill (surface.personal, ADR 0340) — same value, distinct token, deliberately not coupled."
+      },
+      "900": {
+        "$value": "#1A1713",
+        "$description": "Dark ink for text.on-accent only (2026-07-19, ADR 0340 — this step's prior canvas role moved to color.stone.dark; kept here since dark text.on-accent still needs a near-black ink for the lifted-steel accent fill, unrelated to canvas)."
+      }
     },
     "stone": {
       "$description": "App-wide canvas ramp (ADR 0340; light step retuned Amdt 3, 2026-07-27, 'Lighter desk' — founder-directed) — the two read-half cards float on this via elevation.high, replacing the warm-ivory/near-black canvas the two personal/impersonal cards used to sit flush against. Canvas only — bg.surface/bg.raised/surface.personal/surface.panel are unaffected and keep their existing warm tones (deliberately not re-derived from this ramp — only the outermost frame changes).",
-      "light": { "$value": "#E8E3D8", "$description": "Light bg.canvas — retuned 2026-07-27 (ADR 0340 Amdt 3, 'Lighter desk') from #D8D4CA: the founder found the original stone canvas too heavy/grey. Re-verified against every on-canvas consumer — every text/boundary pairing IMPROVES (text.primary 11.33→13.10:1, text.secondary 6.30→7.29:1, text.muted 4.67→5.40:1, text-link 4.58→5.30:1 — closing the watch item Amdt 1 flagged, accent.default 6.74→7.80:1, border.interactive 3.31→3.82:1, signal.negative 4.71→5.45:1, signal.positive 4.56→5.27:1, health.degraded 5.29→6.11:1); none required a retune. The one cost: card-to-canvas fill separation narrows ~13.5% (surface.personal 1.42→1.23:1, surface.panel 1.28→1.10:1) since the canvas moved toward the cards' own tone — addressed by Amdt 3's card-edge hairline (border.strong, both half-cards), not by a further token retune." },
-      "dark": { "$value": "#070605", "$description": "Dark bg.canvas — near-black, deeper than the prior graphite canvas. 17.50:1 for text.primary; signal.positive.dark/health.degraded.dark already cleared this value unretuned (9.14:1/8.87:1). Unchanged by Amdt 3 — the founder's complaint was light-canvas-specific." }
+      "light": {
+        "$value": "#E8E3D8",
+        "$description": "Light bg.canvas — retuned 2026-07-27 (ADR 0340 Amdt 3, 'Lighter desk') from #D8D4CA: the founder found the original stone canvas too heavy/grey. Re-verified against every on-canvas consumer — every text/boundary pairing IMPROVES (text.primary 11.33→13.10:1, text.secondary 6.30→7.29:1, text.muted 4.67→5.40:1, text-link 4.58→5.30:1 — closing the watch item Amdt 1 flagged, accent.default 6.74→7.80:1, border.interactive 3.31→3.82:1, signal.negative 4.71→5.45:1, signal.positive 4.56→5.27:1, health.degraded 5.29→6.11:1); none required a retune. The one cost: card-to-canvas fill separation narrows ~13.5% (surface.personal 1.42→1.23:1, surface.panel 1.28→1.10:1) since the canvas moved toward the cards' own tone — addressed by Amdt 3's card-edge hairline (border.strong, both half-cards), not by a further token retune."
+      },
+      "dark": {
+        "$value": "#070605",
+        "$description": "Dark bg.canvas — near-black, deeper than the prior graphite canvas. 17.50:1 for text.primary; signal.positive.dark/health.degraded.dark already cleared this value unretuned (9.14:1/8.87:1). Unchanged by Amdt 3 — the founder's complaint was light-canvas-specific."
+      }
     },
     "bronze": {
       "$description": "The reserved Paths/Outlook accent-surface primitive (ADR 0340, 2026-07-19), replacing color.navy/color.steel in that ONE role — accent.default/text-link keep navy/steel unchanged; ADR 0008's 'reserved for the pair, distinct from inline links' invariant is unaffected, only the pair's own hue moves. Mirrors navy/steel's existing shape: two adjacent light steps (pill+rule paler, container one step deeper) and a border/marker step, light sharing one value for both (as navy did), dark using two distinct steps (as steel did).",
-      "050": { "$value": "#FDF6E3", "$description": "Light — pill fill + internal rule (accent-surface.pill.light / .rule.light). Retuned #F7EFD9→#FDF6E3 2026-07-27 (ADR 0340 Amdt 3) to hold pop against the 'Lighter desk' canvas retune: counterintuitively, going PALER (not deeper) restores separation here, because the canvas moved toward the pill's own tone — deepening the fill closes the gap further (measured: deepen candidate #F2E4BE → 1.01:1, WORSE than doing nothing; this lighter value → 1.19:1, the best of the candidates tried, vs the pre-retune 1.12:1). An early study draft proposed deepening the pill; that direction was wrong and is corrected here before being written into the token. Paler than container." },
-      "100": { "$value": "#F3E5C3", "$description": "Light — section/box container fill (accent-surface.container.light). 5.29:1+ for ink.primary; borders/marker at 4.00–4.73:1 against it. Not emitted to site." },
-      "600": { "$value": "#8A5A12", "$description": "Light — container + pill border, and the section-header marker/horizon-label text. One shared step (as navy.600 was for both roles). 4.00:1 vs canvas, 4.73:1 vs container, 5.77:1 vs personal — clears its ≥3:1 (border) / ≥4.5:1 (marker-as-text) requirements everywhere it renders." },
-      "200": { "$value": "#3A2C0C", "$description": "Dark — pill fill + internal rule (accent-surface.pill.dark / .rule.dark), a touch lighter/warmer than container. Not emitted to site." },
-      "250": { "$value": "#33280A", "$description": "Dark — section/box container fill (accent-surface.container.dark). 12.53:1+ for ink.primary; 6.35–6.67:1 for amber/border/marker. Not emitted to site." },
-      "300": { "$value": "#E4BC5E", "$description": "Dark — marker/horizon-label text specifically (distinct step from border, mirroring steel.300 vs steel.400). 8.04:1 on container fill." },
-      "400": { "$value": "#D8A93E", "$description": "Dark — container + pill border. 6.67:1 on container fill, 9.32:1 on canvas." }
+      "050": {
+        "$value": "#FDF6E3",
+        "$description": "Light — pill fill + internal rule (accent-surface.pill.light / .rule.light). Retuned #F7EFD9→#FDF6E3 2026-07-27 (ADR 0340 Amdt 3) to hold pop against the 'Lighter desk' canvas retune: counterintuitively, going PALER (not deeper) restores separation here, because the canvas moved toward the pill's own tone — deepening the fill closes the gap further (measured: deepen candidate #F2E4BE → 1.01:1, WORSE than doing nothing; this lighter value → 1.19:1, the best of the candidates tried, vs the pre-retune 1.12:1). An early study draft proposed deepening the pill; that direction was wrong and is corrected here before being written into the token. Paler than container."
+      },
+      "100": {
+        "$value": "#F3E5C3",
+        "$description": "Light — section/box container fill (accent-surface.container.light). 5.29:1+ for ink.primary; borders/marker at 4.00–4.73:1 against it. Not emitted to site."
+      },
+      "600": {
+        "$value": "#8A5A12",
+        "$description": "Light — container + pill border, and the section-header marker/horizon-label text. One shared step (as navy.600 was for both roles). 4.00:1 vs canvas, 4.73:1 vs container, 5.77:1 vs personal — clears its ≥3:1 (border) / ≥4.5:1 (marker-as-text) requirements everywhere it renders."
+      },
+      "200": {
+        "$value": "#3A2C0C",
+        "$description": "Dark — pill fill + internal rule (accent-surface.pill.dark / .rule.dark), a touch lighter/warmer than container. Not emitted to site."
+      },
+      "250": {
+        "$value": "#33280A",
+        "$description": "Dark — section/box container fill (accent-surface.container.dark). 12.53:1+ for ink.primary; 6.35–6.67:1 for amber/border/marker. Not emitted to site."
+      },
+      "300": {
+        "$value": "#E4BC5E",
+        "$description": "Dark — marker/horizon-label text specifically (distinct step from border, mirroring steel.300 vs steel.400). 8.04:1 on container fill."
+      },
+      "400": {
+        "$value": "#D8A93E",
+        "$description": "Dark — container + pill border. 6.67:1 on container fill, 9.32:1 on canvas."
+      }
     },
     "warm-ink": {
       "$description": "Shared warm neutral ramp for text + borders across BOTH themes. 100 lightest → 900 darkest. Light theme draws text from the dark end (900→600); dark theme from the light end (100→400). Intermediate stops carry decorative borders.",
-      "100": { "$value": "#F4F0E8", "$description": "Dark text.primary — warm white." },
-      "150": { "$value": "#E2DCCF", "$description": "Light border.default — warm hairline." },
-      "200": { "$value": "#DED7C9", "$description": "Dark text.long-form." },
-      "250": { "$value": "#CFC7B6", "$description": "Light border.strong." },
-      "300": { "$value": "#C6BEAD", "$description": "Dark text.secondary." },
-      "400": { "$value": "#A79E8B", "$description": "Dark text.muted." },
-      "500": { "$value": "#867D69", "$description": "border.interactive (dark theme only, since 2026-07-19 ADR 0340 Amdt 1 — was both themes until the Studio canvas change forced a light-only split; see 550). ≥3:1 on every dark bg (3.54–4.97)." },
-      "550": { "$value": "#79705E", "$description": "border.interactive (light theme only, ADR 0340 Amdt 1, 2026-07-19) — split off from 500 because that shared step, retuned for the deeper stone canvas, would have dropped dark theme's raised-surface pairing below 3:1. ≥3:1 on every light bg (3.31 canvas, 4.69 surface, 4.89 raised) per WCAG 1.4.11." },
-      "600": { "$value": "#60594F", "$description": "Light text.muted — retuned #6B6358→#60594F 2026-07-19 (ADR 0340 Amdt 1) — required: the prior value fell to 4.00:1 (FAIL) against the new stone canvas (color.stone.light). New value clears canvas 4.67:1, surface/personal 6.62:1, raised 6.91:1, panel 5.96:1, accent-surface.container 5.53:1." },
-      "700": { "$value": "#4C463D", "$description": "Light text.secondary; dark border.strong." },
-      "750": { "$value": "#3A352C", "$description": "Dark border.default — warm hairline on graphite." },
-      "800": { "$value": "#332E26", "$description": "Light text.long-form — softer ink for sustained reading." },
-      "900": { "$value": "#211D17", "$description": "Light text.primary — warm near-black ink. 15.14:1 on canvas." }
+      "100": {
+        "$value": "#F4F0E8",
+        "$description": "Dark text.primary — warm white."
+      },
+      "150": {
+        "$value": "#E2DCCF",
+        "$description": "Light border.default — warm hairline."
+      },
+      "200": {
+        "$value": "#DED7C9",
+        "$description": "Dark text.long-form."
+      },
+      "250": {
+        "$value": "#CFC7B6",
+        "$description": "Light border.strong."
+      },
+      "300": {
+        "$value": "#C6BEAD",
+        "$description": "Dark text.secondary."
+      },
+      "400": {
+        "$value": "#A79E8B",
+        "$description": "Dark text.muted."
+      },
+      "500": {
+        "$value": "#867D69",
+        "$description": "border.interactive (dark theme only, since 2026-07-19 ADR 0340 Amdt 1 — was both themes until the Studio canvas change forced a light-only split; see 550). ≥3:1 on every dark bg (3.54–4.97)."
+      },
+      "550": {
+        "$value": "#79705E",
+        "$description": "border.interactive (light theme only, ADR 0340 Amdt 1, 2026-07-19) — split off from 500 because that shared step, retuned for the deeper stone canvas, would have dropped dark theme's raised-surface pairing below 3:1. ≥3:1 on every light bg (3.31 canvas, 4.69 surface, 4.89 raised) per WCAG 1.4.11."
+      },
+      "600": {
+        "$value": "#60594F",
+        "$description": "Light text.muted — retuned #6B6358→#60594F 2026-07-19 (ADR 0340 Amdt 1) — required: the prior value fell to 4.00:1 (FAIL) against the new stone canvas (color.stone.light). New value clears canvas 4.67:1, surface/personal 6.62:1, raised 6.91:1, panel 5.96:1, accent-surface.container 5.53:1."
+      },
+      "700": {
+        "$value": "#4C463D",
+        "$description": "Light text.secondary; dark border.strong."
+      },
+      "750": {
+        "$value": "#3A352C",
+        "$description": "Dark border.default — warm hairline on graphite."
+      },
+      "800": {
+        "$value": "#332E26",
+        "$description": "Light text.long-form — softer ink for sustained reading."
+      },
+      "900": {
+        "$value": "#211D17",
+        "$description": "Light text.primary — warm near-black ink. 15.14:1 on canvas."
+      }
     },
     "navy": {
       "$description": "Light-theme accent (ink-navy). Same hue family as the dark steel accent; never a signal color. 500 lightest (hover) → 700 darkest (active). 050/100 are wash fills used by accent-surface-paths tokens.",
-      "050": { "$value": "#EDF2F9", "$description": "Pale navy wash — pill fill (accent-surface-paths.light.pill). Re-emitted 2026-08-29 (ADR 0008 Amendment 2) — retuned from the dormant pre-ADR-0340 #DFE6F0 to the value measured in chart-forward-read-v13-2026-08-29.html's own --c-npill; not itself a contrast-ratio subject (fill, not text), same convention as accent-surface's own pill." },
-      "100": { "$value": "#EFF3F9", "$description": "Pale navy wash — Paths section container fill (accent-surface-paths.light.container). Re-emitted 2026-08-29 (ADR 0008 Amendment 2) — retuned from the dormant pre-ADR-0340 #E9EDF3 to the value measured in chart-forward-read-v13-2026-08-29.html's own --c-nwash; not itself a contrast-ratio subject." },
-      "500": { "$value": "#2E567F", "$description": "Light accent.hover. 5.15:1 on canvas — AA body text (annotation corrected 2026-07-19, ADR 0340 Amdt 1: canvas darkened under Studio, prior 6.89:1 was against the old ivory canvas and no longer applied — value itself unchanged)." },
-      "600": { "$value": "#23436F", "$description": "Light accent.default + focus. 6.74:1 on canvas (annotation corrected 2026-07-19, ADR 0340 Amdt 1 — prior 9.01:1 was against the old ivory canvas; value itself unchanged); as link text AA on every surface." },
-      "650": { "$value": "#2F5C97", "$description": "Light text.link — brighter than accent.default, kept distinct per ADR 0008 so the reserved accent-surface standout is never confused with inline links. 4.58:1 on canvas — AA, but only just (annotation corrected 2026-07-19, ADR 0340 Amdt 1: canvas darkened under Studio, prior 6.12:1 was against the old ivory canvas; value itself unchanged). Thin margin flagged as a watch item — a future primitive or canvas change should re-verify this pairing specifically, not assume it still clears." },
-      "700": { "$value": "#1A3257", "$description": "Light accent.active — fills/borders on press only, not text." }
+      "050": {
+        "$value": "#EDF2F9",
+        "$description": "Pale navy wash — pill fill (accent-surface-paths.light.pill). Re-emitted 2026-08-29 (ADR 0008 Amendment 2) — retuned from the dormant pre-ADR-0340 #DFE6F0 to the value measured in chart-forward-read-v13-2026-08-29.html's own --c-npill; not itself a contrast-ratio subject (fill, not text), same convention as accent-surface's own pill."
+      },
+      "100": {
+        "$value": "#EFF3F9",
+        "$description": "Pale navy wash — Paths section container fill (accent-surface-paths.light.container). Re-emitted 2026-08-29 (ADR 0008 Amendment 2) — retuned from the dormant pre-ADR-0340 #E9EDF3 to the value measured in chart-forward-read-v13-2026-08-29.html's own --c-nwash; not itself a contrast-ratio subject."
+      },
+      "500": {
+        "$value": "#2E567F",
+        "$description": "Light accent.hover. 5.15:1 on canvas — AA body text (annotation corrected 2026-07-19, ADR 0340 Amdt 1: canvas darkened under Studio, prior 6.89:1 was against the old ivory canvas and no longer applied — value itself unchanged)."
+      },
+      "600": {
+        "$value": "#23436F",
+        "$description": "Light accent.default + focus. 6.74:1 on canvas (annotation corrected 2026-07-19, ADR 0340 Amdt 1 — prior 9.01:1 was against the old ivory canvas; value itself unchanged); as link text AA on every surface."
+      },
+      "650": {
+        "$value": "#2F5C97",
+        "$description": "Light text.link — brighter than accent.default, kept distinct per ADR 0008 so the reserved accent-surface standout is never confused with inline links. 4.58:1 on canvas — AA, but only just (annotation corrected 2026-07-19, ADR 0340 Amdt 1: canvas darkened under Studio, prior 6.12:1 was against the old ivory canvas; value itself unchanged). Thin margin flagged as a watch item — a future primitive or canvas change should re-verify this pairing specifically, not assume it still clears."
+      },
+      "700": {
+        "$value": "#1A3257",
+        "$description": "Light accent.active — fills/borders on press only, not text."
+      }
     },
     "steel": {
       "$description": "Dark-theme accent (lifted steel). Same hue family as the light navy accent; never a signal color. 200/250 are wash fills used by accent-surface-paths tokens. 300 lightest (hover) → 500 darkest (active).",
-      "200": { "$value": "#152230", "$description": "Navy-lift wash — pill fill (accent-surface-paths.dark.pill). Re-emitted 2026-08-29 (ADR 0008 Amendment 2) — retuned from the dormant pre-ADR-0340 #233152 to the value measured in chart-forward-read-v13-2026-08-29.html's own --c-npill; not itself a contrast-ratio subject." },
-      "250": { "$value": "#1A2431", "$description": "Navy-lift wash — Paths section container fill (accent-surface-paths.dark.container). Re-emitted 2026-08-29 (ADR 0008 Amendment 2) — retuned from the dormant pre-ADR-0340 #1C2A45 to the value measured in chart-forward-read-v13-2026-08-29.html's own --c-nwash; not itself a contrast-ratio subject." },
-      "280": { "$value": "#C3CEDF", "$description": "Muted rule inside the accent container (accent-surface.rule.dark). Not emitted to site." },
-      "300": { "$value": "#9BBCE6", "$description": "Dark accent.hover / accent-surface marker + label. 9.12:1 on canvas — AA body text." },
-      "350": { "$value": "#8FB4E4", "$description": "Dark text.link — slightly distinct from accent.default per ADR 0008. 8.28:1 on canvas — AA on every surface." },
-      "400": { "$value": "#7DA6DB", "$description": "Dark accent.default + focus. 7.10:1 on canvas — AA body text on every surface." },
-      "500": { "$value": "#6892CC", "$description": "Dark accent.active — fills/borders on press only, not text." }
+      "200": {
+        "$value": "#152230",
+        "$description": "Navy-lift wash — pill fill (accent-surface-paths.dark.pill). Re-emitted 2026-08-29 (ADR 0008 Amendment 2) — retuned from the dormant pre-ADR-0340 #233152 to the value measured in chart-forward-read-v13-2026-08-29.html's own --c-npill; not itself a contrast-ratio subject."
+      },
+      "250": {
+        "$value": "#1A2431",
+        "$description": "Navy-lift wash — Paths section container fill (accent-surface-paths.dark.container). Re-emitted 2026-08-29 (ADR 0008 Amendment 2) — retuned from the dormant pre-ADR-0340 #1C2A45 to the value measured in chart-forward-read-v13-2026-08-29.html's own --c-nwash; not itself a contrast-ratio subject."
+      },
+      "280": {
+        "$value": "#C3CEDF",
+        "$description": "Muted rule inside the accent container (accent-surface.rule.dark). Not emitted to site."
+      },
+      "300": {
+        "$value": "#9BBCE6",
+        "$description": "Dark accent.hover / accent-surface marker + label. 9.12:1 on canvas — AA body text."
+      },
+      "350": {
+        "$value": "#8FB4E4",
+        "$description": "Dark text.link — slightly distinct from accent.default per ADR 0008. 8.28:1 on canvas — AA on every surface."
+      },
+      "400": {
+        "$value": "#7DA6DB",
+        "$description": "Dark accent.default + focus. 7.10:1 on canvas — AA body text on every surface."
+      },
+      "500": {
+        "$value": "#6892CC",
+        "$description": "Dark accent.active — fills/borders on press only, not text."
+      }
     },
     "green": {
       "$description": "Primitives behind signal.positive, per theme. P&L gain — on the number only, always with an explicit sign.",
-      "light": { "$value": "#14684B", "$description": "Light theme: retuned #197A4B→#14684B 2026-07-19 (ADR 0340) — required, not stylistic: the prior value cleared bg.surface/bg.raised but fell to 3.61:1 (FAIL) against the new stone canvas (color.stone.light). New value clears canvas 4.56:1, personal 6.58:1, impersonal 5.83:1, accent-surface.container 5.40:1." },
-      "dark": { "$value": "#4CC38A", "$description": "Dark theme: unchanged — already clears every Studio surface (canvas 9.14:1, personal 7.42:1, impersonal 8.38:1, accent-surface.container 6.54:1), no retune needed." }
+      "light": {
+        "$value": "#14684B",
+        "$description": "Light theme: retuned #197A4B→#14684B 2026-07-19 (ADR 0340) — required, not stylistic: the prior value cleared bg.surface/bg.raised but fell to 3.61:1 (FAIL) against the new stone canvas (color.stone.light). New value clears canvas 4.56:1, personal 6.58:1, impersonal 5.83:1, accent-surface.container 5.40:1."
+      },
+      "dark": {
+        "$value": "#4CC38A",
+        "$description": "Dark theme: unchanged — already clears every Studio surface (canvas 9.14:1, personal 7.42:1, impersonal 8.38:1, accent-surface.container 6.54:1), no retune needed."
+      }
     },
     "red": {
       "$description": "Primitives behind signal.negative, per theme. P&L loss — on the number only, always with an explicit sign.",
-      "light": { "$value": "#A33028", "$description": "Light theme: retuned #C0392F→#A33028 2026-07-19 (ADR 0340 Amdt 1) — required: the prior value cleared the old ivory canvas (4.90:1) but was carried over unretuned against the new stone canvas, where it fell to 3.67:1 (FAIL). New value clears canvas 4.71:1, surface/personal 6.68:1, raised 6.98:1 — same mechanism as the signal.positive/health.degraded retunes ADR 0340 already made, just missed for this token at acceptance time." },
-      "dark": { "$value": "#FF6369", "$description": "Dark theme: bright red, AA on graphite (6.16:1 canvas → 4.98:1 raised)." }
+      "light": {
+        "$value": "#A33028",
+        "$description": "Light theme: retuned #C0392F→#A33028 2026-07-19 (ADR 0340 Amdt 1) — required: the prior value cleared the old ivory canvas (4.90:1) but was carried over unretuned against the new stone canvas, where it fell to 3.67:1 (FAIL). New value clears canvas 4.71:1, surface/personal 6.68:1, raised 6.98:1 — same mechanism as the signal.positive/health.degraded retunes ADR 0340 already made, just missed for this token at acceptance time."
+      },
+      "dark": {
+        "$value": "#FF6369",
+        "$description": "Dark theme: bright red, AA on graphite (6.16:1 canvas → 4.98:1 raised)."
+      }
     },
     "amber": {
       "$description": "Primitives behind health.degraded, per theme. Data-health marker — deliberately neither a signal hue nor the accent.",
-      "light": { "$value": "#6F4B06", "$description": "Light theme: retuned #855E10→#6F4B06 2026-07-19 (ADR 0340) — required, same mechanism as the 2026-07-10 retune below: the prior value fell to 3.94:1 (FAIL) against the new stone canvas (color.stone.light). New value clears canvas 5.29:1, surface/personal 7.63:1, impersonal 6.75:1, accent-surface.container 6.26:1. (Prior retune 2026-07-10, consult 0203/ADR 0157 §Context point 1, superseded by this one: #8A6111→#855E10 so health.degraded cleared surface.panel at 4.72:1 — that value now itself retuned above for the deeper Studio canvas.)" },
-      "dark": { "$value": "#D5A439", "$description": "Dark theme: unchanged — already clears every Studio surface including the new stone canvas (8.87:1), surface.panel (8.13:1), accent-surface.container (6.35:1), no retune needed." }
+      "light": {
+        "$value": "#6F4B06",
+        "$description": "Light theme: retuned #855E10→#6F4B06 2026-07-19 (ADR 0340) — required, same mechanism as the 2026-07-10 retune below: the prior value fell to 3.94:1 (FAIL) against the new stone canvas (color.stone.light). New value clears canvas 5.29:1, surface/personal 7.63:1, impersonal 6.75:1, accent-surface.container 6.26:1. (Prior retune 2026-07-10, consult 0203/ADR 0157 §Context point 1, superseded by this one: #8A6111→#855E10 so health.degraded cleared surface.panel at 4.72:1 — that value now itself retuned above for the deeper Studio canvas.)"
+      },
+      "dark": {
+        "$value": "#D5A439",
+        "$description": "Dark theme: unchanged — already clears every Studio surface including the new stone canvas (8.87:1), surface.panel (8.13:1), accent-surface.container (6.35:1), no retune needed."
+      }
     },
     "olive": {
       "$description": "Primitives behind macro-lean.supportive, per theme. Deliberately NOT color.green: a distinct, lower-saturation hue so it can never be the literal signal.positive value re-skinned. See macro-lean.$description for the reservation this must respect.",
-      "light": { "$value": "#3F5D1B", "$description": "Light theme: muted dark olive. Contrast vs signal.positive's #197A4B — noticeably less saturated, deliberately quieter. AA pass proposed by design, pending the Architect's ledger-contrast-check.py run before ship." },
-      "dark": { "$value": "#9CBB6B", "$description": "Dark theme: muted sage. AA pass proposed by design, pending contrast-gate verification." }
+      "light": {
+        "$value": "#3F5D1B",
+        "$description": "Light theme: muted dark olive. Contrast vs signal.positive's #197A4B — noticeably less saturated, deliberately quieter. AA pass proposed by design, pending the Architect's ledger-contrast-check.py run before ship."
+      },
+      "dark": {
+        "$value": "#9CBB6B",
+        "$description": "Dark theme: muted sage. AA pass proposed by design, pending contrast-gate verification."
+      }
     },
     "clay": {
       "$description": "Primitives behind macro-lean.cautious, per theme. Deliberately NOT color.red: a distinct, lower-saturation hue so it can never be the literal signal.negative value re-skinned. See macro-lean.$description for the reservation this must respect.",
-      "light": { "$value": "#8A3A2C", "$description": "Light theme: muted clay/brick. Contrast vs signal.negative's #A33028 (retuned 2026-07-19, ADR 0340 Amdt 1 — was #C0392F) — still noticeably less saturated, deliberately quieter. AA pass proposed by design, pending the Architect's ledger-contrast-check.py run before ship." },
-      "dark": { "$value": "#E08A6E", "$description": "Dark theme: muted terracotta. AA pass proposed by design, pending contrast-gate verification." }
+      "light": {
+        "$value": "#8A3A2C",
+        "$description": "Light theme: muted clay/brick. Contrast vs signal.negative's #A33028 (retuned 2026-07-19, ADR 0340 Amdt 1 — was #C0392F) — still noticeably less saturated, deliberately quieter. AA pass proposed by design, pending the Architect's ledger-contrast-check.py run before ship."
+      },
+      "dark": {
+        "$value": "#E08A6E",
+        "$description": "Dark theme: muted terracotta. AA pass proposed by design, pending contrast-gate verification."
+      }
     }
   },
   "themes": {
@@ -96,175 +252,439 @@
     "light": {
       "$description": "Default theme — 'Ledger': warm ivory paper, warm-ink text, ink-navy accent. Ships at launch (consult 0066: light-default, theme toggle is P1).",
       "bg": {
-        "canvas": { "$value": "{color.stone.light}", "$description": "App background — the Studio 'desk' (retuned from warm ivory 2026-07-19, ADR 0340). Both read halves float on this via elevation.high." },
-        "surface": { "$value": "{color.warm-white.200}", "$description": "Content panels. Unchanged by ADR 0340; also reused for surface.personal." },
-        "raised": { "$value": "{color.warm-white.100}", "$description": "Overlays/dialogs." },
-        "inset": { "$value": "{color.warm-white.250}", "$description": "Recessed fill ON a surface/raised host — hover fills for outline/ghost controls, quiet inset note blocks. NOT a page background: bg.canvas is the page, this is a shallow well inside a card. Minted by ADR 0340 Amdt 2 to close the seven consumers that were using bg.canvas for this job (invisible under Ledger where canvas was near-white; a heavy mid-stone block under Studio)." }
+        "canvas": {
+          "$type": "color",
+          "$value": "#F7F3EA",
+          "$description": "App background — the warm ivory paper. DELIBERATELY FORKED from canonical (stock-analyst-platform#2991, Designer role-gate verdict on twiceover-web PR #67): this is ADR 0340's Studio retone, and ADR 0340 itself explicitly deferred whether Studio extends to twiceover-web to consult 0341 (Designer -> Growth), still Open. Frozen at the site's pre-Studio value pending that answer -- do not resync from canonical until 0341 closes."
+        },
+        "surface": {
+          "$value": "{color.warm-white.200}",
+          "$description": "Content panels. Unchanged by ADR 0340; also reused for surface.personal."
+        },
+        "raised": {
+          "$value": "{color.warm-white.100}",
+          "$description": "Overlays/dialogs."
+        },
+        "inset": {
+          "$value": "{color.warm-white.250}",
+          "$description": "Recessed fill ON a surface/raised host — hover fills for outline/ghost controls, quiet inset note blocks. NOT a page background: bg.canvas is the page, this is a shallow well inside a card. Minted by ADR 0340 Amdt 2 to close the seven consumers that were using bg.canvas for this job (invisible under Ledger where canvas was near-white; a heavy mid-stone block under Studio)."
+        }
       },
       "text": {
-        "primary": { "$value": "{color.warm-ink.900}", "$description": "15.14:1 on canvas — AAA." },
-        "long-form": { "$value": "{color.warm-ink.800}", "$description": "Body text in long documents (policy pages): softer ink for sustained reading; 12.16:1 on canvas." },
-        "secondary": { "$value": "{color.warm-ink.700}", "$description": "Sub-heads, labels. 8.43:1 on canvas." },
-        "muted": { "$value": "{color.warm-ink.600}", "$description": "Captions, timestamps, footer meta. 4.67:1 on canvas — AA at any size (retuned 2026-07-19, ADR 0340 Amdt 1; see color.warm-ink.600)." },
-        "on-accent": { "$value": "{color.warm-white.100}", "$description": "Text on the navy accent fill — white reads 9.98:1 on accent.default." }
+        "primary": {
+          "$value": "{color.warm-ink.900}",
+          "$description": "15.14:1 on canvas — AAA."
+        },
+        "long-form": {
+          "$value": "{color.warm-ink.800}",
+          "$description": "Body text in long documents (policy pages): softer ink for sustained reading; 12.16:1 on canvas."
+        },
+        "secondary": {
+          "$value": "{color.warm-ink.700}",
+          "$description": "Sub-heads, labels. 8.43:1 on canvas."
+        },
+        "muted": {
+          "$type": "color",
+          "$value": "#6B6358",
+          "$description": "Captions, timestamps, footer meta. 5.34:1 on canvas — AA at any size. DELIBERATELY FORKED from canonical (stock-analyst-platform#2991, Designer role-gate verdict on twiceover-web PR #67): this is ADR 0340's Studio retone, and ADR 0340 itself explicitly deferred whether Studio extends to twiceover-web to consult 0341 (Designer -> Growth), still Open. Frozen at the site's pre-Studio value pending that answer -- do not resync from canonical until 0341 closes."
+        },
+        "on-accent": {
+          "$value": "{color.warm-white.100}",
+          "$description": "Text on the navy accent fill — white reads 9.98:1 on accent.default."
+        }
       },
       "border": {
-        "default": { "$value": "{color.warm-ink.150}", "$description": "Decorative hairlines (rules, dividers) — the Ledger row-rule." },
-        "strong": { "$value": "{color.warm-ink.250}", "$description": "Emphasized decorative borders." },
-        "interactive": { "$value": "{color.warm-ink.550}", "$description": "Boundaries of inputs/controls: ≥3:1 on canvas (3.31), surface (4.69), raised (4.89) per WCAG 1.4.11. Retuned + split to its own step 2026-07-19 (ADR 0340 Amdt 1) — the prior shared warm-ink.500 value fell to 2.75:1 (FAIL) against the new stone canvas; a shared retune would have broken dark theme's raised pairing, so light now draws from a dedicated step (550) and dark keeps 500 unchanged." }
+        "default": {
+          "$value": "{color.warm-ink.150}",
+          "$description": "Decorative hairlines (rules, dividers) — the Ledger row-rule."
+        },
+        "strong": {
+          "$value": "{color.warm-ink.250}",
+          "$description": "Emphasized decorative borders."
+        },
+        "interactive": {
+          "$type": "color",
+          "$value": "#867D69",
+          "$description": "Boundaries of inputs/controls: ≥3:1 on canvas (3.68), surface (3.91), raised (4.08) per WCAG 1.4.11. DELIBERATELY FORKED from canonical (stock-analyst-platform#2991, Designer role-gate verdict on twiceover-web PR #67): this is ADR 0340's Studio retone, and ADR 0340 itself explicitly deferred whether Studio extends to twiceover-web to consult 0341 (Designer -> Growth), still Open. Frozen at the site's pre-Studio value pending that answer -- do not resync from canonical until 0341 closes."
+        }
       },
       "accent": {
-        "default": { "$value": "{color.navy.600}", "$description": "Links, CTAs, the mark, focus. As link text: 6.74:1 on canvas — AA on all surfaces (annotation corrected 2026-07-19, ADR 0340 Amdt 1; value unchanged). Never a signal hue." },
-        "hover": { "$value": "{color.navy.500}" },
-        "active": { "$value": "{color.navy.700}", "$description": "Pressed state for fills/borders only — not for text." }
+        "default": {
+          "$value": "{color.navy.600}",
+          "$description": "Links, CTAs, the mark, focus. As link text: 6.74:1 on canvas — AA on all surfaces (annotation corrected 2026-07-19, ADR 0340 Amdt 1; value unchanged). Never a signal hue."
+        },
+        "hover": {
+          "$value": "{color.navy.500}"
+        },
+        "active": {
+          "$value": "{color.navy.700}",
+          "$description": "Pressed state for fills/borders only — not for text."
+        }
       },
       "focus": {
-        "ring": { "$value": "{color.navy.600}", "$description": "6.74:1 against canvas — exceeds the 3:1 non-text minimum (annotation corrected 2026-07-19, ADR 0340 Amdt 1; value unchanged)." }
+        "ring": {
+          "$value": "{color.navy.600}",
+          "$description": "6.74:1 against canvas — exceeds the 3:1 non-text minimum (annotation corrected 2026-07-19, ADR 0340 Amdt 1; value unchanged)."
+        }
       }
     },
     "dark": {
       "$description": "Variant theme — warm graphite. The coherence bridge during the re-theme transition and the multi-monitor option (ADR 0035). Reuses + warms the prior dark prototype.",
       "bg": {
-        "canvas": { "$value": "{color.stone.dark}", "$description": "App background — the Studio 'desk', near-black (retuned from warm-graphite 2026-07-19, ADR 0340). Both read halves float on this via elevation.high." },
-        "surface": { "$value": "{color.warm-graphite.850}", "$description": "Content panels — elevation lifts lighter. Unchanged by ADR 0340; also reused for surface.personal." },
-        "raised": { "$value": "{color.warm-graphite.800}", "$description": "Overlays/dialogs." },
-        "inset": { "$value": "{color.warm-graphite.820}", "$description": "Recessed fill ON a surface/raised host — same role as the light counterpart, but LIGHTER than its host, because dark elevation lifts. See color.warm-graphite.820." }
+        "canvas": {
+          "$type": "color",
+          "$value": "#1A1713",
+          "$description": "App background — warm near-black graphite. DELIBERATELY FORKED from canonical (stock-analyst-platform#2991, Designer role-gate verdict on twiceover-web PR #67): this is ADR 0340's Studio retone, and ADR 0340 itself explicitly deferred whether Studio extends to twiceover-web to consult 0341 (Designer -> Growth), still Open. Frozen at the site's pre-Studio value pending that answer -- do not resync from canonical until 0341 closes."
+        },
+        "surface": {
+          "$value": "{color.warm-graphite.850}",
+          "$description": "Content panels — elevation lifts lighter. Unchanged by ADR 0340; also reused for surface.personal."
+        },
+        "raised": {
+          "$value": "{color.warm-graphite.800}",
+          "$description": "Overlays/dialogs."
+        },
+        "inset": {
+          "$value": "{color.warm-graphite.820}",
+          "$description": "Recessed fill ON a surface/raised host — same role as the light counterpart, but LIGHTER than its host, because dark elevation lifts. See color.warm-graphite.820."
+        }
       },
       "text": {
-        "primary": { "$value": "{color.warm-ink.100}", "$description": "15.71:1 on canvas — AAA." },
-        "long-form": { "$value": "{color.warm-ink.200}", "$description": "Body text in long documents: dimmed one step to reduce glare; 12.48:1 on canvas." },
-        "secondary": { "$value": "{color.warm-ink.300}", "$description": "Sub-heads, labels. 9.67:1 on canvas." },
-        "muted": { "$value": "{color.warm-ink.400}", "$description": "Captions, timestamps, footer meta. 6.72:1 on canvas — AA at any size." },
-        "on-accent": { "$value": "{color.warm-graphite.900}", "$description": "Text on the steel accent fill — dark reads 7.10:1 on accent.default." }
+        "primary": {
+          "$value": "{color.warm-ink.100}",
+          "$description": "15.71:1 on canvas — AAA."
+        },
+        "long-form": {
+          "$value": "{color.warm-ink.200}",
+          "$description": "Body text in long documents: dimmed one step to reduce glare; 12.48:1 on canvas."
+        },
+        "secondary": {
+          "$value": "{color.warm-ink.300}",
+          "$description": "Sub-heads, labels. 9.67:1 on canvas."
+        },
+        "muted": {
+          "$value": "{color.warm-ink.400}",
+          "$description": "Captions, timestamps, footer meta. 6.72:1 on canvas — AA at any size."
+        },
+        "on-accent": {
+          "$value": "{color.warm-graphite.900}",
+          "$description": "Text on the steel accent fill — dark reads 7.10:1 on accent.default."
+        }
       },
       "border": {
-        "default": { "$value": "{color.warm-ink.750}", "$description": "Decorative hairlines on graphite." },
-        "strong": { "$value": "{color.warm-ink.700}", "$description": "Emphasized decorative borders." },
-        "interactive": { "$value": "{color.warm-ink.500}", "$description": "Boundaries of inputs/controls: ≥3:1 on canvas (4.38), surface (3.98), raised (3.54) per WCAG 1.4.11." }
+        "default": {
+          "$value": "{color.warm-ink.750}",
+          "$description": "Decorative hairlines on graphite."
+        },
+        "strong": {
+          "$value": "{color.warm-ink.700}",
+          "$description": "Emphasized decorative borders."
+        },
+        "interactive": {
+          "$value": "{color.warm-ink.500}",
+          "$description": "Boundaries of inputs/controls: ≥3:1 on canvas (4.38), surface (3.98), raised (3.54) per WCAG 1.4.11."
+        }
       },
       "accent": {
-        "default": { "$value": "{color.steel.400}", "$description": "Links, CTAs, the mark, focus. As link text: 7.10:1 on canvas — AA on all surfaces. Never a signal hue." },
-        "hover": { "$value": "{color.steel.300}" },
-        "active": { "$value": "{color.steel.500}", "$description": "Pressed state for fills/borders only — not for text." }
+        "default": {
+          "$value": "{color.steel.400}",
+          "$description": "Links, CTAs, the mark, focus. As link text: 7.10:1 on canvas — AA on all surfaces. Never a signal hue."
+        },
+        "hover": {
+          "$value": "{color.steel.300}"
+        },
+        "active": {
+          "$value": "{color.steel.500}",
+          "$description": "Pressed state for fills/borders only — not for text."
+        }
       },
       "focus": {
-        "ring": { "$value": "{color.steel.400}", "$description": "7.10:1 against canvas — exceeds the 3:1 non-text minimum." }
+        "ring": {
+          "$value": "{color.steel.400}",
+          "$description": "7.10:1 against canvas — exceeds the 3:1 non-text minimum."
+        }
       }
     }
   },
   "font": {
     "family": {
       "$type": "fontFamily",
-      "serif": { "$value": ["Source Serif 4", "Georgia", "Cambria", "Times New Roman", "serif"], "$description": "Display family — H1/headings only, never tables or labels (ADR 0035). Self-hosted variable woff2 (consult 0067 Q4)." },
-      "sans": { "$value": ["Source Sans 3", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"], "$description": "UI/body family — replaces Inter (ADR 0035). Self-hosted variable woff2." },
-      "mono": { "$value": ["Source Code Pro", "ui-monospace", "SFMono-Regular", "Menlo", "Consolas", "monospace"], "$description": "Tabular figures for tickers and dense numerics in the product app — replaces the system stack (ADR 0035). Unused on the pre-launch site." }
+      "serif": {
+        "$value": [
+          "Source Serif 4",
+          "Georgia",
+          "Cambria",
+          "Times New Roman",
+          "serif"
+        ],
+        "$description": "Display family — H1/headings only, never tables or labels (ADR 0035). Self-hosted variable woff2 (consult 0067 Q4)."
+      },
+      "sans": {
+        "$value": [
+          "Source Sans 3",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "Roboto",
+          "sans-serif"
+        ],
+        "$description": "UI/body family — replaces Inter (ADR 0035). Self-hosted variable woff2."
+      },
+      "mono": {
+        "$value": [
+          "Source Code Pro",
+          "ui-monospace",
+          "SFMono-Regular",
+          "Menlo",
+          "Consolas",
+          "monospace"
+        ],
+        "$description": "Tabular figures for tickers and dense numerics in the product app — replaces the system stack (ADR 0035). Unused on the pre-launch site."
+      }
     },
     "weight": {
       "$type": "fontWeight",
-      "regular": { "$value": 400 },
-      "medium": { "$value": 500 },
-      "semibold": { "$value": 600 }
+      "regular": {
+        "$value": 400
+      },
+      "medium": {
+        "$value": 500
+      },
+      "semibold": {
+        "$value": 600
+      }
     },
     "size": {
       "$type": "dimension",
-      "100": { "$value": "0.75rem" },
-      "200": { "$value": "0.875rem" },
-      "300": { "$value": "1rem" },
-      "400": { "$value": "1.125rem" },
-      "500": { "$value": "1.25rem" },
-      "550": { "$value": "1.375rem", "$description": "Half-header slot — 'Your read / Ticker analysis' banners. One step below heading-1 (1.5rem), one above heading-2 (1.25rem). App-only (#34)." },
-      "600": { "$value": "1.5rem" },
-      "700": { "$value": "1.875rem" },
-      "800": { "$value": "2.25rem" },
-      "900": { "$value": "3rem" }
+      "100": {
+        "$value": "0.75rem"
+      },
+      "200": {
+        "$value": "0.875rem"
+      },
+      "300": {
+        "$value": "1rem"
+      },
+      "400": {
+        "$value": "1.125rem"
+      },
+      "500": {
+        "$value": "1.25rem"
+      },
+      "550": {
+        "$value": "1.375rem",
+        "$description": "Half-header slot — 'Your read / Ticker analysis' banners. One step below heading-1 (1.5rem), one above heading-2 (1.25rem). App-only (#34)."
+      },
+      "600": {
+        "$value": "1.5rem"
+      },
+      "700": {
+        "$value": "1.875rem"
+      },
+      "800": {
+        "$value": "2.25rem"
+      },
+      "900": {
+        "$value": "3rem"
+      }
     },
     "line-height": {
       "$type": "number",
-      "tight": { "$value": 1.2 },
-      "default": { "$value": 1.5 },
-      "relaxed": { "$value": 1.7 }
+      "tight": {
+        "$value": 1.2
+      },
+      "default": {
+        "$value": 1.5
+      },
+      "relaxed": {
+        "$value": 1.7
+      }
     },
     "letter-spacing": {
       "$type": "dimension",
-      "tight": { "$value": "-0.02em" },
-      "normal": { "$value": "0em" },
-      "wide": { "$value": "0.06em", "$description": "New 2026-08-23 (read-components.md §7/§5 v3.28, #2638) — the horizon label's own positive tracking, replacing a synthesized small-caps transform the shipped font subsets couldn't actually perform. Additive; no existing consumer moves onto it." }
+      "tight": {
+        "$value": "-0.02em"
+      },
+      "normal": {
+        "$value": "0em"
+      },
+      "wide": {
+        "$value": "0.06em",
+        "$description": "New 2026-08-23 (read-components.md §7/§5 v3.28, #2638) — the horizon label's own positive tracking, replacing a synthesized small-caps transform the shipped font subsets couldn't actually perform. Additive; no existing consumer moves onto it."
+      }
     }
   },
   "typography": {
     "$type": "typography",
     "$description": "Theme-invariant. Serif (display family) is reserved for display + section headings; body/caption/legal use the sans UI family (ADR 0035).",
     "display": {
-      "$value": { "fontFamily": "{font.family.serif}", "fontSize": "{font.size.800}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{font.line-height.tight}", "letterSpacing": "{font.letter-spacing.tight}" },
+      "$value": {
+        "fontFamily": "{font.family.serif}",
+        "fontSize": "{font.size.800}",
+        "fontWeight": "{font.weight.semibold}",
+        "lineHeight": "{font.line-height.tight}",
+        "letterSpacing": "{font.letter-spacing.tight}"
+      },
       "$description": "Hero H1, mobile-first size — Source Serif 4."
     },
     "display-large": {
-      "$value": { "fontFamily": "{font.family.serif}", "fontSize": "{font.size.900}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{font.line-height.tight}", "letterSpacing": "{font.letter-spacing.tight}" },
+      "$value": {
+        "fontFamily": "{font.family.serif}",
+        "fontSize": "{font.size.900}",
+        "fontWeight": "{font.weight.semibold}",
+        "lineHeight": "{font.line-height.tight}",
+        "letterSpacing": "{font.letter-spacing.tight}"
+      },
       "$description": "Hero H1 at the desktop breakpoint — Source Serif 4."
     },
     "heading-1": {
-      "$value": { "fontFamily": "{font.family.serif}", "fontSize": "{font.size.600}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{font.line-height.tight}", "letterSpacing": "{font.letter-spacing.tight}" },
+      "$value": {
+        "fontFamily": "{font.family.serif}",
+        "fontSize": "{font.size.600}",
+        "fontWeight": "{font.weight.semibold}",
+        "lineHeight": "{font.line-height.tight}",
+        "letterSpacing": "{font.letter-spacing.tight}"
+      },
       "$description": "Section head — Source Serif 4 (display register, large text ≥24px qualifies at AA 3:1)."
     },
     "heading-2": {
-      "$value": { "fontFamily": "{font.family.serif}", "fontSize": "{font.size.500}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{font.line-height.tight}", "letterSpacing": "{font.letter-spacing.normal}" },
+      "$value": {
+        "fontFamily": "{font.family.serif}",
+        "fontSize": "{font.size.500}",
+        "fontWeight": "{font.weight.semibold}",
+        "lineHeight": "{font.line-height.tight}",
+        "letterSpacing": "{font.letter-spacing.normal}"
+      },
       "$description": "Sub-section head — Source Serif 4."
     },
     "body": {
-      "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.300}", "fontWeight": "{font.weight.regular}", "lineHeight": "{font.line-height.default}", "letterSpacing": "{font.letter-spacing.normal}" }
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.300}",
+        "fontWeight": "{font.weight.regular}",
+        "lineHeight": "{font.line-height.default}",
+        "letterSpacing": "{font.letter-spacing.normal}"
+      }
     },
     "caption": {
-      "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.200}", "fontWeight": "{font.weight.regular}", "lineHeight": "{font.line-height.default}", "letterSpacing": "{font.letter-spacing.normal}" }
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.200}",
+        "fontWeight": "{font.weight.regular}",
+        "lineHeight": "{font.line-height.default}",
+        "letterSpacing": "{font.letter-spacing.normal}"
+      }
     },
     "legal": {
-      "$value": { "fontFamily": "{font.family.sans}", "fontSize": "{font.size.300}", "fontWeight": "{font.weight.regular}", "lineHeight": "{font.line-height.relaxed}", "letterSpacing": "{font.letter-spacing.normal}" },
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.300}",
+        "fontWeight": "{font.weight.regular}",
+        "lineHeight": "{font.line-height.relaxed}",
+        "letterSpacing": "{font.letter-spacing.normal}"
+      },
       "$description": "Policy-page body: full 16px with relaxed leading — legal text is never set smaller than body."
     },
     "half-header": {
-      "$value": { "fontFamily": "{font.family.serif}", "fontSize": "{font.size.550}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{font.line-height.tight}", "letterSpacing": "{font.letter-spacing.tight}" },
+      "$value": {
+        "fontFamily": "{font.family.serif}",
+        "fontSize": "{font.size.550}",
+        "fontWeight": "{font.weight.semibold}",
+        "lineHeight": "{font.line-height.tight}",
+        "letterSpacing": "{font.letter-spacing.tight}"
+      },
       "$description": "App-only (#34). The 'Your read / Ticker analysis' half banners — one step below heading-1, above heading-2. Source Serif 4 semibold at 1.375rem. Sits between heading-1 (1.5rem) and heading-2 (1.25rem) in the section-header scale; never used for per-section heads (those are heading-2)."
     },
     "ticker": {
-      "$value": { "fontFamily": "{font.family.mono}", "fontSize": "{font.size.700}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{font.line-height.tight}", "letterSpacing": "{font.letter-spacing.tight}" },
+      "$value": {
+        "fontFamily": "{font.family.mono}",
+        "fontSize": "{font.size.700}",
+        "fontWeight": "{font.weight.semibold}",
+        "lineHeight": "{font.line-height.tight}",
+        "letterSpacing": "{font.letter-spacing.tight}"
+      },
       "$description": "App-only (ADR 0340 Amdt 3, 2026-07-27). The read header's own ticker symbol — the read's single most important glance-target. Mints its own composite rather than reusing heading-1, which bakes in font.family.serif; the ticker has always been mono (tabular figures, ADR 0035's 'the one flourish the brand allows itself'), so heading-1's *size* (1.5rem) paired with mono was never expressible as one token reference. Binds font.size.700 (1.875rem) — one step above heading-1, matching the founder-approved read-studio-identity-2026-07-19.html mockup's 1.9rem literal within a token step. Weight: font.weight.semibold (600), the system's heaviest defined step — the approved mockup's CSS carried a literal 700 (bold), which this token deliberately does not follow; minting a new weight step for one consumer was judged not worth it, since mono glyphs already read heavier than serif at equal weight and size. Never used elsewhere; the 'Your Stock' etc. block-name labels bind typography.heading-2 (serif), not this token — the ticker's mono/display pairing is unique to this one element."
     },
     "projection-figure": {
-      "$value": { "fontFamily": "{font.family.serif}", "fontSize": "{font.size.800}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{font.line-height.tight}", "letterSpacing": "{font.letter-spacing.tight}" },
+      "$value": {
+        "fontFamily": "{font.family.serif}",
+        "fontSize": "{font.size.800}",
+        "fontWeight": "{font.weight.semibold}",
+        "lineHeight": "{font.line-height.tight}",
+        "letterSpacing": "{font.letter-spacing.tight}"
+      },
       "$description": "App-only (ADR 0691 dp1; read-components.md §7 v3.28, supersedes ADR 0231/v2.31/v2.62). The Outlook's per-horizon leading projection FIGURE (a single price, never a band — dp1 retires the two-price row), ONE size at every breakpoint. Retuned font.size.700→.800 (30px→36px, v2.5.0) — the number is now the section's central claim rather than one of two figures sharing the row's weight, and at parity size a single number reads smaller than the band it replaced; this is the SAME step-up v2.3.0 retired as `projection-figure-lg` for the two-price band, reinstated here as the base size for the one-price figure, not a reopening of that retirement's own reasoning (that mockup was sized against a band; this one is sized against a point). **Retyped v2.6.0 (2026-08-23, founder-directed, #2638): `fontFamily` mono→serif, `letterSpacing` normal→tight (-0.02em).** The prior mono choice was justified below (superseded text kept for trail, next sentence) as protecting tabular digit alignment across the three stacked horizons; measured digit-advance widths (fontTools, all three shipped `.woff2` latin subsets) instead show serif, sans, and mono all have uniform digit-glyph widths 0–9 — the alignment invariant holds under any family, so the family became a free choice, and serif was picked to match the register of the sentence directly beneath the figure. ~~Source Code Pro semibold, tabular figures so the three stacked horizons' digits align. Normal letter-spacing deliberately, unlike display/heading-1's tight tracking — negative tracking would misalign tabular digit columns.~~ Ink is NOT baked in (bind accent-surface.on-surface at the component, same pattern as every other typography.* token) — never accent.default or a signal color, so the figure can never read as a directive. Renders inside accent-surface.container only."
     },
     "horizon-label": {
-      "$value": { "fontFamily": "{font.family.serif}", "fontSize": "{font.size.300}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{font.line-height.tight}", "letterSpacing": "{font.letter-spacing.wide}" },
+      "$value": {
+        "fontFamily": "{font.family.serif}",
+        "fontSize": "{font.size.300}",
+        "fontWeight": "{font.weight.semibold}",
+        "lineHeight": "{font.line-height.tight}",
+        "letterSpacing": "{font.letter-spacing.wide}"
+      },
       "$description": "App-only (read-components.md §7/§5 v3.28, #2638, minted 2026-08-23). The Outlook horizon row's own rank/timeframe label (`NEAR · 2 WEEKS` etc.), §7 and §5 alike (§7-parity, same as the box's other shared bindings). Supersedes `typography.caption` + `font-variant-caps: all-small-caps` on both consumers — measured (fontTools) that none of the three shipped `.woff2` latin subsets carries `smcp`/`c2sc`, so the small-caps transform was synthesized from an already-uppercase string (`outlook-copy.ts`'s `HORIZON_LABELS`) and only ever shrank it (~9px effective letterforms at the superseded 12px caption size), never actually applying a caps variant. Promoted to the display family at font.size.300 (16px, one step up from caption's 14px) with a new positive-tracking step (`font.letter-spacing.wide`, 0.06em) standing in for the small-caps transform's visual job — an eyebrow register, not a caption. Founder-approved live from a four-option interactive bench alongside `projection-figure`'s own retype (`assets/outlook-type-bench-2026-08-23.html`, this doc). Ink is NOT baked in — bind accent-surface.marker at the component, unchanged from the superseded caption binding."
     }
   },
   "space": {
     "$type": "dimension",
-    "025": { "$value": "0.125rem" },
-    "050": { "$value": "0.25rem" },
-    "100": { "$value": "0.5rem" },
-    "150": { "$value": "0.75rem" },
-    "200": { "$value": "1rem" },
-    "300": { "$value": "1.5rem" },
-    "400": { "$value": "2rem" },
-    "600": { "$value": "3rem" },
-    "800": { "$value": "4rem" }
+    "025": {
+      "$value": "0.125rem"
+    },
+    "050": {
+      "$value": "0.25rem"
+    },
+    "100": {
+      "$value": "0.5rem"
+    },
+    "150": {
+      "$value": "0.75rem"
+    },
+    "200": {
+      "$value": "1rem"
+    },
+    "300": {
+      "$value": "1.5rem"
+    },
+    "400": {
+      "$value": "2rem"
+    },
+    "600": {
+      "$value": "3rem"
+    },
+    "800": {
+      "$value": "4rem"
+    }
   },
   "radius": {
     "$type": "dimension",
-    "small": { "$value": "0.5rem" },
-    "medium": { "$value": "0.75rem" }
+    "small": {
+      "$value": "0.5rem"
+    },
+    "medium": {
+      "$value": "0.75rem"
+    }
   },
   "breakpoint": {
     "$type": "dimension",
     "$description": "Theme-invariant. Promoted from prose (app-shell.md, read-held-position.md, subscribe-pricing.md, etc. each re-typed 'base ≤639px / md ≥640px / lg ≥960px' independently) — v1.0.3, mobile-installed-app.md §8. `base` has no explicit token (it is 'below md'); `md`/`lg` are the min-width values a consumer queries against.",
-    "md": { "$value": "640px", "$description": "min-width — sitewide/app-wide breakpoint. Below this is `base`." },
-    "lg": { "$value": "960px", "$description": "min-width — widens grid columns inside sections; never adds columns of sections (read-held-position.md §4)." }
+    "md": {
+      "$value": "640px",
+      "$description": "min-width — sitewide/app-wide breakpoint. Below this is `base`."
+    },
+    "lg": {
+      "$value": "960px",
+      "$description": "min-width — widens grid columns inside sections; never adds columns of sections (read-held-position.md §4)."
+    }
   },
   "touch": {
     "$type": "dimension",
     "$description": "Theme-invariant. Promoted from prose (the de-facto '44×44px minimum' independently re-asserted in auth-screens.md, settings-surface.md, broker-connect-flow.md, broker-read-only-scope.md, read-held-position.md, site-prelaunch.md, abuse-enforcement-surfaces.md) — v1.0.3, mobile-installed-app.md §8.",
     "target": {
-      "min": { "$value": "44px", "$description": "Minimum interactive hit area, every button/link/control/OTP cell/radio row. Fast-cut pills keep this hit area even where the visual pill renders smaller at `base`." }
+      "min": {
+        "$value": "44px",
+        "$description": "Minimum interactive hit area, every button/link/control/OTP cell/radio row. Fast-cut pills keep this hit area even where the visual pill renders smaller at `base`."
+      }
     }
   },
   "layout": {
@@ -278,176 +698,498 @@
   "layer": {
     "$type": "number",
     "$description": "Theme-invariant z-index scale (ADR 0570) — mints a named vocabulary for the five ad-hoc z-index literals in twiceover-app, values numerically identical to what already shipped (pure rename, zero behavior change). The `raised` tier ties three semantically distinct consumers (an in-page floating pair, static app chrome, a transient dropdown) by accident of who picked which number first — a known naming tension, not resolved here (see consult 0571).",
-    "raised": { "$value": 10, "$description": "In-flow/fixed chrome competing in the root stacking context: FastCutPair's floating pill, the masthead account-menu disclosure, the installed-context tab bar." },
-    "popover": { "$value": 20, "$description": "A transient overlay anchored to its trigger: FastCutPair's popover." },
-    "overlay": { "$value": 100, "$description": "A full-viewport modal overlay: the re-auth overlay." }
+    "raised": {
+      "$value": 10,
+      "$description": "In-flow/fixed chrome competing in the root stacking context: FastCutPair's floating pill, the masthead account-menu disclosure, the installed-context tab bar."
+    },
+    "popover": {
+      "$value": 20,
+      "$description": "A transient overlay anchored to its trigger: FastCutPair's popover."
+    },
+    "overlay": {
+      "$value": 100,
+      "$description": "A full-viewport modal overlay: the re-auth overlay."
+    }
   },
   "elevation": {
     "$type": "shadow",
     "$description": "App-only (#34), theme-variant. Light ('Ledger'/'Studio') leans on hairline rules with restrained warm shadows at low/medium; dark elevation is primarily surface lightening (bg.surface → bg.raised) with shadows as the secondary cue. Never on path cards — elevation difference reads as ranking (spec §6.2).",
     "light": {
-      "low": { "$value": { "color": "#211D1714", "offsetX": "0px", "offsetY": "1px", "blur": "2px", "spread": "0px" }, "$description": "In-flow raised elements: expanders, notices. Warm-ink ~8% over paper." },
-      "medium": { "$value": { "color": "#211D171F", "offsetX": "0px", "offsetY": "4px", "blur": "16px", "spread": "0px" }, "$description": "Overlaying elements only (menus, dialogs). Warm-ink ~12%." },
-      "high": { "$value": [
-        { "color": "#14120C33", "offsetX": "0px", "offsetY": "12px", "blur": "34px", "spread": "0px" },
-        { "color": "#14120C1A", "offsetX": "0px", "offsetY": "2px", "blur": "8px", "spread": "0px" }
-      ], "$description": "New 2026-07-19 (ADR 0340) — the Studio read-half cards (surface.personal + surface.panel), lifted off the stone canvas. Two-layer (a broad soft cast + a tight contact shadow), deliberately heavier than medium — these are the two largest, most structurally significant surfaces on the read, not an overlay. Never on path cards (unchanged rule) or anything nested inside the two half-cards themselves." }
+      "low": {
+        "$value": {
+          "color": "#211D1714",
+          "offsetX": "0px",
+          "offsetY": "1px",
+          "blur": "2px",
+          "spread": "0px"
+        },
+        "$description": "In-flow raised elements: expanders, notices. Warm-ink ~8% over paper."
+      },
+      "medium": {
+        "$value": {
+          "color": "#211D171F",
+          "offsetX": "0px",
+          "offsetY": "4px",
+          "blur": "16px",
+          "spread": "0px"
+        },
+        "$description": "Overlaying elements only (menus, dialogs). Warm-ink ~12%."
+      },
+      "high": {
+        "$value": [
+          {
+            "color": "#14120C33",
+            "offsetX": "0px",
+            "offsetY": "12px",
+            "blur": "34px",
+            "spread": "0px"
+          },
+          {
+            "color": "#14120C1A",
+            "offsetX": "0px",
+            "offsetY": "2px",
+            "blur": "8px",
+            "spread": "0px"
+          }
+        ],
+        "$description": "New 2026-07-19 (ADR 0340) — the Studio read-half cards (surface.personal + surface.panel), lifted off the stone canvas. Two-layer (a broad soft cast + a tight contact shadow), deliberately heavier than medium — these are the two largest, most structurally significant surfaces on the read, not an overlay. Never on path cards (unchanged rule) or anything nested inside the two half-cards themselves."
+      }
     },
     "dark": {
-      "low": { "$value": { "color": "#00000066", "offsetX": "0px", "offsetY": "1px", "blur": "2px", "spread": "0px" }, "$description": "In-flow raised elements: expanders, notices." },
-      "medium": { "$value": { "color": "#00000080", "offsetX": "0px", "offsetY": "4px", "blur": "16px", "spread": "0px" }, "$description": "Overlaying elements only (menus, dialogs)." },
-      "high": { "$value": [
-        { "color": "#0000008C", "offsetX": "0px", "offsetY": "14px", "blur": "38px", "spread": "0px" },
-        { "color": "#00000059", "offsetX": "0px", "offsetY": "2px", "blur": "10px", "spread": "0px" }
-      ], "$description": "New 2026-07-19 (ADR 0340) — dark resolution of the Studio half-card shadow. Heavier than medium for the same reason as light: the near-black canvas needs real shadow depth (dark elevation elsewhere relies mainly on surface-lightening, but these cards don't lighten — they're the lightest surfaces on the screen already)." }
+      "low": {
+        "$value": {
+          "color": "#00000066",
+          "offsetX": "0px",
+          "offsetY": "1px",
+          "blur": "2px",
+          "spread": "0px"
+        },
+        "$description": "In-flow raised elements: expanders, notices."
+      },
+      "medium": {
+        "$value": {
+          "color": "#00000080",
+          "offsetX": "0px",
+          "offsetY": "4px",
+          "blur": "16px",
+          "spread": "0px"
+        },
+        "$description": "Overlaying elements only (menus, dialogs)."
+      },
+      "high": {
+        "$value": [
+          {
+            "color": "#0000008C",
+            "offsetX": "0px",
+            "offsetY": "14px",
+            "blur": "38px",
+            "spread": "0px"
+          },
+          {
+            "color": "#00000059",
+            "offsetX": "0px",
+            "offsetY": "2px",
+            "blur": "10px",
+            "spread": "0px"
+          }
+        ],
+        "$description": "New 2026-07-19 (ADR 0340) — dark resolution of the Studio half-card shadow. Heavier than medium for the same reason as light: the near-black canvas needs real shadow depth (dark elevation elsewhere relies mainly on surface-lightening, but these cards don't lighten — they're the lightest surfaces on the screen already)."
+      }
     }
   },
   "motion": {
     "$description": "App-only (#34), theme-invariant. Calm: color/opacity transitions, no movement that begs attention; everything suppressed under prefers-reduced-motion.",
     "duration": {
       "$type": "duration",
-      "fast": { "$value": "120ms", "$description": "Hover/focus color shifts, live value refreshes." },
-      "base": { "$value": "180ms", "$description": "Content arrival fade-in (streaming read)." },
-      "reveal": { "$value": "220ms", "$description": "Section-loader part-and-whoosh: bars sweep outward + content rises in. Between base (180ms) and slow (1200ms); the outward sweep and the vertical settle run simultaneously at this duration." },
-      "slow": { "$value": "1200ms", "$description": "Skeleton opacity pulse cycle." }
+      "fast": {
+        "$value": "120ms",
+        "$description": "Hover/focus color shifts, live value refreshes."
+      },
+      "base": {
+        "$value": "180ms",
+        "$description": "Content arrival fade-in (streaming read)."
+      },
+      "reveal": {
+        "$value": "220ms",
+        "$description": "Section-loader part-and-whoosh: bars sweep outward + content rises in. Between base (180ms) and slow (1200ms); the outward sweep and the vertical settle run simultaneously at this duration."
+      },
+      "slow": {
+        "$value": "1200ms",
+        "$description": "Skeleton opacity pulse cycle."
+      }
     },
     "easing": {
       "$type": "cubicBezier",
-      "standard": { "$value": [0.2, 0, 0, 1] }
+      "standard": {
+        "$value": [
+          0.2,
+          0,
+          0,
+          1
+        ]
+      }
     }
   },
   "signal": {
     "$description": "App-only (#34), theme-variant — a single value cannot be AA on both ivory and graphite, so positive/negative carry .light/.dark resolutions. P&L up/down — on the NUMBER only, never on chrome, cards, or paths (spec §6.2: color-grading a path reads as advice); always paired with an explicit sign — color never carries meaning alone (WCAG 1.4.1). Lives outside themes.* so the site build never emits it. Renders on: bg.canvas / bg.surface / bg.raised only (PositionSection, the only consumer, mounts exclusively in the 'Your read' personalized half). NEVER surface.panel or accent-surface.* — the impersonal half is 'identical for every reader' (read-held-position.md §The boundary); a P&L number there would be a personalization-boundary violation, not a contrast defect, so those backgrounds are excluded from this token's reachable set on purpose (consult 0203 Q1), not merely unverified. Guarded by HeldReadDocument.test.tsx asserting no signal-* class inside .held-read-document__panel.",
     "positive": {
-      "light": { "$type": "color", "$value": "{color.green.light}" },
-      "dark": { "$type": "color", "$value": "{color.green.dark}" }
+      "light": {
+        "$type": "color",
+        "$value": "{color.green.light}"
+      },
+      "dark": {
+        "$type": "color",
+        "$value": "{color.green.dark}"
+      }
     },
     "negative": {
-      "light": { "$type": "color", "$value": "{color.red.light}" },
-      "dark": { "$type": "color", "$value": "{color.red.dark}" }
+      "light": {
+        "$type": "color",
+        "$value": "{color.red.light}"
+      },
+      "dark": {
+        "$type": "color",
+        "$value": "{color.red.dark}"
+      }
     }
   },
   "health": {
     "$description": "App-only (#34), theme-variant. Data-health marker: limited / unavailable / stale / conflicting (spec §6.8 honest degradation). Deliberately neither a signal hue nor the accent. Lives outside themes.* so the site build never emits it. Renders on: bg.canvas / bg.surface / bg.raised / surface.panel / accent-surface.container / accent-surface.pill — unlike signal.*, a data-health marker legitimately appears in the impersonal half (SectionLoader's escalation caption, HealthNotice, ErrorPanel) since 'this data is unavailable' is not personalized P&L. light.$value retuned 2026-07-10 (consult 0203/ADR 0157) to clear all six.",
     "degraded": {
-      "light": { "$type": "color", "$value": "{color.amber.light}" },
-      "dark": { "$type": "color", "$value": "{color.amber.dark}" }
+      "light": {
+        "$type": "color",
+        "$value": "{color.amber.light}"
+      },
+      "dark": {
+        "$type": "color",
+        "$value": "{color.amber.dark}"
+      }
     }
   },
   "macro-lean": {
     "$description": "App-only (#34), theme-variant. The per-signal/composite LEAN of a macro reading (supportive/cautious toward risk appetite — product-spec §7, macro-classification-contract.md SignalState), rendered on the Macro & regime fact section only. Reserved as its OWN namespace, distinct from signal.* — this is a directional ECONOMIC READING, not P&L, and must never be read as 'this position is winning/losing' or as advice (constitution: never an imperative directive). Deliberately lower-saturation than signal.positive/negative (color.olive/color.clay vs color.green/color.red) precisely so a muted lean tint cannot be mistaken for the P&L hue even before the naming distinction is read — flagged tension + human resolution recorded in lightweight-log.md 2026-07-07 and design-system.md. Always paired with its own ▲/▼/· glyph and the state word ('supportive'/'cautious'/'neutral') — color never carries the meaning alone (WCAG 1.4.1). 'Not sourced' readings use health.degraded instead (a data-availability fact, not a lean). Lives outside themes.* so the site build never emits it. Renders on: bg.canvas / bg.surface / bg.raised / surface.panel / accent-surface.container — MacroSection is an impersonal frame rendering inside the panel (corrected 2026-07-10, consult 0203/ADR 0157 §Context point 1: previously gated against bg-canvas only on the mistaken premise it sits directly on canvas) and its loading state can appear inside OutlookBox's accent-surface.container fill. All pass at both additional backgrounds (light: 6.10:1 panel / 6.40:1 container for supportive, 6.26:1 / 6.57:1 for cautious).",
     "supportive": {
-      "light": { "$type": "color", "$value": "{color.olive.light}" },
-      "dark": { "$type": "color", "$value": "{color.olive.dark}" }
+      "light": {
+        "$type": "color",
+        "$value": "{color.olive.light}"
+      },
+      "dark": {
+        "$type": "color",
+        "$value": "{color.olive.dark}"
+      }
     },
     "cautious": {
-      "light": { "$type": "color", "$value": "{color.clay.light}" },
-      "dark": { "$type": "color", "$value": "{color.clay.dark}" }
+      "light": {
+        "$type": "color",
+        "$value": "{color.clay.light}"
+      },
+      "dark": {
+        "$type": "color",
+        "$value": "{color.clay.dark}"
+      }
     }
   },
   "path-card": {
     "$description": "Component tokens for the symmetric path menu (read-components.md). One set of values for ALL path cards — uniformity enforced at the token layer; a 'featured' variant cannot exist without a reviewable change here (spec §6.2). App-only (#34). Color bindings are theme-variant (.light/.dark) because the semantic tokens they mirror moved under themes.*; structural/typographic tokens (radius, padding, fonts, gap) are theme-invariant. Lives outside themes.* so the site build never emits it.",
-    "radius": { "$type": "dimension", "$value": "{radius.medium}" },
-    "padding": { "$type": "dimension", "$value": "{space.400}" },
+    "radius": {
+      "$type": "dimension",
+      "$value": "{radius.medium}"
+    },
+    "padding": {
+      "$type": "dimension",
+      "$value": "{space.400}"
+    },
     "light": {
-      "bg": { "$type": "color", "$value": "{themes.light.bg.surface}" },
-      "border": { "$type": "color", "$value": "{themes.light.border.default}" },
+      "bg": {
+        "$type": "color",
+        "$value": "{themes.light.bg.surface}"
+      },
+      "border": {
+        "$type": "color",
+        "$value": "{themes.light.border.default}"
+      },
       "state-field": {
         "$description": "ADR 0026 state-interaction field — one binding for ALL path cards (R5 gate #2 visual parity, consult 0051). Quiet secondary-text register; references only text.muted/text.secondary so signal.*/accent.*/text.primary are UNREACHABLE through this binding. Holds in the degraded render (N/A '—' in this same body style).",
-        "label": { "color": { "$type": "color", "$value": "{themes.light.text.muted}" } },
-        "body": { "color": { "$type": "color", "$value": "{themes.light.text.secondary}" } },
-        "number": { "color": { "$type": "color", "$value": "{themes.light.text.secondary}" } }
+        "label": {
+          "color": {
+            "$type": "color",
+            "$value": "{themes.light.text.muted}"
+          }
+        },
+        "body": {
+          "color": {
+            "$type": "color",
+            "$value": "{themes.light.text.secondary}"
+          }
+        },
+        "number": {
+          "color": {
+            "$type": "color",
+            "$value": "{themes.light.text.secondary}"
+          }
+        }
       }
     },
     "dark": {
-      "bg": { "$type": "color", "$value": "{themes.dark.bg.surface}" },
-      "border": { "$type": "color", "$value": "{themes.dark.border.default}" },
+      "bg": {
+        "$type": "color",
+        "$value": "{themes.dark.bg.surface}"
+      },
+      "border": {
+        "$type": "color",
+        "$value": "{themes.dark.border.default}"
+      },
       "state-field": {
         "$description": "Dark resolution of the ADR 0026 state-interaction field — same parity + no-signal-color-reachable guarantees as light.",
-        "label": { "color": { "$type": "color", "$value": "{themes.dark.text.muted}" } },
-        "body": { "color": { "$type": "color", "$value": "{themes.dark.text.secondary}" } },
-        "number": { "color": { "$type": "color", "$value": "{themes.dark.text.secondary}" } }
+        "label": {
+          "color": {
+            "$type": "color",
+            "$value": "{themes.dark.text.muted}"
+          }
+        },
+        "body": {
+          "color": {
+            "$type": "color",
+            "$value": "{themes.dark.text.secondary}"
+          }
+        },
+        "number": {
+          "color": {
+            "$type": "color",
+            "$value": "{themes.dark.text.secondary}"
+          }
+        }
       }
     },
     "state-field": {
       "$description": "Theme-invariant typography for the state-interaction field (colors are under path-card.light/.dark.state-field).",
-      "label": { "font": { "$value": "{typography.caption}" } },
-      "body": { "font": { "$value": "{typography.body}" } },
-      "number": { "font-family": { "$value": "{font.family.mono}" } },
-      "gap": { "$type": "dimension", "$value": "{space.300}" }
+      "label": {
+        "font": {
+          "$value": "{typography.caption}"
+        }
+      },
+      "body": {
+        "font": {
+          "$value": "{typography.body}"
+        }
+      },
+      "number": {
+        "font-family": {
+          "$value": "{font.family.mono}"
+        }
+      },
+      "gap": {
+        "$type": "dimension",
+        "$value": "{space.300}"
+      }
     }
   },
   "accent-surface": {
     "$description": "App-only (#34). **Outlook-exclusive as of ADR 0008 Amendment 2 (2026-08-29) — was the shared Paths·Outlook pair standout; the pair rule is retired.** The accent now marks which half of the read a section belongs to, not a symmetric pair: this bronze family marks the impersonal synthesis (the Outlook box) only. Paths (the personal half) takes its own navy family, `accent-surface-paths` (below) — same roles (pill/container/border), same behavior (never a signal color, never an evaluative badge), different hue, because it now marks the other side of the ADR 0007 personalization boundary rather than a co-equal navigational destination. Applied to: the Outlook box's fast-cut pill, section container, section-header marker, and popover. Kept DISTINCT from themes.*.accent.* (links/CTAs) per ADR 0008: the standout surface must never read as 'just another link.' Theme-variant (.light/.dark) because the underlying primitives differ between themes. Retuned from a pale-navy-wash family to color.bronze 2026-07-19 (ADR 0340) — that retune stands for the Outlook; it no longer describes Paths, which Amendment 2 moves back to a navy family (newly distinct from the pre-0340 navy/steel steps 0340 retired, not a reversion to them — see accent-surface-paths). themes.*.accent.*/text-link.* keep navy/steel untouched throughout.",
     "light": {
-      "pill": { "$type": "color", "$value": "{color.bronze.050}", "$description": "Fast-cut pill fill — paler than the container, sits on canvas (not on a half-card). #FDF6E3 (retuned from #F7EFD9, 2026-07-27, ADR 0340 Amdt 3 — see color.bronze.050). A fill/background, not a foreground subject to a contrast ratio itself; re-verified to visually pop off the 'Lighter desk' canvas (value-ratio 1.19, up from the pre-retune 1.12) since Amdt 3 moved what the pill floats over. The 1.4.11 subject is accent-surface.border against this fill (4.68:1 — see color.bronze.600)." },
-      "container": { "$type": "color", "$value": "{color.bronze.100}", "$description": "Outlook box fill — the saffron-bronze wash. #F3E5C3. Outlook-exclusive as of ADR 0008 Amendment 2 (2026-08-29) — no longer shared with Paths, which binds `accent-surface-paths.light.container` (navy) instead; the two are deliberately distinct tokens now, not one token read by two sections. A fill/background, not itself a contrast-ratio subject." },
-      "border": { "$type": "color", "$value": "{color.bronze.600}", "$description": "Container border + pill border, and the section-header marker/horizon-label text (one shared step, as the retired navy.600 was for both roles). #8A5A12. The WCAG 1.4.11 subject (≥3:1 non-text UI boundary): 4.00:1 on canvas, 4.73:1 on container fill, 5.77:1 on personal-half fill." },
-      "marker": { "$type": "color", "$value": "{color.bronze.600}", "$description": "Section-header accent marker + horizon-label text (NEAR / MID / FAR) inside the Outlook box. #8A5A12 — same value as border (light shares one step; dark uses two). 4.73:1 on container fill, 5.10:1 on impersonal-half fill — AA body text." },
-      "rule": { "$type": "color", "$value": "{color.bronze.050}", "$description": "Hairline rule inside the container (e.g. the Outlook box divider above the non-personalization line). #F7EFD9 — same as pill, stays in the paler wash step. Decorative — exempt from contrast checking." },
-      "on-surface": { "$type": "color", "$value": "{color.warm-ink.900}", "$description": "Primary text on the container fill. Reuses text.primary, unchanged by the retune — #211D17 reads 13.33:1 on the new bronze container fill, AAA." },
-      "on-surface-muted": { "$type": "color", "$value": "{color.warm-ink.600}", "$description": "Muted text on the container fill only (label-line captions, non-personalization line) — never bound inside the pill. Reuses text.muted — its own 2026-07-19 retune (ADR 0340 Amdt 1) carries through: #60594F reads 5.53:1 on the bronze container fill — AA at any size." }
+      "pill": {
+        "$type": "color",
+        "$value": "{color.bronze.050}",
+        "$description": "Fast-cut pill fill — paler than the container, sits on canvas (not on a half-card). #FDF6E3 (retuned from #F7EFD9, 2026-07-27, ADR 0340 Amdt 3 — see color.bronze.050). A fill/background, not a foreground subject to a contrast ratio itself; re-verified to visually pop off the 'Lighter desk' canvas (value-ratio 1.19, up from the pre-retune 1.12) since Amdt 3 moved what the pill floats over. The 1.4.11 subject is accent-surface.border against this fill (4.68:1 — see color.bronze.600)."
+      },
+      "container": {
+        "$type": "color",
+        "$value": "{color.bronze.100}",
+        "$description": "Outlook box fill — the saffron-bronze wash. #F3E5C3. Outlook-exclusive as of ADR 0008 Amendment 2 (2026-08-29) — no longer shared with Paths, which binds `accent-surface-paths.light.container` (navy) instead; the two are deliberately distinct tokens now, not one token read by two sections. A fill/background, not itself a contrast-ratio subject."
+      },
+      "border": {
+        "$type": "color",
+        "$value": "{color.bronze.600}",
+        "$description": "Container border + pill border, and the section-header marker/horizon-label text (one shared step, as the retired navy.600 was for both roles). #8A5A12. The WCAG 1.4.11 subject (≥3:1 non-text UI boundary): 4.00:1 on canvas, 4.73:1 on container fill, 5.77:1 on personal-half fill."
+      },
+      "marker": {
+        "$type": "color",
+        "$value": "{color.bronze.600}",
+        "$description": "Section-header accent marker + horizon-label text (NEAR / MID / FAR) inside the Outlook box. #8A5A12 — same value as border (light shares one step; dark uses two). 4.73:1 on container fill, 5.10:1 on impersonal-half fill — AA body text."
+      },
+      "rule": {
+        "$type": "color",
+        "$value": "{color.bronze.050}",
+        "$description": "Hairline rule inside the container (e.g. the Outlook box divider above the non-personalization line). #F7EFD9 — same as pill, stays in the paler wash step. Decorative — exempt from contrast checking."
+      },
+      "on-surface": {
+        "$type": "color",
+        "$value": "{color.warm-ink.900}",
+        "$description": "Primary text on the container fill. Reuses text.primary, unchanged by the retune — #211D17 reads 13.33:1 on the new bronze container fill, AAA."
+      },
+      "on-surface-muted": {
+        "$type": "color",
+        "$value": "{color.warm-ink.600}",
+        "$description": "Muted text on the container fill only (label-line captions, non-personalization line) — never bound inside the pill. Reuses text.muted — its own 2026-07-19 retune (ADR 0340 Amdt 1) carries through: #60594F reads 5.53:1 on the bronze container fill — AA at any size."
+      }
     },
     "dark": {
-      "pill": { "$type": "color", "$value": "{color.bronze.200}", "$description": "Fast-cut pill fill — bronze-lift, a touch lighter/warmer than the container. #3A2C0C. A fill/background, not itself a contrast-ratio subject." },
-      "container": { "$type": "color", "$value": "{color.bronze.250}", "$description": "Outlook box fill — bronze-lift on near-black. #33280A. Outlook-exclusive as of ADR 0008 Amendment 2 (2026-08-29) — no longer shared with Paths, which binds `accent-surface-paths.dark.container` (navy) instead. A fill/background, not itself a contrast-ratio subject." },
-      "border": { "$type": "color", "$value": "{color.bronze.400}", "$description": "Container + pill border (distinct step from marker, mirroring the retired steel.400/.300 split). #D8A93E. The WCAG 1.4.11 subject (≥3:1): 9.32:1 on canvas, 6.67:1 on container fill." },
-      "marker": { "$type": "color", "$value": "{color.bronze.300}", "$description": "Header marker + horizon-label text (NEAR / MID / FAR) — its own step, distinct from border. #E4BC5E. 8.04:1 on container fill (11.23:1 on canvas) — AA body text." },
-      "rule": { "$type": "color", "$value": "{color.bronze.200}", "$description": "Hairline rule inside the dark container. #3A2C0C — same as pill. Decorative — exempt from contrast checking." },
-      "on-surface": { "$type": "color", "$value": "{color.warm-ink.100}", "$description": "Primary text on dark container fill. Reuses text.primary, unchanged by the retune — #F4F0E8 reads 12.53:1 on the new bronze container fill — AAA." },
-      "on-surface-muted": { "$type": "color", "$value": "{color.warm-ink.300}", "$description": "Muted text on dark container fill only — never bound inside the pill. Reuses text.muted, unchanged by the retune — #C6BEAD reads 8.52:1 on the new bronze container fill — AA at any size." }
+      "pill": {
+        "$type": "color",
+        "$value": "{color.bronze.200}",
+        "$description": "Fast-cut pill fill — bronze-lift, a touch lighter/warmer than the container. #3A2C0C. A fill/background, not itself a contrast-ratio subject."
+      },
+      "container": {
+        "$type": "color",
+        "$value": "{color.bronze.250}",
+        "$description": "Outlook box fill — bronze-lift on near-black. #33280A. Outlook-exclusive as of ADR 0008 Amendment 2 (2026-08-29) — no longer shared with Paths, which binds `accent-surface-paths.dark.container` (navy) instead. A fill/background, not itself a contrast-ratio subject."
+      },
+      "border": {
+        "$type": "color",
+        "$value": "{color.bronze.400}",
+        "$description": "Container + pill border (distinct step from marker, mirroring the retired steel.400/.300 split). #D8A93E. The WCAG 1.4.11 subject (≥3:1): 9.32:1 on canvas, 6.67:1 on container fill."
+      },
+      "marker": {
+        "$type": "color",
+        "$value": "{color.bronze.300}",
+        "$description": "Header marker + horizon-label text (NEAR / MID / FAR) — its own step, distinct from border. #E4BC5E. 8.04:1 on container fill (11.23:1 on canvas) — AA body text."
+      },
+      "rule": {
+        "$type": "color",
+        "$value": "{color.bronze.200}",
+        "$description": "Hairline rule inside the dark container. #3A2C0C — same as pill. Decorative — exempt from contrast checking."
+      },
+      "on-surface": {
+        "$type": "color",
+        "$value": "{color.warm-ink.100}",
+        "$description": "Primary text on dark container fill. Reuses text.primary, unchanged by the retune — #F4F0E8 reads 12.53:1 on the new bronze container fill — AAA."
+      },
+      "on-surface-muted": {
+        "$type": "color",
+        "$value": "{color.warm-ink.300}",
+        "$description": "Muted text on dark container fill only — never bound inside the pill. Reuses text.muted, unchanged by the retune — #C6BEAD reads 8.52:1 on the new bronze container fill — AA at any size."
+      }
     }
   },
   "accent-surface-paths": {
     "$description": "App-only (#34). Minted 2026-08-29 (ADR 0008 Amendment 2 resulting work, #2925) — the Paths-side half of the accent split the retired pair rule used to share with Outlook (see accent-surface's own $description). Marks the personal half's own section: the Paths menu container and its fast-cut pill. Same roles and same behavioral rules as accent-surface (never a signal color, never an evaluative badge/label; nothing inside the section differentiated by it) — only the hue differs, and only two of accent-surface's seven roles are minted here, because Paths' own anatomy doesn't yet need the rest: no marker/on-surface/on-surface-muted key exists because nothing in the Paths menu renders text directly on this wash today (the section heading and the pill's own border/text already bind the EXISTING themes.*.accent.default — see `border` below — and path-card content sits on the neutral bg.surface fill, not on this wash); no `rule` key exists because Paths carries no internal hairline divider analogous to the Outlook box's own. Add the missing roles if and when a consumer needs them, rather than pre-minting unused steps. Values retuned from the dormant pre-ADR-0340 navy/steel accent-surface primitives (color.navy.050/100, color.steel.200/250 — sat unemitted since 0340's bronze retune) to the pale-navy wash measured in the signed mockup (chart-forward-read-v13-2026-08-29.html's own --c-nwash/--c-npill), not minted fresh. **Border is a correction, not a transcription:** the mockup's own literal border value (--c-nborder, #B9C9DF light / #35485E dark) was measured here and found to clear only 1.3–2.2:1 against canvas/container in both themes — well under the ≥3:1 WCAG 1.4.11 floor accent-surface's own border/marker role holds everywhere else (see accent-surface.light/dark.border above) — so it is not reused. In its place, `border` aliases the EXISTING `themes.*.accent.default` directly (not a new primitive): this is what the mockup already does for the Paths heading marker and the fast-cut pill's own border/text (`--c-navy`/`--c-navy`, not `--c-nborder`), so aliasing the semantic token here restates a choice already made in pixels rather than introducing a new one, and it cannot drift out of sync with accent.default if that token is ever retuned. Theme-variant.",
     "light": {
-      "pill": { "$type": "color", "$value": "{color.navy.050}", "$description": "Fast-cut pill fill, Paths' own — pale navy wash, sits on canvas. #EDF2F9. A fill/background, not itself a contrast-ratio subject (same convention as accent-surface.pill)." },
-      "container": { "$type": "color", "$value": "{color.navy.100}", "$description": "Paths section container fill — pale navy wash. #EFF3F9. A fill/background, not itself a contrast-ratio subject." },
-      "border": { "$type": "color", "$value": "{themes.light.accent.default}", "$description": "Paths section container border, fast-cut pill border, AND the 'Your Paths' section-header marker text — one shared step, aliasing accent.default (#23436F) rather than a dedicated primitive (see $description above for why). The WCAG 1.4.11 subject (≥3:1 non-text UI boundary): 7.80:1 on canvas, 8.96:1 on container fill, 8.87:1 on pill fill, 9.56:1 on surface.personal — clears everywhere with large margin." }
+      "pill": {
+        "$type": "color",
+        "$value": "{color.navy.050}",
+        "$description": "Fast-cut pill fill, Paths' own — pale navy wash, sits on canvas. #EDF2F9. A fill/background, not itself a contrast-ratio subject (same convention as accent-surface.pill)."
+      },
+      "container": {
+        "$type": "color",
+        "$value": "{color.navy.100}",
+        "$description": "Paths section container fill — pale navy wash. #EFF3F9. A fill/background, not itself a contrast-ratio subject."
+      },
+      "border": {
+        "$type": "color",
+        "$value": "{themes.light.accent.default}",
+        "$description": "Paths section container border, fast-cut pill border, AND the 'Your Paths' section-header marker text — one shared step, aliasing accent.default (#23436F) rather than a dedicated primitive (see $description above for why). The WCAG 1.4.11 subject (≥3:1 non-text UI boundary): 7.80:1 on canvas, 8.96:1 on container fill, 8.87:1 on pill fill, 9.56:1 on surface.personal — clears everywhere with large margin."
+      }
     },
     "dark": {
-      "pill": { "$type": "color", "$value": "{color.steel.200}", "$description": "Fast-cut pill fill, Paths' own — navy-lift wash on near-black. #152230. A fill/background, not itself a contrast-ratio subject." },
-      "container": { "$type": "color", "$value": "{color.steel.250}", "$description": "Paths section container fill — navy-lift wash. #1A2431. A fill/background, not itself a contrast-ratio subject." },
-      "border": { "$type": "color", "$value": "{themes.dark.accent.default}", "$description": "Paths section container border, fast-cut pill border, AND the 'Your Paths' section-header marker text — one shared step, aliasing accent.default (#7DA6DB) rather than a dedicated primitive. The WCAG 1.4.11 subject (≥3:1): 8.05:1 on canvas, 6.23:1 on container fill, 6.41:1 on pill fill, 6.44:1 on surface.personal." }
+      "pill": {
+        "$type": "color",
+        "$value": "{color.steel.200}",
+        "$description": "Fast-cut pill fill, Paths' own — navy-lift wash on near-black. #152230. A fill/background, not itself a contrast-ratio subject."
+      },
+      "container": {
+        "$type": "color",
+        "$value": "{color.steel.250}",
+        "$description": "Paths section container fill — navy-lift wash. #1A2431. A fill/background, not itself a contrast-ratio subject."
+      },
+      "border": {
+        "$type": "color",
+        "$value": "{themes.dark.accent.default}",
+        "$description": "Paths section container border, fast-cut pill border, AND the 'Your Paths' section-header marker text — one shared step, aliasing accent.default (#7DA6DB) rather than a dedicated primitive. The WCAG 1.4.11 subject (≥3:1): 8.05:1 on canvas, 6.23:1 on container fill, 6.41:1 on pill fill, 6.44:1 on surface.personal."
+      }
     }
   },
   "surface": {
     "$description": "App-only (#34). Named surfaces that are not bg.canvas/surface/raised — structural zones with their own identity. Theme-variant.",
     "panel": {
       "$description": "The impersonal half ('Ticker analysis'). Retuned 2026-07-19 (ADR 0340) from a full-bleed tinted band to an elevated card fill (elevation.high) that floats on the stone canvas alongside surface.personal — mechanism changed (banding → elevation-separated card), name and role ('the impersonal half's own surface') unchanged.",
-      "light": { "$type": "color", "$value": "#F2EEE4", "$description": "Warm parchment, retuned from #EEE7D6 — lighter than the old band value since it now needs to read as a card floating clear of the (now much deeper) stone canvas rather than a subtle tint one step off an ivory canvas. 13.37–14.37:1 for ink.primary, 5.83:1 for signal.positive.light, 6.75:1 for health.degraded.light." },
-      "dark": { "$type": "color", "$value": "#15130E", "$description": "Deep warm graphite, retuned from #14110D — kept slightly lighter than the near-black stone canvas (color.stone.dark #070605) so it still reads as a raised card, not a hole. 16.04:1 for ink.primary, 8.38:1 for signal.positive.dark, 8.13:1 for health.degraded.dark." }
+      "light": {
+        "$type": "color",
+        "$value": "#EEE7D6",
+        "$description": "Warm parchment — one step warmer than canvas (#F7F3EA), conveying the panel as printed matter set into the page. DELIBERATELY FORKED from canonical (stock-analyst-platform#2991, Designer role-gate verdict on twiceover-web PR #67): this is ADR 0340's Studio retone, and ADR 0340 itself explicitly deferred whether Studio extends to twiceover-web to consult 0341 (Designer -> Growth), still Open. Frozen at the site's pre-Studio value pending that answer -- do not resync from canonical until 0341 closes."
+      },
+      "dark": {
+        "$type": "color",
+        "$value": "#14110D",
+        "$description": "Deep warm graphite — slightly darker than canvas (#1A1713), receding to mark the publication boundary. DELIBERATELY FORKED from canonical (stock-analyst-platform#2991, Designer role-gate verdict on twiceover-web PR #67): this is ADR 0340's Studio retone, and ADR 0340 itself explicitly deferred whether Studio extends to twiceover-web to consult 0341 (Designer -> Growth), still Open. Frozen at the site's pre-Studio value pending that answer -- do not resync from canonical until 0341 closes."
+      }
     },
     "personal": {
       "$description": "New 2026-07-19 (ADR 0340). The personal half ('your read') — a warm-cream card floating on the stone canvas alongside surface.panel, separated from it by elevation.high, not by fill-tint (personal↔impersonal luminance ratio is only 1.13:1 by design — Studio's separation axis is shadow). Today the SAME concrete value as bg.surface (both happen to be 'the warm-cream content-panel tone'), kept as its own token rather than binding directly to bg.surface so the two roles — 'a generic raised content panel anywhere in the app' vs. 'the read's personal half specifically' — can't drift into an accidental coupling if either is ever retuned independently.",
-      "light": { "$type": "color", "$value": "{color.warm-white.200}", "$description": "= bg.surface.light today (#FCFAF4). 16.24:1 for ink.primary, 6.58:1 for signal.positive.light, 7.63:1 for health.degraded.light, 9.56:1 for accent-surface-paths.border (corrected 2026-08-29, ADR 0008 Amendment 2 — Paths is what renders on this surface, and Paths now binds accent-surface-paths, not accent-surface; the prior 5.77:1 citation was accent-surface.border/marker, which never renders here now that the pair rule is retired)." },
-      "dark": { "$type": "color", "$value": "{color.warm-graphite.850}", "$description": "= bg.surface.dark today (#242019). 14.21:1 for ink.primary, 7.42:1 for signal.positive.dark, 7.20:1 for health.degraded.dark, 6.44:1 for accent-surface-paths.border (corrected 2026-08-29, ADR 0008 Amendment 2 — same reasoning as the light theme note above)." }
+      "light": {
+        "$type": "color",
+        "$value": "{color.warm-white.200}",
+        "$description": "= bg.surface.light today (#FCFAF4). 16.24:1 for ink.primary, 6.58:1 for signal.positive.light, 7.63:1 for health.degraded.light, 9.56:1 for accent-surface-paths.border (corrected 2026-08-29, ADR 0008 Amendment 2 — Paths is what renders on this surface, and Paths now binds accent-surface-paths, not accent-surface; the prior 5.77:1 citation was accent-surface.border/marker, which never renders here now that the pair rule is retired)."
+      },
+      "dark": {
+        "$type": "color",
+        "$value": "{color.warm-graphite.850}",
+        "$description": "= bg.surface.dark today (#242019). 14.21:1 for ink.primary, 7.42:1 for signal.positive.dark, 7.20:1 for health.degraded.dark, 6.44:1 for accent-surface-paths.border (corrected 2026-08-29, ADR 0008 Amendment 2 — same reasoning as the light theme note above)."
+      }
     }
   },
   "text-link": {
     "$description": "App-only (#34). Inline link and @-handle text color — kept DISTINCT from themes.*.accent.default and from accent-surface.*.marker per ADR 0008 clause 2: 'reserved for the pair' stays literally true. A link uses accent.default (navy/steel); text-link is a slightly different value so a reader never confuses an inline hyperlink with the pair's standout surface. Theme-variant. Renders on: bg.canvas / bg.surface / bg.raised / surface.panel — @-handles in the Voices content render inside the impersonal-half panel (identified 2026-07-10, consult 0203 Q3; previously undeclared).",
-    "light": { "$type": "color", "$value": "{color.navy.650}", "$description": "Inline link / @-handle on light surfaces. #2F5C97 — slightly brighter than accent.default (#23436F), still clearly in the navy family. 4.58:1 on canvas, 5.85:1 on surface.panel — AA on every reachable surface, but canvas clears only just (annotation corrected 2026-07-19, ADR 0340 Amdt 1: Studio's darker canvas moved this from 6.12:1; value itself unchanged — thin margin, watch on any future canvas/primitive move)." },
-    "dark": { "$type": "color", "$value": "{color.steel.350}", "$description": "Inline link / @-handle on dark surfaces. #8FB4E4 — slightly distinct from accent.default (#7DA6DB). 8.35:1 on canvas — AA on every reachable surface." }
+    "light": {
+      "$type": "color",
+      "$value": "{color.navy.650}",
+      "$description": "Inline link / @-handle on light surfaces. #2F5C97 — slightly brighter than accent.default (#23436F), still clearly in the navy family. 4.58:1 on canvas, 5.85:1 on surface.panel — AA on every reachable surface, but canvas clears only just (annotation corrected 2026-07-19, ADR 0340 Amdt 1: Studio's darker canvas moved this from 6.12:1; value itself unchanged — thin margin, watch on any future canvas/primitive move)."
+    },
+    "dark": {
+      "$type": "color",
+      "$value": "{color.steel.350}",
+      "$description": "Inline link / @-handle on dark surfaces. #8FB4E4 — slightly distinct from accent.default (#7DA6DB). 8.35:1 on canvas — AA on every reachable surface."
+    }
   },
   "tab-bar": {
     "$description": "App-only, installed-context only (Capacitor shells + PWA standalone display-mode) — v1.0.3, mobile-installed-app.md §2. Ruled-paper grammar, not elevation: no shadow, `border-top` + `bg.canvas` only, matching the masthead's own hairline-not-shadow rule (app-shell.md §1b). Never emitted on the responsive-web build (that IA stays masthead-only).",
-    "height": { "$type": "dimension", "$value": "49pt", "$description": "Row height before safe-area inset. Add env(safe-area-inset-bottom) on top." },
-    "border": {
-      "light": { "$type": "color", "$value": "{color.warm-ink.250}", "$description": "= border.strong (light). Same hairline token the masthead's bottom border already uses." },
-      "dark": { "$type": "color", "$value": "{color.warm-ink.750}", "$description": "= border.strong (dark)." }
+    "height": {
+      "$type": "dimension",
+      "$value": "49pt",
+      "$description": "Row height before safe-area inset. Add env(safe-area-inset-bottom) on top."
     },
-    "icon-size": { "$type": "dimension", "$value": "24px" }
+    "border": {
+      "light": {
+        "$type": "color",
+        "$value": "{color.warm-ink.250}",
+        "$description": "= border.strong (light). Same hairline token the masthead's bottom border already uses."
+      },
+      "dark": {
+        "$type": "color",
+        "$value": "{color.warm-ink.750}",
+        "$description": "= border.strong (dark)."
+      }
+    },
+    "icon-size": {
+      "$type": "dimension",
+      "$value": "24px"
+    }
   },
   "gated-section": {
     "$description": "App-only (#34). The tier-tinted container for an entitlement-gated layer's disclosure line (free-read-upsell.md §3.1, ADR 0117 Amendment 6) — reverses the 'no container, no accent' forbidden state for this one surface only, so a reader can visually scan which layers are gated at a glance and, via the wash's hue, which plan unlocks them. Deliberately its OWN color family, a light wash of themes.*.accent.default itself — never accent-surface.* (ADR 0008's reserved Paths/Outlook pair, untouched). Keyed by tier so a future Premium-gated layer (Analyst research, deferred-unlit) gets its own step when it lights — only `core` exists today. Theme-variant.",
     "core": {
       "light": {
-        "bg": { "$type": "color", "$value": "#D9DDDF", "$description": "16% wash of accent.default (navy #23436F) into bg.surface (#FCFAF4). A fill, not itself a contrast-ratio subject, but verified as a floor for what renders on it: text.long-form 9.85:1, text.secondary 6.82:1, accent.default (tier chip ink / filled tally dot) 7.30:1, text.primary (v1.25, ADR 0117 Amdt 7 — the read receipt's row-name ink, .omitted-ledger__label inside .omitted-ledger__adds) 12.26:1 — all comfortably AA/AAA." },
-        "border": { "$type": "color", "$value": "#6F839E", "$description": "65% wash of accent.default into bg.surface. The WCAG 1.4.11 non-text subject: 3.03:1 on bg.canvas, 3.71:1 on bg.surface — clears the 3:1 floor on both grounds this container can sit on." }
+        "bg": {
+          "$type": "color",
+          "$value": "#D9DDDF",
+          "$description": "16% wash of accent.default (navy #23436F) into bg.surface (#FCFAF4). A fill, not itself a contrast-ratio subject, but verified as a floor for what renders on it: text.long-form 9.85:1, text.secondary 6.82:1, accent.default (tier chip ink / filled tally dot) 7.30:1, text.primary (v1.25, ADR 0117 Amdt 7 — the read receipt's row-name ink, .omitted-ledger__label inside .omitted-ledger__adds) 12.26:1 — all comfortably AA/AAA."
+        },
+        "border": {
+          "$type": "color",
+          "$value": "#6F839E",
+          "$description": "65% wash of accent.default into bg.surface. The WCAG 1.4.11 non-text subject: 3.03:1 on bg.canvas, 3.71:1 on bg.surface — clears the 3:1 floor on both grounds this container can sit on."
+        }
       },
       "dark": {
-        "bg": { "$type": "color", "$value": "#34383C", "$description": "18% wash of accent.default (steel #7DA6DB) into bg.surface (dark, #242019). text.long-form 8.26:1, text.secondary 6.40:1, accent.default 4.70:1, text.primary (v1.25, ADR 0117 Amdt 7 — the read receipt's row-name ink) 10.40:1 on this fill — all clear AA." },
-        "border": { "$type": "color", "$value": "#59708D", "$description": "60% wash of accent.default into bg.surface (dark). 3.98:1 on bg.canvas, 3.19:1 on bg.surface — clears 3:1 on both." }
+        "bg": {
+          "$type": "color",
+          "$value": "#34383C",
+          "$description": "18% wash of accent.default (steel #7DA6DB) into bg.surface (dark, #242019). text.long-form 8.26:1, text.secondary 6.40:1, accent.default 4.70:1, text.primary (v1.25, ADR 0117 Amdt 7 — the read receipt's row-name ink) 10.40:1 on this fill — all clear AA."
+        },
+        "border": {
+          "$type": "color",
+          "$value": "#59708D",
+          "$description": "60% wash of accent.default into bg.surface (dark). 3.98:1 on bg.canvas, 3.19:1 on bg.surface — clears 3:1 on both."
+        }
       }
     }
   }
