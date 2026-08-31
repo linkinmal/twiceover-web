@@ -118,7 +118,7 @@ describe("the carousel's Outlook card and the hero cannot disagree", () => {
   });
 });
 
-describe("Option A — the hero's presentation treatment (#2987, v2.35)", () => {
+describe("Option B — the hero's presentation treatment (#2987/#3013, v2.35 elevation + v2.38 tilt)", () => {
   // Comments carry the same selector and property names as the rules they explain, so these scans
   // run on a comment-stripped copy — otherwise a rule's own rationale answers for it.
   const css = read("src/styles/site.css").replace(/\/\*[\s\S]*?\*\//g, "");
@@ -176,14 +176,40 @@ describe("Option A — the hero's presentation treatment (#2987, v2.35)", () => 
     expect(dark.body).not.toMatch(/color-mix/);
   });
 
-  it("takes NO tilt and stages NO second card — G is withdrawn, B is not taken", () => {
+  it("takes the v2.38 tilt on the card, and stages NO second card — B is the build, G stays withdrawn", () => {
     // An EXACT set, not a "does it look like a chart" filter. Rotation is rare and deliberate on
-    // this page, so listing every one is cheap, and it fails on any new rotation anywhere. The
-    // chevron is the page's one rotation (an affordance on the FAQ disclosure).
+    // this page, so listing every one is cheap, and it fails on any new rotation anywhere. Two
+    // members since v2.38: the FAQ chevron (an affordance on the disclosure) and the hero card.
     const rotated = all.filter((r) => /transform:\s*rotate\(/.test(r.body)).map((r) => r.selector);
-    expect(new Set(rotated)).toEqual(new Set([".faq__list details[open] > summary .faq__chevron"]));
+    expect(new Set(rotated)).toEqual(
+      new Set([".faq__list details[open] > summary .faq__chevron", ".proof__band"]),
+    );
+    // The ANGLE, not merely "some rotation" — a tilt that drifted to -15deg, or flipped to +1.5deg,
+    // passes the set check above and is still wrong on the page.
+    const band = all.find((r) => r.selector === ".proof__band");
+    expect(band.body).toMatch(/transform:\s*rotate\(-1\.5deg\)/);
     // And nothing re-introduces the staged card's own surfaces.
     expect(css).not.toMatch(/\.hero-stage|\.pm-card|\.pm-chart/);
+  });
+
+  it("keeps the tilt hero-only — it sits on the band, never on the figure or the caption", () => {
+    // v2.38 puts the rotation on "the card as a whole". The .proof <figure> also holds
+    // .proof__caption; rotating running text is a different proposition and not what was ruled.
+    const figure = all.find((r) => r.selector === ".proof");
+    expect(figure.body).not.toMatch(/transform/);
+    const caption = all.find((r) => r.selector === ".proof__caption");
+    if (caption) expect(caption.body).not.toMatch(/transform:\s*rotate\(/);
+  });
+
+  it("does not make the tilt a motion treatment — nothing for reduced-motion to reduce", () => {
+    // A static transform, so no transition/animation on the card and no reduced-motion variant is
+    // owed. If someone later animates it, this fails and the spec question reopens deliberately.
+    const band = all.find((r) => r.selector === ".proof__band");
+    expect(band.body).not.toMatch(/transition|animation/);
+    // Scanned on the raw text: `rules()` unwraps at-rules, so a @media block's own identity is not
+    // on the rule objects and has to be read from the source.
+    const reducedMotionBlocks = css.match(/@media[^{]*prefers-reduced-motion[^{]*\{[\s\S]*?\n\s*\}/g) ?? [];
+    expect(reducedMotionBlocks.some((b) => /\.proof__band/.test(b))).toBe(false);
   });
 
   it("leaves the band the whole hero column — the treatment is elevation, not a re-layout", () => {
