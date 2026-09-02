@@ -434,7 +434,7 @@ export function scanWorkerSource(workerSource) {
   // Mechanism-present + bound-present + a value that never met the bound is precisely the
   // one-ended declaration the DoD's *Declaration wired* rule names — coverage that enforces
   // nothing. So pin the binding itself: the value handed to .set() must come FROM the reader.
-  // (The ticker pair above has the identical structural gap, pre-dating this — stock-analyst-platform#3267.)
+  // (The ticker pair above has the identical structural gap, pre-dating this — stock-analyst-platform#3268.)
   if (!/const category = readSupportCategory\(searchParams\)/.test(workerSource)) {
     failures.push(
       `[security] worker/index.js's forwarded category must be produced by readSupportCategory(searchParams) — a raw searchParams.get("category") skips the closed-set bound while leaving every other assertion in this gate satisfied`,
