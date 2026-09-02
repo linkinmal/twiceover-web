@@ -66,7 +66,7 @@ describe("the site's token file matches canonical outside its deliberate fork", 
     // A digest alone says "changed", never "changed to what". This gives the failure a human
     // coordinate, and fails independently if someone edits the version string to paper over a diff.
     const tokens = JSON.parse(readFileSync(join(root, 'tokens/twiceover.tokens.json'), 'utf8'));
-    expect(/v(\d+\.\d+\.\d+)/.exec(tokens.$description)?.[1]).toBe('2.9.0');
+    expect(/v(\d+\.\d+\.\d+)/.exec(tokens.$description)?.[1]).toBe('2.10.0');
   });
 
   it('still forks exactly the four groups the Designer ruled on — no silent widening or narrowing', () => {
