@@ -178,10 +178,50 @@ export function readTicker(searchParams) {
   return TICKER_PATTERN.test(normalized) ? normalized : null;
 }
 
+/* ── The /contact deep-link params (stock-analyst-platform#3237) ──────────────
+   ADR 0859 makes twiceover.io/contact a redirect into the app-hosted support form.
+   support-request-form.md §6 gives that form two deep-link params, and this Worker
+   is the only thing standing between the public URL and the form: whatever it does
+   not forward arrives as an empty field on a page that renders correctly, so the
+   failure is invisible to CI and to the user alike.
+
+   Bounded here BEFORE the value leaves this origin, then written with
+   URLSearchParams.set() — the same two-step consult 0739 pinned for the ticker,
+   for the same reason (raw concatenation into `Location` is the CRLF seam).
+
+   Matched STRICTLY, not normalized: §6 rules that "anything else is ignored
+   silently … an unvalidated parameter is never echoed into the DOM," and both
+   values are machine-minted (a link the app itself writes), never typed. The
+   ticker normalizes because a human types it into a field; these do not. */
+
+/** The closed category set the support form accepts (support-request-form.md §6). */
+const SUPPORT_CATEGORIES = new Set(["billing", "broker", "read", "feedback", "other"]);
+
+/** The Read-reference shape the form accepts — 8 lowercase hex, exactly what
+ *  twiceover-app's `ErrorReferenceChip` renders (support-request-form.md §3/§6). */
+const SUPPORT_REF_PATTERN = /^[0-9a-f]{8}$/;
+
+/** The requested support category, or null when absent or outside the closed set. */
+export function readSupportCategory(searchParams) {
+  const raw = searchParams.get("category");
+  if (!raw) return null;
+  return SUPPORT_CATEGORIES.has(raw) ? raw : null;
+}
+
+/** The Read reference, or null when absent or off the 8-hex shape. Carries no personal
+ *  data by construction (AC-S2.2): a reference id is not an email or an account id. */
+export function readSupportRef(searchParams) {
+  const raw = searchParams.get("ref");
+  if (!raw) return null;
+  return SUPPORT_REF_PATTERN.test(raw) ? raw : null;
+}
+
 /**
- * Build the /go/try -> app redirect URL by re-serializing ONLY the three UTM keys onto the
- * app base (consult 0163 finding). The incoming query string is NEVER spread or passed
- * through — any other param a link generator or user appended is dropped here.
+ * Build the /go/* -> app redirect URL by re-serializing ONLY a NAMED, BOUNDED set of keys
+ * onto the app base (consult 0163 finding): the three UTM keys, plus `ticker` where the
+ * caller opts in, plus the support form's `category`/`ref` (#3237). The incoming query
+ * string is NEVER spread or passed through — any other param a link generator or user
+ * appended is dropped here, and so is any named param whose value is out of bounds.
  */
 export function buildAppRedirect(baseUrl, searchParams, { forwardTicker = false } = {}) {
   const dest = new URL(baseUrl);
@@ -197,6 +237,15 @@ export function buildAppRedirect(baseUrl, searchParams, { forwardTicker = false 
     const ticker = readTicker(searchParams);
     if (ticker) dest.searchParams.set("ticker", ticker);
   }
+  // The support form's two deep-link params (#3237). Unconditional, unlike the ticker:
+  // with no /contact entry in GO_DESTINATIONS yet, an opt-in flag would have no truthy
+  // caller, making the forwarding a declaration nothing produces. Both bounds are closed
+  // sets, so forwarding them on a route with no use for them is inert — and the /contact
+  // route, when it lands, needs no second change here.
+  const category = readSupportCategory(searchParams);
+  if (category) dest.searchParams.set("category", category);
+  const ref = readSupportRef(searchParams);
+  if (ref) dest.searchParams.set("ref", ref);
   return dest.toString();
 }
 

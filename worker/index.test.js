@@ -5,6 +5,8 @@ import {
   isHtmlPageView,
   buildAppRedirect,
   readTicker,
+  readSupportCategory,
+  readSupportRef,
 } from "./index.js";
 import worker from "./index.js";
 
@@ -59,7 +61,10 @@ describe("isHtmlPageView", () => {
 describe("buildAppRedirect", () => {
   const base = "https://app.twiceover.io/";
 
-  it("forwards only the three UTM keys, dropping every other incoming param", () => {
+  // The three UTM keys are the baseline every /go/* route forwards. Two more keys join
+  // them below (stock-analyst-platform#3237) — bounded, and only when in-set; every param
+  // outside that named set is still dropped, which is what this pins.
+  it("forwards only the named keys, dropping every other incoming param", () => {
     const url = buildAppRedirect(
       base,
       new URLSearchParams("utm_source=ph&utm_medium=social&utm_campaign=launch&foo=SECRET&token=abc"),
@@ -96,7 +101,7 @@ describe("fetch — /go/* routes", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it.each(["/go/connect", "/go/signin", "/go/try", "/go/plan"])(
-    "redirects %s to the app root, forwarding only UTM and dropping every other param",
+    "redirects %s to the app root, forwarding UTM and dropping every unnamed param",
     async (path) => {
       const env = fakeEnv();
       const request = new Request(
@@ -111,6 +116,32 @@ describe("fetch — /go/* routes", () => {
       expect(location.searchParams.get("utm_campaign")).toBe("launch");
       expect(location.searchParams.has("foo")).toBe(false);
       expect(env.ASSETS.fetch).not.toHaveBeenCalled();
+    },
+  );
+
+  // The producing end of #3237's forwarding: the real dispatch path, not just the pure helper.
+  // With no /contact entry in GO_DESTINATIONS yet, this is what keeps the forwarding from being
+  // code nothing calls — every /go/* route carries the two bounded params through today, so the
+  // /contact route lands later as a map entry needing no second change to the forwarder.
+  it.each(["/go/connect", "/go/signin", "/go/try", "/go/plan"])(
+    "forwards the support form's bounded category/ref through %s, and drops them out of set",
+    async (path) => {
+      const env = fakeEnv();
+      const good = await worker.fetch(
+        new Request(`https://twiceover.io${path}?category=feedback&ref=0a1b2c3d`),
+        env,
+      );
+      const forwarded = new URL(good.headers.get("location"));
+      expect(forwarded.searchParams.get("category")).toBe("feedback");
+      expect(forwarded.searchParams.get("ref")).toBe("0a1b2c3d");
+
+      const bad = await worker.fetch(
+        new Request(`https://twiceover.io${path}?category=sales&ref=NOTAREF`),
+        env,
+      );
+      const dropped = new URL(bad.headers.get("location"));
+      expect(dropped.searchParams.has("category")).toBe(false);
+      expect(dropped.searchParams.has("ref")).toBe(false);
     },
   );
 
@@ -263,6 +294,103 @@ describe("buildAppRedirect — ticker forwarding", () => {
   });
 });
 
+/* ── The /contact deep-link params (stock-analyst-platform#3237) ──────────
+   ADR 0859 makes twiceover.io/contact a redirect into the app-hosted support
+   form, and support-request-form.md §6 gives that form two deep-link params:
+   `category` (a closed five-member set) and `ref` (an 8-hex read reference).
+   buildAppRedirect() dropped both, so every deep link arrived stripped — a
+   working page with an empty field, which nothing fails on.
+
+   Bounded then written with URLSearchParams.set(), the same two-step consult
+   0739 pinned for the ticker. Unlike the ticker these are NOT opt-in: with no
+   /contact route in GO_DESTINATIONS yet, an opt-in flag would have no truthy
+   caller, so the forwarding would be a declaration nothing produces. Both
+   sets are closed, so forwarding them on every /go/* route is inert where the
+   destination has no use for them. */
+
+describe("readSupportCategory", () => {
+  it("accepts each member of the closed set support-request-form.md §6 names", () => {
+    for (const ok of ["billing", "broker", "read", "feedback", "other"]) {
+      expect(readSupportCategory(new URLSearchParams(`category=${ok}`))).toBe(ok);
+    }
+  });
+
+  it("drops anything outside the set rather than passing it through", () => {
+    for (const bad of ["Feedback", "FEEDBACK", " feedback", "feedback ", "sales", "", "<script>", "%00"]) {
+      expect(readSupportCategory(new URLSearchParams(`category=${encodeURIComponent(bad)}`))).toBeNull();
+    }
+  });
+
+  it("returns null when the param is absent entirely", () => {
+    expect(readSupportCategory(new URLSearchParams("utm_source=ph"))).toBeNull();
+  });
+
+  it("rejects a CRLF payload rather than passing it toward the Location header", () => {
+    const crlf = "feedback\r\nLocation: https://evil.example";
+    expect(readSupportCategory(new URLSearchParams(`category=${encodeURIComponent(crlf)}`))).toBeNull();
+  });
+});
+
+describe("readSupportRef", () => {
+  it("accepts exactly the 8-lowercase-hex shape the form's Read reference takes", () => {
+    expect(readSupportRef(new URLSearchParams("ref=0a1b2c3d"))).toBe("0a1b2c3d");
+    expect(readSupportRef(new URLSearchParams("ref=00000000"))).toBe("00000000");
+    expect(readSupportRef(new URLSearchParams("ref=ffffffff"))).toBe("ffffffff");
+  });
+
+  it("drops anything off that shape — wrong length, wrong case, wrong alphabet", () => {
+    for (const bad of ["0a1b2c3", "0a1b2c3de", "0A1B2C3D", "0a1b-2c3d", "zzzzzzzz", "", "  0a1b2c3d"]) {
+      expect(readSupportRef(new URLSearchParams(`ref=${encodeURIComponent(bad)}`))).toBeNull();
+    }
+  });
+
+  it("returns null when the param is absent entirely", () => {
+    expect(readSupportRef(new URLSearchParams("utm_source=ph"))).toBeNull();
+  });
+
+  it("rejects a CRLF payload rather than passing it toward the Location header", () => {
+    const crlf = "0a1b2c3d\r\nLocation: https://evil.example";
+    expect(readSupportRef(new URLSearchParams(`ref=${encodeURIComponent(crlf)}`))).toBeNull();
+  });
+});
+
+describe("buildAppRedirect — /contact deep-link forwarding", () => {
+  const base = "https://app.twiceover.io/";
+
+  it("forwards both params alongside UTM, with no opt-in needed", () => {
+    const url = new URL(
+      buildAppRedirect(base, new URLSearchParams("category=feedback&ref=0a1b2c3d&utm_source=ph")),
+    );
+    expect(url.searchParams.get("category")).toBe("feedback");
+    expect(url.searchParams.get("ref")).toBe("0a1b2c3d");
+    expect(url.searchParams.get("utm_source")).toBe("ph");
+  });
+
+  it("forwards each independently — one present, the other absent", () => {
+    const catOnly = new URL(buildAppRedirect(base, new URLSearchParams("category=billing")));
+    expect([...catOnly.searchParams.keys()]).toEqual(["category"]);
+
+    const refOnly = new URL(buildAppRedirect(base, new URLSearchParams("ref=0a1b2c3d")));
+    expect([...refOnly.searchParams.keys()]).toEqual(["ref"]);
+  });
+
+  it("drops an out-of-set value instead of forwarding it", () => {
+    const url = new URL(
+      buildAppRedirect(base, new URLSearchParams("category=sales&ref=NOTAREF&utm_source=ph")),
+    );
+    expect(url.searchParams.has("category")).toBe(false);
+    expect(url.searchParams.has("ref")).toBe(false);
+    expect(url.searchParams.get("utm_source")).toBe("ph");
+  });
+
+  it("cannot be made to emit a Location carrying a raw CR or LF through either param", () => {
+    const payload = encodeURIComponent("feedback\r\nX: y");
+    const url = buildAppRedirect(base, new URLSearchParams(`category=${payload}&ref=${payload}`));
+    expect(url).not.toMatch(/[\r\n]/);
+    expect(url).toBe("https://app.twiceover.io/");
+  });
+});
+
 describe("fetch — /go/try ticker handoff", () => {
   function fakeEnv() {
     return { SITE_METRICS: { writeDataPoint: vi.fn() }, ASSETS: { fetch: vi.fn() } };
@@ -381,8 +509,9 @@ describe("fetch — per-route app destinations", () => {
     );
     const location = response.headers.get("location");
 
-    // Consult 0739's trip-wire: only the three UTM keys are ever forwarded, and the destination
-    // itself comes from the literal map, never from anything on the request.
+    // Consult 0739's trip-wire: only the named, bounded keys are ever forwarded — an
+    // open-redirect param is not among them — and the destination itself comes from the
+    // literal map, never from anything on the request.
     expect(location).toBe("https://app.twiceover.io/#connection");
     expect(location).not.toContain("evil.example");
   });
