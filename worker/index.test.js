@@ -383,6 +383,25 @@ describe("buildAppRedirect — /contact deep-link forwarding", () => {
     expect(url.searchParams.get("utm_source")).toBe("ph");
   });
 
+  // URLSearchParams.get() returns the FIRST value, and dest.searchParams.set() writes a single
+  // one — so a duplicated key cannot smuggle a second, unbounded value past the reader.
+  it("takes the first value of a duplicated key and emits exactly one of it", () => {
+    const url = new URL(
+      buildAppRedirect(base, new URLSearchParams("category=feedback&category=sales&ref=0a1b2c3d&ref=zzzzzzzz")),
+    );
+    expect(url.searchParams.getAll("category")).toEqual(["feedback"]);
+    expect(url.searchParams.getAll("ref")).toEqual(["0a1b2c3d"]);
+  });
+
+  // The reverse order: an out-of-set value FIRST drops the key entirely rather than falling
+  // through to the valid duplicate behind it.
+  it("drops the key when the first value is out of set, ignoring a valid duplicate behind it", () => {
+    const url = new URL(
+      buildAppRedirect(base, new URLSearchParams("category=sales&category=feedback")),
+    );
+    expect(url.searchParams.has("category")).toBe(false);
+  });
+
   it("cannot be made to emit a Location carrying a raw CR or LF through either param", () => {
     const payload = encodeURIComponent("feedback\r\nX: y");
     const url = buildAppRedirect(base, new URLSearchParams(`category=${payload}&ref=${payload}`));

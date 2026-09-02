@@ -242,7 +242,9 @@ describe("scanWorkerSource", () => {
     '  return { utm_source: "" };',
     "}",
     'dest.searchParams.set("ticker", ticker);',
+    "const category = readSupportCategory(searchParams);",
     'dest.searchParams.set("category", category);',
+    "const ref = readSupportRef(searchParams);",
     'dest.searchParams.set("ref", ref);',
   ].join("\n");
 
@@ -302,6 +304,23 @@ describe("scanWorkerSource", () => {
     );
     expect(scanWorkerSource(loosened)).toEqual([
       expect.stringMatching(/\^\[0-9a-f\]\{8\}\$/),
+    ]);
+  });
+
+  /* The bypass every OTHER assertion in this gate passes: read the param raw off the query,
+     leave the bounded reader in the file as dead code, keep the .set() call text identical.
+     Mechanism present, bound present, value never bounded. Without the provenance assertions
+     this fixture returns zero failures — which is the whole point of having them. */
+  it.each([
+    ["category", "readSupportCategory"],
+    ["ref", "readSupportRef"],
+  ])("fails a %s read raw off the query, bypassing its bounded reader", (key, reader) => {
+    const bypassed = OK.replace(
+      `const ${key} = ${reader}(searchParams);`,
+      `const ${key} = searchParams.get("${key}");`,
+    );
+    expect(scanWorkerSource(bypassed)).toEqual([
+      expect.stringMatching(new RegExp(`must be produced by ${reader}`)),
     ]);
   });
 

@@ -3,7 +3,8 @@
 // SITE_METRICS Analytics Engine dataset. Two call sites:
 //   1. a page-view record on every HTML page served (MQ1, MQ3-referrer/UTM, MQ4);
 //   2. a click-event record on every /go/* route (MQ2), each a same-origin redirect
-//      to app.twiceover.io forwarding ONLY the three UTM keys.
+//      to app.twiceover.io forwarding ONLY a named, bounded set of keys — the three UTM
+//      keys, plus `ticker` on /go/try and the support form's `category`/`ref` (#3237).
 //
 // Emitted fields are EXACTLY six, exhaustively (ADR 0136 / consult 0163):
 //   path, referrer (origin only), utm_source, utm_medium, utm_campaign, country.
@@ -266,7 +267,8 @@ export default {
     const url = new URL(request.url);
     const country = (request.cf && request.cf.country) || "";
 
-    // MQ2 — a /go/* CTA click. Log, then 302 to the app forwarding only UTM.
+    // MQ2 — a /go/* CTA click. Log, then 302 to the app forwarding only the named,
+    // bounded keys `buildAppRedirect` enumerates — never the incoming query wholesale.
     if (GO_PATHS.has(url.pathname)) {
       const referrer = refererOrigin(request.headers.get("referer"), url.origin);
       try {
