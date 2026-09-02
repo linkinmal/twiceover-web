@@ -806,6 +806,50 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .depth-stat__figure { margin: 0 0 var(--space-100); color: var(--color-text-primary); }
 .depth-stat__caption { margin: 0; color: var(--color-text-secondary); font-size: var(--font-size-300); }
 
+/* ── Pricing strip (v2.28, new, #2812 bullet 2) ─────────────────────────────────
+   The depth strip's own grammar, two-up: a big figure and one line of context under it.
+   Ground (bg.raised), full bleed, strong top rule and block padding all come from
+   .section-ground--lifted (#2216) rather than being restated here — so the alternation
+   depth-strip(recessed) -> pricing-strip(lifted) -> doors(ground) is resolvable by
+   section-grounds.test.mjs instead of being a claim in a comment.
+
+   The figure departs from the depth strip on one facet, deliberately: site-prelaunch.md §2
+   pins "Source Code Pro tabular numerals" here, where .depth-stat__figure takes type-display's
+   serif face. type-display is therefore carrying the SCALE only, and the family is overridden.
+   The dividers follow .depth-stat's pattern — a bottom hairline stacked, a right hairline in
+   two columns — but sit inside the content column, not edge to edge, because .section-ground
+   re-pads its children back to the column. */
+.pricing-strip__grid { display: grid; grid-template-columns: 1fr; }
+@media (min-width: 640px) { .pricing-strip__grid { grid-template-columns: repeat(2, 1fr); } }
+.pricing-stat { padding-block: var(--space-300); border-bottom: 1px solid var(--color-border-default); }
+.pricing-strip__grid .pricing-stat:first-child { padding-block-start: 0; }
+.pricing-strip__grid .pricing-stat:last-child { border-bottom: none; }
+@media (min-width: 640px) {
+  .pricing-stat {
+    padding-block: 0;
+    padding-inline-end: var(--space-400);
+    border-bottom: none;
+    border-right: 1px solid var(--color-border-default);
+  }
+  .pricing-strip__grid .pricing-stat:last-child {
+    padding-inline: var(--space-400) 0;
+    border-right: none;
+  }
+}
+.pricing-stat__label { margin: 0; color: var(--color-text-secondary); font-weight: var(--font-weight-semibold); font-size: var(--font-size-300); }
+.pricing-stat__figure {
+  margin: var(--space-050) 0 var(--space-100);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+/* Same proportion the /pricing cards give their own "/mo" (.tier .price .per) — one figure
+   grammar across the two surfaces that show these numbers. */
+.pricing-stat__figure .per { font-size: var(--font-size-300); font-weight: var(--font-weight-regular); letter-spacing: var(--font-letter-spacing-normal); color: var(--color-text-muted); }
+.pricing-stat__caption { margin: 0; color: var(--color-text-secondary); font-size: var(--font-size-300); }
+.pricing-strip__link { margin-block-start: var(--space-400); }
+
 /* ── Connect band (new, #2208) — full-bleed, same visual language as the depth
    strip immediately above it (border-strong rule, bg-surface), between How it
    works and the Trust plate. Copy: site-copy-twiceover.md "Connect section"
@@ -1122,16 +1166,26 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 
 /* ── Closing band (v2.3 — promotes the old one-line pricing cue) ─────────── */
 .closing-band { margin-inline: calc(50% - 50vw); background: var(--surface-panel); border-top: 1px solid var(--color-border-strong); }
+/* Column at every width since v2.28 (#3030). It was a two-up row at >=640px — heading and sub
+   left, buttons right — which has no "beneath the buttons" for the trial disclosure to occupy
+   (site-prelaunch.md §2, and the approved mockup). Stacking is what the disclosure placement
+   costs; the heading, sub, and button pair are otherwise untouched.
+   The sub gains the body copy's own 60ch measure as part of that: in a row it was bounded by
+   the action group beside it, and in a column it would otherwise run the full 72rem column. */
 .closing-band__inner {
   display: flex;
   flex-direction: column;
-  gap: var(--space-300);
   align-items: flex-start;
   padding-block: var(--space-600);
 }
-@media (min-width: 640px) { .closing-band__inner { flex-direction: row; align-items: center; justify-content: space-between; } }
-.closing-band__inner p:last-child { margin: var(--space-100) 0 0; color: var(--color-text-secondary); }
-.closing-band__actions { display: flex; align-items: center; gap: var(--space-200); flex-shrink: 0; }
+.closing-band__heading { margin: 0; }
+.closing-band__sub { margin: var(--space-100) 0 0; color: var(--color-text-secondary); max-width: 60ch; }
+.closing-band__body { margin: var(--space-300) 0 0; color: var(--color-text-secondary); max-width: 60ch; }
+.closing-band__actions { display: flex; align-items: center; gap: var(--space-200); flex-shrink: 0; flex-wrap: wrap; margin-block-start: var(--space-400); }
+/* The band's only caption-weight text, matching the footer disclaimer's register rather than
+   the body copy above it (site-prelaunch.md §2). */
+.closing-band__disclosure { margin: var(--space-300) 0 0; color: var(--color-text-muted); max-width: 70ch; }
+.closing-band__disclosure + .closing-band__disclosure { margin-block-start: var(--space-100); }
 
 /* ── Pricing ──────────────────────────────────────────────────────────── */
 .page-title-block { padding-block-start: var(--space-600); }

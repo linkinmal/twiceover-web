@@ -151,6 +151,30 @@ const websiteJsonLd = {
     </div>
   </section>
 
+  {/* Pricing strip (v2.28, new, #2812 bullet 2 — build reference ai-team/design/assets/
+      pricing-strip-and-closing-band-trial-2026-08-28.html). Sits here, immediately after the
+      depth strip, so the numbers are visible before the visitor spends real scroll (spec §2:
+      "so price is not a mid-evaluation excursion").
+
+      Both context lines are QUOTATIONS of the live /pricing cards, never restated or
+      paraphrased — pricing-strip-and-closing-band.test.mjs asserts them equal to pricing.astro's
+      own bullets rather than to a pinned string, so a reword on either page fails the build. */}
+  <section class="pricing-strip section-ground section-ground--lifted" aria-label="Pricing at a glance">
+    <div class="pricing-strip__grid">
+      <div class="pricing-stat">
+        <p class="pricing-stat__label">Free</p>
+        <p class="pricing-stat__figure type-display">$0</p>
+        <p class="pricing-stat__caption">10 reads a month — ongoing, not a trial</p>
+      </div>
+      <div class="pricing-stat">
+        <p class="pricing-stat__label">Core</p>
+        <p class="pricing-stat__figure type-display">$49<span class="per">/mo</span></p>
+        <p class="pricing-stat__caption">600 reads a month — a full book pass, every day</p>
+      </div>
+    </div>
+    <a class="btn-quiet pricing-strip__link" href="/pricing">See full pricing →</a>
+  </section>
+
   {/* Two doors (v2.3, replaces "What you see") — two door cards, each ending in a
       static illustrative decoration, not a live control (spec §2). Checklist copy
       folds in the existing Growth-approved (#63) wys content, restructured. */}
@@ -350,17 +374,33 @@ const websiteJsonLd = {
   {/* Closing band (v2.3 — promotes the old one-line pricing cue). Primary + ghost
       button pair (site-prelaunch.md §2), resolved (#1754): primary shares the hero
       CTA's route and copy — "same destination, same intent" (site-app-seam.md §3) —
-      ghost stays the existing Pricing link. */}
+      ghost stays the existing Pricing link.
+
+      Grows the trial disclosure rather than getting its own section (v2.28, #2812 bullet 3,
+      closing consult 0792): a disclosure-only block below "What TwiceOver is not" would read
+      as burying Connect read-only exactly where the page is trying to close. Heading, sub and
+      buttons are unchanged; the two body paragraphs land between them and the two disclosure
+      lines sit BENEATH the buttons, per the approved mockup — which is what turned this band's
+      >=640px flex row into a column, since a right-hand action group has no "beneath."
+
+      No third disclaimer line: the footer's single-source disclaimer already covers the page
+      once, and ci/check-content.mjs enforces that one. */}
   <section class="closing-band">
     <div class="container closing-band__inner">
-      <div>
-        <p class="type-heading-1">See it on your own book.</p>
-        <p>Any US-listed ticker, no connection needed — or connect read-only for your own read.</p>
-      </div>
+      <p class="type-heading-1 closing-band__heading">See it on your own book.</p>
+      <p class="closing-band__sub">Any US-listed ticker, no connection needed — or connect read-only for your own read.</p>
+      <p class="closing-band__body type-body">A connected free account reads your held positions in full: structure, your own rules, scenarios and paths. Free covers 10 reads a month.</p>
+      <p class="closing-band__body type-body">Core raises your monthly read count to 600 — a full book pass, every day. It also weighs two more inputs: the licensed news wire and curated voices, alongside price, structure, levels and fundamentals.</p>
       <div class="closing-band__actions">
         <a class="btn-filled" href="/go/connect">Connect read-only →</a>
         <a class="btn-quiet" href="/pricing">Pricing</a>
       </div>
+      {/* ADR 0145 Amendment 7's TRIAL_DISCLOSURE_LINE_1 verbatim, behind Growth's lead-in
+          sentence; then trial-ux-reference.md §2's cancellation line verbatim (no-copy-variance,
+          trial-ux.md §9). Both canonical sources live in stock-analyst-platform, so this repo's
+          test can only pin the strings, not verify them against their source. */}
+      <p class="closing-band__disclosure type-caption">Core starts with a 14-day trial. $0 due today. 14 days free. Then $49/month, plus any applicable sales tax, charged automatically to the card you save at checkout. You'll see the exact date once your trial starts.</p>
+      <p class="closing-band__disclosure type-caption">You can cancel any time before the trial ends in Settings — one click, no charge.</p>
     </div>
   </section>
 
