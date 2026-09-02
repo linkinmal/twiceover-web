@@ -806,35 +806,71 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .depth-stat__figure { margin: 0 0 var(--space-100); color: var(--color-text-primary); }
 .depth-stat__caption { margin: 0; color: var(--color-text-secondary); font-size: var(--font-size-300); }
 
-/* ── Pricing strip (v2.28, new, #2812 bullet 2) ─────────────────────────────────
+/* ── Pricing strip (v2.28, #2812 bullet 2; divider + link geometry v2.39, #3139) ──
    The depth strip's own grammar, two-up: a big figure and one line of context under it.
-   Ground (bg.raised), full bleed, strong top rule and block padding all come from
-   .section-ground--lifted (#2216) rather than being restated here — so the alternation
+   Ground (bg.raised), full bleed and strong top rule all come from .section-ground--lifted
+   (#2216) rather than being restated here — so the alternation
    depth-strip(recessed) -> pricing-strip(lifted) -> doors(ground) is resolvable by
-   section-grounds.test.mjs instead of being a claim in a comment.
+   section-grounds.test.mjs instead of being a claim in a comment. Block padding is the one
+   exception since v2.39: the ground still pays it stacked, but at two columns it moves onto
+   the cells (below) so the divider has a full band to run.
 
    The figure departs from the depth strip on one facet, deliberately: site-prelaunch.md §2
    pins "Source Code Pro tabular numerals" here, where .depth-stat__figure takes type-display's
    serif face. type-display is therefore carrying the SCALE only, and the family is overridden.
    The dividers follow .depth-stat's pattern — a bottom hairline stacked, a right hairline in
-   two columns — but sit inside the content column, not edge to edge, because .section-ground
-   re-pads its children back to the column. */
+   two columns — and, since v2.39 (#3139), its GEOMETRY too: at two columns the cells carry the
+   band's block padding themselves, so the hairline runs the strip's top rule down to the link
+   band instead of spanning 103.2px of a 281.2px section. The ground still supplies the block padding in
+   the stacked state, where the divider is a bottom hairline between the cells and there is no
+   full band for it to run. */
 .pricing-strip__grid { display: grid; grid-template-columns: 1fr; }
 @media (min-width: 640px) { .pricing-strip__grid { grid-template-columns: repeat(2, 1fr); } }
 .pricing-stat { padding-block: var(--space-300); border-bottom: 1px solid var(--color-border-default); }
 .pricing-strip__grid .pricing-stat:first-child { padding-block-start: 0; }
 .pricing-strip__grid .pricing-stat:last-child { border-bottom: none; }
 @media (min-width: 640px) {
+  /* The band's opening padding moves off the ground and onto the cells, so the divider starts at
+     the strip's top rule and continues the Depth strip's own middle rule (site-prelaunch.md §2
+     v2.39, #3139). Measured at 1280: it ran 103.2px of a 281.2px section, 48px short at the top
+     and 130px at the bottom — NOT the symmetric "89px at both ends" §2 and #3139 both state,
+     which is those two averaged. It now runs 199.2px, flush to the top rule, ending one
+     --space-400 above the link.
+
+     The band's closing 48px stays on the ground rather than moving onto the link as the
+     artifact's `.link-band` wrapper does — this markup has no such wrapper, and a bottom margin
+     on the link (the last in-flow child) collapses straight out through a zero-padding bottom
+     edge. Measured under that variant: the raised ground ends flush with the link and the 48px
+     below it paints canvas. Same pixels as the artifact, one hazard fewer, no markup change.
+
+     Both overrides are compounded rather than left at (0,1,0). `.section-ground`'s block padding
+     and `.btn-quiet`'s `inline-flex` are shared rules declared hundreds of lines above; a plain
+     `.pricing-strip` / `.pricing-strip__link` would beat them on source order alone, and would
+     revert silently — with every test still green — the moment either shared rule gained a
+     media-query refinement below this block. */
+  .pricing-strip.section-ground { padding-block-start: 0; }
   .pricing-stat {
-    padding-block: 0;
+    padding-block: var(--space-600);
     padding-inline-end: var(--space-400);
     border-bottom: none;
     border-right: 1px solid var(--color-border-default);
   }
+  /* Re-asserted, not redundant: the stacked state's (0,3,0) zeroing outranks the (0,1,0) rule
+     above — a media query adds no specificity. Dropping this line does NOT shorten the divider:
+     Core's cell is the taller, so it sets the row height and grid stretch keeps the border
+     running the band. It drops Free's top padding alone, and that column's contents sit 48px
+     above Core's. Measured. */
+  .pricing-strip__grid .pricing-stat:first-child { padding-block-start: var(--space-600); }
   .pricing-strip__grid .pricing-stat:last-child {
     padding-inline: var(--space-400) 0;
     border-right: none;
   }
+  /* Centred on the divider axis, so the page's one pricing link belongs to neither column and
+     therefore to both (v2.39). It lands on the seam only because the two columns are equal
+     (repeat(2, 1fr), above) with symmetric inline padding — `margin-inline: auto` centres on the
+     container, not on the divider. .btn-quiet is inline-flex, so auto margins do nothing until
+     the box is block-level. */
+  .pricing-strip__link.btn-quiet { display: flex; width: fit-content; margin-inline: auto; }
 }
 .pricing-stat__label { margin: 0; color: var(--color-text-secondary); font-weight: var(--font-weight-semibold); font-size: var(--font-size-300); }
 .pricing-stat__figure {

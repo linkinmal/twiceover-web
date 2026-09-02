@@ -2,7 +2,8 @@
  * The Pricing strip and the Closing band's trial-disclosure copy (stock-analyst-platform#3030,
  * realizing #2812 bullets 2/3; site-prelaunch.md §2 "Pricing strip" and "Closing band gains
  * trial-disclosure copy", build reference ai-team/design/assets/pricing-strip-and-closing-band-
- * trial-2026-08-28.html).
+ * trial-2026-08-28.html; divider and link geometry superseded by v2.39, build reference
+ * ai-team/design/assets/pricing-strip-divider-and-link-2026-09-02.html, #3139).
  *
  * Source-level against the .astro/.css text, the convention this repo already uses
  * (faq-structure.test.mjs, section-grounds.test.mjs) — there is no DOM parser in the build
@@ -28,8 +29,8 @@ beforeAll(() => {
   css = readFileSync(join(root, "..", "styles", "site.css"), "utf8");
 });
 
-/** The body of the first CSS rule whose selector is exactly `selector`, at-rules unwrapped. */
-function ruleBody(selector) {
+/** Every style rule as {selector, body, at} — `at` is the enclosing at-rule prelude, "" at top level. */
+function styleRules() {
   const rules = [];
   const stack = [];
   let buf = "";
@@ -39,12 +40,26 @@ function ruleBody(selector) {
       buf = "";
     } else if (ch === "}") {
       const sel = stack.pop();
-      if (sel !== undefined && !sel.startsWith("@")) rules.push({ selector: sel, body: buf });
+      if (sel !== undefined && !sel.startsWith("@")) {
+        rules.push({ selector: sel, body: buf, at: stack.filter((s) => s.startsWith("@")).join(" ") });
+      }
       buf = "";
     } else buf += ch;
   }
-  return rules.filter((r) => r.selector === selector).map((r) => r.body).join("\n");
+  return rules;
 }
+
+const bodiesOf = (pred) => styleRules().filter(pred).map((r) => r.body).join("\n");
+
+/** The body of every CSS rule whose selector is exactly `selector`, at-rules unwrapped. */
+const ruleBody = (selector) => bodiesOf((r) => r.selector === selector);
+
+/** Same, rules outside every at-rule — the top-level half of what a viewport under 640px resolves. */
+const baseRuleBody = (selector) => bodiesOf((r) => r.selector === selector && r.at === "");
+
+/** Same, inside the >=640px block only — the two-column state the v2.39 ruling is about. */
+const wideRuleBody = (selector) =>
+  bodiesOf((r) => r.selector === selector && /min-width:\s*640px/.test(r.at));
 
 /** Text content of the elements matching `class`, in document order, entities decoded. */
 function textsOfClass(source, cls) {
@@ -109,6 +124,73 @@ describe("Pricing strip (#3030, site-prelaunch.md §2 'Pricing strip')", () => {
     expect(figure).toMatch(/font-family:\s*var\(--font-family-mono\)/);
     expect(figure).toMatch(/tabular-nums/);
     expect(ruleBody(".pricing-stat__caption")).toMatch(/color:\s*var\(--color-text-secondary\)/);
+  });
+
+  it("starts the interior divider at the strip's top rule, so it runs the band's full height", () => {
+    // site-prelaunch.md §2 v2.39 (#3139), build reference assets/pricing-strip-divider-and-link-
+    // 2026-09-02.html, `data-divider="band"`: the block padding moves off the ground and onto the
+    // cells. Measured at 1280 before the change — the divider ran 103.2px of a 281.2px section,
+    // 48px short at the top and 130px at the bottom; it now runs 199.2px flush to the top rule.
+    // Geometry, not contrast: the same token reads at 1.11:1 on the Depth strip, whose cells
+    // already carry their own padding, against 1.37:1 here.
+    const strip = wideRuleBody(".pricing-strip.section-ground");
+    const stat = wideRuleBody(".pricing-stat");
+
+    // Compounded with .section-ground on purpose: at a plain (0,1,0) this would beat the shared
+    // ground rule on source order alone, and revert silently if that rule ever gained a
+    // media-query refinement below this block. The selector IS the guarantee, so it is asserted.
+    expect(strip).toMatch(/padding-block-start:\s*0(?=\s*[;}])/);
+    expect(stat).toMatch(/padding-block:\s*var\(--space-600\)\s*(?=[;}])/);
+    expect(stat).toMatch(/border-right:\s*1px solid var\(--color-border-default\)/);
+    // The stacked state zeroes `:first-child`'s top padding at (0,3,0), which outranks the
+    // (0,1,0) rule above no matter that it is nested in a media query. Measured under that
+    // mutation: the divider does NOT shorten — Core's cell is the taller, so it sets the row
+    // height and grid stretch keeps the border running the band — but Free alone loses its 48px
+    // and that column's contents sit 48px above Core's. Column misalignment, invisible to every
+    // other assertion here.
+    expect(wideRuleBody(".pricing-strip__grid .pricing-stat:first-child")).toMatch(
+      /padding-block-start:\s*var\(--space-600\)(?=\s*[;}])/,
+    );
+    expect(baseRuleBody(".pricing-strip__grid .pricing-stat:first-child")).toMatch(
+      /padding-block-start:\s*0(?=\s*[;}])/,
+    );
+    // Stacked, the divider is a bottom hairline between the cells and the ground still pays the
+    // block padding — there is no full band for it to run.
+    expect(baseRuleBody(".pricing-stat")).toMatch(/border-bottom:\s*1px solid var\(--color-border-default\)/);
+  });
+
+  it("keeps the band's closing padding on the ground, where it cannot collapse away", () => {
+    // The one deviation from the approved artifact, which parks that 48px on a `.link-band`
+    // wrapper this markup has no equivalent for. Measured under the artifact-literal variant
+    // (`padding-block: 0` + `margin-block-end` on the link): `.pricing-strip` establishes no BFC
+    // and carries no bottom border, so the link's bottom margin collapses straight out — the
+    // raised ground ended flush with the link and the 48px below it painted canvas.
+    // Both routes back to that state are guarded: zeroing the ground's closing padding, and
+    // moving the 48px onto the link in any at-rule.
+    expect(wideRuleBody(".pricing-strip.section-ground")).not.toMatch(/padding-block(-end)?:/);
+    expect(ruleBody(".pricing-strip__link")).not.toMatch(/margin-block-end/);
+    expect(ruleBody(".pricing-strip__link.btn-quiet")).not.toMatch(/margin-block-end/);
+  });
+
+  it("centres the shared link on the divider axis at two columns", () => {
+    // site-prelaunch.md §2 v2.39: built at left:88px inside a Free column spanning 88-640, the
+    // page's one pricing link read as Free-scoped. Centring lands it on the seam, where it
+    // belongs to neither column and therefore to both. `.btn-quiet` is inline-flex, so auto
+    // inline margins do nothing until the box is block-level — the facet that would regress.
+    // Compounded with .btn-quiet for the same source-order reason as the divider rule above.
+    const link = wideRuleBody(".pricing-strip__link.btn-quiet");
+
+    expect(link).toMatch(/display:\s*flex(?=\s*[;}])/);
+    expect(link).toMatch(/width:\s*fit-content/);
+    expect(link).toMatch(/margin-inline:\s*auto/);
+    // `margin-inline: auto` centres on the CONTAINER; that is the divider axis only because the
+    // two columns are equal with symmetric inline padding. Unequal columns would still satisfy
+    // every assertion above while missing the seam.
+    expect(wideRuleBody(".pricing-strip__grid")).toMatch(/grid-template-columns:\s*repeat\(2,\s*1fr\)/);
+    // Stacked: no columns, so no seam. Rhythm as shipped, and no inline centring — this rule sits
+    // AFTER the media block, so a margin-inline added here would win at >=640 too.
+    expect(baseRuleBody(".pricing-strip__link")).toMatch(/margin-block-start:\s*var\(--space-400\)/);
+    expect(baseRuleBody(".pricing-strip__link")).not.toMatch(/margin-inline/);
   });
 });
 
