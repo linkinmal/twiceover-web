@@ -396,6 +396,56 @@ export function scanWorkerSource(workerSource) {
       `[security] worker/index.js must bound the forwarded ticker with /^[A-Z]{1,6}$/ before it leaves this origin (consult 0739 trip-wire: "the forwarded value is ever anything other than the bounded ticker pattern")`,
     );
   }
+  // The /contact deep-link params (stock-analyst-platform#3237), gated the same two-ended way
+  // as the ticker above: the MECHANISM (URLSearchParams.set, never concatenation into Location)
+  // and the BOUND (the closed set / the 8-hex shape) each get their own assertion, so widening
+  // either in worker/index.js goes red instead of shipping a silently looser forwarder. Both
+  // bounds are exact-literal matches, so narrowing and reordering fail too — the declaration is
+  // closed by construction rather than by a list of the ways someone thought it might drift.
+  if (!/dest\.searchParams\.set\("category",\s*category\)/.test(workerSource)) {
+    failures.push(
+      `[security] worker/index.js must forward the support category via dest.searchParams.set("category", category) — concatenating it into the redirect URL would let a CRLF payload split the Location header (consult 0739's mechanism ruling, ADR 0859 Resulting work)`,
+    );
+  }
+  if (!/dest\.searchParams\.set\("ref",\s*ref\)/.test(workerSource)) {
+    failures.push(
+      `[security] worker/index.js must forward the Read reference via dest.searchParams.set("ref", ref) — same CRLF seam as the category above (support-request-form.md §6, AC-S2.2)`,
+    );
+  }
+  if (
+    !/const SUPPORT_CATEGORIES = new Set\(\["billing", "broker", "read", "feedback", "other"\]\);/.test(
+      workerSource,
+    )
+  ) {
+    failures.push(
+      `[security] worker/index.js must bound the forwarded category to the closed five-member set support-request-form.md §6 names (billing, broker, read, feedback, other) — an out-of-set value is dropped, never passed through`,
+    );
+  }
+  if (!/const SUPPORT_REF_PATTERN = \/\^\[0-9a-f\]\{8\}\$\//.test(workerSource)) {
+    failures.push(
+      `[security] worker/index.js must bound the forwarded Read reference with /^[0-9a-f]{8}$/ before it leaves this origin (support-request-form.md §6) — a looser shape lets an unvalidated value reach the form`,
+    );
+  }
+  // PROVENANCE. The four assertions above are each satisfied by TEXT being present, so on
+  // their own they pass a worker that reads the param raw off the query while the bounded
+  // reader sits beside it as dead code:
+  //     const category = searchParams.get("category");   // bound skipped entirely
+  //     if (category) dest.searchParams.set("category", category);
+  // Mechanism-present + bound-present + a value that never met the bound is precisely the
+  // one-ended declaration the DoD's *Declaration wired* rule names — coverage that enforces
+  // nothing. So pin the binding itself: the value handed to .set() must come FROM the reader.
+  // (The ticker pair above has the identical structural gap, pre-dating this — stock-analyst-platform#3268.)
+  if (!/const category = readSupportCategory\(searchParams\)/.test(workerSource)) {
+    failures.push(
+      `[security] worker/index.js's forwarded category must be produced by readSupportCategory(searchParams) — a raw searchParams.get("category") skips the closed-set bound while leaving every other assertion in this gate satisfied`,
+    );
+  }
+  if (!/const ref = readSupportRef\(searchParams\)/.test(workerSource)) {
+    failures.push(
+      `[security] worker/index.js's forwarded ref must be produced by readSupportRef(searchParams) — a raw searchParams.get("ref") skips the 8-hex bound while leaving every other assertion in this gate satisfied`,
+    );
+  }
+
   // Per-route destinations must stay a CLOSED LITERAL MAP built from the hardcoded app URL.
   // Consult 0739's trip-wire: "/go/try's destination host ever becomes anything other than the
   // hardcoded APP_TRY_URL (i.e. ever dynamic or attacker-influenceable)". A `next=`/`redirect_to=`
@@ -430,6 +480,14 @@ export function scanWorkerSource(workerSource) {
   if (/ticker/i.test(readUtmBody)) {
     failures.push(
       `[security] readUtm() must never read the ticker — its return value feeds writeSiteMetric's blobs, and the typed value may not enter analytics (consult 0163 / 0739 trip-wire)`,
+    );
+  }
+  // Same guard, same sink, for the /contact deep-link params (#3237). A Read reference is not
+  // personal data, but it identifies one user's analysis — writeSiteMetric's six-field blob
+  // contract is cookieless, aggregate site measurement (ADR 0136) and neither key belongs in it.
+  if (/\b(category|ref)\b/i.test(readUtmBody)) {
+    failures.push(
+      `[security] readUtm() must never read the support category or the Read reference — its return value feeds writeSiteMetric's blobs, which are cookieless aggregate site measurement (ADR 0136 / consult 0163)`,
     );
   }
 

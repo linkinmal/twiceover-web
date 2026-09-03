@@ -233,6 +233,8 @@ describe("scanWorkerSource", () => {
   // on a closing `};` at the start of a line, as a top-level const declaration has.
   const OK = [
     "const TICKER_PATTERN = /^[A-Z]{1,6}$/;",
+    'const SUPPORT_CATEGORIES = new Set(["billing", "broker", "read", "feedback", "other"]);',
+    "const SUPPORT_REF_PATTERN = /^[0-9a-f]{8}$/;",
     'const GO_DESTINATIONS = {',
     '  "/go/try": APP_TRY_URL,',
     "};",
@@ -240,6 +242,10 @@ describe("scanWorkerSource", () => {
     '  return { utm_source: "" };',
     "}",
     'dest.searchParams.set("ticker", ticker);',
+    "const category = readSupportCategory(searchParams);",
+    'dest.searchParams.set("category", category);',
+    "const ref = readSupportRef(searchParams);",
+    'dest.searchParams.set("ref", ref);',
   ].join("\n");
 
   it("passes the shipped worker shape", () => {
@@ -254,6 +260,80 @@ describe("scanWorkerSource", () => {
   it("fails a /go/* destination computed from request input rather than the hardcoded literal", () => {
     const dynamic = OK.replace('"/go/try": APP_TRY_URL,', '"/go/try": url.searchParams.get("next"),');
     expect(scanWorkerSource(dynamic).length).toBeGreaterThan(0);
+  });
+
+  /* The /contact deep-link params (stock-analyst-platform#3237). Same two-ended shape as the
+     ticker above and for the same reason: the mechanism (URLSearchParams.set, never concatenation
+     into Location) and the bound (the closed set / the 8-hex pattern) are each asserted here, so
+     dropping either in worker/index.js goes red rather than shipping a silently wider forwarder. */
+
+  it("fails a category concatenated into the redirect instead of URLSearchParams-encoded", () => {
+    const concatenated = OK.replace(
+      'dest.searchParams.set("category", category);',
+      "const url = base + '?category=' + category;",
+    );
+    expect(scanWorkerSource(concatenated)).toEqual([
+      expect.stringMatching(/dest\.searchParams\.set\("category"/),
+    ]);
+  });
+
+  it("fails a ref concatenated into the redirect instead of URLSearchParams-encoded", () => {
+    const concatenated = OK.replace(
+      'dest.searchParams.set("ref", ref);',
+      "const url = base + '?ref=' + ref;",
+    );
+    expect(scanWorkerSource(concatenated)).toEqual([
+      expect.stringMatching(/dest\.searchParams\.set\("ref"/),
+    ]);
+  });
+
+  it("fails a category set widened past the five members the support form accepts", () => {
+    const widened = OK.replace(
+      'const SUPPORT_CATEGORIES = new Set(["billing", "broker", "read", "feedback", "other"]);',
+      'const SUPPORT_CATEGORIES = new Set(["billing", "broker", "read", "feedback", "other", "sales"]);',
+    );
+    expect(scanWorkerSource(widened)).toEqual([
+      expect.stringMatching(/closed five-member set/),
+    ]);
+  });
+
+  it("fails a ref bound loosened off the 8-hex shape", () => {
+    const loosened = OK.replace(
+      "const SUPPORT_REF_PATTERN = /^[0-9a-f]{8}$/;",
+      "const SUPPORT_REF_PATTERN = /^[0-9a-f]+$/;",
+    );
+    expect(scanWorkerSource(loosened)).toEqual([
+      expect.stringMatching(/\^\[0-9a-f\]\{8\}\$/),
+    ]);
+  });
+
+  /* The bypass every OTHER assertion in this gate passes: read the param raw off the query,
+     leave the bounded reader in the file as dead code, keep the .set() call text identical.
+     Mechanism present, bound present, value never bounded. Without the provenance assertions
+     this fixture returns zero failures — which is the whole point of having them. */
+  it.each([
+    ["category", "readSupportCategory"],
+    ["ref", "readSupportRef"],
+  ])("fails a %s read raw off the query, bypassing its bounded reader", (key, reader) => {
+    const bypassed = OK.replace(
+      `const ${key} = ${reader}(searchParams);`,
+      `const ${key} = searchParams.get("${key}");`,
+    );
+    expect(scanWorkerSource(bypassed)).toEqual([
+      expect.stringMatching(new RegExp(`must be produced by ${reader}`)),
+    ]);
+  });
+
+  it("fails readUtm reading either deep-link param — neither may reach analytics", () => {
+    for (const key of ["category", "ref"]) {
+      const leaky = OK.replace(
+        'return { utm_source: "" };',
+        `return { ${key}: searchParams.get("${key}") };`,
+      );
+      expect(scanWorkerSource(leaky)).toEqual([
+        expect.stringMatching(/readUtm\(\) must never read/),
+      ]);
+    }
   });
 
   it("fails readUtm reading the ticker — the typed value may never reach analytics", () => {
