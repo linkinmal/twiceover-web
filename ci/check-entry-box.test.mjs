@@ -241,20 +241,25 @@ describe("scanWorkerSource", () => {
     "export function readUtm(searchParams) {",
     '  return { utm_source: "" };',
     "}",
-    'dest.searchParams.set("ticker", ticker);',
-    "const category = readSupportCategory(searchParams);",
-    'dest.searchParams.set("category", category);',
-    "const ref = readSupportRef(searchParams);",
-    'dest.searchParams.set("ref", ref);',
+    // The forwarding lives inside buildAppRedirect() in the real Worker, and the completeness
+    // scan reads that function's body specifically — so the fixture carries the function too,
+    // rather than the bare lines it used to. Closing `}` at column 0, as a top-level fn has.
+    "export function buildAppRedirect(baseUrl, searchParams) {",
+    "  const ticker = readTicker(searchParams);",
+    '  dest.searchParams.set("ticker", ticker);',
+    "  const category = readSupportCategory(searchParams);",
+    '  dest.searchParams.set("category", category);',
+    "  const ref = readSupportRef(searchParams);",
+    '  dest.searchParams.set("ref", ref);',
+    "  return dest.toString();",
+    "}",
   ].join("\n");
+
+  /** The fixture with `line` spliced in just before buildAppRedirect's closing brace. */
+  const inForwardBody = (line) => OK.replace("  return dest.toString();", `  ${line}\n  return dest.toString();`);
 
   it("passes the shipped worker shape", () => {
     expect(scanWorkerSource(OK)).toEqual([]);
-  });
-
-  it("fails a ticker concatenated into the redirect instead of URLSearchParams-encoded", () => {
-    const concatenated = OK.replace('dest.searchParams.set("ticker", ticker);', "const url = base + '?ticker=' + ticker;");
-    expect(scanWorkerSource(concatenated)).toEqual([expect.stringMatching(/dest\.searchParams\.set/)]);
   });
 
   it("fails a /go/* destination computed from request input rather than the hardcoded literal", () => {
@@ -262,65 +267,103 @@ describe("scanWorkerSource", () => {
     expect(scanWorkerSource(dynamic).length).toBeGreaterThan(0);
   });
 
-  /* The /contact deep-link params (stock-analyst-platform#3237). Same two-ended shape as the
-     ticker above and for the same reason: the mechanism (URLSearchParams.set, never concatenation
-     into Location) and the bound (the closed set / the 8-hex pattern) are each asserted here, so
-     dropping either in worker/index.js goes red rather than shipping a silently wider forwarder. */
+  /* The three forwarded params, exercised through the one rule the gate now expresses over all
+     of them (stock-analyst-platform#3268). Each row is mutated three ways — the mechanism away
+     from URLSearchParams.set(), the bound off its pinned width, and the reader out of the data
+     flow — because the gate makes the same three promises about each, and writing them out per
+     param is how the ticker ended up with two of the three while reading as covered.
 
-  it("fails a category concatenated into the redirect instead of URLSearchParams-encoded", () => {
-    const concatenated = OK.replace(
-      'dest.searchParams.set("category", category);',
-      "const url = base + '?category=' + category;",
-    );
+     These run against the fixture; the same eleven mutations were also applied to the REAL
+     worker/index.js before this landed, all killed, with the pre-change gate confirmed GREEN on
+     the ticker bypass (the defect #3268 reports). */
+  const PARAMS = [
+    {
+      key: "ticker",
+      reader: "readTicker",
+      bound: "const TICKER_PATTERN = /^[A-Z]{1,6}$/;",
+      widened: "const TICKER_PATTERN = /^[A-Z]{1,12}$/;",
+    },
+    {
+      key: "category",
+      reader: "readSupportCategory",
+      bound: 'const SUPPORT_CATEGORIES = new Set(["billing", "broker", "read", "feedback", "other"]);',
+      widened: 'const SUPPORT_CATEGORIES = new Set(["billing", "broker", "read", "feedback", "other", "sales"]);',
+    },
+    {
+      key: "ref",
+      reader: "readSupportRef",
+      bound: "const SUPPORT_REF_PATTERN = /^[0-9a-f]{8}$/;",
+      widened: "const SUPPORT_REF_PATTERN = /^[0-9a-f]+$/;",
+    },
+  ];
+
+  it.each(PARAMS)("fails a $key concatenated into the redirect instead of URLSearchParams-encoded", ({ key }) => {
+    const concatenated = OK.replace(`dest.searchParams.set("${key}", ${key});`, `const url = base + '?${key}=' + ${key};`);
     expect(scanWorkerSource(concatenated)).toEqual([
-      expect.stringMatching(/dest\.searchParams\.set\("category"/),
+      expect.stringMatching(new RegExp(`must forward the ${key} via dest\\.searchParams\\.set`)),
     ]);
   });
 
-  it("fails a ref concatenated into the redirect instead of URLSearchParams-encoded", () => {
-    const concatenated = OK.replace(
-      'dest.searchParams.set("ref", ref);',
-      "const url = base + '?ref=' + ref;",
-    );
-    expect(scanWorkerSource(concatenated)).toEqual([
-      expect.stringMatching(/dest\.searchParams\.set\("ref"/),
-    ]);
-  });
-
-  it("fails a category set widened past the five members the support form accepts", () => {
-    const widened = OK.replace(
-      'const SUPPORT_CATEGORIES = new Set(["billing", "broker", "read", "feedback", "other"]);',
-      'const SUPPORT_CATEGORIES = new Set(["billing", "broker", "read", "feedback", "other", "sales"]);',
-    );
-    expect(scanWorkerSource(widened)).toEqual([
-      expect.stringMatching(/closed five-member set/),
-    ]);
-  });
-
-  it("fails a ref bound loosened off the 8-hex shape", () => {
-    const loosened = OK.replace(
-      "const SUPPORT_REF_PATTERN = /^[0-9a-f]{8}$/;",
-      "const SUPPORT_REF_PATTERN = /^[0-9a-f]+$/;",
-    );
-    expect(scanWorkerSource(loosened)).toEqual([
-      expect.stringMatching(/\^\[0-9a-f\]\{8\}\$/),
+  it.each(PARAMS)("fails a $key bound widened off the width the gate pins", ({ bound, widened }) => {
+    expect(scanWorkerSource(OK.replace(bound, widened))).toEqual([
+      expect.stringMatching(new RegExp(`must declare .${bound.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")}.`)),
     ]);
   });
 
   /* The bypass every OTHER assertion in this gate passes: read the param raw off the query,
      leave the bounded reader in the file as dead code, keep the .set() call text identical.
-     Mechanism present, bound present, value never bounded. Without the provenance assertions
-     this fixture returns zero failures — which is the whole point of having them. */
-  it.each([
-    ["category", "readSupportCategory"],
-    ["ref", "readSupportRef"],
-  ])("fails a %s read raw off the query, bypassing its bounded reader", (key, reader) => {
-    const bypassed = OK.replace(
-      `const ${key} = ${reader}(searchParams);`,
-      `const ${key} = searchParams.get("${key}");`,
-    );
+     Mechanism present, bound present, value never bounded. Without the provenance assertion
+     this fixture returns zero failures — which is the whole point of having one per row. */
+  it.each(PARAMS)("fails a $key read raw off the query, bypassing its bounded reader", ({ key, reader }) => {
+    const bypassed = OK.replace(`const ${key} = ${reader}(searchParams);`, `const ${key} = searchParams.get("${key}");`);
     expect(scanWorkerSource(bypassed)).toEqual([
       expect.stringMatching(new RegExp(`must be produced by ${reader}`)),
+    ]);
+  });
+
+  /* COMPLETENESS. PARAMS above and FORWARDED_PARAMS in the gate are both hand-maintained lists,
+     so the three rules only ever cover what someone remembered to declare — the same one-ended
+     shape one level up. These two pin the check that closes it. */
+  it("fails a fourth forwarded key declared in no FORWARDED_PARAMS row, bounded reader or not", () => {
+    for (const producer of ['searchParams.get("plan")', "readPlan(searchParams)"]) {
+      const fourth = inForwardBody(`const plan = ${producer};\n  dest.searchParams.set("plan", plan);`);
+      expect(scanWorkerSource(fourth)).toEqual([
+        expect.stringMatching(/forwards "plan" onto the redirect but declares it in no FORWARDED_PARAMS row/),
+      ]);
+    }
+  });
+
+  it("passes a UTM key written as a literal — unrolling the Worker's UTM loop adds no forwarded param", () => {
+    expect(scanWorkerSource(inForwardBody('dest.searchParams.set("utm_source", utmSource);'))).toEqual([]);
+  });
+
+  /* The quoting and method variants the scan is widened to see. Each would otherwise be a
+     four-character edit away from forwarding an unbounded key past a green gate. */
+  it.each([
+    ["single-quoted key", "dest.searchParams.set('plan', plan);"],
+    ["backtick key", "dest.searchParams.set(`plan`, plan);"],
+    ["append() rather than set()", 'dest.searchParams.append("plan", plan);'],
+    ["a call broken across lines", 'dest.searchParams.set(\n    "plan",\n    plan,\n  );'],
+  ])("catches an undeclared key written as %s", (_label, call) => {
+    expect(scanWorkerSource(inForwardBody(call))).toEqual([
+      expect.stringMatching(/forwards "plan" onto the redirect but declares it in no FORWARDED_PARAMS row/),
+    ]);
+  });
+
+  /* The scan reads buildAppRedirect's body, not the whole file, so a Worker that merely NAMES
+     a key in a comment or a string is not failed for it. An earlier revision scanned the whole
+     source and did fail both — a gate that goes red on correct code gets edited around. */
+  it.each([
+    ["a comment", '// historical: dest.searchParams.set("plan", plan) was never forwarded'],
+    ["a string literal", 'const doc = \'dest.searchParams.set("plan", plan)\';'],
+  ])("does not fail a key that only appears in %s outside the forwarding body", (_label, line) => {
+    expect(scanWorkerSource(`${OK}\n${line}`)).toEqual([]);
+  });
+
+  it("fails closed when buildAppRedirect cannot be found — a scan that read nothing would pass everything", () => {
+    const renamed = OK.replace("export function buildAppRedirect(", "function buildAppRedirect(");
+    expect(scanWorkerSource(renamed)).toEqual([
+      expect.stringMatching(/completeness scan has no body to read/),
     ]);
   });
 

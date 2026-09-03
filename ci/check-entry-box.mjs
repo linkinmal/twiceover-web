@@ -19,6 +19,11 @@
  *   (c) action="/go/try" exactly — never external, never another on-origin route
  *   (d) the Worker forwards the ticker via URLSearchParams, never string concatenation
  *       into the redirect URL (the CRLF header-injection seam — 0739's own addition)
+ * Since stock-analyst-platform#3268, (d) is no longer written out per param: FORWARDED_PARAMS
+ * declares each forwarded key once with its reader and its bound, and one rule asserts the
+ * mechanism, the bound AND the value's provenance over every row — plus that no key reaches
+ * the redirect without a row. See the standing limitation stated there on what a regex over
+ * source can and cannot prove about wiring.
  *
  * ── What consult 0811 changed, and why (stock-analyst-platform#2964, ADR 0810) ────────
  *
@@ -378,6 +383,75 @@ export function scanEntryForm(html) {
   return failures;
 }
 
+/** Regex-escape a literal source fragment so it can be matched verbatim. */
+const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&");
+
+/** The three UTM keys, which the Worker writes through a VARIABLE key in a loop rather than
+ *  as literals — declared here only so unrolling that loop cannot trip the completeness scan. */
+const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign"];
+
+/* THE FORWARDED QUERY PARAMS, and the three things that must hold for each.
+   ────────────────────────────────────────────────────────────────────────────────────────
+   Every key buildAppRedirect() re-serializes onto the redirect is declared once here, with
+   the reader that bounds it and the exact source text of that bound. The loop in
+   scanWorkerSource() turns each row into the three assertions that used to be written out
+   by hand, per param:
+
+     MECHANISM   the value reaches the redirect through URLSearchParams.set(), never string
+                 concatenation into `Location` — consult 0739's added guardrail, and the one
+                 place a coding slip turns a safe design into CRLF header injection
+     BOUND       the bound is still declared at exactly its agreed width, so widening,
+                 narrowing or reordering it goes red
+     PROVENANCE  the value handed to .set() is the one the reader PRODUCED
+
+   Written out three times, this drifted: #3237 added the second and third param with the
+   mechanism and bound halves, the provenance half arrived for those two in PR #77, and the
+   ticker — the param the gate was built for — never had one at all, so a raw
+   `const ticker = searchParams.get("ticker")` bypassed TICKER_PATTERN with the gate green
+   (stock-analyst-platform#3268). Expressing it once is what stops the fourth param arriving
+   with two of three.
+
+   ── Standing limitation, stated once rather than re-derived per param ───────────────────
+   None of this is a wiring assertion. A regex over raw source has no notion of scope,
+   reachability, or code-vs-comment-vs-string-literal context. What the PROVENANCE rule buys
+   is an approximation, and it buys it by piggybacking on a JS language guarantee — one
+   `const <key>` binding per scope — so that pinning `const key = reader(searchParams)`
+   alongside `set("key", key)` means, for as long as there is one `key` binding in play, that
+   the value reaching .set() came from the reader. That closes the specific bypass class this
+   gate was blind to (read the param raw off the query, leave the bounded reader beside it as
+   dead code, keep the .set() call text byte-identical) and nothing wider. It does NOT catch a
+   value reassigned between the two lines, a shadowing inner scope, or a .set() whose key is a
+   variable rather than a literal. The completeness scan below inherits the same limits, and
+   states its own reach where it sits. If this table grows well past three rows, or the forwarding gains real
+   branching, the honest replacement is an AST pass over worker/index.js that follows the
+   binding; that is not worth a parser dependency for three params on a straight-line function
+   today (Security's ruling, twiceover-web PR #77). */
+const FORWARDED_PARAMS = [
+  {
+    key: "ticker",
+    reader: "readTicker",
+    bound: "const TICKER_PATTERN = /^[A-Z]{1,6}$/;",
+    mechanismWhy: "consult 0739's mechanism ruling, the guardrail this whole gate was built around",
+    boundWhy: `consult 0739's trip-wire: "the forwarded value is ever anything other than the bounded ticker pattern"`,
+  },
+  {
+    key: "category",
+    reader: "readSupportCategory",
+    bound: 'const SUPPORT_CATEGORIES = new Set(["billing", "broker", "read", "feedback", "other"]);',
+    mechanismWhy: "consult 0739's mechanism ruling, ADR 0859 Resulting work",
+    boundWhy:
+      "the forwarded category is bounded to the closed five-member set support-request-form.md §6 names (billing, broker, read, feedback, other); an out-of-set value is dropped, never passed through",
+  },
+  {
+    key: "ref",
+    reader: "readSupportRef",
+    bound: "const SUPPORT_REF_PATTERN = /^[0-9a-f]{8}$/;",
+    mechanismWhy: "the same CRLF seam as the category above — support-request-form.md §6, AC-S2.2",
+    boundWhy:
+      "the forwarded Read reference is bounded to /^[0-9a-f]{8}$/ before it leaves this origin (support-request-form.md §6) — a looser shape lets an unvalidated value reach the form",
+  },
+];
+
 /**
  * The Worker's forwarding guarantees. Consult 0739's own addition, gated structurally
  * rather than reviewed at PR time: this is the one place a coding slip turns a safe
@@ -386,64 +460,57 @@ export function scanEntryForm(html) {
 export function scanWorkerSource(workerSource) {
   const failures = [];
 
-  if (!/dest\.searchParams\.set\("ticker",\s*ticker\)/.test(workerSource)) {
+  for (const { key, reader, bound, mechanismWhy, boundWhy } of FORWARDED_PARAMS) {
+    // MECHANISM
+    if (!new RegExp(`dest\\.searchParams\\.set\\("${key}",\\s*${key}\\)`).test(workerSource)) {
+      failures.push(
+        `[security] worker/index.js must forward the ${key} via dest.searchParams.set("${key}", ${key}) — the WHATWG URL API encodes the value, where concatenating it into the redirect URL would let a CRLF payload split the Location header (${mechanismWhy})`,
+      );
+    }
+    // BOUND
+    if (!new RegExp(escapeRe(bound)).test(workerSource)) {
+      failures.push(`[security] worker/index.js must declare \`${bound}\` — ${boundWhy}`);
+    }
+    // PROVENANCE
+    if (!new RegExp(`const ${key} = ${reader}\\(searchParams\\)`).test(workerSource)) {
+      failures.push(
+        `[security] worker/index.js's forwarded ${key} must be produced by ${reader}(searchParams) — a raw searchParams.get("${key}") skips the bound while leaving every other assertion in this gate satisfied`,
+      );
+    }
+  }
+
+  // COMPLETENESS. The table above is still a list someone maintains by hand, so on its own it
+  // only covers the params somebody remembered to declare — the same one-ended shape one level
+  // up, and exactly how three hand-written pairs became two-and-a-half without anything going
+  // red. So close it: a key written onto the redirect with no row fails, which is what makes
+  // FORWARDED_PARAMS a closed declaration rather than a record of where someone already
+  // thought to look.
+  //
+  // Scoped to buildAppRedirect()'s body, the way the readUtm and GO_DESTINATIONS scans below
+  // already scope theirs, and for the same two reasons: forwarding happens there and nowhere
+  // else, and a whole-file scan fails a legitimate Worker that merely NAMES a key in a comment
+  // or a string. Fails closed when the function cannot be found — a scan that silently read
+  // nothing would be this gate's own one-ended shape a third time.
+  //
+  // What it sees, exactly: a `set(…)`/`append(…)` on `dest.searchParams`, whose key is a
+  // quoted literal (single, double or backtick). What it does NOT see, and does not claim to:
+  // a computed or variable key, or the same call reached through an alias
+  // (`const sp = dest.searchParams; sp.set(…)`). Those are the same limits the standing note
+  // above gives the other three rules — a regex has no notion of what an identifier is bound
+  // to — and none of them was covered before this check existed either.
+  const forwardBody = workerSource.match(/export function buildAppRedirect\([\s\S]*?\n}/)?.[0] ?? "";
+  if (!forwardBody) {
     failures.push(
-      `[security] worker/index.js must forward the ticker via dest.searchParams.set("ticker", ticker) — the WHATWG URL API encodes the value, where concatenating it into the redirect URL would let a CRLF payload split the Location header`,
+      `[security] worker/index.js must declare \`export function buildAppRedirect(\` as a top-level function — the forwarded-key completeness scan has no body to read, and a scan that read nothing would pass every undeclared param`,
     );
   }
-  if (!/const TICKER_PATTERN = \/\^\[A-Z\]\{1,6\}\$\//.test(workerSource)) {
-    failures.push(
-      `[security] worker/index.js must bound the forwarded ticker with /^[A-Z]{1,6}$/ before it leaves this origin (consult 0739 trip-wire: "the forwarded value is ever anything other than the bounded ticker pattern")`,
-    );
-  }
-  // The /contact deep-link params (stock-analyst-platform#3237), gated the same two-ended way
-  // as the ticker above: the MECHANISM (URLSearchParams.set, never concatenation into Location)
-  // and the BOUND (the closed set / the 8-hex shape) each get their own assertion, so widening
-  // either in worker/index.js goes red instead of shipping a silently looser forwarder. Both
-  // bounds are exact-literal matches, so narrowing and reordering fail too — the declaration is
-  // closed by construction rather than by a list of the ways someone thought it might drift.
-  if (!/dest\.searchParams\.set\("category",\s*category\)/.test(workerSource)) {
-    failures.push(
-      `[security] worker/index.js must forward the support category via dest.searchParams.set("category", category) — concatenating it into the redirect URL would let a CRLF payload split the Location header (consult 0739's mechanism ruling, ADR 0859 Resulting work)`,
-    );
-  }
-  if (!/dest\.searchParams\.set\("ref",\s*ref\)/.test(workerSource)) {
-    failures.push(
-      `[security] worker/index.js must forward the Read reference via dest.searchParams.set("ref", ref) — same CRLF seam as the category above (support-request-form.md §6, AC-S2.2)`,
-    );
-  }
-  if (
-    !/const SUPPORT_CATEGORIES = new Set\(\["billing", "broker", "read", "feedback", "other"\]\);/.test(
-      workerSource,
-    )
-  ) {
-    failures.push(
-      `[security] worker/index.js must bound the forwarded category to the closed five-member set support-request-form.md §6 names (billing, broker, read, feedback, other) — an out-of-set value is dropped, never passed through`,
-    );
-  }
-  if (!/const SUPPORT_REF_PATTERN = \/\^\[0-9a-f\]\{8\}\$\//.test(workerSource)) {
-    failures.push(
-      `[security] worker/index.js must bound the forwarded Read reference with /^[0-9a-f]{8}$/ before it leaves this origin (support-request-form.md §6) — a looser shape lets an unvalidated value reach the form`,
-    );
-  }
-  // PROVENANCE. The four assertions above are each satisfied by TEXT being present, so on
-  // their own they pass a worker that reads the param raw off the query while the bounded
-  // reader sits beside it as dead code:
-  //     const category = searchParams.get("category");   // bound skipped entirely
-  //     if (category) dest.searchParams.set("category", category);
-  // Mechanism-present + bound-present + a value that never met the bound is precisely the
-  // one-ended declaration the DoD's *Declaration wired* rule names — coverage that enforces
-  // nothing. So pin the binding itself: the value handed to .set() must come FROM the reader.
-  // (The ticker pair above has the identical structural gap, pre-dating this — stock-analyst-platform#3268.)
-  if (!/const category = readSupportCategory\(searchParams\)/.test(workerSource)) {
-    failures.push(
-      `[security] worker/index.js's forwarded category must be produced by readSupportCategory(searchParams) — a raw searchParams.get("category") skips the closed-set bound while leaving every other assertion in this gate satisfied`,
-    );
-  }
-  if (!/const ref = readSupportRef\(searchParams\)/.test(workerSource)) {
-    failures.push(
-      `[security] worker/index.js's forwarded ref must be produced by readSupportRef(searchParams) — a raw searchParams.get("ref") skips the 8-hex bound while leaving every other assertion in this gate satisfied`,
-    );
+  const declaredKeys = new Set([...FORWARDED_PARAMS.map((p) => p.key), ...UTM_KEYS]);
+  for (const [, key] of forwardBody.matchAll(/dest\.searchParams\.(?:set|append)\(\s*["'`]([^"'`]*)["'`]/g)) {
+    if (!declaredKeys.has(key)) {
+      failures.push(
+        `[security] worker/index.js forwards "${key}" onto the redirect but declares it in no FORWARDED_PARAMS row — every forwarded key needs its mechanism, bound and reader pinned here before it may leave this origin (consult 0739)`,
+      );
+    }
   }
 
   // Per-route destinations must stay a CLOSED LITERAL MAP built from the hardcoded app URL.
