@@ -42,6 +42,43 @@ npm run build    # prebuild derives tokens.css, then astro build -> dist/
 npm run check    # AC3/AC4 content gate over dist/ (also runs in CI)
 ```
 
+## Rotating the share card
+
+The image every share of a link renders — X, Slack, iMessage, the preview in an AI answer — is one
+of **three** cards, not one (ADR 0905). All three ship; `og:image` names the live one.
+
+| Member | Shows | File |
+|---|---|---|
+| A · the projection path | the Outlook path across three horizons | `public/og-card-path.png` |
+| B · the price line | 90 sessions, the 52-week range and the 50-DMA | `public/og-card-levels.png` |
+| C · the spread | the held spread's payoff and its breakeven | `public/og-card-spread.png` |
+
+**To rotate, change one line** in `src/layouts/Base.astro` and deploy:
+
+```js
+const OG_CARD = "/og-card-levels.png";   // was "/og-card-path.png"
+```
+
+That is the whole change — no asset rebuild, no cache to clear. It works *because* each member has
+its own permanent URL: consumers cache on the URL, so overwriting one file changes nothing anyone
+sees (Meta: *"Use a new URL for the new image or the image won't be updated"*). For the same reason,
+**never overwrite or delete a card** — links already shared keep pointing at the one that was live
+when they were posted, and that is the intended behaviour. Note that past shares never re-render;
+rotating changes what *future* shares look like.
+
+To regenerate the artwork after a chart, fixture or token change:
+
+```sh
+npm run gen:og-cards
+```
+
+Each card is drawn by the site's own chart modules against `src/charts/site-fixture.mjs`, so a
+member cannot drift from what the product draws. `scripts/gen-og-cards.test.mjs` holds the other end
+of that: it rebuilds each card and compares it to the committed `scripts/og-cards/*.svg`, so a chart
+change that has not been regenerated fails CI. **Look at the three cards before committing them** —
+their type is scaled to sit right on a 6px-as-rendered legibility floor at phone size (consult
+0752), which no test can see for you.
+
 ## Deploy
 
 Token lives in macOS Keychain — pulled at deploy time, never in the repo:
