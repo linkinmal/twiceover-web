@@ -64,11 +64,37 @@ import Policy from "../layouts/Policy.astro";
     <p>That is the complete list. We set <strong>no cookies</strong>, and we do <strong>not</strong> collect or store your IP address — not even a shortened or hashed version — nor any device or browser fingerprint or other identifier. Nothing in this data can be traced back to you, your device, or a single visit; we use it only in aggregate, to see which pages and channels are working. These measurements are recorded on the same infrastructure that already serves this website, operated by us from Türkiye — no third-party analytics provider receives your data, and no new country of processing is introduced.</p>
   </section>
 
+  {/* Support and contact — PM-authored product clause realizing support-surface-spec.md
+      AC-S5.9 (stock-analyst-platform#3181). Signed off by the founder 2026-09-03. There is
+      no pending legal review and none is being commissioned: ADR 0027 declined it, and ADR
+      0145 Amendment 4 records that the founder's direct sign-off IS the review, no dedicated
+      Legal role existing on the team. Copy is verbatim from ai-team/pm/site-copy-legal.md
+      (/privacy — do not reword). The field list and the ephemeral-IP posture are
+      Security-confirmed: support-form-controls.md SF-4, stock-analyst-platform#3177 closed
+      2026-09-02. States NO retention period because we have not set a retention practice —
+      the Retention section below already covers it ("only for as long as we need to"); this
+      is not waiting on anyone. Not in the anchor list, matching the sibling Site analytics
+      clause: the list covers the GetTerms body only. */}
+  <section class="support-contact" aria-labelledby="support-contact">
+    <h2 class="type-heading-2" id="support-contact">Support and contact</h2>
+    <p>When you write to us — through the support form, or directly by email — we collect:</p>
+    <ul>
+      <li>your <strong>email address</strong>, so we can reply;</li>
+      <li>the <strong>category</strong> you choose, when you choose one, so the message reaches the right place;</li>
+      <li>your <strong>message</strong>, which is whatever you decide to write;</li>
+      <li>a <strong>reference code</strong>, when your message is about a particular read and you include the code shown on it, so we can find the analysis you mean.</li>
+    </ul>
+    <p>That is the complete list. The form asks for nothing else.</p>
+    <p>We use this to answer you and to fix what you tell us about. Your message and your email address are held in our support mailbox, <a href="mailto:support@twiceover.io">support@twiceover.io</a>, which is where they stay; we keep them for as long as we need them to deal with your question and any follow-up, and remove them once they are no longer needed.</p>
+    <p>Where a message tells us something useful about the product, we copy the substance of it — the observation itself — into an internal product record that carries no name, no email address, and no account identifier. Who wrote it stays in the mailbox and does not travel with it.</p>
+    <p>To keep the form from being flooded, our network briefly checks the internet (IP) address a submission arrives from, to count how many submissions have come from it in the last few minutes. This happens as the submission arrives and nothing is kept: the address is not stored in any record, log, or analytics data, and cannot be looked up afterwards. (This is separate from the <em>Site analytics</em> measurement described above, which involves no IP address at all.)</p>
+  </section>
+
   <p>Your privacy is important to us. It is our policy to respect your privacy and comply with any applicable law and regulation regarding any personal information we may collect about you, including across our website, https://twiceover.io, and other sites we own and operate.</p>
   <p>Personal information is any information about you which can be used to identify you. This includes information about you as a person (such as name, address, and date of birth), your devices, payment details, and even information about how you use a website or online service.</p>
   <p>In the event our site contains links to third-party sites and services, please be aware that those sites and services have their own privacy policies. After following a link to any third-party content, you should read their posted privacy policy information about how they collect and use personal information. This Privacy Policy does not apply to any of your activities after you leave our site.</p>
   <p>This policy is effective as of June 11, 2026</p>
-  <p>Last updated: June 11, 2026</p>
+  <p>Last updated: September 3, 2026</p>
 
   <h2 class="type-heading-2" id="information-we-collect">Information We Collect</h2>
   <p>Information we collect falls into one of two categories: "voluntarily provided" information and "automatically collected" information.</p>
