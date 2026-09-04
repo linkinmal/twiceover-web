@@ -315,7 +315,7 @@ export function stripElements(body, { cls, tag = "text", expected }) {
 }
 
 /** Moves one element's `y`, asserting it was where we thought. */
-function moveY(body, { cls, tag = "text", from, to, contains }) {
+export function moveY(body, { cls, tag = "text", from, to, contains }) {
   const re = new RegExp(`(<${tag} class="${cls}"[^>]*\\by=")${from}("[^>]*>${contains}</${tag}>)`);
   if (!re.test(body)) {
     throw new Error(`move ${tag}.${cls} "${contains}": no element at y=${from} — geometry has moved`);
@@ -347,7 +347,7 @@ function pathPlot() {
   // them instead — 5 units, which is what clears the ascenders at this member's scale.
   body = moveY(body, { cls: "k-sub", from: 22, to: 27, contains: m.origin.axisLabel.sub });
 
-  return { m, body, smallestTypeUnits: 8.5 };
+  return { m, body };
 }
 
 /** B · the technicals price line with its levels. */
@@ -367,7 +367,7 @@ function levelsPlot() {
     expected: shownLevels,
   });
 
-  return { m, body, smallestTypeUnits: 8.5 };
+  return { m, body };
 }
 
 /**
@@ -401,16 +401,48 @@ function spreadPlot() {
   // line itself runs along. Lifted clear; the profit side's row is empty and stays.
   body = moveY(body, { cls: "pf-word", from: m.height - m.padBottom - 10, to: 150, contains: "loss at expiry" });
 
-  // The smallest type left is the price ticks: the 9px axis figures went with the P&L axis.
-  return { m, body, smallestTypeUnits: 9 };
+  return { m, body };
 }
 
 const PLOTS = { path: pathPlot, levels: levelsPlot, spread: spreadPlot };
 
 /** The member's plot: the chart module's body after this card's transforms, plus its viewBox. */
-export function plotFor(key) {
-  const { m, body, smallestTypeUnits } = PLOTS[memberByKey(key).key]();
-  return { body, width: m.width, height: m.height, viewBox: `0 0 ${m.width} ${m.height}`, smallestTypeUnits };
+export function plotFor(key, sources = loadStyleSources()) {
+  const { m, body } = PLOTS[memberByKey(key).key]();
+  return {
+    body,
+    width: m.width,
+    height: m.height,
+    viewBox: `0 0 ${m.width} ${m.height}`,
+    smallestTypeUnits: smallestTypeUnits(key, body, sources),
+  };
+}
+
+/**
+ * The smallest type the plot ACTUALLY draws, in viewBox units before the member's scale — derived
+ * from the classes present in the emitted body rather than stated per member.
+ *
+ * Stating it was the obvious thing and it is the wrong thing: it is a claim about another module's
+ * output, so a chart module that made some other label its smallest would leave the legibility
+ * check measuring a label that is no longer the binding one — and passing.
+ *
+ * The `drawn` filter looks redundant today, because `CHART_SELECTORS` was itself trimmed to the
+ * post-strip set, so the stylesheet's own minimum happens to give the same answer for all three
+ * members — mutating the filter away leaves every card's floor unchanged. It is kept, and tested
+ * directly, because the two are independent statements of what the card draws and only the body is
+ * ground truth: a selector list is hand-written and a strip is conditional, so the day they
+ * disagree is exactly the day the floor must follow the pixels.
+ */
+export function smallestTypeUnits(key, body, sources = loadStyleSources()) {
+  const drawn = new Set(
+    [...body.matchAll(/class="([^"]+)"/g)].flatMap((m) => m[1].split(/\s+/)).filter(Boolean),
+  );
+  const sizes = [...chartStylesheet({ ...sources, scale: 1, chart: key }).matchAll(/\n\.([\w-]+)\{([^}]*)\}/g)]
+    .filter(([, cls]) => drawn.has(cls))
+    .map(([, , decls]) => Number(/font-size:([\d.]+)px/.exec(decls)?.[1]))
+    .filter((n) => Number.isFinite(n));
+  if (sizes.length === 0) throw new Error(`${key}: no sized type found on the plot — cannot check the floor`);
+  return Math.min(...sizes);
 }
 
 /**

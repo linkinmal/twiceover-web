@@ -40,6 +40,8 @@ import {
   smallestRenderedPhonePx,
   mergeStackedPairs,
   stripElements,
+  moveY,
+  smallestTypeUnits,
   loadStyleSources,
 } from "./gen-og-cards.mjs";
 
@@ -155,6 +157,18 @@ describe("ADR 0905 build rule 1 — chart type is scaled per member, solved from
       styledOnThePage.filter((c) => !styledOnTheCard.has(c)),
       `classes ${key} draws that site.css styles but the card dropped`,
     ).toEqual([]);
+  });
+
+  it("refuses to emit a chart whose rule site.css no longer has", () => {
+    // The card reads its styling out of `site.css` by selector. A renamed or deleted rule must stop
+    // the build: emitting the chart without it renders a bare mark or a figure in the wrong ink,
+    // which is a forbidden state rather than a cosmetic loss, and nothing downstream would catch it.
+    expect(() => chartStylesheet({ ...sources, siteCss: "/* emptied */", scale: 1, chart: "path" })).toThrow(
+      /no rule for '\.k-spotline'/,
+    );
+    expect(() =>
+      chartStylesheet({ ...sources, siteCss: ".k-spotline { stroke: var(--nope); }", scale: 1, chart: "path" }),
+    ).toThrow(/unknown token --nope/);
   });
 
   it("resolves the knockout rings to the card's own background, not the band's or the panel's", () => {
@@ -324,8 +338,51 @@ describe("ADR 0905 — C carries no dollar outcome figure at all", () => {
   });
 
   it("refuses to strip when the elements it was told to remove are not there", () => {
-    expect(() => stripElements("<text class=\"pf-cap\">a</text>", { cls: "pf-axis", expected: 4 })).toThrow(
+    expect(() => stripElements('<text class="pf-cap">a</text>', { cls: "pf-axis", expected: 4 })).toThrow(
       /expected 4/i,
+    );
+  });
+
+  it("refuses to move a label that is not where it was expected", () => {
+    // The third transform's guard. Without it, a payoff module that re-spaced its zone words would
+    // leave the loss word sitting on the payoff line, silently — the exact defect the move exists
+    // to fix, restored by a change nobody connected to this card.
+    expect(() =>
+      moveY('<text class="pf-word" x="1" y="188">loss at expiry</text>', {
+        cls: "pf-word",
+        from: 200,
+        to: 150,
+        contains: "loss at expiry",
+      }),
+    ).toThrow(/no element at y=200/);
+  });
+
+  it("measures the floor against the type each card actually draws", () => {
+    const spread = plotFor("spread");
+    const path = plotFor("path");
+
+    expect.soft(spread.smallestTypeUnits, "the surviving price ticks, not the stripped axis").toBe(9);
+    expect.soft(path.smallestTypeUnits, "the horizon dates").toBe(8.5);
+    expect
+      .soft(spread.body, "the class that sets the floor is one the card actually draws")
+      .toContain("pf-tickfig");
+  });
+
+  it("takes the floor from the labels the body draws, not from every rule the card carries", () => {
+    // The clause under test is the `drawn` filter. On the real charts it is masked — the selector
+    // list was trimmed to the same set — so mutating it away changes no card, and only a body that
+    // draws LESS than the stylesheet styles can tell the two apart. A card drawing only `.k-tick`
+    // has a 10px floor even though `.k-sub` at 8.5px is styled right beside it.
+    const onlyTicks = '<text class="k-tick" x="1" y="170">2 WKS</text>';
+
+    expect
+      .soft(smallestTypeUnits("path", onlyTicks), "follows the pixels, not the stylesheet")
+      .toBe(10);
+    expect
+      .soft(smallestTypeUnits("path", '<text class="k-sub" x="1" y="1">SEP 14</text>' + onlyTicks))
+      .toBe(8.5);
+    expect(() => smallestTypeUnits("path", '<circle class="k-point" cx="1" cy="1" r="5"/>')).toThrow(
+      /no sized type/,
     );
   });
 });
