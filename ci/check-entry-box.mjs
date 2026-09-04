@@ -95,7 +95,6 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 // admits no inline exception.
 const EXPECTED_SCRIPTS = {
   "404.html": { inline: 0, external: 0 },
-  "contact/index.html": { inline: 0, external: 0 },
   "cookies/index.html": { inline: 0, external: 0 },
   "index.html": { inline: 0, external: 3 },
   "pricing/index.html": { inline: 0, external: 0 },

@@ -7,6 +7,7 @@ import {
   readTicker,
   readSupportCategory,
   readSupportRef,
+  GO_DESTINATIONS,
 } from "./index.js";
 import worker from "./index.js";
 
@@ -100,30 +101,42 @@ describe("fetch — /go/* routes", () => {
 
   beforeEach(() => vi.clearAllMocks());
 
-  it.each(["/go/connect", "/go/signin", "/go/try", "/go/plan"])(
-    "redirects %s to the app root, forwarding UTM and dropping every unnamed param",
-    async (path) => {
+  // Derived from GO_DESTINATIONS, not hand-listed. A literal list covers only the routes someone
+  // thought to type, and stock-analyst-platform#3266 is the change that proved that: `/contact`
+  // joined the map and neither of these suites would have noticed. Deriving also means the
+  // destination each route is checked against is the map's own, so this no longer assumes every
+  // route lands on the app root — `/contact` does not.
+  it.each(Object.entries(GO_DESTINATIONS))(
+    "redirects %s to its declared destination, forwarding UTM and dropping every unnamed param",
+    async (path, destination) => {
       const env = fakeEnv();
       const request = new Request(
         `https://twiceover.io${path}?utm_source=ph&utm_campaign=launch&foo=SECRET`,
       );
       const response = await worker.fetch(request, env);
 
+      const expected = new URL(destination);
       expect(response.status).toBe(302);
       const location = new URL(response.headers.get("location"));
-      expect(location.origin + location.pathname).toBe("https://app.twiceover.io/");
+      expect(location.origin + location.pathname).toBe(expected.origin + expected.pathname);
+      expect(location.hash).toBe(expected.hash);
       expect(location.searchParams.get("utm_source")).toBe("ph");
       expect(location.searchParams.get("utm_campaign")).toBe("launch");
       expect(location.searchParams.has("foo")).toBe(false);
+      // The redirect must SHADOW the asset pipeline, never race it. This is what makes deleting
+      // `src/pages/contact.astro` mandatory rather than tidy: the Worker matches ahead of
+      // `env.ASSETS.fetch`, so a surviving page file would build, be advertised in the sitemap,
+      // and never be served — a URL we submit to search engines and then 302 away from.
       expect(env.ASSETS.fetch).not.toHaveBeenCalled();
     },
   );
 
   // The producing end of #3237's forwarding: the real dispatch path, not just the pure helper.
-  // With no /contact entry in GO_DESTINATIONS yet, this is what keeps the forwarding from being
-  // code nothing calls — every /go/* route carries the two bounded params through today, so the
-  // /contact route lands later as a map entry needing no second change to the forwarder.
-  it.each(["/go/connect", "/go/signin", "/go/try", "/go/plan"])(
+  // #3237 shipped this unconditionally BEFORE `/contact` existed, so the forwarding would not be
+  // code nothing calls; stock-analyst-platform#3266 supplies the route it was built for, and this
+  // is where that lands — a map entry, with no second change to the forwarder, exactly as
+  // ADR 0870 Decision 4 predicted.
+  it.each(Object.keys(GO_DESTINATIONS))(
     "forwards the support form's bounded category/ref through %s, and drops them out of set",
     async (path) => {
       const env = fakeEnv();
@@ -496,6 +509,50 @@ describe("fetch — per-route app destinations", () => {
     const url = new URL(location);
     expect(url.hash).toBe("#signin");
     expect(url.searchParams.get("utm_source")).toBe("ph");
+  });
+
+  // ADR 0870 Decision 4 (stock-analyst-platform#3266) — a PATH, and deliberately no hash.
+  // `/go/plan` above bakes `#signin?intent=core` into its literal and had to be corrected twice
+  // for it; 0870's whole point is that the site stops knowing the app's hash grammar. The app's
+  // own Worker turns this path into `/?<query>#contact` on its own origin.
+  it("sends /contact to the app's own /contact path, with no hash of its own", async () => {
+    const env = fakeEnv();
+    const response = await worker.fetch(new Request("https://twiceover.io/contact"), env);
+
+    expect(response.status).toBe(302);
+    expect(response.headers.get("location")).toBe("https://app.twiceover.io/contact");
+  });
+
+  // The failure this guards is SILENT: a baked `#contact` still returns a correct-looking 302 to
+  // the right origin, but puts `category`/`ref` behind the fragment, where the app's
+  // `location.search` parse (0870 Decision 2) never looks — so every feedback submission would
+  // arrive uncategorised with nothing failing. Asserted on the emitted Location, because that is
+  // the artifact, not on the map literal.
+  it("keeps category and ref on the QUERY, never behind a fragment", async () => {
+    const env = fakeEnv();
+    const response = await worker.fetch(
+      new Request("https://twiceover.io/contact?category=feedback&ref=0a1b2c3d&utm_source=ph"),
+      env,
+    );
+
+    const location = new URL(response.headers.get("location"));
+    expect(location.hash).toBe("");
+    expect(location.pathname).toBe("/contact");
+    expect(location.searchParams.get("category")).toBe("feedback");
+    expect(location.searchParams.get("ref")).toBe("0a1b2c3d");
+    expect(location.searchParams.get("utm_source")).toBe("ph");
+  });
+
+  // The pre-Gate-B demand metric on /contact survives the cutover (#3282): the branch writes the
+  // site metric BEFORE the 302, keyed to the route's own path, so the row keeps arriving — what
+  // changes is its event class (HTML page view -> MQ2 CTA click), which is #3282's to interpret.
+  it("still records /contact in site metrics, keyed to its own path", async () => {
+    const env = fakeEnv();
+    await worker.fetch(new Request("https://twiceover.io/contact"), env);
+
+    expect(env.SITE_METRICS.writeDataPoint).toHaveBeenCalledTimes(1);
+    const [point] = env.SITE_METRICS.writeDataPoint.mock.calls[0];
+    expect(point.blobs[0]).toBe("/contact");
   });
 
   it("leaves /go/try on the app root (unchanged)", async () => {
