@@ -24,14 +24,18 @@
 // Core's two sub-lines are the negative-option disclosure (ADR 0145, FTC/EU-UK
 // auto-renewal) — verbatim, legal-flagged; they are not decoration and never ship
 // without the CTA they qualify, nor it without them.
-// Trimmed from the #1307 canonical draft (human direction 2026-07-22), then restored
-// (2026-08-22, stock-analyst-platform#2567): "— ongoing, not a trial" and the standalone
-// "No card required" line were dropped as redundant on a card with no CTA/checkout to
-// contrast against. #2513/#2514 falsified that premise by adding one — both lines now
-// have exactly the contrast they were dropped for lacking (Free is "ongoing, not a
-// trial" beside a 14-day trial; "No card required" beside a card-required CTA) — and
-// the PM's site-copy-twiceover.md re-derivation (routed from #2544) ratified restoring
-// them as part of the same pass that added the Sector/Voices/news-wire bullets below.
+// "No card required" was trimmed from the #1307 canonical draft (human direction
+// 2026-07-22) and restored (2026-08-22, stock-analyst-platform#2567): it had been dropped
+// as redundant on a card with no CTA/checkout to contrast against, and #2513/#2514
+// falsified that premise by adding one, so it now has the contrast it was dropped for
+// lacking (a card-required CTA beside it). The PM's site-copy-twiceover.md re-derivation
+// (routed from #2544) ratified restoring it, in the same pass that added the
+// Sector/Voices/news-wire bullets below.
+// Its companion "— ongoing, not a trial" is NO LONGER on this page: both cap bullets lost
+// their trailing clause under the C4 redesign (2026-09-04, founder direction on #3545,
+// ratified into ai-team/pm/site-copy-pricing.md by #3548) — see the cap-figure note below.
+// The "ongoing, not a trial" fact itself is not lost; it still reads in site-copy-pricing.md's
+// "Two ways to start" paragraph, which this page has never built.
 // "Any ticker" → "any US-listed
 // ticker" per consult 0416 (PM ruling): the product is US-only by design (ADR
 // 0027/0028) and US-venue-scoped by construction; inline qualifier, not a footnote,
@@ -67,12 +71,19 @@
 // exactly. Still correctly absent from Free: options analytics (dark at every tier,
 // ADR 0560, unaffected), curated voices, and the licensed news wire (Core-minimum,
 // unchanged) — the two rows a connected Free account still lacks vs. Core.
-// Core gains its own cap line (2026-08-28, stock-analyst-platform#2862, realizes ADR
-// 0788 + consult 0792): "600 reads a month — a full book pass, every day" — verbatim,
-// the same wording ADR 0788 names as Core's primary differentiator over Free and that
-// the landing page's Pricing strip already carries (#2812). Placed first, mirroring
-// Free's own cap-first bullet above; this page was the one gap left after #2843 moved
-// Free's cap to 10 without touching Core's.
+// Core gained its own cap line (2026-08-28, stock-analyst-platform#2862, realizes ADR
+// 0788 + consult 0792), mirroring Free's cap-first bullet — this page was the one gap left
+// after #2843 moved Free's cap to 10 without touching Core's.
+// BOTH caps are now figures in the card's figure block, not list bullets, and both lost
+// their trailing gloss (2026-09-04, ADR 0912 + #3549, ratified by #3548): "10 reads a
+// month" and "600 reads a month". ADR 0788 is unaffected — it names the NUMBER 600 as
+// Core's differentiator, never the prose gloss around it. The landing page's Pricing strip
+// captions are quotations of these two lines and move with them in the same commit;
+// pricing-strip-and-closing-band.test.mjs asserts that equality from both surfaces.
+// NOT touched here: the landing page's closing-band paragraph, which states the same fact
+// in its own longer sentence ("Core raises your monthly read count to 600 — a full book
+// pass, every day. ..."). It is not a cap bullet, no test derives it from this page, and
+// consult 0792's trip-wire makes a wording change there a PM/Growth call, not a build one.
 import Base from "../layouts/Base.astro";
 
 // Offer JSON-LD (SEO audit 2026-07 finding 7) — the Accepted prices, verbatim from
@@ -113,41 +124,68 @@ const productJsonLd = {
   description="One simple monthly subscription. No per-analysis charges. Use it with or without a broker connection."
 >
   <script type="application/ld+json" set:html={JSON.stringify(productJsonLd)} />
-  <div class="page-title-block">
-    <h1 class="type-heading-1">Simple subscription. You hold the decisions; we do the math.</h1>
-    <p class="sub">One simple monthly subscription. No per-analysis charges. Use it with or without a broker connection — connecting read-only unlocks reads of your own positions against your own rules.</p>
-  </div>
+  {/* The band (ADR 0912 ruling 1) — ink graphite, NOT the accent: a full-bleed
+      non-interactive band painted in accent.default spends the scarcity that makes the two
+      CTA borders and the mark read as actions. Its fill and two ink values are the dark
+      theme's own bg.canvas / text.primary / text.secondary, taken by scoping
+      data-theme="dark" to this section — the mechanism .trust-plate already uses on the
+      landing page (ADR 0035) — rather than by copying three hexes in. No token is minted. */}
+  <section class="pricing-band" data-theme="dark">
+    <div class="container">
+      <h1 class="pricing-band__title type-display">Simple subscription. You hold the decisions; we do the math.</h1>
+      <p class="pricing-band__sub">One simple monthly subscription. No per-analysis charges. Use it with or without a broker connection — connecting read-only unlocks reads of your own positions against your own rules.</p>
+    </div>
+  </section>
 
   <ul class="tier-grid">
     <li class="tier">
-      <h2 class="type-heading-2">Free</h2>
-      <p class="price type-display">$0</p>
-      <ul>
-        <li>10 reads a month — ongoing, not a trial</li>
-        <li>The synthesis read on any US-listed ticker</li>
-        <li>Read-only broker connection</li>
-        <li>Position &amp; structure math on your connected book (breakeven, max profit/loss, net debit/credit, your rules on live data)</li>
-        <li>Key technical levels (basic), macro and sector regime, peer positioning, and SEC/EDGAR fundamentals</li>
-        <li>No card required</li>
-      </ul>
-      <a class="btn-quiet tier__cta" href="/go/try">Run a free read</a>
+      {/* Figure block (ADR 0912 ruling 2): eyebrow, price, cap figure over a border.strong
+          hairline, and NO tinted fill — the hairline is the whole separation. The tier label
+          stays an <h2> for the document outline; `.tier__eyebrow` is what gives it the
+          eyebrow treatment the artifact draws with a bare <p>. */}
+      <div class="tier__figures">
+        <h2 class="tier__eyebrow">Free</h2>
+        <p class="tier__price">$0</p>
+        {/* The space between the two spans is load-bearing for TEXT, not layout: the 10px gap is
+            flex `gap`, so without it the cap copies and reads out as "10reads a month". A
+            whitespace-only node between flex items is not rendered, so the visual is unchanged. */}
+        <p class="tier__cap"><span class="tier__cap-n">10</span> <span class="tier__cap-w">reads a month</span></p>
+      </div>
+      <div class="tier__body">
+        <ul class="tier__rows">
+          <li>The synthesis read on any US-listed ticker</li>
+          <li>Read-only broker connection</li>
+          <li>Position &amp; structure math on your connected book (breakeven, max profit/loss, net debit/credit, your rules on live data)</li>
+          <li>Key technical levels (basic), macro and sector regime, peer positioning, and SEC/EDGAR fundamentals</li>
+          <li>No card required</li>
+        </ul>
+        <div class="tier__foot">
+          <a class="btn-quiet tier__cta" href="/go/try">Run a free read</a>
+        </div>
+      </div>
     </li>
     <li class="tier">
-      <h2 class="type-heading-2">Core</h2>
-      <p class="price type-display">$49<span class="per">/mo</span></p>
-      <ul>
-        <li>600 reads a month — a full book pass, every day</li>
-        <li>Read-only broker connection</li>
-        <li>Held-position reads and new-idea reads</li>
-        <li>Options math &amp; structure engine (breakevens, max profit/loss, collateral, P&amp;L)</li>
-        <li>Your own rules, evaluated on live data</li>
-        <li>Macro and sector regime, with peer positioning</li>
-        <li>Curated voices, plus the licensed news wire</li>
-        <li>Licensed market data</li>
-      </ul>
-      <a class="btn-quiet tier__cta" href="/go/plan">Start 14-day trial</a>
-      <p class="tier__disclosure">Free for 14 days. Then $49/month, charged automatically to the card you save at checkout.</p>
-      <p class="tier__disclosure">Cancel any time before the trial ends — one click in Settings, no charge. We email you three days before.</p>
+      <div class="tier__figures">
+        <h2 class="tier__eyebrow">Core</h2>
+        <p class="tier__price">$49<span class="per">/mo</span></p>
+        <p class="tier__cap"><span class="tier__cap-n">600</span> <span class="tier__cap-w">reads a month</span></p>
+      </div>
+      <div class="tier__body">
+        <ul class="tier__rows">
+          <li>Read-only broker connection</li>
+          <li>Held-position reads and new-idea reads</li>
+          <li>Options math &amp; structure engine (breakevens, max profit/loss, collateral, P&amp;L)</li>
+          <li>Your own rules, evaluated on live data</li>
+          <li>Macro and sector regime, with peer positioning</li>
+          <li>Curated voices, plus the licensed news wire</li>
+          <li>Licensed market data</li>
+        </ul>
+        <div class="tier__foot">
+          <a class="btn-quiet tier__cta" href="/go/plan">Start 14-day trial</a>
+          <p class="tier__disclosure">Free for 14 days. Then $49/month, charged automatically to the card you save at checkout.</p>
+          <p class="tier__disclosure">Cancel any time before the trial ends — one click in Settings, no charge. We email you three days before.</p>
+        </div>
+      </div>
     </li>
   </ul>
 

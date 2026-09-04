@@ -80,13 +80,23 @@ describe("Pricing strip (#3030, site-prelaunch.md §2 'Pricing strip')", () => {
     // cards (pricing.astro), never new copy — "do not restate/paraphrase". Asserting against the
     // other surface, not against a literal pinned here, is what makes this a real drift guard:
     // it fails if EITHER page's wording moves, which a pinned string could not see.
+    //
+    // The cap line moved OUT of the feature list and into the card's figure block with the C4
+    // "Paper board" redesign (ADR 0912, #3549): it is now a split figure/word pair, not an `<li>`.
+    // The extractor follows it there rather than pinning the new strings — a `<li>`-shaped one
+    // matched nothing after the redesign, which reads as "no cap bullets" rather than as drift.
+    //
+    // It reads the cap's TEXT (tags stripped, whitespace collapsed) rather than joining the two
+    // spans with a space of its own. The 10px between them is flex `gap`, so a join here would
+    // manufacture a separator the markup need not have — and the markup without one copies and
+    // reads out as "10reads a month" while looking perfectly correct on screen.
     const captions = textsOfClass(astro, "pricing-stat__caption");
-    const pricingBullets = [...pricingAstro.matchAll(/<li>([^<]*reads a month[^<]*)<\/li>/g)].map(
-      ([, t]) => t.trim(),
+    const pricingCaps = [...pricingAstro.matchAll(/<p class="tier__cap">([\s\S]*?)<\/p>/g)].map(
+      ([, inner]) => inner.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim(),
     );
 
-    expect(pricingBullets, "pricing.astro no longer has the two 'reads a month' bullets").toHaveLength(2);
-    expect(captions).toEqual(pricingBullets);
+    expect(pricingCaps, "pricing.astro no longer has the two cap figures").toHaveLength(2);
+    expect(captions).toEqual(pricingCaps);
   });
 
   it("carries the two price figures with the tier labels and the shared pricing link", () => {
