@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+<style>
+.word{font-family:"Source Serif 4", Georgia, Cambria, "Times New Roman", serif;font-weight:600;font-size:32px;fill:#211D17}
+.o{fill:#23436F}
+.tagline{font-family:"Source Serif 4", Georgia, Cambria, "Times New Roman", serif;font-weight:600;font-size:46px;letter-spacing:-1.15px;fill:#211D17}
+.cap{font-family:"Source Code Pro", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;font-size:24px;fill:#60594F}
+.disc{font-family:"Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;font-size:28px;fill:#6B6358}
+.foot{font-family:"Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;font-weight:600;font-size:22px;fill:#2F5C97}
+.foot-right{font-family:"Source Serif 4", Georgia, Cambria, "Times New Roman", serif;font-weight:600;font-size:24px;fill:#211D17}
+text{font-family:"Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif}
+.pf-hatch{stroke:#6B6358;stroke-width:1;opacity:0.55}
+.pf-zone-profit{fill:#211D17;opacity:0.05}
+.pf-word{fill:#4C463D;font-family:"Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;font-size:19.95px;font-weight:600;paint-order:stroke;stroke:#F7F3EA;stroke-width:3px;stroke-linejoin:round}
+.pf-grid{stroke:#E2DCCF;stroke-width:1;opacity:0.28}
+.pf-zero{stroke:#CFC7B6;stroke-width:1}
+.pf-line{fill:none;stroke:#211D17;stroke-width:2.2;stroke-linejoin:round}
+.pf-berule{stroke:#6B6358;stroke-width:1.2;stroke-dasharray:4 4}
+.pf-bedot{fill:#F7F3EA;stroke:#211D17;stroke-width:1.6}
+.pf-maxloss-d{fill:#F7F3EA;stroke:#211D17;stroke-width:1.6}
+.pf-maxprof-d{fill:#211D17;stroke:#F7F3EA;stroke-width:2}
+.pf-tick--strike{stroke:#211D17}
+.pf-tick--breakeven{stroke:#4C463D}
+.pf-tickfig{font-family:"Source Code Pro", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;font-size:17.10px}
+.pf-tickfig--strike{fill:#211D17}
+.pf-tickfig--breakeven{fill:#4C463D}
+</style>
+<rect width="1200" height="630" fill="#F7F3EA"/>
+<g transform="translate(80 46) scale(1.3125)"><rect x="5" y="11" width="22" height="3.4" rx="1.7" fill="#23436F"/><rect x="10" y="18" width="17" height="3.4" rx="1.7" fill="#23436F" opacity="0.55"/></g>
+<text class="word" x="135" y="78">Twice<tspan class="o">O</tspan>ver</text>
+<text class="tagline" x="80" y="132">A second look</text>
+<text class="tagline" x="80" y="180.75">at your own book.</text>
+<text class="cap" x="80" y="250">your 2× Jul 17 175C/190C · breakeven $181.20</text>
+<text class="disc" text-anchor="end" x="1120" y="358">Illustrative example —</text>
+<text class="disc" text-anchor="end" x="1120" y="394.39">not a live account</text>
+<g transform="translate(60 250) scale(1.2)"><defs><pattern id="pf-hatch-og-spread" width="6" height="6" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><line class="pf-hatch" x1="0" y1="0" x2="0" y2="6"/></pattern></defs><rect x="58" y="26" width="247.61" height="184" fill="url(#pf-hatch-og-spread)" opacity="0.5"/><rect class="pf-zone-profit" x="305.61" y="26" width="300.39" height="184"/><line class="pf-grid" x1="58" y1="180.32" x2="606" y2="180.32"/><line class="pf-grid" x1="58" y1="81.4" x2="606" y2="81.4"/><line class="pf-grid" x1="58" y1="31.94" x2="606" y2="31.94"/><line class="pf-zero" x1="58" y1="130.86" x2="606" y2="130.86"/><path class="pf-line" d="M 58 192.19 L 179.78 192.19 L 484.22 43.81 L 606 43.81"/><line class="pf-berule" x1="305.61" y1="26" x2="305.61" y2="210"/><circle class="pf-bedot" cx="305.61" cy="130.86" r="3.5"/><circle class="pf-maxloss-d" cx="179.78" cy="192.19" r="3.5"/><circle class="pf-maxprof-d" cx="484.22" cy="43.81" r="4"/><text class="pf-word" text-anchor="middle" x="181.81" y="150">loss at expiry</text><text class="pf-word" text-anchor="middle" x="455.81" y="200">profit at expiry</text><line class="pf-tick pf-tick--strike" x1="179.78" y1="210" x2="179.78" y2="214"/><text class="pf-tickfig pf-tickfig--strike" text-anchor="middle" x="179.78" y="224">$175.00</text><line class="pf-tick pf-tick--strike" x1="484.22" y1="210" x2="484.22" y2="214"/><text class="pf-tickfig pf-tickfig--strike" text-anchor="middle" x="484.22" y="224">$190.00</text><line class="pf-tick pf-tick--breakeven" x1="305.61" y1="210" x2="305.61" y2="214"/><text class="pf-tickfig pf-tickfig--breakeven" text-anchor="middle" x="305.61" y="224">$181.20</text></g>
+<text class="foot" x="80" y="589">twiceover.io</text>
+<text class="foot-right" text-anchor="end" x="1120" y="589">Depth, never a verdict.</text>
+</svg>

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+<style>
+.word{font-family:"Source Serif 4", Georgia, Cambria, "Times New Roman", serif;font-weight:600;font-size:32px;fill:#211D17}
+.o{fill:#23436F}
+.tagline{font-family:"Source Serif 4", Georgia, Cambria, "Times New Roman", serif;font-weight:600;font-size:46px;letter-spacing:-1.15px;fill:#211D17}
+.cap{font-family:"Source Code Pro", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;font-size:24px;fill:#60594F}
+.disc{font-family:"Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;font-size:28px;fill:#6B6358}
+.foot{font-family:"Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;font-weight:600;font-size:22px;fill:#2F5C97}
+.foot-right{font-family:"Source Serif 4", Georgia, Cambria, "Times New Roman", serif;font-weight:600;font-size:24px;fill:#211D17}
+text{font-family:"Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif}
+.t-line{fill:none;stroke:#211D17;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.t-level{stroke:#6B6358;stroke-width:1.25;stroke-dasharray:3 3}
+.t-level-name{fill:#6B6358;font-size:14.20px}
+.t-level-value{fill:#4C463D;font-family:"Source Code Pro", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;font-size:14.20px}
+.t-tick{fill:#6B6358;font-size:14.20px}
+.t-last{fill:#211D17;stroke:#F7F3EA;stroke-width:2}
+.t-lastv{fill:#211D17;font-family:"Source Code Pro", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;font-size:15.86px;paint-order:stroke;stroke:#F7F3EA;stroke-width:3px;stroke-linejoin:round}
+</style>
+<rect width="1200" height="630" fill="#F7F3EA"/>
+<g transform="translate(80 46) scale(1.3125)"><rect x="5" y="11" width="22" height="3.4" rx="1.7" fill="#23436F"/><rect x="10" y="18" width="17" height="3.4" rx="1.7" fill="#23436F" opacity="0.55"/></g>
+<text class="word" x="135" y="78">Twice<tspan class="o">O</tspan>ver</text>
+<text class="tagline" x="80" y="132">A second look</text>
+<text class="tagline" x="80" y="180.75">at your own book.</text>
+<text class="cap" x="80" y="250">last 90 sessions · the levels</text>
+<text class="disc" text-anchor="end" x="1120" y="253">Illustrative example — not a live account</text>
+<g transform="translate(80 290) scale(1.451613)"><line class="t-level" x1="4" y1="76.34" x2="542" y2="76.34"/><text class="t-level-name" x="546" y="75.34">50-DMA <tspan class="t-level-value">175.43</tspan></text><line class="t-level" x1="4" y1="14" x2="542" y2="14"/><text class="t-level-name" x="546" y="13">52-week high <tspan class="t-level-value">198.00</tspan></text><line class="t-level" x1="4" y1="130" x2="542" y2="130"/><text class="t-level-name" x="546" y="129">52-week low <tspan class="t-level-value">156.00</tspan></text><polyline class="t-line" points="4,127.24 10.04,111.16 16.09,126.93 22.13,122.18 28.18,125.17 34.22,124.72 40.27,124.86 46.31,126.33 52.36,125.42 58.4,124.26 64.45,122.07 70.49,126.46 76.54,126.24 82.58,124.5 88.63,122.74 94.67,124.81 100.72,122.13 106.76,124.84 112.81,123.68 118.85,125.44 124.9,123.04 130.94,124.17 136.99,123.59 143.03,124.92 149.08,126.49 155.12,125.42 161.17,124.5 167.21,127.24 173.26,126.35 179.3,124.92 185.35,125.88 191.39,123.23 197.44,125.66 203.48,124.92 209.53,126.13 215.57,124.06 221.62,119.17 227.66,119.01 233.71,124.64 239.75,119.12 245.8,121.13 251.84,111.8 257.89,120.47 263.93,123.68 269.98,110.97 276.02,106.55 282.07,115.61 288.11,108.18 294.16,113.98 300.2,112.16 306.25,105.5 312.29,107.05 318.34,89.04 324.38,92.11 330.43,92.71 336.47,79.62 342.52,85.67 348.56,88.43 354.61,83.77 360.65,83.93 366.7,81.22 372.74,80.34 378.79,61.42 384.83,76.17 390.88,71.78 396.92,69.21 402.97,54.96 409.01,60.07 415.06,54.13 421.1,52.75 427.15,49.21 433.19,43.52 439.24,48.33 445.28,48.99 451.33,42.94 457.37,31.57 463.42,38.91 469.46,24.69 475.51,33.66 481.55,34.55 487.6,17.15 493.64,21.76 499.69,27.28 505.73,21.15 511.78,23.31 517.82,18.83 523.87,19.44 529.91,18.75 535.96,35.21 542,51.23"/><text class="t-tick" x="28.18" y="146" text-anchor="middle">May</text><text class="t-tick" x="155.12" y="146" text-anchor="middle">Jun</text><text class="t-tick" x="288.11" y="146" text-anchor="middle">Jul</text><text class="t-tick" x="427.15" y="146" text-anchor="middle">Aug</text><circle class="t-last" cx="542" cy="51.23" r="3"/><text class="t-lastv" text-anchor="end" x="536" y="46.23">184.52</text></g>
+<text class="foot" x="80" y="589">twiceover.io</text>
+<text class="foot-right" text-anchor="end" x="1120" y="589">Depth, never a verdict.</text>
+</svg>
