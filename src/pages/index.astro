@@ -160,18 +160,22 @@ const websiteJsonLd = {
 
       Both context lines are QUOTATIONS of the live /pricing cards, never restated or
       paraphrased — pricing-strip-and-closing-band.test.mjs asserts them equal to pricing.astro's
-      own bullets rather than to a pinned string, so a reword on either page fails the build. */}
+      own cap lines rather than to a pinned string, so a reword on either page fails the build.
+      Both lost their trailing clause on 2026-09-04 (founder direction on #3545, ratified into
+      site-copy-pricing.md by #3548, built with the /pricing redesign in #3549) — the quotation
+      moved because its source did. The closing band's own paragraph below states the same fact
+      in a longer sentence and is deliberately unchanged: it is not one of these quotations. */}
   <section class="pricing-strip section-ground section-ground--lifted" aria-label="Pricing at a glance">
     <div class="pricing-strip__grid">
       <div class="pricing-stat">
         <p class="pricing-stat__label">Free</p>
         <p class="pricing-stat__figure type-display">$0</p>
-        <p class="pricing-stat__caption">10 reads a month — ongoing, not a trial</p>
+        <p class="pricing-stat__caption">10 reads a month</p>
       </div>
       <div class="pricing-stat">
         <p class="pricing-stat__label">Core</p>
         <p class="pricing-stat__figure type-display">$49<span class="per">/mo</span></p>
-        <p class="pricing-stat__caption">600 reads a month — a full book pass, every day</p>
+        <p class="pricing-stat__caption">600 reads a month</p>
       </div>
     </div>
     <a class="btn-quiet pricing-strip__link" href="/pricing">See full pricing →</a>

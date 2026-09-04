@@ -880,7 +880,7 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
 }
-/* Same proportion the /pricing cards give their own "/mo" (.tier .price .per) — one figure
+/* Same proportion the /pricing cards give their own "/mo" (.tier__price .per) — one figure
    grammar across the two surfaces that show these numbers. */
 .pricing-stat__figure .per { font-size: var(--font-size-300); font-weight: var(--font-weight-regular); letter-spacing: var(--font-letter-spacing-normal); color: var(--color-text-muted); }
 .pricing-stat__caption { margin: 0; color: var(--color-text-secondary); font-size: var(--font-size-300); }
@@ -1224,50 +1224,148 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .closing-band__disclosure + .closing-band__disclosure { margin-block-start: var(--space-100); }
 
 /* ── Pricing ──────────────────────────────────────────────────────────── */
+/* Still the title block for /404 and the policy template. /pricing left it for the band
+   below (v2.40, ADR 0912) and is no longer one of its users. */
 .page-title-block { padding-block-start: var(--space-600); }
 .page-title-block h1 { margin: 0; }
 .page-title-block .sub { color: var(--color-text-secondary); margin: var(--space-200) 0 0; }
 
+/* ── Pricing band (v2.40, new — ADR 0912, stock-analyst-platform#3549; build reference
+   ai-team/design/assets/pricing-page-c4-paper-board-2026-09-04.html) ─────────────────
+   The first full-bleed dark band the brand presents on a marketing surface. It is ink
+   graphite, NOT the accent (ADR 0912 ruling 1): the accent survives on the two CTA borders,
+   the mark and links, which is what makes those read as actions.
+   The fill and its two ink values come from scoping `data-theme="dark"` to the section in
+   the markup — the same mechanism .trust-plate uses (ADR 0035) — so bg.canvas resolves to
+   #1A1713 and text.primary/secondary to the dark theme's own inks. Nothing is minted and no
+   hex is copied. `color` is re-declared here for the reason .trust-plate documents above:
+   it is inherited, already resolved to the light value at body, and a custom-property
+   re-scope does not re-evaluate it.
+   Block padding is the artifact's own measure; its closing half is what the cards straddle
+   into, so the two values move together. */
+.pricing-band {
+  margin-inline: calc(50% - 50vw);
+  background: var(--color-bg-canvas);
+  color: var(--color-text-primary);
+  padding-block: 2.5rem 6rem;
+  text-align: center;
+}
+@media (min-width: 640px) { .pricing-band { padding-block: 4.5rem 8.5rem; } }
+/* `type-display` carries the serif display scale; the md step to 3rem is display-large's
+   own size, taken here as a size bump rather than a second class on the element. */
+.pricing-band__title { margin: 0 auto; max-width: 20ch; text-wrap: balance; }
+@media (min-width: 640px) { .pricing-band__title { font-size: var(--font-size-900); } }
+.pricing-band__sub {
+  margin: var(--space-300) auto 0;
+  max-width: 56ch;
+  color: var(--color-text-secondary);
+  text-wrap: pretty;
+}
+@media (min-width: 640px) { .pricing-band__sub { font-size: var(--font-size-400); } }
+
+/* The straddle (ADR 0912): the cards overlap the band's lower edge, biting into the closing
+   padding above. They are later siblings, so their grounds paint over the band's with no
+   stacking context needed. 4rem is space.800; 5.5rem has no member on the scale. */
 .tier-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-300);
-  max-width: 44rem; /* tiers × 22rem (2 tiers: Free/Core, Premium gated out #1766/#1767) */
-  margin-block: var(--space-600);
+  max-width: 58rem;
+  margin: -4rem auto 0;
   padding: 0;
   list-style: none;
 }
+@media (min-width: 640px) {
+  .tier-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: -5.5rem; }
+}
 /* Symmetry is a compliance feature (spec §6.2): identical card treatment on every
-   tier — no badge, no accent border, no size difference. Do not differentiate. */
+   tier — no badge, no accent border, no size difference. Do not differentiate.
+   Fill and border moved to bg.raised + border.strong (v2.40) so the card holds its own
+   against the dark band it now overlaps. */
 .tier {
-  background: var(--color-bg-surface);
-  border: 1px solid var(--color-border-default);
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-medium);
-  padding: var(--space-400);
+  overflow: hidden;
   /* Flex column so the card's CTA (and, on Core, its disclosure lines) are laid out as
      siblings of the feature list rather than inline flow — see `.tier__cta` below for why
      the buttons are list-attached rather than bottom-aligned. */
   display: flex;
   flex-direction: column;
 }
-.tier h2 { margin: 0; }
-.tier .price {
-  margin: var(--space-300) 0 0;
-  color: var(--color-text-primary);
+/* Figure block — eyebrow, price, cap figure. NO tinted fill (ADR 0912 ruling 2): an earlier
+   draft tinted it bg.inset, the founder removed the tint, and that removal is the approved
+   state. The single border.strong hairline below is the whole separation, per the Ledger
+   register's "hairline rules over cards". The mono figures and the 20/28px inline padding
+   are the artifact's; neither 1.25rem nor 1.75rem is on the space scale. */
+.tier__figures {
+  border-bottom: 1px solid var(--color-border-strong);
+  padding: var(--space-300) 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+@media (min-width: 640px) { .tier__figures { padding: 1.75rem var(--space-400); } }
+/* An <h2> in the markup, for the outline; this is what makes it read as the eyebrow. */
+.tier__eyebrow {
+  margin: 0;
+  font-size: var(--font-size-200);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--font-line-height-default);
+  letter-spacing: var(--font-letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.tier__price {
+  margin: 0;
+  font-family: var(--font-family-mono);
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
+  font-size: var(--font-size-900);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  letter-spacing: var(--font-letter-spacing-tight);
+  color: var(--color-text-primary);
 }
-.tier .price .per { font-size: var(--font-size-300); font-weight: var(--font-weight-regular); letter-spacing: var(--font-letter-spacing-normal); color: var(--color-text-muted); }
-.tier .price-note { font-size: var(--font-size-200); color: var(--color-text-muted); margin: var(--space-050) 0 0; min-height: 1.5em; }
-.tier ul { list-style: none; margin: var(--space-400) 0 var(--space-400); padding: 0; color: var(--color-text-secondary); }
-.tier li { margin-bottom: var(--space-150); }
-.tier li::before { content: "– "; }
+@media (min-width: 640px) { .tier__price { font-size: 4rem; } }
+.tier__price .per { font-family: var(--font-family-sans); font-size: var(--font-size-300); font-weight: var(--font-weight-regular); letter-spacing: var(--font-letter-spacing-normal); color: var(--color-text-muted); }
+/* The cap figure: the number at its own step, the unit in body text beside it. Baseline
+   alignment is what keeps the pair reading as one line rather than two stacked sizes. */
+.tier__cap { margin: 0; display: flex; align-items: baseline; gap: 0.625rem; }
+.tier__cap-n {
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  font-size: 1.75rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  letter-spacing: var(--font-letter-spacing-tight);
+  color: var(--color-text-primary);
+}
+@media (min-width: 640px) { .tier__cap-n { font-size: 2rem; } }
+.tier__cap-w { color: var(--color-text-secondary); }
+.tier__body { padding: 0 1.25rem 1.75rem; display: flex; flex-direction: column; }
+@media (min-width: 640px) { .tier__body { padding: 0 var(--space-400) var(--space-400); } }
+/* Ledger rows — hairline-separated, no markers. Checkmarks stay barred (site-prelaunch.md
+   §3): a list of ticks reads as a scorecard, which drifts toward ranking. The "– " marker
+   these rows replace was the same idea in a quieter form; the rule between rows is the
+   Ledger register's own way of grouping. */
+.tier__rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.tier__rows li {
+  padding-block: var(--space-150);
+  border-top: 1px solid var(--color-border-default);
+  color: var(--color-text-secondary);
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+.tier__rows li:first-child { border-top: none; } /* the figure divider already rules here */
 /* Card CTA (site-prelaunch.md §3: "each card gains the same quiet outline button — equal
    weight"; stock-analyst-platform#2513/#2514). Identical `.btn-quiet` on both tiers — the
    labels differ because the actions differ, nothing else does. `align-self` keeps the button
    at its content's width inside the flex column instead of stretching edge to edge.
-   The button sits directly under its own feature list (the list's `margin-block-end` is the
-   gap), so each card reads as list-then-action. Two alternatives were built and MEASURED
+   The button sits in the card foot, under the border.default rule that closes the ledger
+   (v2.40 — the rule and its padding are the gap the list's `margin-block-end` used to be),
+   so each card still reads as list-then-action. Two alternatives were built and MEASURED
    rather than eyeballed, and both were worse:
      - `margin-block-start:auto` (bottom-flush groups) put the two buttons 150px apart and
        stranded Free's at the card floor under ~200px of dead space — symmetric by the ruler,
@@ -1275,9 +1373,9 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
      - Any `.tier ul + .tier__cta` spacing rule beside an `auto` margin silently outranks it
        (0,2,1 vs 0,1,0) and replaces the alignment with a fixed margin, which looks exactly
        like working spacing while doing the opposite.
-   The buttons therefore do NOT share a y-position — Core's list is twice Free's. That is a
-   layout question, not a build one: raised for the Designer gate on the PR with the rect
-   measurements, not settled here. */
+   The buttons therefore do NOT share a y-position — Core's list is twice Free's. The
+   2026-08-22 ruling stands and #3549 restates it: do not "fix" it. */
+.tier__foot { border-top: 1px solid var(--color-border-default); padding-top: var(--space-300); margin-top: var(--space-050); }
 .tier__cta { align-self: flex-start; }
 /* Core's two negative-option disclosure lines (FTC / EU-UK auto-renewal, ADR 0145). Quiet
    caption directly under the button they qualify — they are what makes an auto-renewing
@@ -1290,7 +1388,9 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   max-width: 42ch;
   margin: var(--space-150) 0 0;
 }
-.mor-line { font-size: var(--font-size-200); color: var(--color-text-muted); max-width: 65ch; margin-block: 0 var(--space-600); }
+/* Centred under the cards since v2.40 — the page's axis is the band's, not the column's. */
+.mor-line { font-size: var(--font-size-200); color: var(--color-text-muted); max-width: 65ch; text-align: center; margin: var(--space-400) auto var(--space-800); }
+@media (min-width: 640px) { .mor-line { margin-block: 2.5rem 5rem; } }
 
 /* ── Policy template ─────────────────────────────────────────────────── */
 .policy { max-width: 70ch; }
