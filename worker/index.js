@@ -2,9 +2,11 @@
 // Realizes ADR 0136 Option D — cookieless, first-party site measurement written to the
 // SITE_METRICS Analytics Engine dataset. Two call sites:
 //   1. a page-view record on every HTML page served (MQ1, MQ3-referrer/UTM, MQ4);
-//   2. a click-event record on every /go/* route (MQ2), each a same-origin redirect
+//   2. a click-event record on every redirect route (MQ2), each a same-origin redirect
 //      to app.twiceover.io forwarding ONLY a named, bounded set of keys — the three UTM
 //      keys, plus `ticker` on /go/try and the support form's `category`/`ref` (#3237).
+//      "every /go/* route" until stock-analyst-platform#3266: `/contact` joined the same
+//      map, so the set is GO_PATHS, not a `/go/` prefix.
 //
 // Emitted fields are EXACTLY six, exhaustively (ADR 0136 / consult 0163):
 //   path, referrer (origin only), utm_source, utm_medium, utm_campaign, country.
@@ -29,6 +31,11 @@
 //   /go/connect — the hero + closing-band "Connect read-only →" CTA
 //   /go/signin  — the header "Sign in" slot
 //   /go/plan    — /pricing's Core card "Start 14-day trial" CTA (#2514)
+//   /contact    — the site's own footer/FAQ Contact link (ADR 0859/0870, #3266). The one
+//                 entry NOT under /go/*, and deliberately so: it is a PUBLIC URL people
+//                 typed, bookmarked and linked to while it was a static page, so the URL
+//                 has to keep working. It is the same mechanism, not an exception to it —
+//                 which is why it lives in this map rather than in a branch of its own.
 const APP_TRY_URL = "https://app.twiceover.io/";
 
 /**
@@ -68,12 +75,27 @@ const APP_TRY_URL = "https://app.twiceover.io/";
  *     the hash on "?" and parses that substring; `buildAppRedirect()` re-serializes onto
  *     `searchParams`, which that parser never looks at. So the intent is baked into this literal
  *     rather than passed as a param — the UTM keys still ride the query beside it, untouched.
+ *
+ * `/contact` (ADR 0870 Decision 4, stock-analyst-platform#3266) is a PATH WITH NO HASH — the one
+ * entry that deliberately does not deep-link one, and the reason is the `/go/plan` history two
+ * paragraphs up. 0870's whole point is that this site stops knowing the app's hash grammar: the
+ * app's own Worker turns `app.twiceover.io/contact` into `/?<query>#contact` on its own origin.
+ * Do NOT bake `#contact` into the literal. A hash-free base is what lets the forwarder emit
+ * `category` and `ref` on the QUERY, which is where the app reads them (0870 Decision 2); behind
+ * a fragment nothing reads them, and the redirect would still look correct — a 302 to the right
+ * origin, with every feedback submission arriving uncategorised and nothing failing.
+ *
+ * (This paragraph sits outside the map rather than beside the entry because
+ * `ci/check-entry-box.mjs` scans GO_DESTINATIONS' raw bytes for request-input references and does
+ * not exempt comments, so prose naming the forwarding mechanism reads to it as the mechanism.)
  */
-const GO_DESTINATIONS = {
+export const GO_DESTINATIONS = {
   "/go/try": APP_TRY_URL,
   "/go/connect": `${APP_TRY_URL}#connection`,
   "/go/signin": `${APP_TRY_URL}#signin`,
   "/go/plan": `${APP_TRY_URL}#signin?intent=core`,
+  // See the note above this map on why `/contact` carries no hash. Do not add one.
+  "/contact": `${APP_TRY_URL}contact`,
 };
 
 const GO_PATHS = new Set(Object.keys(GO_DESTINATIONS));
