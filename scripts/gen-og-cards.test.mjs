@@ -24,7 +24,7 @@
  */
 
 import { describe, it, expect, beforeAll } from "vitest";
-import { readFileSync, statSync } from "node:fs";
+import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -42,6 +42,9 @@ import {
   stripElements,
   moveY,
   smallestTypeUnits,
+  parseTokens,
+  REQUIRED_FACES,
+  DISCLAIMER,
   loadStyleSources,
 } from "./gen-og-cards.mjs";
 
@@ -67,6 +70,19 @@ function texts(body) {
 }
 
 describe("the set is three members, one chassis (ADR 0905)", () => {
+  it("holds the floor and the disclaimer as one statement each", () => {
+    // The floor is an EXTERNAL commitment (consult 0752), so the number is written here as a
+    // literal rather than imported from the module the floor tests measure against — otherwise
+    // lowering it in one place moves the goalposts and the suite stays green.
+    expect.soft(LEGIBILITY_FLOOR_PX, "consult 0752's floor, in px as rendered").toBe(6);
+    expect.soft(PHONE_CARD_WIDTH_PX, "X's large-image card on a phone").toBe(350);
+    // C's disclaimer is the same sentence, wrapped into a 300px column. Stated twice, joined here,
+    // so the three cards cannot end up carrying different words.
+    expect
+      .soft(memberByKey("spread").disclaimer.lines.join(" "), "C's two lines are that one sentence")
+      .toBe(DISCLAIMER);
+  });
+
   it("names three stably-filenamed members, each with its own plot, scale and caption", () => {
     expect(MEMBERS.map((m) => m.key)).toEqual(["path", "levels", "spread"]);
 
@@ -171,21 +187,65 @@ describe("ADR 0905 build rule 1 — chart type is scaled per member, solved from
     ).toThrow(/unknown token --nope/);
   });
 
-  it("resolves the knockout rings to the card's own background, not the band's or the panel's", () => {
-    const css = chartStylesheet({ ...sources, scale: 1.53 });
-    const tokens = sources.tokens;
+  it.each(MEMBERS.map((m) => [m.key, m]))(
+    "%s resolves its knockout rings to the card's own background, not the band's or the panel's",
+    (key, member) => {
+      // #2988's halo note, generalised: on the page these charts sit on the Outlook band
+      // (accent-surface.container) or on a panel (bg.surface); on the card they sit on bg.canvas.
+      // A knockout paints the surface it thinks is behind it, so an unrebound ring is a visible
+      // wrong-colour halo.
+      //
+      // Run per member deliberately. The two tokens do not co-occur: the container is only read by
+      // path's `.k-origin`/`.k-point`, and bg.surface only by spread's four payoff knockouts. A
+      // single-sheet version of this test defaulted to `chart: "path"` and asserted the absence of
+      // a colour that was never there — green with the bg.surface rebind deleted.
+      const css = chartStylesheet({ ...sources, scale: member.scale, chart: key });
+      const { tokens } = sources;
+      const reads = (name) =>
+        chartStylesheet({ ...sources, scale: 1, chart: key, tokens: new Map(tokens).set(name, "#DEADBE") });
 
-    // #2988's halo note, generalised: on the card the charts sit on bg.canvas, so every knockout
-    // that reads accent-surface.container (the Outlook band) or bg.surface (the panel) must resolve
-    // to the surface actually behind it, or the halos knock out in the wrong colour.
-    expect
-      .soft(css, "no accent-band container colour survives")
-      .not.toContain(tokens.get("accent-surface-container"));
-    expect.soft(css, "no panel surface colour survives").not.toContain(tokens.get("color-bg-surface"));
-    expect
-      .soft(css, "the card's own background is what the rings knock out to")
-      .toContain(tokens.get("color-bg-canvas"));
-    expect.soft(css, "no unresolved custom property reaches the SVG").not.toContain("var(--");
+      expect.soft(css, "no accent-band container colour survives").not.toContain(tokens.get("accent-surface-container"));
+      expect.soft(css, "no panel surface colour survives").not.toContain(tokens.get("color-bg-surface"));
+      expect.soft(css, "the card's own ground is what the rings knock out to").toContain(tokens.get("color-bg-canvas"));
+      expect.soft(css, "no unresolved custom property reaches the SVG").not.toContain("var(--");
+      // The absences above are only meaningful where the token is actually read. Poisoning each
+      // rebind source proves this member's sheet does or does not depend on it, so neither absence
+      // can be vacuously true.
+      expect
+        .soft(reads("accent-surface-container").includes("#DEADBE"), "container is rebound, never passed through")
+        .toBe(false);
+      expect
+        .soft(reads("color-bg-surface").includes("#DEADBE"), "panel surface is rebound, never passed through")
+        .toBe(false);
+      expect
+        .soft(reads("color-bg-canvas").includes("#DEADBE"), `${key} knocks out against the card's ground`)
+        .toBe(true);
+    },
+  );
+
+  it("stops if the tokens stop defining a surface the rebind names", () => {
+    // The rebind used to be a find-and-replace over resolved hex. A renamed token made
+    // `tokens.get()` undefined, `split(undefined).join()` a no-op, and — measured — vitest's
+    // `expect(css).not.toContain(undefined)` PASSES. So the rebind silently stopped working and its
+    // guard reported green together. Naming the token turns that same rename into this throw.
+    const without = (name) => {
+      const t = new Map(sources.tokens);
+      t.delete(name);
+      return () => chartStylesheet({ ...sources, tokens: t, scale: 1, chart: "spread" });
+    };
+    expect.soft(without("color-bg-surface")).toThrow(/knockout rebind names --color-bg-surface/);
+    expect.soft(without("color-bg-canvas")).toThrow(/knockout rebind names --color-bg-canvas/);
+    expect.soft(without("accent-surface-container")).toThrow(/knockout rebind names --accent-surface-container/);
+  });
+
+  it("reads the light theme's tokens and never the dark block's", () => {
+    // Social crawlers do not run the viewer's theme, so the card is light-only by decision (#2988).
+    // If this slice ever captured the dark values instead, every token would still resolve and the
+    // card would render dark ink on a dark ground — nothing else would notice.
+    const t = parseTokens(':root {\n  --a: #LIGHT;\n}\n[data-theme="dark"] {\n  --a: #DARK;\n  --b: #ONLYDARK;\n}\n');
+
+    expect.soft(t.get("a"), "light wins").toBe("#LIGHT");
+    expect.soft(t.has("b"), "a dark-only token is not visible at all").toBe(false);
   });
 });
 
@@ -347,14 +407,42 @@ describe("ADR 0905 — C carries no dollar outcome figure at all", () => {
     // The third transform's guard. Without it, a payoff module that re-spaced its zone words would
     // leave the loss word sitting on the payoff line, silently — the exact defect the move exists
     // to fix, restored by a change nobody connected to this card.
-    expect(() =>
-      moveY('<text class="pf-word" x="1" y="188">loss at expiry</text>', {
-        cls: "pf-word",
-        from: 200,
-        to: 150,
-        contains: "loss at expiry",
-      }),
-    ).toThrow(/no element at y=200/);
+    const at = (y) => `<text class="pf-word" x="1" y="${y}">loss at expiry</text>`;
+
+    expect.soft(() => moveY(at(188), { cls: "pf-word", from: 200, to: 150, contains: "loss at expiry" })).toThrow(
+      /expected 1 at y=200, found 0/,
+    );
+    // And the count, not just presence. Without it this replaced the FIRST match and left the rest
+    // — a silent partial move, which is worse than either a clean skip or a throw.
+    expect
+      .soft(() => moveY(at(200) + at(200), { cls: "pf-word", from: 200, to: 150, contains: "loss at expiry" }))
+      .toThrow(/expected 1 at y=200, found 2/);
+  });
+
+  it("refuses to merge a pair whose value carries an attribute the merged form would drop", () => {
+    // A's two halves are both `text-anchor="middle"`, so the merged element anchors both — that is
+    // why dropping the value's copy is safe. Anything the NAME does not also carry would vanish
+    // into a still-well-formed SVG that even the drift snapshot reads as clean.
+    const opts = { nameClass: "n", valueClass: "v", nameY: 170, gap: 12, separator: " ", expected: 1 };
+
+    expect
+      .soft(
+        mergeStackedPairs(
+          '<text class="n" text-anchor="middle" x="10" y="170">A</text>' +
+            '<text class="v" text-anchor="middle" x="10" y="182">B</text>',
+          opts,
+        ),
+        "an attribute the name repeats is safely dropped",
+      )
+      .toBe('<text class="n" text-anchor="middle" x="10" y="170">A <tspan class="v">B</tspan></text>');
+    expect
+      .soft(() =>
+        mergeStackedPairs(
+          '<text class="n" x="10" y="170">A</text><text class="v" opacity="0.6" x="10" y="182">B</text>',
+          opts,
+        ),
+      )
+      .toThrow(/carries opacity="0\.6", which the name does not/);
   });
 
   it("measures the floor against the type each card actually draws", () => {
@@ -457,18 +545,52 @@ describe("og:image is a pointer, and rotating is one line (ADR 0905)", () => {
 });
 
 describe("the member being pointed at is the one whose bytes are committed", () => {
-  it("has every member's PNG on disk, plus the legacy URL still serving A's artwork", () => {
+  /** A PNG's IHDR carries its real dimensions at a fixed offset — the only statement of size that
+   *  is the FILE's rather than something we asserted about it. */
+  const pngSize = (path) => {
+    const b = readFileSync(path);
+    return { w: b.readUInt32BE(16), h: b.readUInt32BE(20) };
+  };
+
+  it("has every member's PNG on disk at the size the meta tags promise", () => {
+    const declared = readFileSync(join(root, "src/layouts/Base.astro"), "utf8");
+
     for (const member of MEMBERS) {
-      expect.soft(statSync(join(root, "public", member.file)).size, `${member.file} is non-empty`).toBeGreaterThan(
-        1000,
-      );
+      const path = join(root, "public", member.file);
+      expect.soft(statSync(path).size, `${member.file} is non-empty`).toBeGreaterThan(1000);
+      // Read out of the file itself, not asserted against the constant that generated it: a card
+      // regenerated at another size would otherwise ship while `og:image:width` went on saying 1200.
+      expect.soft(pngSize(path), `${member.file} is ${CARD.w}×${CARD.h} in its own header`).toEqual({
+        w: CARD.w,
+        h: CARD.h,
+      });
     }
+    // The other end: what the page tells crawlers has to be what the bytes are.
+    expect.soft(declared, "og:image:width matches the artwork").toContain(`content="${CARD.w}"`);
+    expect.soft(declared, "og:image:height matches the artwork").toContain(`content="${CARD.h}"`);
+  });
+
+  it("keeps the pre-launch URL resolving, serving A's artwork", () => {
     // Meta: "Don't remove old images, as there maybe existing stories that reference the old image."
-    expect
-      .soft(
-        readFileSync(join(root, "public/og-image.png")).equals(readFileSync(join(root, "public/og-card-path.png"))),
-        "the pre-existing URL keeps resolving, serving A's artwork",
-      )
-      .toBe(true);
+    expect(
+      readFileSync(join(root, "public/og-image.png")).equals(readFileSync(join(root, "public/og-card-path.png"))),
+    ).toBe(true);
+  });
+
+  it("carries exactly the four static faces the rasteriser needs", () => {
+    // The quietest failure in the whole script: resvg does not error on a missing face, it falls
+    // back. Measured — deleting `source-serif-4-600.ttf` re-rendered A at 45,933 bytes instead of
+    // 48,390, exit code 0, wordmark and headline reflowed. Nothing downstream would have noticed.
+    const onDisk = readdirSync(join(root, "scripts/og-fonts")).filter((f) => f.endsWith(".ttf"));
+
+    expect.soft([...onDisk].sort(), "the set is named, not globbed").toEqual([...REQUIRED_FACES].sort());
+    for (const face of REQUIRED_FACES) {
+      expect
+        .soft(statSync(join(root, "scripts/og-fonts", face)).size, `${face} is a real font, not a stub`)
+        .toBeGreaterThan(10000);
+    }
+    // NOT covered here, and worth saying rather than implying: nothing checks that a face is
+    // instanced at the WEIGHT its filename claims. Re-running `instance-faces.py` with a changed
+    // weight would pass this and reflow the card. The rendered-card review is what catches that.
   });
 });

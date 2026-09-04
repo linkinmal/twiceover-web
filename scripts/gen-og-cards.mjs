@@ -101,7 +101,7 @@ const CHASSIS = {
 };
 
 /** The disclaimer travels with the figures wherever they go — 28px, right-aligned to the margin. */
-const DISCLAIMER = "Illustrative example — not a live account";
+export const DISCLAIMER = "Illustrative example — not a live account";
 
 /* ── The members ─────────────────────────────────────────────────────────────────────────────────
    `scale` is ADR 0905's build rule 1, solved per member from the legibility floor against that
@@ -184,7 +184,9 @@ const CHART_SELECTORS = {
 export function loadStyleSources() {
   const tokensPath = join(root, "src/styles/tokens.css");
   if (!existsSync(tokensPath)) {
-    execFileSync(process.execPath, [join(root, "scripts/build-tokens.mjs")], { stdio: "ignore" });
+    // Not swallowed: this only runs on a clean checkout with no build yet, which is precisely
+    // where a failure would otherwise surface as a puzzling ENOENT on the next line.
+    execFileSync(process.execPath, [join(root, "scripts/build-tokens.mjs")], { stdio: "pipe" });
   }
   return {
     tokens: parseTokens(readFileSync(tokensPath, "utf8")),
@@ -194,7 +196,7 @@ export function loadStyleSources() {
 
 /** The LIGHT theme's semantic properties. Social crawlers do not run the viewer's theme, so the card
  *  is light-only by decision (#2988) and the `[data-theme="dark"]` block is never read. */
-function parseTokens(css) {
+export function parseTokens(css) {
   const light = css.slice(0, css.indexOf('[data-theme="dark"]') === -1 ? css.length : css.indexOf('[data-theme="dark"]'));
   const out = new Map();
   for (const [, name, value] of light.matchAll(/--([\w-]+):\s*([^;]+);/g)) out.set(name, value.trim());
@@ -215,6 +217,12 @@ function declarationsFor(siteCss, selector) {
     .filter(Boolean);
 }
 
+/** The card's own ground — what a knockout ring on this surface has to paint. */
+const CARD_GROUND = "color-bg-canvas";
+/** What sits behind these charts ON THE PAGE, and therefore what their knockouts read there: the
+ *  Outlook band's container for the projection path, the panel for the payoff chart. */
+const SURFACES_BEHIND_ON_THE_PAGE = ["accent-surface-container", "color-bg-surface"];
+
 /**
  * The chart stylesheet the card embeds: the site's own rules, with every `font-size` multiplied by
  * the member's scale, every `var(--x)` resolved, and every knockout rebound to the card's own
@@ -227,18 +235,24 @@ function declarationsFor(siteCss, selector) {
  * than per class means a new knockout added to a chart later is covered without touching this file.
  */
 export function chartStylesheet({ siteCss, tokens, scale, chart = "path" }) {
-  const cardBg = tokens.get("color-bg-canvas");
-  const behindOnThePage = [tokens.get("accent-surface-container"), tokens.get("color-bg-surface")];
+  for (const name of [CARD_GROUND, ...SURFACES_BEHIND_ON_THE_PAGE]) {
+    if (!tokens.has(name)) throw new Error(`the knockout rebind names --${name}, which the tokens no longer define`);
+  }
 
   const rules = CHART_SELECTORS[chart].map((selector) => {
     const declarations = declarationsFor(siteCss, selector).map((d) => {
       let out = d.replace(/var\(--([\w-]+)\)/g, (_m, name) => {
-        const v = tokens.get(name);
+        // The rebind happens HERE, on the token's NAME, rather than as a find-and-replace over the
+        // resolved hex afterwards. That earlier form failed open twice over: `tokens.get()` of a
+        // renamed token returns undefined, `String.split(undefined)` is a no-op, and
+        // `expect(css).not.toContain(undefined)` passes — so a token rename silently disabled the
+        // rebind AND the test guarding it. By name, the same rename lands on the throw below.
+        const read = SURFACES_BEHIND_ON_THE_PAGE.includes(name) ? CARD_GROUND : name;
+        const v = tokens.get(read);
         if (v === undefined) throw new Error(`site.css '${selector}' reads unknown token --${name}`);
         return v;
       });
       out = out.replace(/font-size:\s*([\d.]+)px/, (_m, px) => `font-size:${(Number(px) * scale).toFixed(2)}px`);
-      for (const surface of behindOnThePage) out = out.split(surface).join(cardBg);
       return out.replace(/\s*:\s*/, ":");
     });
     // `.t-chart .t-level-name` styles `.t-level-name` here: the card emits the chart body without
@@ -285,6 +299,21 @@ export function mergeStackedPairs(body, { nameClass, valueClass, nameY, gap, sep
     const rightRow = nameY === null || Number(ny) === nameY;
     const rightGap = Math.abs(Number(vy) - Number(ny) - gap) < 0.01;
     if (!sameColumn || !rightRow || !rightGap) return whole;
+    // The merged form keeps the NAME's attributes and carries the value only as a class. Anything
+    // else on the value element is dropped — and dropped invisibly, because the emitted SVG stays
+    // well-formed and even the drift snapshot reads clean. Dropping is only safe where the name
+    // already says the same thing (A's pair are both `text-anchor="middle"`, so the one surviving
+    // element anchors both halves identically). Anything the name does NOT carry stops the build.
+    const attrs = (str) => new Map([...str.matchAll(/([\w:-]+)="([^"]*)"/g)].map((m) => [m[1], m[2]]));
+    const onName = attrs(`${a1}${a2}${a3}`);
+    const lost = [...attrs(`${b1}${b2}${b3}`)].filter(([k, v]) => onName.get(k) !== v);
+    if (lost.length > 0) {
+      throw new Error(
+        `merge ${nameClass}/${valueClass}: the value element carries ` +
+          `${lost.map(([k, v]) => `${k}="${v}"`).join(" ")}, which the name does not — the merged form ` +
+          `would drop it silently; decide where it belongs before this ships`,
+      );
+    }
     merged += 1;
     return (
       `<text class="${nameClass}"${a1}x="${nx}"${a2}y="${ny}"${a3}>` +
@@ -314,11 +343,21 @@ export function stripElements(body, { cls, tag = "text", expected }) {
   return body.replace(re, "");
 }
 
-/** Moves one element's `y`, asserting it was where we thought. */
-export function moveY(body, { cls, tag = "text", from, to, contains }) {
-  const re = new RegExp(`(<${tag} class="${cls}"[^>]*\\by=")${from}("[^>]*>${contains}</${tag}>)`);
-  if (!re.test(body)) {
-    throw new Error(`move ${tag}.${cls} "${contains}": no element at y=${from} — geometry has moved`);
+/**
+ * Moves one element's `y`, asserting it was where we thought AND how many are there.
+ *
+ * The count matters as much as its two siblings': without it this replaced the FIRST match and left
+ * any others, so a module that emitted a second matching label would half-apply the move with no
+ * error — a silent partial, which is worse than either a clean skip or a throw.
+ */
+export function moveY(body, { cls, tag = "text", from, to, contains, expected = 1 }) {
+  const lit = (v) => String(v).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp(`(<${tag} class="${lit(cls)}"[^>]*\\by=")${lit(from)}("[^>]*>${lit(contains)}</${tag}>)`, "g");
+  const found = (body.match(re) ?? []).length;
+  if (found !== expected) {
+    throw new Error(
+      `move ${tag}.${cls} "${contains}": expected ${expected} at y=${from}, found ${found} — geometry has moved`,
+    );
   }
   return body.replace(re, `$1${to}$2`);
 }
@@ -526,15 +565,32 @@ function markSvg(tokens) {
 
 const FONT_DIR = join(root, "scripts/og-fonts");
 
+/**
+ * The faces the cards render with, named rather than globbed.
+ *
+ * A missing face is the quietest failure in this whole script: resvg does not error, it falls back,
+ * and the wordmark or the figures reflow into whatever else is loaded. Measured — deleting
+ * `source-serif-4-600.ttf` re-rendered A at 45,933 bytes instead of 48,390 with an exit code of 0.
+ * Globbing the directory could not see that; naming the four can.
+ */
+export const REQUIRED_FACES = [
+  "source-serif-4-600.ttf",
+  "source-sans-3-400.ttf",
+  "source-sans-3-600.ttf",
+  "source-code-pro-400.ttf",
+];
+
 async function renderPng(svg, width = CARD.w) {
   // Imported here rather than at module scope: everything above this line is pure string work, and
   // the tests exercise all of it. Loading the rasteriser's native binding to assert on an SVG would
   // make the whole suite depend on a platform binary it never uses.
   const { Resvg } = await import("@resvg/resvg-js");
-  const fontFiles = readdirSync(FONT_DIR)
-    .filter((f) => f.endsWith(".ttf"))
-    .map((f) => join(FONT_DIR, f));
-  if (fontFiles.length === 0) throw new Error(`no static faces in ${FONT_DIR} — see the README beside them`);
+  const present = new Set(readdirSync(FONT_DIR).filter((f) => f.endsWith(".ttf")));
+  const missing = REQUIRED_FACES.filter((f) => !present.has(f));
+  if (missing.length > 0) {
+    throw new Error(`${FONT_DIR} is missing ${missing.join(", ")} — run scripts/og-fonts/instance-faces.py`);
+  }
+  const fontFiles = REQUIRED_FACES.map((f) => join(FONT_DIR, f));
   return new Resvg(svg, {
     fitTo: { mode: "width", value: width },
     font: { loadSystemFonts: false, fontFiles, defaultFontFamily: "Source Sans 3" },
