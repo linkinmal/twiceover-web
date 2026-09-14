@@ -34,8 +34,10 @@ describe("stock-analyst-platform#2634 — Organization JSON-LD sameAs/logo (inde
       .soft(block, "email field kept, not replaced")
       .toContain('email: "support@twiceover.io"');
     expect
-      .soft(block, "sameAs links the X account")
-      .toMatch(/sameAs:\s*\[\s*"https:\/\/x\.com\/twiceover_io"\s*\]/);
+      .soft(block, "sameAs links the X account and the YouTube channel")
+      .toMatch(
+        /sameAs:\s*\[\s*"https:\/\/x\.com\/twiceover_io"\s*,\s*"https:\/\/www\.youtube\.com\/@twiceover-io"\s*\]/,
+      );
     expect
       .soft(block, "logo points at an absolute brand-asset URL")
       .toMatch(/logo:\s*"https:\/\/twiceover\.io\/[\w.-]+"/);

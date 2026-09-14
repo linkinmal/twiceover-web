@@ -109,6 +109,22 @@ const ogImageURL = new URL(OG_CARD, Astro.site).href;
               />
             </svg>
           </a>
+          {/* YouTube link, same treatment as the X mark (stock-analyst-platform#3606, channel
+              live 2026-09-14) — icon-only, right of X, no new brand color, platform logomark only. */}
+          <a
+            class="footer-social"
+            href="https://www.youtube.com/@twiceover-io"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="TwiceOver on YouTube (opens in a new tab)"
+          >
+            <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false">
+              <path
+                fill="currentColor"
+                d="M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.51 3.5 12 3.5 12 3.5s-7.51 0-9.38.55A3.02 3.02 0 0 0 .5 6.19 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.81 3.02 3.02 0 0 0 2.12 2.14c1.87.55 9.38.55 9.38.55s7.51 0 9.38-.55a3.02 3.02 0 0 0 2.12-2.14A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.81ZM9.6 15.6V8.4L15.8 12Z"
+              />
+            </svg>
+          </a>
         </nav>
         <Disclaimer />
         <div class="footer-meta">
