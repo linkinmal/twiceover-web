@@ -29,13 +29,14 @@ import TechnicalsPriceChart from "../components/TechnicalsPriceChart.astro";
 // sameAs/logo (SEO re-audit 2026-08-23, stock-analyst-platform#2634): the X account didn't exist in
 // July, does now — sameAs links the two brand surfaces for knowledge-panel eligibility and AI-answer
 // entity resolution. logo points at the existing square PWA icon (already served, no new asset).
+// YouTube added (stock-analyst-platform#3606): the channel went live 2026-09-14.
 const organizationJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
   name: "TwiceOver",
   url: "https://twiceover.io",
   email: "support@twiceover.io",
-  sameAs: ["https://x.com/twiceover_io"],
+  sameAs: ["https://x.com/twiceover_io", "https://www.youtube.com/@twiceover-io"],
   logo: "https://twiceover.io/icon-192.png",
 };
 const websiteJsonLd = {
