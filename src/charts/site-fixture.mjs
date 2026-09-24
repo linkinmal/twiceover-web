@@ -220,3 +220,43 @@ export const FUNDAMENTALS = {
   marketCap: "$4.5T",
   peTrailing: `${(SPOT / 8.32).toFixed(1)}×`,
 };
+
+/**
+ * Your Portfolio, as the homepage draws it (homepage v3.4, stock-analyst-platform#3829): the hero
+ * deck's Portfolio card, the Portfolio section's list, and the phone. One book, so the three cannot
+ * disagree. Ordered by rule state — reached first — as the product orders it.
+ *
+ * NVDA is structure 1 of the page's canonical spread (`SPREAD` above): its percent is DERIVED from
+ * that structure's debit, never typed. The other three rows are the artifact's stated illustrative
+ * positions.
+ *
+ * PENDING stock-analyst-platform#3963: the account line's Open P/L (+$1,289, as the artifact states
+ * it) does not equal the four rows' sum (−$441), and the Designer is ruling which one moves.
+ */
+export const NVDA_SPREAD_PNL = 612;
+
+export const PORTFOLIO = {
+  broker: "Schwab",
+  syncedAt: "09:41 ET",
+  netLiq: 98340,
+  openPnl: 1289,
+  rows: [
+    { ticker: "SPY", structure: "Put debit spread", rule: { state: "reached", text: "Expiry 21 days · reached" }, pnl: -462, pct: -22.0 },
+    { ticker: "NVDA", structure: "Bull call spread", rule: { state: "approaching", text: "Option target 60% · approaching" }, pnl: NVDA_SPREAD_PNL, pct: Number(((NVDA_SPREAD_PNL / SPREAD.netDebit) * 100).toFixed(1)) },
+    { ticker: "TSLA", structure: "Cash-secured put", rule: { state: "not-met", text: "Option target 60% · not met" }, pnl: 215, pct: 31.4 },
+    { ticker: "AMD", structure: "Shares", rule: { state: "not-met", text: "Stock max loss −15% · not met" }, pnl: -806, pct: -6.3 },
+  ],
+};
+
+/** The rule-state glyph the product draws: reached ●, approaching ◐, not met ○. */
+export const RULE_MARK = { reached: "●", approaching: "◐", "not-met": "○" };
+
+/** `+$612` / `−$462` — a true minus sign, thousands grouped, whole dollars. */
+export function signedMoney(v) {
+  return `${v < 0 ? "−" : "+"}$${Math.abs(v).toLocaleString("en-US")}`;
+}
+
+/** `+49.4%` / `−22.0%`, one decimal, true minus sign. */
+export function signedPct(v) {
+  return `${v < 0 ? "−" : "+"}${Math.abs(v).toFixed(1)}%`;
+}

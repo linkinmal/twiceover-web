@@ -36,3 +36,23 @@ describe("the Outlook's reference-line caption (v3.69, ADR 0992)", () => {
     expect(PRICE_CAPTION).toBe("price $184.52 · AUG 28");
   });
 });
+
+describe("the Portfolio book", () => {
+  it("derives NVDA's percent from the canonical spread's debit", async () => {
+    const { PORTFOLIO, SPREAD, signedMoney, signedPct } = await import("./site-fixture.mjs");
+    const nvda = PORTFOLIO.rows.find((r) => r.ticker === "NVDA");
+    expect.soft(signedPct(nvda.pct)).toBe("+49.4%");
+    expect.soft(nvda.pct).toBeCloseTo((nvda.pnl / SPREAD.netDebit) * 100, 1);
+    expect.soft(signedMoney(-462)).toBe("−$462");
+    expect.soft(signedMoney(98340).slice(1)).toBe("$98,340");
+  });
+
+  it("orders the rows by rule state, reached first", async () => {
+    const { PORTFOLIO } = await import("./site-fixture.mjs");
+    const rank = { reached: 0, approaching: 1, "not-met": 2 };
+    const ranks = PORTFOLIO.rows.map((r) => rank[r.rule.state]);
+    expect([...ranks].sort()).toEqual(ranks);
+  });
+
+  it.todo("states an Open P/L equal to its rows' sum — pending the Designer's ruling on #3963");
+});
