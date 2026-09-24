@@ -107,35 +107,6 @@ export const SPREAD_PAYOFF = {
   lastClose: SPOT,
 };
 
-/* ── Technicals & levels (#2992) ──────────────────────────────────────────────────────────────────
-   The four figures the `tech` band card already prints, restated here as the shape the ported
-   `priceLineChartModel` takes, so the chart and the rows beneath it can never disagree: they read
-   from ONE object. Values are the site's own fixture (site-prelaunch.md v2.31's correction — #2987's
-   original body named $147.20, which was the chart artifact's example ticker). */
-export const TECHNICALS = {
-  ma50: "175.43",
-  ma200: "168.90",
-  range52w: { high: "198.00", low: "156.00" },
-  rsi: "64",
-};
-
-/** The four rows, composed from the same object the chart's level candidates come from. The `range`
- *  row prints both bounds where the chart draws them as two separate candidate levels. */
-const trimCents = (v) => v.replace(/\.00$/, "");
-export const TECHNICALS_ROWS = [
-  { label: "50-DMA", value: money(Number(TECHNICALS.ma50)) },
-  { label: "200-DMA", value: money(Number(TECHNICALS.ma200)) },
-  { label: "RSI", value: TECHNICALS.rsi },
-  {
-    // Whole dollars, as v2.31's fixture states this row ("52-week range $156–$198") — the same
-    // trailing-.00 trim the Outlook card applies to its horizon prices. The CHART draws these two
-    // bounds at their full 2-dp precision, which is the level rule's own value; the row is the
-    // range as the spec words it. Both read from TECHNICALS, so they cannot disagree on the number.
-    label: "52-week range",
-    value: `${trimCents(money(Number(TECHNICALS.range52w.low)))}–${trimCents(money(Number(TECHNICALS.range52w.high)))}`,
-  },
-];
-
 /**
  * The 90-session close series.
  *
@@ -195,3 +166,56 @@ export const TECHNICALS_SERIES = (() => {
  * shows. Adds no fixture number of its own.
  */
 export const OUTLOOK_HISTORY = TECHNICALS_SERIES.slice(-21);
+
+/** Mean of the last `n` closes, as the 2-dp string the chart's level candidates take. */
+function trailingAverage(series, n) {
+  const closes = series.slice(-n).map((s) => Number(s.close));
+  return (closes.reduce((a, b) => a + b, 0) / n).toFixed(2);
+}
+
+/* ── Technicals & levels (#2992) ──────────────────────────────────────────────────────────────────
+   The four figures the `tech` band card already prints, restated here as the shape the ported
+   `priceLineChartModel` takes, so the chart and the rows beneath it can never disagree: they read
+   from ONE object. Values are the site's own fixture (site-prelaunch.md v2.31's correction — #2987's
+   original body named $147.20, which was the chart artifact's example ticker). */
+export const TECHNICALS = {
+  // DERIVED, not typed (stock-analyst-platform#3829, the PM's #3935 check): the stated "175.43" was
+  // authored beside the series with nothing binding them, and the series' own last 50 closes average
+  // 178.70. A 50-DMA the chart's own line contradicts is the drift this module exists to prevent.
+  // (The 200-DMA stays stated: a 90-session series cannot compute it.)
+  ma50: trailingAverage(TECHNICALS_SERIES, 50),
+  ma200: "168.90",
+  range52w: { high: "198.00", low: "156.00" },
+  rsi: "64",
+};
+
+/** The four rows, composed from the same object the chart's level candidates come from. The `range`
+ *  row prints both bounds where the chart draws them as two separate candidate levels. */
+const trimCents = (v) => v.replace(/\.00$/, "");
+export const TECHNICALS_ROWS = [
+  { label: "50-DMA", value: money(Number(TECHNICALS.ma50)) },
+  { label: "200-DMA", value: money(Number(TECHNICALS.ma200)) },
+  { label: "RSI", value: TECHNICALS.rsi },
+  {
+    // Whole dollars, as v2.31's fixture states this row ("52-week range $156–$198") — the same
+    // trailing-.00 trim the Outlook card applies to its horizon prices. The CHART draws these two
+    // bounds at their full 2-dp precision, which is the level rule's own value; the row is the
+    // range as the spec words it. Both read from TECHNICALS, so they cannot disagree on the number.
+    label: "52-week range",
+    value: `${trimCents(money(Number(TECHNICALS.range52w.low)))}–${trimCents(money(Number(TECHNICALS.range52w.high)))}`,
+  },
+];
+
+
+/**
+ * The Fundamentals band card (homepage v3.4, stock-analyst-platform#3829). The trailing P/E is
+ * DERIVED from the card's own EPS and the page's price ($184.52 / $8.32 = 22.18), per the PM's #3935
+ * check — it replaces the retired "Next earnings · Aug 27" row. Revenue and market cap are the
+ * artifact's stated fixture figures.
+ */
+export const FUNDAMENTALS = {
+  revenue: "$88.5B",
+  eps: 8.32,
+  marketCap: "$4.5T",
+  peTrailing: `${(SPOT / 8.32).toFixed(1)}×`,
+};

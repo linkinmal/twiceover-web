@@ -299,8 +299,12 @@ describe("ADR 0905 build rule 2 — stacked label pairs render on one baseline",
         "value as a mono span after its name, one baseline each",
       )
       .toEqual([
-        '50-DMA <tspan class="t-level-value">175.43</tspan>',
+        // The 50-DMA is derived from the series since #3829 (178.70, not the typed 175.43), which
+        // un-crowds it from the 200-DMA at this width — so the 200-DMA draws again, in the
+        // chart's own candidate order.
+        '50-DMA <tspan class="t-level-value">178.70</tspan>',
         '52-week high <tspan class="t-level-value">198.00</tspan>',
+        '200-DMA <tspan class="t-level-value">168.90</tspan>',
         '52-week low <tspan class="t-level-value">156.00</tspan>',
       ]);
     expect
