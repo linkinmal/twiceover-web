@@ -10,6 +10,10 @@
  * The rule line's percent is bare, matching the row's own P&L% (stock-analyst-platform#3963 item 2
  * ruling): "of max" is never a real basis in this system — the rule-state strip only recognizes "%
  * of cost" and "% of credit received" — and it reads as false below the cap regardless.
+ *
+ * `.pos-pl` carries its own sign class (Designer's PR #89 review, non-blocking): the canonical
+ * spread is always profitable in this fixture, which hid that the color never actually depended on
+ * the figure's own sign — the same class of bug PortfolioCard's header had.
  */
 import PayoffChart from "./PayoffChart.astro";
 import { PORTFOLIO, SPREAD, money, signedMoney, signedPct } from "../charts/site-fixture.mjs";
@@ -18,6 +22,7 @@ interface Props {
   variant: "deck" | "section";
 }
 const { variant } = Astro.props;
+const tone = (v: number) => (v < 0 ? "dn" : "up");
 const nvda = PORTFOLIO.rows.find((r) => r.ticker === "NVDA");
 const maxProfit = (SPREAD.upperStrike - SPREAD.lowerStrike) * SPREAD.multiplier * SPREAD.contracts - SPREAD.netDebit;
 const head = variant === "deck"
@@ -29,7 +34,7 @@ const head = variant === "deck"
   <div class="dcard__hd"><span class="dcard__ttl">{head.ttl}</span><span class="dcard__note">{head.note}</span></div>
   <div class="pos-hd">
     <div><span class="pc-tk">NVDA</span> <span class="pc-st">Bull call spread · <span class="nw">{SPREAD.contracts} × {SPREAD.expiry} {SPREAD.lowerStrike}/{SPREAD.upperStrike} C</span></span></div>
-    <div class="pos-pl">{signedMoney(nvda.pnl)} <small>{signedPct(nvda.pct)} open</small></div>
+    <div class={`pos-pl ${tone(nvda.pnl)}`}>{signedMoney(nvda.pnl)} <small>{signedPct(nvda.pct)} open</small></div>
   </div>
   <div class="dcard__fill"><PayoffChart /></div>
   <div class="pv__rule"><span>◐ Your option target 60%</span><span>approaching · {signedPct(nvda.pct)}</span></div>
