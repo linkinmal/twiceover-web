@@ -1,0 +1,47 @@
+---
+/**
+ * Your Portfolio, as a card (homepage v3.4, stock-analyst-platform#3829; build reference
+ * `ai-team/design/assets/homepage-3818-v3-2026-09-23.html`). Two placements, one book (`PORTFOLIO`):
+ *   - `deck`    — the hero deck's slide: "yours · broker data".
+ *   - `section` — the Portfolio section's list, where every row also carries its "Run the … analysis"
+ *                 affordance, the product's own per-row door into the ticker's analysis.
+ * Static illustration: nothing here is a live control, and the section says so in its caption.
+ *
+ * P/L colour: the site never emits the app's signal tokens (build-tokens.mjs containment lint,
+ * consult 0067 Q5), so the rows use the shipped precedent `var(--color-signal-positive, #197A4B)`
+ * and its negative twin in site.css — the colour the artifact hard-codes is pending #3963 item 3.
+ */
+import { PORTFOLIO, RULE_MARK, signedMoney, signedPct } from "../charts/site-fixture.mjs";
+
+interface Props {
+  variant: "deck" | "section";
+}
+const { variant } = Astro.props;
+const note = variant === "deck" ? "yours · broker data" : "every row opens its position";
+const tone = (v: number) => (v < 0 ? "dn" : "up");
+---
+
+<div class:list={["dcard", { "pv__card": variant === "section" }]} {...(variant === "deck" ? { role: "group", "aria-roledescription": "slide", "aria-label": "Your Portfolio", "data-key": "portfolio" } : {})}>
+  <div class="dcard__hd"><span class="dcard__ttl">Your Portfolio</span><span class="dcard__note">{note}</span></div>
+  <div class="pc-acct">
+    <span>NET LIQ <b>${PORTFOLIO.netLiq.toLocaleString("en-US")}</b></span>
+    <span>OPEN P/L <b class={tone(PORTFOLIO.openPnl)}>{signedMoney(PORTFOLIO.openPnl)}</b></span>
+  </div>
+  <div class="pc-rows">
+    {PORTFOLIO.rows.map((r) => (
+      <div class="pc-row">
+        <div class="pc-l">
+          <span class="pc-tk">{r.ticker}</span> <span class="pc-st">{r.structure}</span>
+          <div class="pc-rule"><i aria-hidden="true">{RULE_MARK[r.rule.state]}</i>{r.rule.text}</div>
+        </div>
+        <div class="pc-r">
+          <span class={`pc-pl ${tone(r.pnl)}`}>{signedMoney(r.pnl)}</span>
+          <span class="pc-pct">{signedPct(r.pct)} open</span>
+          {variant === "section" && <span class="pc-run">Run the {r.ticker} analysis ›</span>}
+        </div>
+        <span class="pc-chev" aria-hidden="true">›</span>
+      </div>
+    ))}
+  </div>
+  <div class="pc-foot">Ordered by your rules — reached first.</div>
+</div>

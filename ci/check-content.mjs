@@ -24,6 +24,9 @@ const dist = join(root, "dist");
 const EXPECTED_PAGES = [
   "index.html",
   "pricing/index.html",
+  // The two explainer pages (stock-analyst-platform#3829; ADR 0990, ADR 0993).
+  "how-our-analysis-works/index.html",
+  "your-portfolio/index.html",
   "terms/index.html",
   "privacy/index.html",
   "cookies/index.html",
@@ -48,10 +51,21 @@ const BANNED = [
 // Documented exceptions, verbatim from the signed copy sources. Negations and
 // non-trading boilerplate only — never an actual directive.
 const ALLOWED = [
-  // Home, "What TwiceOver is not" (site-copy-twiceover.md, ADR 0011 analysis-led swap) — quoted negation.
-  'no recommendations, no trading signals, no scores, no ratings — and never a one-line verdict or a "buy" or "sell."',
-  // Home, "What you see" outlook item (site-copy-twiceover.md, ADR 0011) — quoted negation.
-  'never a score, never a "buy" or "sell."',
+  // Home v3.4 (stock-analyst-platform#3829; homepage-3818-v3-2026-09-23.html, ADR 0991, copy from
+  // consult 0987), "What TwiceOver is not" — negation. Replaces the v2 "no recommendations, no
+  // trading signals…" entry, whose sentence the redesign retired.
+  "twiceover gives no recommendations or trading signals, never scores or rates a stock, and never tells you to buy or sell",
+  // Home v3.4, FAQ "What is TwiceOver, exactly?" — negation. (The v2 "What you see" entry went with
+  // its section.)
+  "it is not a registered investment adviser or broker-dealer, and it never tells you to buy or sell",
+  // Your Portfolio explainer (stock-analyst-platform#3829; explainer-pages-3818-2026-09-24.html,
+  // ADR 0993, Growth copy): the product's own disclaimer, drawn inside its picture — negation.
+  "informational, not investment advice. you decide.",
+  // …the position picture's open-order line: an order TYPE naming the reader's own existing
+  // order, not a directive.
+  "open order: gtc buy-to-close 3 oct 16 50 c",
+  // …the rules example: a hypothetical about the reader's own past trade, not a directive.
+  "example: say you sell an exmp covered call for",
   // ToS "Nature of the service" insert (PM, compliance-load-bearing) — negation.
   "nothing it produces is investment advice, a recommendation, a solicitation, or a suitability determination",
   "not a registered investment adviser, broker-dealer, or financial planner",

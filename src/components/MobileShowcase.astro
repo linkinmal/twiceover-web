@@ -2,63 +2,46 @@
 // Mobile-app showcase (site-prelaunch.md §2 Home, v2.13 — new section, realizes
 // stock-analyst-platform #2179). Static phone mockup only — no JS, CSS-only shimmer
 // on the two "loading" skeleton rows. Per mobile-installed-app.md v1.1 masthead/
-// cards/tabs anatomy.
-import RuleRow from "./RuleRow.astro";
+// cards/tabs anatomy. v3.4 (stock-analyst-platform#3829, build reference
+// homepage-3818-v3-2026-09-23.html): the phone shows Your Portfolio, drawn from the same book
+// (`PORTFOLIO`) as the hero deck and the Portfolio section, so the three cannot disagree.
+import { PORTFOLIO, RULE_MARK, signedMoney } from "../charts/site-fixture.mjs";
 ---
-{/* --lifted — Designer ruling on #3008, 2026-08-31 (Option 1). Takes the lift BeforeAfterRead
-    gave up above: a phone mockup reads correctly as a lifted object photographed on a surface,
-    where the plain-content `doors` section (the other candidate) would have been assigned a lift
-    only to satisfy the alternation rule. Also closes the doors -> MobileShowcase clash the
-    reorder opened when BeforeAfterRead, which used to separate them, moved to 3rd. */}
-<section class="mobile-showcase section-ground section-ground--lifted" aria-labelledby="mobile-showcase-heading">
+{/* --recessed, not --lifted (stock-analyst-platform#3963 item 5 ruling, superseding the #3008
+    ruling this comment used to cite — that ruling's own reasoning, about `doors` and
+    `BeforeAfterRead`, is moot since both were retired in v3.4, #3829). The pricing strip directly
+    above this section stays raised, so this seam needs its own ground to stay a seam. */}
+<section class="mobile-showcase section-ground section-ground--recessed" aria-labelledby="mobile-showcase-heading">
   <div class="container mobile-showcase__inner">
     <div>
       <h2 id="mobile-showcase-heading" class="type-heading-1 section-heading">The same read, on your phone.</h2>
       <p class="mobile-showcase__sub">
-        TwiceOver is coming to iPhone and Android — the full read, your rules checked every time you
-        open it. Nothing is cut down for mobile.
+        TwiceOver is coming to iPhone and Android, with Your Portfolio, your rules and the full analysis.
       </p>
       <span class="mobile-showcase__pill">iOS &amp; Android · coming soon</span>
     </div>
 
-    <div class="phone" role="img" aria-label="TwiceOver on a phone, showing a read for NVDA with the Read, Rules and Account tabs">
+    <div class="phone" role="img" aria-label="TwiceOver on a phone, showing Your Portfolio with the Portfolio, Rules and Account tabs">
       <div class="phone__screen">
         <div class="phone__masthead">
           <span class="phone__mark" aria-hidden="true"><i></i><i></i></span>
           <span class="phone__word">TwiceOver</span>
         </div>
         <div class="phone__body">
-          <p class="phone__halfbanner">NVDA · Interactive Brokers · synced 09:02 ET</p>
-          {/* Fast-cut pair in its PARKED state — read-components.md §5: two identical
-              accent pills, side by side, right-aligned in the header row's empty space,
-              where "at scroll-top they block nothing." A static mockup depicts scroll-top
-              by definition, so the floating-over-content state is the wrong one to draw. */}
-          <div class="phone__fastcut" aria-hidden="true"><span>Paths ↓</span><span>Outlook ↓</span></div>
-          <div class="phone__card">
-            <p class="phone__card-title">Your 100 shares</p>
-            <p class="phone__pnl">+$2,612 <span class="phone__pnl-pct">(+16.5%)</span></p>
-          </div>
-          <div class="phone__card">
-            <p class="phone__card-title phone__card-title--small">Your rules, on live data</p>
-            <RuleRow state="not-met" name="Stock target 25%" pnl="+16.5%" />
-            <RuleRow state="approaching" name="Option target 60%" pnl="+49.4%" />
-          </div>
-          <div class="phone__card">
-            <p class="phone__card-title phone__card-title--small">Technicals &amp; levels</p>
-            <div class="phone__row"><span>50-DMA</span><span class="v">$175.43</span></div>
-            <div class="phone__row"><span>RSI</span><span class="v">64</span></div>
-            <div class="phone__skel" style="width:64%" aria-hidden="true"></div>
-          </div>
-          <div class="phone__card">
-            <p class="phone__card-title phone__card-title--small">Macro &amp; regime</p>
-            <div class="phone__skel" style="width:88%" aria-hidden="true"></div>
-            <div class="phone__skel" style="width:70%" aria-hidden="true"></div>
-          </div>
+          <p class="phone__halfbanner">Your Portfolio · {PORTFOLIO.broker} · synced {PORTFOLIO.syncedAt}</p>
+          {PORTFOLIO.rows.map((r) => (
+            <div class="phone__card">
+              <p class="phone__card-title phone__card-title--small">
+                <b>{r.ticker}</b> {r.structure} <span class={`phone__pl pc-pl ${r.pnl < 0 ? "dn" : "up"}`}>{signedMoney(r.pnl)}</span>
+              </p>
+              <p class="phone__rule"><i>{RULE_MARK[r.rule.state]}</i> {r.rule.text}</p>
+            </div>
+          ))}
         </div>
         <div class="phone__tabbar">
           <div class="phone__tab phone__tab--on">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M3 4h12M3 9h12M3 14h8" stroke="currentColor" stroke-width="1.5"/></svg>
-            Read
+            Portfolio
           </div>
           <div class="phone__tab">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M9 5.5v3.5l2.5 1.5" stroke="currentColor" stroke-width="1.5"/></svg>

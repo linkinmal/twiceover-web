@@ -65,9 +65,10 @@ export function money(v) {
   return `$${v.toFixed(2)}`;
 }
 
-/** The hero's caption above the plot — the chart's one figure, and the only place the site states it.
- *  Composed here so the price can never disagree with `SPOT`. */
-export const LAST_CLOSE_CAPTION = `last close ${money(SPOT)} · ${LAST_CLOSE_DATE}`;
+/** The Outlook band's caption above the plot — the chart's one figure. Composed here so the price can
+ *  never disagree with `SPOT`. The word is `price`, never `last close` (read-components-outlook.md
+ *  v3.69, ADR 0992, founder-directed): one fixed string, true before and after intraday spot ships. */
+export const PRICE_CAPTION = `price ${money(SPOT)} · ${LAST_CLOSE_DATE}`;
 
 /**
  * Structure 1 of the page's held position — a **2× Jul 17 175C/190C bull call spread**, the exact
@@ -106,35 +107,6 @@ export const SPREAD_PAYOFF = {
   sample: spreadPnlAt,
   lastClose: SPOT,
 };
-
-/* ── Technicals & levels (#2992) ──────────────────────────────────────────────────────────────────
-   The four figures the `tech` band card already prints, restated here as the shape the ported
-   `priceLineChartModel` takes, so the chart and the rows beneath it can never disagree: they read
-   from ONE object. Values are the site's own fixture (site-prelaunch.md v2.31's correction — #2987's
-   original body named $147.20, which was the chart artifact's example ticker). */
-export const TECHNICALS = {
-  ma50: "175.43",
-  ma200: "168.90",
-  range52w: { high: "198.00", low: "156.00" },
-  rsi: "64",
-};
-
-/** The four rows, composed from the same object the chart's level candidates come from. The `range`
- *  row prints both bounds where the chart draws them as two separate candidate levels. */
-const trimCents = (v) => v.replace(/\.00$/, "");
-export const TECHNICALS_ROWS = [
-  { label: "50-DMA", value: money(Number(TECHNICALS.ma50)) },
-  { label: "200-DMA", value: money(Number(TECHNICALS.ma200)) },
-  { label: "RSI", value: TECHNICALS.rsi },
-  {
-    // Whole dollars, as v2.31's fixture states this row ("52-week range $156–$198") — the same
-    // trailing-.00 trim the Outlook card applies to its horizon prices. The CHART draws these two
-    // bounds at their full 2-dp precision, which is the level rule's own value; the row is the
-    // range as the spec words it. Both read from TECHNICALS, so they cannot disagree on the number.
-    label: "52-week range",
-    value: `${trimCents(money(Number(TECHNICALS.range52w.low)))}–${trimCents(money(Number(TECHNICALS.range52w.high)))}`,
-  },
-];
 
 /**
  * The 90-session close series.
@@ -195,3 +167,171 @@ export const TECHNICALS_SERIES = (() => {
  * shows. Adds no fixture number of its own.
  */
 export const OUTLOOK_HISTORY = TECHNICALS_SERIES.slice(-21);
+
+/** Mean of the last `n` closes, as the 2-dp string the chart's level candidates take. */
+function trailingAverage(series, n) {
+  const closes = series.slice(-n).map((s) => Number(s.close));
+  return (closes.reduce((a, b) => a + b, 0) / n).toFixed(2);
+}
+
+/* ── Technicals & levels (#2992) ──────────────────────────────────────────────────────────────────
+   The four figures the `tech` band card already prints, restated here as the shape the ported
+   `priceLineChartModel` takes, so the chart and the rows beneath it can never disagree: they read
+   from ONE object. Values are the site's own fixture (site-prelaunch.md v2.31's correction — #2987's
+   original body named $147.20, which was the chart artifact's example ticker). */
+export const TECHNICALS = {
+  // DERIVED, not typed (stock-analyst-platform#3829, the PM's #3935 check): the stated "175.43" was
+  // authored beside the series with nothing binding them, and the series' own last 50 closes average
+  // 178.70. A 50-DMA the chart's own line contradicts is the drift this module exists to prevent.
+  // (The 200-DMA stays stated: a 90-session series cannot compute it.)
+  ma50: trailingAverage(TECHNICALS_SERIES, 50),
+  ma200: "168.90",
+  range52w: { high: "198.00", low: "156.00" },
+  rsi: "64",
+};
+
+/** The four rows, composed from the same object the chart's level candidates come from. The `range`
+ *  row prints both bounds where the chart draws them as two separate candidate levels. */
+const trimCents = (v) => v.replace(/\.00$/, "");
+export const TECHNICALS_ROWS = [
+  { label: "50-DMA", value: money(Number(TECHNICALS.ma50)) },
+  { label: "200-DMA", value: money(Number(TECHNICALS.ma200)) },
+  { label: "RSI", value: TECHNICALS.rsi },
+  {
+    // Whole dollars, as v2.31's fixture states this row ("52-week range $156–$198") — the same
+    // trailing-.00 trim the Outlook card applies to its horizon prices. The CHART draws these two
+    // bounds at their full 2-dp precision, which is the level rule's own value; the row is the
+    // range as the spec words it. Both read from TECHNICALS, so they cannot disagree on the number.
+    label: "52-week range",
+    value: `${trimCents(money(Number(TECHNICALS.range52w.low)))}–${trimCents(money(Number(TECHNICALS.range52w.high)))}`,
+  },
+];
+
+
+/**
+ * The Fundamentals band card (homepage v3.4, stock-analyst-platform#3829). The trailing P/E is
+ * DERIVED from the card's own EPS and the page's price ($184.52 / $8.32 = 22.18), per the PM's #3935
+ * check — it replaces the retired "Next earnings · Aug 27" row. Revenue and market cap are the
+ * artifact's stated fixture figures.
+ */
+export const FUNDAMENTALS = {
+  revenue: "$88.5B",
+  eps: 8.32,
+  marketCap: "$4.5T",
+  peTrailing: `${(SPOT / 8.32).toFixed(1)}×`,
+};
+
+/**
+ * Your Portfolio, as the homepage draws it (homepage v3.4, stock-analyst-platform#3829): the hero
+ * deck's Portfolio card, the Portfolio section's list, and the phone. One book, so the three cannot
+ * disagree. Ordered by rule state — reached first — as the product orders it.
+ *
+ * NVDA is structure 1 of the page's canonical spread (`SPREAD` above): its percent is DERIVED from
+ * that structure's debit, never typed. The other three rows are the artifact's stated illustrative
+ * positions.
+ *
+ * `openPnl` is DERIVED as the four rows' sum (stock-analyst-platform#3963 item 1 ruling: the header
+ * is a header of the rows shown, not an independent figure — the artifact's own +$1,289 didn't equal
+ * them and the ruling moved the header, not the rows). NET LIQ is unrelated arithmetic and unchanged.
+ */
+export const NVDA_SPREAD_PNL = 612;
+
+const PORTFOLIO_ROWS = [
+  { ticker: "SPY", structure: "Put debit spread", rule: { state: "reached", text: "Expiry 21 days · reached" }, pnl: -462, pct: -22.0 },
+  { ticker: "NVDA", structure: "Bull call spread", rule: { state: "approaching", text: "Option target 60% · approaching" }, pnl: NVDA_SPREAD_PNL, pct: Number(((NVDA_SPREAD_PNL / SPREAD.netDebit) * 100).toFixed(1)) },
+  { ticker: "TSLA", structure: "Cash-secured put", rule: { state: "not-met", text: "Option target 60% · not met" }, pnl: 215, pct: 31.4 },
+  { ticker: "AMD", structure: "Shares", rule: { state: "not-met", text: "Stock max loss −15% · not met" }, pnl: -806, pct: -6.3 },
+];
+
+export const PORTFOLIO = {
+  broker: "Schwab",
+  syncedAt: "09:41 ET",
+  netLiq: 98340,
+  openPnl: PORTFOLIO_ROWS.reduce((sum, r) => sum + r.pnl, 0),
+  rows: PORTFOLIO_ROWS,
+};
+
+/** The rule-state glyph the product draws: reached ●, approaching ◐, not met ○. */
+export const RULE_MARK = { reached: "●", approaching: "◐", "not-met": "○" };
+
+/** `+$612` / `−$462` — a true minus sign, thousands grouped, whole dollars. */
+export function signedMoney(v) {
+  return `${v < 0 ? "−" : "+"}$${Math.abs(v).toLocaleString("en-US")}`;
+}
+
+/** `+49.4%` / `−22.0%`, one decimal, true minus sign. */
+export function signedPct(v) {
+  return `${v < 0 ? "−" : "+"}${Math.abs(v).toFixed(1)}%`;
+}
+
+/**
+ * The thirteen band cards, NVDA edition (homepage v3.4, stock-analyst-platform#3829; build reference
+ * `homepage-3818-v3-2026-09-23.html`) — as blocks in the vocabulary `AnalysisMini.astro` renders, the
+ * same one the explainer's EXMP cards use (`exmp-fixture.mjs`), so one renderer draws both.
+ * Every figure here is read from the objects above, or is the artifact's stated illustrative figure.
+ *
+ * PENDING stock-analyst-platform#3963 item 4: the five cards v3.4 adds (earnings, earnings-history,
+ * insiders, options, flow) each draw a small chart in the artifact, which states only the chart's
+ * pixels. They state their figures in words until the Designer supplies the series behind them.
+ */
+const tech = Object.fromEntries(TECHNICALS_ROWS.map((r) => [r.label, r.value]));
+const trimWhole = (v) => money(v).replace(/\.00$/, "");
+
+export const BAND_CARDS = {
+  fundamentals: [
+    { kv: [["Revenue", FUNDAMENTALS.revenue], ["EPS", money(FUNDAMENTALS.eps)], ["Mkt cap", FUNDAMENTALS.marketCap]] },
+    { row: ["P/E, trailing 12 months", FUNDAMENTALS.peTrailing] },
+  ],
+  earnings: [{ row: ["Implied move", "±7.4%"] }, { sub: "through the Nov 20 expiry" }],
+  "earnings-history": [{ row: ["Average move", "±3.5%"] }, { row: ["Average implied", "±6.9%"] }],
+  insiders: [{ row: ["Net selling", "−$177.6M"] }, { sub: "10 of 12 sells under a 10b5-1 plan" }],
+  technicals: [
+    // The chart goes ABOVE the levels (#2992), and the grid reads the same object the chart's level
+    // candidates come from, so the two cannot disagree.
+    { chart: "technicals" },
+    { kv2: [["50-DMA", tech["50-DMA"]], ["200-DMA", tech["200-DMA"]], ["RSI", tech["RSI"]], ["52-week", tech["52-week range"]]] },
+  ],
+  options: [{ row: ["Short interest", "1.1% of shares"] }, { sub: "settled Aug 14" }],
+  flow: [{ row: ["Premium", "at least $761M"] }, { sub: "in large trades, last five sessions" }],
+  sector: [
+    { narr: "Technology — sector strength increasing; valuation premium compressing." },
+    { sub: "unit narrative · the sector, not the stock" },
+  ],
+  peers: [
+    // DERIVED from FUNDAMENTALS.peTrailing, not a second typed figure (#3963 item 6 ruling: the
+    // subject's own P/E cannot disagree with the Fundamentals card three cards earlier). At 22.2
+    // the subject sits BELOW the peer median — the reverse of what the retired 32.1 implied.
+    { chips: [[`P/E ${FUNDAMENTALS.peTrailing.replace("×", "")}`, "vs 28.5"], ["3M +8.2%", "vs +4.1%"]] },
+    { row: ["MSFT", "P/E 28.3 · +5.2%"] },
+    { sub: "open table · subject vs peer median" },
+  ],
+  news: [
+    { news: ["Earnings", "Aug 27", "beats Q2 estimates", "Reuters"] },
+    { sub: "why it matters: could signal AI demand continuing" },
+    { row: ["Next monthly expiry", "Sep 18"] },
+  ],
+  voices: [
+    { sub: "via X" },
+    { post: ["Aug 13", "constructive on the AI chip cycle into year-end; capacity, not demand, is the constraint."] },
+    { sub: "Each post named and linked in a real analysis." },
+  ],
+  macro: [{ row: ["Tactical", "Fed on hold"] }, { row: ["Strategic", "Soft landing"] }, { mra: 0.35 }],
+  outlook: [
+    {
+      okh: HERO_OUTLOOK.horizons.map((h) => [
+        HORIZON_CARDS.find((c) => c.key === h.horizon).label,
+        trimWhole(h.price),
+        { near: "while the recent range holds", mid: "absent a trend change", far: "hinges on the macro regime" }[h.horizon],
+      ]),
+    },
+    { sub: "Our projection, not a guarantee — you decide." },
+  ],
+};
+
+/**
+ * The macro card's risk-appetite axis position, in percent along the rail: net −1 → 0%, 0 → 50%,
+ * +1 → 100%. The marker and the net value both sit here — one number, as in the real component.
+ */
+export function riskAxisLeft(net) {
+  return ((net + 1) / 2) * 100;
+}

@@ -194,9 +194,12 @@ describe("priceLineChartModel — the site's own fixture (#2992)", () => {
     // label alone (§4b). Pinned in both places so the boundary between them cannot drift: if the
     // gap changes here the number below fails, and if the withholding stops the sibling suite does.
     // twiceover-app's `TechnicalsPriceChart.tsx` carries the identical split (PR #1096).
-    const byY = [...desk.levels].sort((a, b) => a.y - b.y);
+    // Pinned to the crowded input it was measured on (ma50 175.43): the fixture now derives 178.70
+    // (#3829/#3935), which un-crowds the pair at this width — technicals-svg.test.mjs covers that case.
+    const crowded = model(TECHNICALS_SERIES, { ...TECHNICALS, ma50: "175.43" }, false);
+    const byY = [...crowded.levels].sort((a, b) => a.y - b.y);
     const gaps = byY.slice(1).map((l, i) => l.y - byY[i].y);
-    expect(desk.levels.map((l) => l.name)).toContain("200-DMA");
+    expect(crowded.levels.map((l) => l.name)).toContain("200-DMA");
     expect(Math.min(...gaps)).toBeLessThan(18.5);
     expect(Math.min(...gaps)).toBeGreaterThan(17);
   });

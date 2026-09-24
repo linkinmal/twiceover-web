@@ -1,0 +1,317 @@
+---
+// "Your Portfolio" — explainer page 2 (stock-analyst-platform#3829; ADR 0990 gives the site two
+// explainer pages at launch, ADR 0993 signs their layout, ADR 0996 adds the reciprocal link and
+// footer nav). Build reference ai-team/design/assets/explainer-pages-3818-2026-09-24.html v1.1; copy
+// is Growth's (ai-team/growth/site-copy-explainer-pages.md), verbatim.
+//
+// ADR 0993: every product picture is the signed Portfolio/Position artifact's own CSS and drawing
+// code, scoped under .app (styles/explainer.css, charts/app-pictures.mjs). The pictures are pictures:
+// the artifact's decoy controls (sort buttons, "Edit rules ›", the section nav, the run pills, the
+// legs disclosure) render as plain text here, so nothing inside a figure looks operable and is not.
+//
+// Every figure is the made-up EXMP covered call's or the account's (charts/exmp-fixture.mjs), derived
+// from its inputs and tested there. The broker list is a build-time data slot (data/brokers.json,
+// #3951; its writer is consult 0997's answer) — the page reads it and states its date.
+import Base from "../layouts/Base.astro";
+import "../styles/explainer.css";
+import {
+  BROKERS,
+  COVERED_CALL as CC,
+  EXMP_PORTFOLIO,
+  SYNC,
+  coveredCallMath,
+  signedPct,
+  signedUsd,
+  usd,
+  usdLong,
+} from "../charts/exmp-fixture.mjs";
+import { COVERED_CALL_PAYOFF, COVERED_CALL_RULE_ROWS, payoffSvg, rulesChartSvg } from "../charts/app-pictures.mjs";
+
+const m = coveredCallMath();
+const RULE = { reached: ["reached", "●"], approaching: ["approach", "◐"], "not-met": ["notmet", "○"] };
+const rows = EXMP_PORTFOLIO.rows.map((r) => ({ ...r, cls: RULE[r.rule.state][0], mk: RULE[r.rule.state][1] }));
+const exmpRow = rows[0];
+const signedLong = (v) => `${v < 0 ? "−" : "+"}${usdLong(v)}`;
+const payoff = payoffSvg(COVERED_CALL_PAYOFF);
+const rulesChart = rulesChartSvg(COVERED_CALL_RULE_ROWS, 154);
+const updated = new Date(`${BROKERS.updated}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+const obligation = `Obligates delivering ${CC.shares} sh at ${usd(CC.strike)} if assigned.`;
+
+const YES = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5l2.5 2.5L10 3.5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>';
+const NO = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 3l6 6M9 3l-6 6" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>';
+const CHEVRON = '<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
+const FAQ = [
+  ["Does opening Your Portfolio use up analyses?", "No. Your Portfolio comes with every plan, and you can open it as often as you like. An analysis counts only when you press Analyze."],
+  ["How soon does a new trade show up?", "That depends on how quickly your broker reports it to us. Every view shows when we last synced."],
+  ["Can I connect more than one brokerage?", "No. Each TwiceOver account connects one brokerage."],
+  ["Do I need a paid plan?", "No. Your Portfolio works the same on every plan, including Free."],
+];
+---
+<Base
+  title="Your Portfolio — TwiceOver"
+  description="Connect your brokerage read-only and see every position with its breakevens, max profit and max loss, checked against the rules you set. Included on every plan."
+>
+  <div class="xp-page">
+    <section class="xp-hero xp-hero--p2">
+      <div class="xp-hero__copy">
+        <p class="xp-eyebrow">Your Portfolio</p>
+        <h1 class="type-display">Every position at your broker, with its math and your own rules.</h1>
+        <p class="xp-lede">Connect your brokerage read-only. Your Portfolio lists what you hold and checks the rules you set against current prices. Open any position for its breakevens, scenarios and paths.</p>
+        <a class="btn-filled xp-cta" href="/go/connect">Connect read-only →</a>
+        <p class="xp-ctacap type-caption">EXMP is a made-up ticker, and every position shown is made up.</p>
+      </div>
+    </section>
+
+    <figure class="xp-fig xp-fig--wide xp-fig--hero2">
+      <div class="app desk xp-app">
+        <div class="mast"><span class="lockup">TwiceOver</span><span class="mastright"><span class="mastinput">⌕ New analysis</span></span></div>
+        <div class="scr wide">
+          <div class="pghead"><h4>Your Portfolio</h4><span class="stamp">{SYNC.broker} · read-only<br />synced {SYNC.at}</span></div>
+          <div class="acct">
+            <span><small>Net liq</small>{signedUsd(EXMP_PORTFOLIO.netLiq).slice(1)}</span>
+            <span><small>Open P/L</small><span class={EXMP_PORTFOLIO.openPnl < 0 ? "dn" : "up"}>{signedUsd(EXMP_PORTFOLIO.openPnl)}</span></span>
+          </div>
+          <div class="ptable" role="table" aria-label="Your positions">
+            <div class="phead" role="row"><span>Position</span><span class="num">P/L open</span><span class="blank"></span><span class="blank"></span><span class="blank"></span><span class="blank"></span></div>
+            {rows.map((r) => (
+              <div class="prow"><div class="pmain">
+                <div class="c-sym"><span class="tk">{r.ticker}</span>{r.structure && <span class="struct">{r.structure}</span>}</div>
+                <div class="c-legs legs">{r.legs}</div>
+                <div class="c-open num"><span class={r.pnl < 0 ? "dn" : "up"}>{signedUsd(r.pnl)}</span><small>{signedPct(r.pct)} open</small></div>
+                <div class="c-rule"><span class={`rule ${r.cls}`}><span class="mk" aria-hidden="true">{r.mk}</span><span>{r.rule.text}</span></span></div>
+                <div class="c-dates">{r.dates}</div>
+                <div class="c-ours"><span class="runpill">Run the {r.ticker} analysis<span class="arr" aria-hidden="true">›</span></span></div>
+                <span class="rowchev" aria-hidden="true">›</span>
+              </div></div>
+            ))}
+          </div>
+          <div class="trailrow"><span>Ordered by your rules — reached first. Every row opens that position ›</span><span class="xp-app__link">Edit rules ›</span></div>
+          <p class="disc">Informational, not investment advice. You decide.</p>
+        </div>
+      </div>
+      <figcaption class="proof__caption type-caption">Illustrative example with made-up positions.</figcaption>
+    </figure>
+
+    <section class="xp-sec xp-split section-ground" aria-labelledby="see-h">
+      <div class="xp-copy">
+        <h2 id="see-h" class="type-heading-1">What you see when you connect</h2>
+        <p>Your Portfolio becomes your home the moment the connection completes. Positions are grouped under each ticker, and option legs sit under their named structure, such as a covered call or a vertical spread. Each row shows its open P/L and the next date that matters to it — an option's nearest expiry or the underlying's next earnings date, whichever comes first. Positions that have reached one of your rules come first. The header shows net liquidation value and the open P/L across your book.</p>
+        <p>Every view shows when we last synced with your broker. Prices come from live market quotes and update on their own, apart from that sync.</p>
+      </div>
+      <figure class="xp-fig">
+        <div class="app ph xp-app xp-app--row"><div class="ptable">
+          <div class="prow"><div class="pmain">
+            <div class="c-sym"><span class="tk">{exmpRow.ticker}</span><span class="struct">{exmpRow.structure}</span></div>
+            <div class="c-legs legs">{exmpRow.legs}</div>
+            <div class="c-open num"><span class="up">{signedUsd(exmpRow.pnl)}</span><small>{signedPct(exmpRow.pct)} open</small></div>
+            <div class="c-rule"><span class={`rule ${exmpRow.cls}`}><span class="mk" aria-hidden="true">{exmpRow.mk}</span><span>{exmpRow.rule.text}</span></span></div>
+            <div class="c-dates">{exmpRow.dates}</div>
+            <div class="c-ours"><span class="runpill">Run the {exmpRow.ticker} analysis<span class="arr" aria-hidden="true">›</span></span></div>
+            <span class="rowchev" aria-hidden="true">›</span>
+          </div></div>
+        </div></div>
+        <figcaption class="proof__caption type-caption">Illustrative example with made-up positions.</figcaption>
+      </figure>
+    </section>
+
+    <section class="xp-sec" aria-labelledby="page-h">
+      <div class="xp-copy xp-copy--head">
+        <h2 id="page-h" class="type-heading-1">Every holding has its own page</h2>
+        <p>A position's page shows its legs, breakevens, max profit, max loss and open orders. Your rules sit beside those figures, checked on current prices.</p>
+      </div>
+      <figure class="xp-fig xp-fig--wide">
+        <div class="app desk xp-app"><div class="scr">
+          <div class="trailrow"><span class="trail">Your Portfolio › <b>{CC.ticker}</b></span><span style="font-size:11.5px">{SYNC.broker} · read-only · synced {SYNC.at}</span></div>
+          <div class="poshead">
+            <div><h4>{CC.ticker}<small>Covered call</small></h4><div class="legs">{exmpRow.legs}</div><div class="meta">Expiry {CC.expiry} · {m.dte}d</div></div>
+            <div class="r"><div class="bigpl up">{signedUsd(m.openPnl)}</div><div class="meta"><span class="n up">{signedPct(m.openPct)}</span> open</div><div class="meta">mark <span class="n">{usd(CC.shareMark)}</span></div></div>
+          </div>
+          <div class="secbar"><span class="xp-app__nav"><span>Position</span><span>Rules</span><span>Scenarios</span><span>Paths</span></span><span class="runpill">Run the {CC.ticker} analysis<span class="arr" aria-hidden="true">›</span></span></div>
+          <div class="xp-posgrid">
+            <div class="sblk">
+              <header><h5>Your covered call</h5></header>
+              <Fragment set:html={payoff} />
+              <p class="cap">Above {usd(CC.strike)} the shares are called away, so the line goes flat — the gain stops there.</p>
+              <div class="xp-app__legs">
+                <p class="xp-app__legs-k">Legs, the math, and your open order</p>
+                <div class="inner">
+                  <table class="ledger">
+                    <thead><tr><th>Position</th><th>Qty</th><th>Open</th><th>Mark</th></tr></thead>
+                    <tbody>
+                      <tr><td>{CC.ticker} shares</td><td>{CC.shares}</td><td>{CC.shareCost.toFixed(2)}</td><td>{CC.shareMark.toFixed(2)}</td></tr>
+                      <tr><td>{CC.expiry} {CC.strike} C</td><td>−{CC.contracts}</td><td>{CC.credit.toFixed(2)}</td><td>{CC.callMark.toFixed(2)}</td></tr>
+                    </tbody>
+                  </table>
+                  <div class="spine">
+                    <div class="r"><span class="k">Net</span><span class="v">{usdLong(m.netDebit)} debit</span></div>
+                    <div class="r"><span class="k">Max profit</span><span class="v">{signedLong(m.maxProfit)}</span></div>
+                    <div class="r"><span class="k">Max loss</span><span class="v">{signedLong(-m.maxLoss)} at $0.00</span></div>
+                    <div class="r"><span class="k">Breakeven</span><span class="v">{usd(m.breakeven)}</span></div>
+                    <div class="r"><span class="k">Collateral</span><span class="v" style="font-family:var(--sans);font-size:12px">{obligation}</span></div>
+                  </div>
+                  <div class="evt">Open order: {CC.openOrder} — covered call.</div>
+                </div>
+              </div>
+            </div>
+            <div class="sblk">
+              <header><h5>Your rules</h5><span class="xp-app__link">Edit rules ›</span></header>
+              <Fragment set:html={rulesChart} />
+              <p class="cap">Every rule you have set that applies here, on one shared axis — left is where it stood when you opened, right is where it fires.</p>
+            </div>
+          </div>
+        </div></div>
+        <figcaption class="proof__caption type-caption">Illustrative example with made-up positions.</figcaption>
+      </figure>
+    </section>
+
+    <section class="xp-sec xp-split section-ground section-ground--lifted" aria-labelledby="rules-h">
+      <div class="xp-copy">
+        <h2 id="rules-h" class="type-heading-1">Your rules, checked on current prices</h2>
+        <p>You set up to five rules for your whole account, and you can change them at any time. Each rule applies to one kind of position.</p>
+        <ul class="xp-rules">
+          <li><b>Stock profit target:</b> a gain, as a % of what you paid.</li>
+          <li><b>Stock max loss:</b> a loss, as a % of what you paid.</li>
+          <li><b>Option profit target:</b> a gain, as a % of the debit you paid or the credit you received.</li>
+          <li><b>Option max loss:</b> a loss, as a % of the debit you paid or the credit you received.</li>
+          <li><b>Days to expiry:</b> a number of days left on an option.</li>
+        </ul>
+        <p>Each position shows every rule that applies to it as reached, approaching or not met. On a covered call, the option target reads against the call's premium, and the stock target against the shares.</p>
+        <p class="xp-example"><b>Example:</b> say you sell an {CC.ticker} covered call for {usd(CC.credit)} and set a 60% option profit target. When the call is marked at {usd(CC.callMark)}, the rule shows as reached.</p>
+      </div>
+      <figure class="xp-fig">
+        <div class="app desk xp-app"><div class="sblk">
+          <header><h5>Your rules · {CC.ticker} covered call</h5><span class="xp-app__link">Edit rules ›</span></header>
+          <Fragment set:html={rulesChart} />
+          <p class="cap">● reached · ◐ approaching · ○ not met. The option target reads against the call’s {usd(CC.credit)} credit; the stock target and max loss against the shares’ {usd(CC.shareCost)} cost.</p>
+        </div></div>
+        <figcaption class="proof__caption type-caption">Illustrative example with made-up figures.</figcaption>
+      </figure>
+    </section>
+
+    <section class="xp-sec xp-split" aria-labelledby="scen-h">
+      <div class="xp-copy">
+        <h2 id="scen-h" class="type-heading-1">Scenarios: your position at two other prices</h2>
+        <p>For an options structure, Scenarios show it at one price above today's and one below. Each price is a level that matters to the position: its breakevens come first, then its own strike, then the nearest of the 50- and 200-day averages and the 52-week high and low. Every scenario shows the structure's P/L at that price, at its expiry. A holding of shares alone has no Scenarios line.</p>
+      </div>
+      <figure class="xp-fig">
+        <div class="app pad xp-app"><div class="sblk">
+          <header><h5>Your scenarios</h5></header>
+          <div class="scen2">
+            <div class="scenblk"><div class="hl">If it rises to {usd(CC.strike)} (the short strike):</div><div class="ef">Covered call — is already at its <span class="n">{signedLong(m.pnlAt(CC.strike))}</span> maximum — nothing above <span class="n">{usd(CC.strike)}</span> changes it.</div></div>
+            <div class="scenblk"><div class="hl">If it falls to {usd(m.breakeven)} (breakeven):</div><div class="ef">Covered call — P&amp;L would be <span class="n">{usdLong(m.pnlAt(m.breakeven))}</span> at its {CC.expiry} expiry.</div></div>
+          </div>
+          <span class="inlink">More levels like these are in the {CC.ticker} analysis ›</span>
+        </div></div>
+        <figcaption class="proof__caption type-caption">Illustrative example with made-up figures.</figcaption>
+      </figure>
+    </section>
+
+    <section class="xp-sec xp-split section-ground" aria-labelledby="paths-h">
+      <div class="xp-copy">
+        <h2 id="paths-h" class="type-heading-1">Paths: what you could do next, with the math</h2>
+        <p>For each options structure, Paths lays out up to four choices: make no change, close, reduce or roll. Roll keeps the same strikes and moves to the next standard expiry. Each choice comes with its math, starting with what making no change means for the position. They appear in the same order on every position, and the decision stays with you.</p>
+      </div>
+      <figure class="xp-fig">
+        <div class="app pad xp-app"><div class="paths">
+          <h5>Your paths</h5>
+          <div class="pcard">
+            <div class="ct">Covered call</div>
+            <div class="meta"><span class="n">{usd(CC.strike)}</span> strike · <span class="n">{m.dte}</span> days · <span class="n">{Math.round(m.creditCapturedPct)}%</span> of credit captured</div>
+            <div class="prow2"><span class="lab">If unchanged</span><span>You keep the <span class="n">{usdLong(m.creditTotal)}</span> credit if {CC.ticker} holds below <span class="n">{usd(CC.strike)}</span> through {CC.expiry}. Obligates delivering {CC.shares} sh at <span class="n">{usd(CC.strike)}</span> if assigned.</span></div>
+            <div class="prow2"><span class="lab">If closed</span><span>Buying the calls back at <span class="n">{usd(CC.callMark)}</span> mid costs <span class="n">{usdLong(m.close.cost)}</span> and locks <span class="n">{signedLong(m.close.locks)}</span> of the credit before costs. The {CC.shares} shares stay open, uncapped.</span></div>
+            <div class="prow2"><span class="lab">If reduced</span><span>Each contract you close locks <span class="n">{signedLong(m.reducePerContract)}</span> before costs and frees 100 sh from the <span class="n">{usd(CC.strike)}</span> cap.</span></div>
+            <div class="prow2"><span class="lab">If rolled</span><span>Rolling out holds your covered call’s strike, extending to {CC.roll.to} for a net credit of <span class="n">{usdLong(CC.roll.netCreditPerContract)}</span> per contract. Your breakeven drops to <span class="n">{usd(m.rolledBreakeven)}</span>.</span></div>
+          </div>
+        </div></div>
+        <figcaption class="proof__caption type-caption">Illustrative example with made-up figures.</figcaption>
+      </figure>
+    </section>
+
+    <section class="xp-sec xp-split" aria-labelledby="ours2-h">
+      <div class="xp-copy">
+        <h2 id="ours2-h" class="type-heading-1">Our analysis on anything you hold</h2>
+        <p>Every row and every position page offers to run our analysis on that ticker. The analysis opens on its own page, and it is the same one anyone on your plan reads.</p>
+        <p><a class="synth__link" href="/how-our-analysis-works">How our analysis works →</a></p>
+      </div>
+      <figure class="xp-fig">
+        <div class="xp-run">
+          <div class="app ph xp-app xp-app--row"><div class="ptable">
+            <div class="prow"><div class="pmain">
+              <div class="c-sym"><span class="tk">{exmpRow.ticker}</span><span class="struct">{exmpRow.structure}</span></div>
+              <div class="c-legs legs">{exmpRow.legs}</div>
+              <div class="c-open num"><span class="up">{signedUsd(exmpRow.pnl)}</span><small>{signedPct(exmpRow.pct)} open</small></div>
+              <div class="c-rule"><span class={`rule ${exmpRow.cls}`}><span class="mk" aria-hidden="true">{exmpRow.mk}</span><span>{exmpRow.rule.text}</span></span></div>
+              <div class="c-dates">{exmpRow.dates}</div>
+              <div class="c-ours"><span class="runpill">Run the {exmpRow.ticker} analysis<span class="arr" aria-hidden="true">›</span></span></div>
+              <span class="rowchev" aria-hidden="true">›</span>
+            </div></div>
+          </div></div>
+          <div class="xp-run__arrow" aria-hidden="true">↓</div>
+          <div class="xp-run__to">{CC.ticker} analysis · its own page · the same one anyone on your plan reads</div>
+        </div>
+        <figcaption class="proof__caption type-caption">Illustrative example with made-up positions.</figcaption>
+      </figure>
+    </section>
+
+    <section class="xp-sec xp-split section-ground section-ground--lifted" aria-labelledby="brk-h">
+      <div class="xp-copy">
+        <h2 id="brk-h" class="type-heading-1">Brokers you can connect</h2>
+        <p>You sign in with the login you already have at your broker.</p>
+      </div>
+      <figure class="xp-fig">
+        <div class="xp-slot">
+          <ul class="xp-brokers">{BROKERS.brokers.map((b) => <li>{b}</li>)}</ul>
+          <p class="xp-slot__stamp">List updated {updated}</p>
+        </div>
+      </figure>
+    </section>
+
+    <section class="xp-sec xp-split" aria-labelledby="ro-h">
+      <div class="xp-copy">
+        <h2 id="ro-h" class="type-heading-1">A read-only connection</h2>
+        <p>The connection reads your positions, balances and open orders. It can never place, change or cancel an order, or move money. Connections run through SnapTrade (SOC 2 Type II), and you approve yours with your broker's own login. TwiceOver never sees your credentials.</p>
+      </div>
+      <figure class="xp-fig">
+        <div class="xp-conn" role="img" aria-label="Your broker connects through SnapTrade to TwiceOver, read-only. It reads positions, balances and open orders. It can never place, change or cancel an order, or move money.">
+          <div class="xp-conn__row">
+            <div class="xp-node">Your broker<em>you approve with its own login</em></div>
+            <div class="xp-arrow"><b>→</b>read-only</div>
+            <div class="xp-node">SnapTrade<em>SOC 2 Type II</em></div>
+            <div class="xp-arrow"><b>→</b>read-only</div>
+            <div class="xp-node">TwiceOver<em>never sees your credentials</em></div>
+          </div>
+          <div class="xp-caps">
+            <div><p>READS</p><ul>{["Positions", "Balances", "Open orders"].map((c) => <li class="y"><Fragment set:html={YES} />{c}</li>)}</ul></div>
+            <div><p>CAN NEVER</p><ul>{["Place, change or cancel an order", "Move money"].map((c) => <li class="n"><Fragment set:html={NO} />{c}</li>)}</ul></div>
+          </div>
+        </div>
+        <figcaption class="proof__caption type-caption">Illustrative diagram.</figcaption>
+      </figure>
+    </section>
+
+    <section class="faq section-ground section-ground--lifted" aria-labelledby="faq2">
+      <div class="faq__intro">
+        <p class="type-caption faq__kicker">FAQ</p>
+        <h2 id="faq2" class="type-heading-1">Questions, answered plainly</h2>
+      </div>
+      <div class="faq__list">
+        {FAQ.map(([q, a], i) => (
+          <details open={i === 0}>
+            <summary class="type-heading-2">{q}<Fragment set:html={CHEVRON} /></summary>
+            <p>{a}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+  </div>
+
+  <section class="closing-band">
+    <div class="container closing-band__inner">
+      <h2 class="type-heading-1 closing-band__heading">See your own positions, checked against your rules.</h2>
+      <div class="closing-band__actions">
+        <a class="btn-filled" href="/go/connect">Connect read-only →</a>
+        <a class="btn-quiet" href="/go/try">Analyze a ticker →</a>
+      </div>
+    </div>
+  </section>
+</Base>

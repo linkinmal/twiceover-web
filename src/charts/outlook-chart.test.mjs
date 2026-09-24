@@ -165,7 +165,7 @@ describe("projectionChartModel — the labels", () => {
     expect.soft(model().origin.axisLabel.sub).toBe("AUG 28");
     // ...and the reference line names the price ALONE in both, so nothing there can be read as a
     // second, contradictory date.
-    expect.soft(weekendRead.spotLine.label).toBe("last close $147.20");
+    expect.soft(weekendRead.spotLine.label).toBe("price $147.20");
     expect.soft(weekendRead.spotLine.label).not.toMatch(/AUG/);
   });
 
@@ -175,8 +175,10 @@ describe("projectionChartModel — the labels", () => {
     expect.soft(JSON.stringify(near.axisLabel)).not.toContain("156");
   });
 
-  it("states the last close once, as a figure the caller places", () => {
-    expect.soft(model().spotLine.label).toBe("last close $147.20");
+  it("states the price once, as one fixed string the caller places (v3.69, ADR 0992)", () => {
+    // Never "last close" and never state-conditional: once intraday spot ships (#3931) the price of
+    // record is not a close, and one fixed word is true in both states.
+    expect.soft(model().spotLine.label).toBe("price $147.20");
   });
 });
 
@@ -230,8 +232,8 @@ describe("the site's hero fixture draws the dip-then-recover shape", () => {
     expect.soft(HERO_OUTLOOK.spot).toBe(184.52);
   });
 
-  it("states the last close as the caption figure the hero renders above the plot", () => {
-    expect.soft(m.spotLine.label).toBe("last close $184.52");
+  it("states the price as the caption figure the hero renders above the plot", () => {
+    expect.soft(m.spotLine.label).toBe("price $184.52");
   });
 });
 

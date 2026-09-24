@@ -96,11 +96,16 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const EXPECTED_SCRIPTS = {
   "404.html": { inline: 0, external: 0 },
   "cookies/index.html": { inline: 0, external: 0 },
+  // The explainer pages (stock-analyst-platform#3829) are static: every picture is drawn at build.
+  "how-our-analysis-works/index.html": { inline: 0, external: 0 },
+  // Still 3 since homepage v3.4 (stock-analyst-platform#3829): the hero deck (public/js/hero-deck.js)
+  // took the retired before/after read's place (public/js/before-after-read.js, deleted with it).
   "index.html": { inline: 0, external: 3 },
   "pricing/index.html": { inline: 0, external: 0 },
   "privacy/index.html": { inline: 0, external: 0 },
   "refunds/index.html": { inline: 0, external: 0 },
   "terms/index.html": { inline: 0, external: 0 },
+  "your-portfolio/index.html": { inline: 0, external: 0 },
 };
 
 // A script src we are willing to serve: root-relative, same-origin, under a known build
