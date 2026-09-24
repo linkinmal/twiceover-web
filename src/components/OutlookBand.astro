@@ -11,7 +11,7 @@
  * clipping — the band is a size container for exactly that.
  */
 import OutlookPathChart from "./OutlookPathChart.astro";
-import { AS_OF_CLOCK, HERO_OUTLOOK, HORIZON_CARDS, PRICE_CAPTION, money } from "../charts/site-fixture.mjs";
+import { AS_OF_CLOCK, HERO_OUTLOOK, HORIZON_CARDS, OUTLOOK_HISTORY, PRICE_CAPTION, money } from "../charts/site-fixture.mjs";
 
 const byKey = Object.fromEntries(HERO_OUTLOOK.horizons.map((h) => [h.horizon, h.price]));
 ---
@@ -22,7 +22,7 @@ const byKey = Object.fromEntries(HERO_OUTLOOK.horizons.map((h) => [h.horizon, h.
     <span class="proof__band-note">synthesis · conditional · as of {AS_OF_CLOCK}</span>
   </div>
   <p class="proof__chartcap">{PRICE_CAPTION}</p>
-  <OutlookPathChart />
+  <OutlookPathChart history={OUTLOOK_HISTORY} />
   <div class="proof__hzrow">
     {HORIZON_CARDS.map((c) => {
       const [k, d] = c.label.split(" · ");

@@ -1,0 +1,263 @@
+---
+// "How our analysis works" — explainer page 1 (stock-analyst-platform#3829; ADR 0990 gives the site
+// two explainer pages at launch, ADR 0993 signs their layout, ADR 0996 adds the reciprocal link and
+// footer nav). Build reference ai-team/design/assets/explainer-pages-3818-2026-09-24.html v1.1; copy
+// is Growth's (ai-team/growth/site-copy-explainer-pages.md), verbatim.
+//
+// Every figure is the made-up EXMP family's (charts/exmp-fixture.mjs), tested there. Every section's
+// name and plan come from the one section list (data/sections.mjs, ADR 0990), and each section's
+// picture is the homepage band's own renderer (AnalysisMini) fed EXMP's cards.
+//
+// PENDING stock-analyst-platform#3963 item 4: the charts drawn inside five section cards and the
+// Technicals chart need their EXMP series, which the build reference carries only as pixels.
+import Base from "../layouts/Base.astro";
+import "../styles/explainer.css";
+import AnalysisMini from "../components/AnalysisMini.astro";
+import ExplainerOutlook from "../components/ExplainerOutlook.astro";
+import { SECTIONS } from "../data/sections.mjs";
+import { EXPLAINER_ENTRIES, EXPLAINER_ORDER, entryAnchor } from "../data/explainer-sections.mjs";
+import {
+  EXMP_AS_OF_CLOCK,
+  EXMP_BAND_CARDS,
+  EXMP_LAST_CLOSE,
+  EXMP_OUTLOOK,
+  EXMP_PRICE,
+  sectionPlanLabel,
+  usd,
+} from "../charts/exmp-fixture.mjs";
+
+const byKey = Object.fromEntries(SECTIONS.map((s) => [s.key, s]));
+const entries = EXPLAINER_ORDER.map((k) => ({ ...byKey[k], ...EXPLAINER_ENTRIES[k] }));
+// The Free view's rail: every section in page order, open or locked to the plan that adds it.
+const rail = EXPLAINER_ORDER.map((k) => byKey[k]);
+const PLAN_UPPER = { core: "CORE", premium: "PREMIUM" };
+const PLAN_NAME = { core: "Core", premium: "Premium" };
+// Stage 2's tiles: every section the Outlook weighs, in the band's short names.
+const TILE = { "earnings-history": "Earn. history", flow: "Large trades", earnings: "Earnings", technicals: "Technicals", options: "Options", sector: "Sector", peers: "Peers", news: "News", macro: "Macro" };
+const tiles = SECTIONS.filter((s) => s.key !== "outlook").map((s) => TILE[s.key] ?? s.name);
+const projections = EXMP_OUTLOOK.horizons.map((h) => ({ k: h.key.toUpperCase(), v: usd(h.price), label: h.label }));
+const LOCK = '<svg class="xp-lock" viewBox="0 0 12 14" aria-hidden="true"><rect x="1.5" y="6" width="9" height="7" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 6V4.2a2.5 2.5 0 0 1 5 0V6" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>';
+const CHEVRON = '<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
+const FAQ = [
+  ["How is the Outlook different from a price target?", "An analyst's price target is usually one number, a year out. The Outlook gives three projected prices, about two weeks, three months and six months out, each with its reasoning and what would prove it wrong. The Outlook shows the sections it weighed."],
+  ["Why can the Outlook differ between plans?", "Each plan's Outlook weighs only the sections that plan shows. Core and Premium give it more to weigh, so their projections for a ticker can differ from Free's."],
+  ["What happens when data is missing?", "The section with the gap says so, and nothing is estimated to cover it. If an Outlook horizon lacks the inputs it needs, that horizon shows no price."],
+  ["Which parts are written by AI?", "The Outlook's three prices and their notes are written by our AI. So are the short written summaries in some sections, such as the one-line summary of each news item. Every figure in a section comes from licensed data or public filings, through our own code."],
+];
+---
+<Base
+  title="How our analysis works — TwiceOver"
+  description="What each of the 13 sections in a TwiceOver analysis shows, which plan includes it, and how the Outlook turns them into three projected prices."
+>
+  <div class="container xp-page">
+    <section class="xp-hero">
+      <div class="xp-hero__copy">
+        <h1 class="type-display">How our analysis works</h1>
+        <p class="xp-lede">A TwiceOver analysis reads one US-listed stock or ETF through up to thirteen sections, from its SEC filings to the options market. The Outlook weighs the sections your plan includes and projects three prices: one about two weeks out, one three months out and one six months out. Each price comes with its reason and what would prove it wrong.</p>
+        <a class="btn-filled xp-cta" href="/go/try">Analyze a ticker →</a>
+      </div>
+      <figure class="xp-fig">
+        <div class="xp-shot">
+          <div class="xp-shot__bar" aria-hidden="true"><span class="xp-dot"></span><span class="xp-dot"></span><span class="xp-dot"></span><span class="xp-url">twiceover · analysis</span></div>
+          <div class="xp-shot__body">
+            <div class="xp-snap">
+              <div><span class="xp-snap__tk">EXMP</span> <span class="xp-snap__nm">Example Co. · stock</span></div>
+              <div class="xp-snap__r"><span class="xp-snap__px">{usd(EXMP_PRICE)}</span> <span class="xp-plan">Core</span></div>
+            </div>
+            <p class="xp-snap__asof">price as of {EXMP_LAST_CLOSE.charAt(0) + EXMP_LAST_CLOSE.slice(1).toLowerCase()} close · every figure below carries its source and time</p>
+            <ExplainerOutlook />
+            <div class="xp-fadeout" aria-hidden="true"><span>Fundamentals</span><span>Earnings &amp; dividends</span><span>Technicals &amp; levels</span></div>
+          </div>
+        </div>
+        <p class="proof__caption type-caption">Illustrative example with made-up figures.</p>
+      </figure>
+    </section>
+
+    <section class="xp-sec section-ground" aria-labelledby="flow-h">
+      <h2 id="flow-h" class="type-heading-1 section-heading">From data to three projected prices</h2>
+      <figure class="xp-fig">
+        <ol class="xp-flow">
+          <li class="xp-stage">
+            <div class="xp-stage__g">
+              <div class="xp-srcs">
+                <div class="xp-src"><span>Market prices</span><em>16:00:03 ET</em></div>
+                <div class="xp-src"><span>Options quotes</span><em>15:59:58 ET</em></div>
+                <div class="xp-src"><span>SEC filings · 10-Q</span><em>filed Aug 21</em></div>
+                <div class="xp-src"><span>News</span><em>09:12 ET</em></div>
+              </div>
+            </div>
+            <p class="xp-stage__n">1 · Collect</p>
+            <p>We pull licensed market data and public filings for the ticker. Every figure keeps its source and the time we fetched it.</p>
+          </li>
+          <li class="xp-stage">
+            <div class="xp-stage__g"><div class="xp-tiles">{tiles.map((t) => <span>{t}</span>)}</div></div>
+            <p class="xp-stage__n">2 · Compute</p>
+            <p>Our code builds each section from that data. Every figure in a section comes from this step.</p>
+          </li>
+          <li class="xp-stage xp-stage--ai">
+            <div class="xp-stage__g">
+              <div class="xp-pts">
+                <p class="xp-pts__k">OUR PROJECTION</p>
+                {projections.map((p) => <div class="xp-pt"><b>{p.k}</b><span>{p.v}</span></div>)}
+              </div>
+            </div>
+            <p class="xp-stage__n">3 · Synthesize</p>
+            <p>The Outlook weighs the sections and projects three prices. They are the only numbers our AI produces, and each is labelled as our projection.</p>
+          </li>
+        </ol>
+        <p class="proof__caption type-caption">Illustrative diagram.</p>
+      </figure>
+    </section>
+
+    <section class="xp-sec xp-split" aria-labelledby="same-h">
+      <div class="xp-copy">
+        <h2 id="same-h" class="type-heading-1">The same analysis for everyone on a plan</h2>
+        <p>An analysis never uses your positions, your rules or your account. Two people on the same plan who analyze a ticker at the same time see the same analysis.</p>
+        <p class="synth__more"><a class="synth__link" href="/your-portfolio">How Your Portfolio works →</a></p>
+      </div>
+      <figure class="xp-fig">
+        <div class="xp-same" role="img" aria-label={`Two readers on Core analyze EXMP at ${EXMP_AS_OF_CLOCK} and see the same three projected prices.`}>
+          {["A", "B"].map((who, i) => (
+            <>
+              {i === 1 && <span class="xp-same__eq" aria-hidden="true">=</span>}
+              <div class="xp-same__c">
+                <p class="xp-same__who">Reader {who} · Core · EXMP · {EXMP_AS_OF_CLOCK}</p>
+                <div class="band-mini band-mini--ok">
+                  {projections.map((p) => <div class="okh"><div class="okh__r"><b>{p.label}</b><span class="proj-v">{p.v}</span></div></div>)}
+                </div>
+              </div>
+            </>
+          ))}
+        </div>
+        <p class="proof__caption type-caption">Illustrative example with made-up figures.</p>
+      </figure>
+    </section>
+
+    <section class="xp-sec section-ground section-ground--lifted" aria-labelledby="thirteen-h">
+      <div class="xp-split xp-split--rail">
+        <div class="xp-copy">
+          <h2 id="thirteen-h" class="type-heading-1">The thirteen sections</h2>
+          <p>Free includes six sections, Core ten and Premium all thirteen.</p>
+          <p class="xp-key">Each section below is given as <b>plan · shows · feeds the Outlook</b>.</p>
+        </div>
+        <figure class="xp-fig">
+          <div class="xp-rail" role="img" aria-label="The thirteen sections of an EXMP analysis on the Free plan: six open, four locked to Core and three to Premium.">
+            {rail.map((s) => (
+              <div class="xp-rail__row">
+                <span class="xp-rail__name">{s.name}</span>
+                {s.plan === "free" ? (
+                  <span class="xp-rail__open">open on Free</span>
+                ) : (
+                  <span class="xp-rail__lock"><Fragment set:html={LOCK} /><span class="xp-chip">{PLAN_UPPER[s.plan]}</span>Included in {PLAN_NAME[s.plan]}. <u>See plans ›</u></span>
+                )}
+              </div>
+            ))}
+          </div>
+          <p class="proof__caption type-caption">Illustrative example with made-up figures.</p>
+        </figure>
+      </div>
+      {entries.map((e) => (
+        <article class="xp-entry" id={entryAnchor(e.name)}>
+          <figure class="xp-entry__fig">
+            <div class="xp-card">
+              <div class="xp-card__hd"><span>{e.name}</span><span>EXMP</span></div>
+              <AnalysisMini kind={e.key} cards={EXMP_BAND_CARDS} />
+            </div>
+          </figure>
+          <div class="xp-entry__copy">
+            <h3 class="type-heading-2">{e.name} <span class="xp-plan">{sectionPlanLabel(e.key)}</span></h3>
+            {e.about ? (
+              <>
+                <p>{e.about}</p>
+                <p><a class="synth__link" href="#made">How the Outlook is made ↓</a></p>
+              </>
+            ) : (
+              <dl class="xp-dl">
+                <div><dt>Shows</dt><dd>{e.shows}</dd></div>
+                <div><dt>Feeds the Outlook</dt><dd>{e.feeds}</dd></div>
+              </dl>
+            )}
+          </div>
+        </article>
+      ))}
+    </section>
+
+    <section class="xp-sec" id="made" aria-labelledby="made-h">
+      <h2 id="made-h" class="type-heading-1 section-heading">How the Outlook is made</h2>
+      <p class="xp-lead2">The Outlook is our AI synthesis.</p>
+      <figure class="xp-fig xp-fig--outlook">
+        <ExplainerOutlook />
+        <p class="proof__caption type-caption">Illustrative example with made-up figures.</p>
+      </figure>
+      <ol class="xp-steps">
+        <li>
+          <h3 class="type-heading-2">It weighs the other sections your plan includes.</h3>
+          <p>On Free, the Outlook weighs the five other Free sections. Core adds four more sections for it to weigh, and Premium three beyond that.</p>
+        </li>
+        <li>
+          <h3 class="type-heading-2">It gets a sense of scale and a calendar for each horizon.</h3>
+          <p>First, the Outlook is told how far the stock usually moves over each horizon. On Free, that scale comes from the stock's recent volatility. On Core and Premium, it comes from what options imply, where quotes allow. The Outlook also gets a calendar of what falls inside each horizon. That includes the monthly options expiry and, on Core and Premium, the earnings date.</p>
+        </li>
+        <li>
+          <h3 class="type-heading-2">It projects one price for each horizon.</h3>
+          <p>The three horizons end about two weeks, three months and six months out: 10, 63 and 126 trading days. Each price shows the date it projects to.</p>
+        </li>
+        <li>
+          <h3 class="type-heading-2">Each price comes with its reason and what would prove it wrong.</h3>
+          <p>A short note under each price names the main thing driving it and the one thing most likely to prove it wrong. A note cites at most two figures. Every figure a note cites is checked against our data before the analysis is shown.</p>
+        </li>
+        <li>
+          <h3 class="type-heading-2">A horizon without up-to-date inputs shows no price.</h3>
+          <p>Each horizon needs certain sections to be up to date. When one isn't, that horizon shows no price. A line in its place says the horizon's inputs aren't all live.</p>
+          <figure class="xp-fig xp-fig--step">
+            <ExplainerOutlook darkFar />
+            <p class="proof__caption type-caption">Illustrative example with made-up figures.</p>
+          </figure>
+        </li>
+      </ol>
+    </section>
+
+    <section class="xp-sec xp-split section-ground" aria-labelledby="ours-h">
+      <div class="xp-copy">
+        <h2 id="ours-h" class="type-heading-1">Labelled as ours, and recorded</h2>
+        <p>Each price reads "Our projection lands at", and the Outlook is labelled as AI synthesis wherever it appears. We record every analysis: its inputs, their sources and times, and the version of the model and instructions that produced it. Any Outlook can be traced back to what it was given.</p>
+      </div>
+      <figure class="xp-fig">
+        <div class="xp-rec">
+          <p class="xp-rec__k">ANALYSIS RECORD · EXMP · AUG 31 {EXMP_AS_OF_CLOCK}</p>
+          <div class="xp-rec__r"><span>Inputs</span><span>the 9 other sections on Core, every figure as given</span></div>
+          <div class="xp-rec__r"><span>Sources, times</span><span>each figure’s source and the time it was fetched</span></div>
+          <div class="xp-rec__r"><span>Produced by</span><span>the model version and the instructions version</span></div>
+          <div class="xp-rec__r"><span>Labelled</span><span>“Our projection lands at {projections[0].v}” · AI synthesis</span></div>
+        </div>
+        <p class="proof__caption type-caption">Illustrative example with made-up figures.</p>
+      </figure>
+    </section>
+
+    <section class="faq section-ground section-ground--lifted" aria-labelledby="faq1">
+      <div class="faq__intro">
+        <p class="type-caption faq__kicker">FAQ</p>
+        <h2 id="faq1" class="type-heading-1">Questions, answered plainly</h2>
+      </div>
+      <div class="faq__list">
+        {FAQ.map(([q, a], i) => (
+          <details open={i === 0}>
+            <summary class="type-heading-2">{q}<Fragment set:html={CHEVRON} /></summary>
+            <p>{a}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+  </div>
+
+  <section class="closing-band">
+    <div class="container closing-band__inner">
+      <h2 class="type-heading-1 closing-band__heading">See an analysis of any US-listed ticker.</h2>
+      <p class="closing-band__sub">No account needed.</p>
+      <div class="closing-band__actions">
+        <a class="btn-filled" href="/go/try">Analyze a ticker →</a>
+        <a class="btn-quiet" href="/pricing">Compare plans →</a>
+      </div>
+    </div>
+  </section>
+</Base>

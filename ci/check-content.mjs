@@ -24,6 +24,9 @@ const dist = join(root, "dist");
 const EXPECTED_PAGES = [
   "index.html",
   "pricing/index.html",
+  // The two explainer pages (stock-analyst-platform#3829; ADR 0990, ADR 0993).
+  "how-our-analysis-works/index.html",
+  "your-portfolio/index.html",
   "terms/index.html",
   "privacy/index.html",
   "cookies/index.html",
