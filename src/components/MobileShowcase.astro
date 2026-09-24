@@ -7,12 +7,11 @@
 // (`PORTFOLIO`) as the hero deck and the Portfolio section, so the three cannot disagree.
 import { PORTFOLIO, RULE_MARK, signedMoney } from "../charts/site-fixture.mjs";
 ---
-{/* --lifted — Designer ruling on #3008, 2026-08-31 (Option 1). Takes the lift BeforeAfterRead
-    gave up above: a phone mockup reads correctly as a lifted object photographed on a surface,
-    where the plain-content `doors` section (the other candidate) would have been assigned a lift
-    only to satisfy the alternation rule. Also closes the doors -> MobileShowcase clash the
-    reorder opened when BeforeAfterRead, which used to separate them, moved to 3rd. */}
-<section class="mobile-showcase section-ground section-ground--lifted" aria-labelledby="mobile-showcase-heading">
+{/* --recessed, not --lifted (stock-analyst-platform#3963 item 5 ruling, superseding the #3008
+    ruling this comment used to cite — that ruling's own reasoning, about `doors` and
+    `BeforeAfterRead`, is moot since both were retired in v3.4, #3829). The pricing strip directly
+    above this section stays raised, so this seam needs its own ground to stay a seam. */}
+<section class="mobile-showcase section-ground section-ground--recessed" aria-labelledby="mobile-showcase-heading">
   <div class="container mobile-showcase__inner">
     <div>
       <h2 id="mobile-showcase-heading" class="type-heading-1 section-heading">The same read, on your phone.</h2>

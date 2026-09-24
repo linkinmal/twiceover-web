@@ -7,9 +7,9 @@
  *   - `section` — "Your position", with the four tabs named and the Paths line beneath.
  * The deck card shows the payoff chart's desktop state at every width (site.css `.dcard .pf-chart--*`).
  *
- * PENDING stock-analyst-platform#3963 item 2: the rule line's "49.4% of max" states the P&L on the
- * debit (612 / 1240), not a share of max profit; the wording is the Designer's to rule on. Built as
- * the artifact states it until then.
+ * The rule line's percent is bare, matching the row's own P&L% (stock-analyst-platform#3963 item 2
+ * ruling): "of max" is never a real basis in this system — the rule-state strip only recognizes "%
+ * of cost" and "% of credit received" — and it reads as false below the cap regardless.
  */
 import PayoffChart from "./PayoffChart.astro";
 import { PORTFOLIO, SPREAD, money, signedMoney, signedPct } from "../charts/site-fixture.mjs";
@@ -32,7 +32,7 @@ const head = variant === "deck"
     <div class="pos-pl">{signedMoney(nvda.pnl)} <small>{signedPct(nvda.pct)} open</small></div>
   </div>
   <div class="dcard__fill"><PayoffChart /></div>
-  <div class="pv__rule"><span>◐ Your option target 60%</span><span>approaching · {nvda.pct}% of max</span></div>
+  <div class="pv__rule"><span>◐ Your option target 60%</span><span>approaching · {signedPct(nvda.pct)}</span></div>
   <div class="figs3">
     <div><span>Max loss</span><b>{signedMoney(-SPREAD.netDebit)}</b></div>
     <div><span>Breakeven</span><b>{money(SPREAD.breakeven)}</b></div>

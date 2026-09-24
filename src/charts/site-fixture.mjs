@@ -230,22 +230,25 @@ export const FUNDAMENTALS = {
  * that structure's debit, never typed. The other three rows are the artifact's stated illustrative
  * positions.
  *
- * PENDING stock-analyst-platform#3963: the account line's Open P/L (+$1,289, as the artifact states
- * it) does not equal the four rows' sum (−$441), and the Designer is ruling which one moves.
+ * `openPnl` is DERIVED as the four rows' sum (stock-analyst-platform#3963 item 1 ruling: the header
+ * is a header of the rows shown, not an independent figure — the artifact's own +$1,289 didn't equal
+ * them and the ruling moved the header, not the rows). NET LIQ is unrelated arithmetic and unchanged.
  */
 export const NVDA_SPREAD_PNL = 612;
+
+const PORTFOLIO_ROWS = [
+  { ticker: "SPY", structure: "Put debit spread", rule: { state: "reached", text: "Expiry 21 days · reached" }, pnl: -462, pct: -22.0 },
+  { ticker: "NVDA", structure: "Bull call spread", rule: { state: "approaching", text: "Option target 60% · approaching" }, pnl: NVDA_SPREAD_PNL, pct: Number(((NVDA_SPREAD_PNL / SPREAD.netDebit) * 100).toFixed(1)) },
+  { ticker: "TSLA", structure: "Cash-secured put", rule: { state: "not-met", text: "Option target 60% · not met" }, pnl: 215, pct: 31.4 },
+  { ticker: "AMD", structure: "Shares", rule: { state: "not-met", text: "Stock max loss −15% · not met" }, pnl: -806, pct: -6.3 },
+];
 
 export const PORTFOLIO = {
   broker: "Schwab",
   syncedAt: "09:41 ET",
   netLiq: 98340,
-  openPnl: 1289,
-  rows: [
-    { ticker: "SPY", structure: "Put debit spread", rule: { state: "reached", text: "Expiry 21 days · reached" }, pnl: -462, pct: -22.0 },
-    { ticker: "NVDA", structure: "Bull call spread", rule: { state: "approaching", text: "Option target 60% · approaching" }, pnl: NVDA_SPREAD_PNL, pct: Number(((NVDA_SPREAD_PNL / SPREAD.netDebit) * 100).toFixed(1)) },
-    { ticker: "TSLA", structure: "Cash-secured put", rule: { state: "not-met", text: "Option target 60% · not met" }, pnl: 215, pct: 31.4 },
-    { ticker: "AMD", structure: "Shares", rule: { state: "not-met", text: "Stock max loss −15% · not met" }, pnl: -806, pct: -6.3 },
-  ],
+  openPnl: PORTFOLIO_ROWS.reduce((sum, r) => sum + r.pnl, 0),
+  rows: PORTFOLIO_ROWS,
 };
 
 /** The rule-state glyph the product draws: reached ●, approaching ◐, not met ○. */
@@ -295,8 +298,10 @@ export const BAND_CARDS = {
     { sub: "unit narrative · the sector, not the stock" },
   ],
   peers: [
-    // PENDING stock-analyst-platform#3963 item 6: 32.1 disagrees with Fundamentals' derived 22.2×.
-    { chips: [["P/E 32.1", "vs 28.5"], ["3M +8.2%", "vs +4.1%"]] },
+    // DERIVED from FUNDAMENTALS.peTrailing, not a second typed figure (#3963 item 6 ruling: the
+    // subject's own P/E cannot disagree with the Fundamentals card three cards earlier). At 22.2
+    // the subject sits BELOW the peer median — the reverse of what the retired 32.1 implied.
+    { chips: [[`P/E ${FUNDAMENTALS.peTrailing.replace("×", "")}`, "vs 28.5"], ["3M +8.2%", "vs +4.1%"]] },
     { row: ["MSFT", "P/E 28.3 · +5.2%"] },
     { sub: "open table · subject vs peer median" },
   ],

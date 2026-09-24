@@ -311,7 +311,10 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .entry-box input {
   flex: 1 1 14rem;
   min-height: 44px;
-  border: 1px solid var(--color-border-interactive);
+  /* color.text.muted, not accent-surface.on-surface-muted (#3963 item 3 ruling): they share a hex
+     by coincidence, but the accent-surface token is scoped to bronze accent surfaces (the Outlook
+     band); this is a plain white input outside that context. */
+  border: 1px solid var(--color-text-muted);
   border-radius: var(--radius-medium);
   padding: var(--space-200) var(--space-300);
   font-family: var(--font-family-mono);
@@ -580,13 +583,19 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 }
 .proof__hzrow {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* minmax(0, 1fr), not bare 1fr: a bare 1fr track's default min-width:auto refuses to shrink
+     below its own content's min-content size, which for the FAR column's nowrap label
+     ("FAR · 6 MONTHS") is wider than this whole row gets on the hero deck's card at a phone
+     viewport — the exact cause of a real horizontal-overflow regression the Designer's PR #89
+     review measured (scrollWidth 392 vs clientWidth 375 at 375px). */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-150);
   margin-top: var(--space-150);
 }
 .proof__hz {
   border-top: 1px solid color-mix(in srgb, var(--accent-surface-border) 45%, transparent);
   padding-top: var(--space-050);
+  min-width: 0;
 }
 .proof__hz-k {
   font-family: var(--font-family-serif);
@@ -594,8 +603,11 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   font-size: var(--font-size-100);
   letter-spacing: 0.09em;
   color: var(--accent-surface-marker);
-  white-space: nowrap;
 }
+/* The label wraps between the window name and its date (e.g. "FAR" / "· 6 MONTHS") when a narrow
+   column won't hold both on one line, rather than the column overflowing: the two parts are their
+   own nodes for exactly this. `.hz-d` stays nowrap so "6 MONTHS" itself never breaks mid-phrase. */
+.hz-d { white-space: nowrap; }
 .proof__hz-v {
   font-family: var(--font-family-serif);
   font-weight: var(--font-weight-semibold);
@@ -918,7 +930,9 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .connect {
   margin-inline: calc(50% - 50vw);
   border-block: 1px solid var(--color-border-strong);
-  background: var(--color-bg-raised); /* was bg.surface — 2% off canvas, no ground change (#2216) */
+  /* bg.canvas, not bg.raised (#3963 item 5 ruling): the Portfolio section directly above stays
+     raised, so this seam needs its own ground to stay a seam. */
+  background: var(--color-bg-canvas);
   padding-block: var(--space-600);
 }
 .connect__head {
