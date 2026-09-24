@@ -169,7 +169,15 @@ describe("recent price history (#3959, read-components-outlook.md v3.68)", () =>
   });
 
   it("is what the hero actually renders, at both states", () => {
-    const src = readFileSync(new URL("../components/OutlookPathChart.astro", import.meta.url), "utf8");
-    expect.soft(src).toMatch(/projectionChartModel\(\{ \.\.\.HERO_OUTLOOK, history: OUTLOOK_HISTORY, compact \}\)/);
+    // OutlookPathChart.astro takes outlook/cards/history as props since stock-analyst-platform#3829
+    // (the explainer pages reuse it for EXMP's Outlook), so the model call itself no longer names
+    // HERO_OUTLOOK/OUTLOOK_HISTORY literally. What still has to be true is that the homepage's own
+    // caller — OutlookBand.astro, the only one that renders no explicit `outlook` — wires the real
+    // history through, and the component defaults `outlook`/`cards` to the homepage's own fixture.
+    const chart = readFileSync(new URL("../components/OutlookPathChart.astro", import.meta.url), "utf8");
+    const band = readFileSync(new URL("../components/OutlookBand.astro", import.meta.url), "utf8");
+    expect.soft(chart).toMatch(/outlook = HERO_OUTLOOK,\s*cards = HORIZON_CARDS/);
+    expect.soft(chart).toMatch(/projectionChartModel\(\{ \.\.\.outlook, history, compact \}\)/);
+    expect.soft(band).toMatch(/<OutlookPathChart history=\{OUTLOOK_HISTORY\}\s*\/>/);
   });
 });
