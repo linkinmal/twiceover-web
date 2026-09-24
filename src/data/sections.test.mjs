@@ -8,7 +8,7 @@
  * reads this module, so these tests pin the list itself; the pages' own tests assert that they read it.
  */
 import { describe, expect, it } from "vitest";
-import { SECTIONS, PLANS, sectionsOn, sectionCountLine } from "./sections.mjs";
+import { SECTIONS, PLANS, sectionsOn, sectionCountLine, sectionGroups } from "./sections.mjs";
 
 describe("the thirteen sections", () => {
   it("lists them in the band's order, each with its plan", () => {
@@ -42,6 +42,19 @@ describe("the thirteen sections", () => {
     // The one chip that shortens: the synthesis block has twelve pills to fit.
     expect.soft(SECTIONS.find((s) => s.key === "peers").short).toBe("Peers");
   });
+
+  it("carries Growth's five corrected captions", () => {
+    // #3693 second pass (stock-analyst-platform commit 91727c5b), in both build references
+    // (homepage-3818-v3-2026-09-23.html and pricing-page-c4-three-plans-2026-09-24.html).
+    const tagline = (key) => SECTIONS.find((s) => s.key === key).tagline;
+    expect.soft(tagline("technicals")).toBe("Moving averages, momentum, and the 52-week range.");
+    expect.soft(tagline("sector")).toBe("The sector's own strength and valuation trend.");
+    expect.soft(tagline("peers")).toBe("P/E and 3-month return against the stock's closest peers.");
+    expect.soft(tagline("options")).toBe(
+      "The options market's expected move and skew, and how heavily the stock is shorted.",
+    );
+    expect.soft(tagline("macro")).toBe("The backdrop: rates, risk appetite, volatility.");
+  });
 });
 
 describe("plan placement", () => {
@@ -55,5 +68,24 @@ describe("plan placement", () => {
 
   it("states the facts-strip line from those counts, never as typed numbers", () => {
     expect(sectionCountLine()).toBe("Sections in our analysis: 6 on Free, 10 on Core, all 13 on Premium.");
+  });
+});
+
+describe("the /pricing table's groups (ADR 0912 Amendment 1 ruling 2)", () => {
+  it("groups each section under the plan that adds it, Outlook leading the every-plan group", () => {
+    // The table lists each section once, under the lowest plan that includes it; the build
+    // reference puts the Outlook first because it is what the other sections feed.
+    expect(sectionGroups().map((g) => [g.label, g.sections.map((s) => s.name)])).toEqual([
+      ["On every plan", ["Outlook", "Fundamentals", "Technicals & levels", "Sector regime", "Peers & relative position", "Macro & regime"]],
+      ["Added on Core", ["Earnings & dividends", "Options & short interest", "News & catalysts", "Voices"]],
+      ["Added on Premium", ["Earnings history", "Insiders", "Large options trades"]],
+    ]);
+  });
+
+  it("covers every section exactly once, so the table's totals are the plans' own counts", () => {
+    const listed = sectionGroups().flatMap((g) => g.sections);
+    expect.soft(listed).toHaveLength(SECTIONS.length);
+    expect.soft(new Set(listed.map((s) => s.key)).size).toBe(SECTIONS.length);
+    expect.soft(sectionGroups().map((g) => g.plan)).toEqual(PLANS);
   });
 });

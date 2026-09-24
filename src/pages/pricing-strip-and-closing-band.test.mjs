@@ -75,7 +75,7 @@ function textsOfClass(source, cls) {
 }
 
 describe("Pricing strip (#3030, site-prelaunch.md §2 'Pricing strip')", () => {
-  it("quotes /pricing's own Free and Core context lines rather than restating them", () => {
+  it("quotes /pricing's own three cap figures rather than restating them", () => {
     // The spec's load-bearing constraint: both context lines are QUOTATIONS of the live /pricing
     // cards (pricing.astro), never new copy — "do not restate/paraphrase". Asserting against the
     // other surface, not against a literal pinned here, is what makes this a real drift guard:
@@ -95,14 +95,23 @@ describe("Pricing strip (#3030, site-prelaunch.md §2 'Pricing strip')", () => {
       ([, inner]) => inner.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim(),
     );
 
-    expect(pricingCaps, "pricing.astro no longer has the two cap figures").toHaveLength(2);
-    // Three plans on the strip since v3.4 (stock-analyst-platform#3829); /pricing still shows two.
-    // PENDING stock-analyst-platform#3962: when /pricing gains its Premium card, this becomes
-    // `toEqual(pricingCaps)` over all three and the pinned Premium line below goes.
-    expect(captions.slice(0, 2)).toEqual(pricingCaps);
-    expect(captions[2]).toBe("300 analyses a month");  });
+    // Three plans on both surfaces since stock-analyst-platform#3829 (ADR 0912 Amendment 1).
+    // The numbers are pinned here once, so both pages cannot drift together (ADR 0960).
+    expect.soft(pricingCaps).toEqual(["10 analyses a month", "200 analyses a month", "300 analyses a month"]);
+    expect.soft(captions).toEqual(pricingCaps);
+  });
 
-  it("carries the two price figures with the tier labels and the shared pricing link", () => {
+  it("quotes /pricing's plan line under each figure, word for word (consult 0987 §4)", () => {
+    // ADR 0912 Amendment 1 ruling 1: each /pricing card carries ONE plan line, the homepage's,
+    // verbatim. Asserted across the two surfaces, so a reword on either one fails here.
+    const homepageLines = textsOfClass(astro, "pricing-stat__more");
+    const pricingLines = textsOfClass(pricingAstro, "tier__line");
+
+    expect.soft(pricingLines).toHaveLength(3);
+    expect.soft(homepageLines).toEqual(pricingLines);
+  });
+
+  it("carries the three price figures with the tier labels and the shared pricing link", () => {
     const strip = astro.slice(
       astro.indexOf('<section class="pricing-strip'),
       astro.indexOf("</section>", astro.indexOf('<section class="pricing-strip')),
@@ -111,7 +120,7 @@ describe("Pricing strip (#3030, site-prelaunch.md §2 'Pricing strip')", () => {
     expect(strip, "pricing-strip section not found in index.astro").not.toBe("");
     expect(textsOfClass(strip, "pricing-stat__label")).toEqual(["Free", "Core", "Premium"]);
     expect(textsOfClass(strip, "pricing-stat__figure")).toEqual(["$0", "$49/mo", "$99/mo"]);
-    // One shared quiet link beneath both columns, to the full pricing page.
+    // One shared quiet link beneath all three columns, to the full pricing page.
     expect(strip).toMatch(/<a class="btn-quiet[^"]*" href="\/pricing">See full pricing →<\/a>/);
   });
 
@@ -197,9 +206,9 @@ describe("Pricing strip (#3030, site-prelaunch.md §2 'Pricing strip')", () => {
     expect(link).toMatch(/display:\s*flex(?=\s*[;}])/);
     expect(link).toMatch(/width:\s*fit-content/);
     expect(link).toMatch(/margin-inline:\s*auto/);
-    // `margin-inline: auto` centres on the CONTAINER; that is the divider axis only because the
-    // two columns are equal with symmetric inline padding. Unequal columns would still satisfy
-    // every assertion above while missing the seam.
+    // `margin-inline: auto` centres on the CONTAINER; that is the middle column's axis only
+    // because the three columns are equal with symmetric inline padding. Unequal columns would
+    // still satisfy every assertion above while landing the link off-axis.
     expect(wideRuleBody(".pricing-strip__grid")).toMatch(/grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\)/);
     // Stacked: no columns, so no seam. Rhythm as shipped, and no inline centring — this rule sits
     // AFTER the media block, so a margin-inline added here would win at >=640 too.
