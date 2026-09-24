@@ -136,12 +136,18 @@ describe("recent price history (#3959, read-components-outlook.md v3.68)", () =>
     }
   });
 
-  it("inks the history, connector and date label in the origin's binding, never bronze", () => {
+  it("inks the history and connector in the origin's binding, never bronze", () => {
     // Bronze marks an Outlook horizon and nothing else; the history is real price.
-    for (const sel of [".k-hist", ".k-conn", ".k-hist-date"]) {
+    for (const sel of [".k-hist", ".k-conn"]) {
       expect.soft(rule(sel), sel).toContain("var(--accent-surface-on-surface)");
+      expect.soft(rule(sel), sel).not.toMatch(/var\(--accent-surface-on-surface-muted\)/);
       expect.soft(rule(sel), sel).not.toContain("marker");
     }
+    // The date label is muted like every other date on this axis (.k-sub) — not ink. PR #88's
+    // Designer review: the tryout's own label (assets/outlook-history-tryouts-3930.html) is muted;
+    // v3.68's prose conflated it with the ink line it sits under (doc correction tracked separately).
+    expect.soft(rule(".k-hist-date")).toContain("var(--accent-surface-on-surface-muted)");
+    expect.soft(rule(".k-hist-date")).not.toContain("marker");
     expect.soft(rule(".k-origin")).toContain("fill: var(--accent-surface-on-surface)");
     expect.soft(rule(".k-conn")).toMatch(/stroke-dasharray/);
     expect.soft(rule(".k-hist")).not.toMatch(/stroke-dasharray/);
