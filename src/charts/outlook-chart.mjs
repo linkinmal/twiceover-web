@@ -83,11 +83,24 @@ function money(v) {
   return `$${v.toFixed(2)}`;
 }
 
+const DAY_MS = 86_400_000;
+
+/** Whole calendar days from the read's own date to `isoDate` — negative for a past session. Both ends
+ *  are taken at UTC midnight, so the read's time of day cannot shift a close across a day. */
+function daysFromAsOf(asOf, isoDate) {
+  const a = new Date(asOf);
+  const read = Date.UTC(a.getUTCFullYear(), a.getUTCMonth(), a.getUTCDate());
+  return Math.round((Date.parse(`${isoDate}T00:00:00Z`) - read) / DAY_MS);
+}
+
 /**
  * @param {{ spot: number, asOf: string, horizons: ReadonlyArray<{horizon: string, price: number|null}>,
- *           compact: boolean }} input
+ *           compact: boolean,
+ *           history?: ReadonlyArray<{date: string, close: string}> | null }} input
+ *   `history` is the Technicals series' last sessions, oldest first (read-components-outlook.md v3.68,
+ *   stock-analyst-platform#3959). Missing or empty draws the chart exactly as it was without it.
  */
-export function projectionChartModel({ spot, asOf, horizons, compact }) {
+export function projectionChartModel({ spot, asOf, horizons, compact, history }) {
   const width = compact ? 300 : 620;
   const height = compact ? 150 : 190;
   // Flat 12 at both breakpoints. The compact widening to 16 existed only to clear a TODAY caption
@@ -102,9 +115,24 @@ export function projectionChartModel({ spot, asOf, horizons, compact }) {
 
   // The axis span is the FAR window, always — never the furthest surviving horizon. A dark MID must
   // not re-space NEAR and FAR, and a dark FAR must not stretch MID out to the right edge.
-  const spanDays = horizonCalendarDays("far");
+  // With history, the axis starts at its first session instead of at TODAY, still in true calendar
+  // days end to end: the tryout's own geometry (assets/outlook-history-tryouts-3930.html), which
+  // reduces to the history-less axis exactly when there is no history.
+  const sessions = (history ?? []).map((s) => ({
+    date: s.date,
+    days: daysFromAsOf(asOf, s.date),
+    close: Number(s.close),
+  }));
+  const startDays = sessions.length ? sessions[0].days : 0;
+  const spanDays = horizonCalendarDays("far") - startDays;
 
-  const plotted = [spot, ...HORIZON_ORDER.map((h) => byHorizon.get(h)).filter((p) => p != null)];
+  // The closes widen the value domain; the price of record is NEVER appended to them — a gap between
+  // the two is the connector's to show (consult 0989's build constraint).
+  const plotted = [
+    spot,
+    ...HORIZON_ORDER.map((h) => byHorizon.get(h)).filter((p) => p != null),
+    ...sessions.map((s) => s.close),
+  ];
   const min = Math.min(...plotted);
   const max = Math.max(...plotted);
   const pad = Math.max(
@@ -116,7 +144,8 @@ export function projectionChartModel({ spot, asOf, horizons, compact }) {
   const hi = max + pad;
 
   const x = (days) =>
-    padLeft + (width - padLeft - padRight) * (BAND_START + (BAND_END - BAND_START) * (days / spanDays));
+    padLeft +
+    (width - padLeft - padRight) * (BAND_START + (BAND_END - BAND_START) * ((days - startDays) / spanDays));
   const y = (v) => padTop + (height - padTop - padBottom) * (1 - (v - lo) / (hi - lo));
 
   // The origin's date is the READ's (`asOf`), never the last close's — they genuinely differ on a
@@ -165,6 +194,18 @@ export function projectionChartModel({ spot, asOf, horizons, compact }) {
     if (from && to) segments.push({ from, to });
   }
 
+  // Each close at its own date, never its index. The one label is the first session's date — no
+  // return, high, low or start price is derived anywhere (Architect trip-wire (b), consult 0989).
+  let historyModel = null;
+  if (sessions.length) {
+    const hPoints = sessions.map((s) => ({ x: x(s.days), y: y(s.close) }));
+    historyModel = {
+      points: hPoints,
+      connector: { from: hPoints[hPoints.length - 1], to: { x: origin.x, y: origin.y } },
+      startLabel: { x: hPoints[0].x, text: formatLandingDate(new Date(`${sessions[0].date}T00:00:00Z`)) },
+    };
+  }
+
   return {
     width,
     height,
@@ -179,6 +220,7 @@ export function projectionChartModel({ spot, asOf, horizons, compact }) {
     // `OutlookPathChart.astro`. The model states the figure; placement is the component's.
     spotLine: { y: y(spot), label: `last close ${money(spot)}` },
     darkMarks,
+    history: historyModel,
     pointFor: (horizon) => points.find((p) => p.key === horizon),
   };
 }

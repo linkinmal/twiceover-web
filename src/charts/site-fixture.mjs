@@ -185,3 +185,13 @@ export const TECHNICALS_SERIES = (() => {
 
   return closes.map((close, i) => ({ date: dates[i], close: close.toFixed(2) }));
 })();
+
+/**
+ * The Outlook chart's recent price history — the last 21 sessions of the SAME series the Technicals
+ * chart draws (site-prelaunch.md v2.44, stock-analyst-platform#3959; read-components-outlook.md
+ * v3.68). Jul 31 – Aug 28, ending on the close the Outlook opens from. A slice, never a second
+ * array: Growth's separate synthetic 21-close series (#3938/#3940) went unused by founder direction,
+ * because it would draw a different path for the exact dates this page's Technicals chart already
+ * shows. Adds no fixture number of its own.
+ */
+export const OUTLOOK_HISTORY = TECHNICALS_SERIES.slice(-21);

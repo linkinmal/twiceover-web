@@ -13,7 +13,7 @@
  */
 import { describe, expect, it } from "vitest";
 import { projectionChartModel } from "./outlook-chart.mjs";
-import { HERO_OUTLOOK } from "./site-fixture.mjs";
+import { HERO_OUTLOOK, OUTLOOK_HISTORY, TECHNICALS_SERIES } from "./site-fixture.mjs";
 
 const ASOF = "2026-08-28T19:45:00Z";
 const SPOT = 147.2;
@@ -232,5 +232,88 @@ describe("the site's hero fixture draws the dip-then-recover shape", () => {
 
   it("states the last close as the caption figure the hero renders above the plot", () => {
     expect.soft(m.spotLine.label).toBe("last close $184.52");
+  });
+});
+
+describe("projectionChartModel — recent price history (#3959, read-components-outlook.md v3.68)", () => {
+  // The site's history is the fixture's own Technicals series, last 21 sessions (site-prelaunch.md
+  // v2.44): Jul 31 – Aug 28, ending on the close the Outlook opens from. The read is Monday Aug 31,
+  // so the history ends three calendar days left of TODAY — the weekend case the spec names.
+  const withHistory = (compact = false) =>
+    projectionChartModel({ ...HERO_OUTLOOK, history: OUTLOOK_HISTORY, compact });
+
+  it("draws the fixture's own last 21 Technicals sessions, never a second series", () => {
+    expect.soft(OUTLOOK_HISTORY).toEqual(TECHNICALS_SERIES.slice(-21));
+    expect.soft(OUTLOOK_HISTORY[0]).toEqual({ date: "2026-07-31", close: "183.97" });
+    expect.soft(OUTLOOK_HISTORY.at(-1)).toEqual({ date: "2026-08-28", close: "184.52" });
+    expect.soft(Number(OUTLOOK_HISTORY.at(-1).close)).toBe(HERO_OUTLOOK.spot);
+  });
+
+  it("plots each close at its own date on the same proportional axis the horizons use", () => {
+    const m = withHistory();
+    const pts = m.history.points;
+    const band = m.pointFor("far").x - pts[0].x;
+    // Axis = first session (−31 days) → FAR (+182): true elapsed calendar time end to end.
+    expect.soft(pts).toHaveLength(21);
+    expect.soft(pts[0].x).toBeCloseTo(m.padLeft + (m.width - m.padLeft - m.padRight) * 0.06, 6);
+    expect.soft((m.origin.x - pts[0].x) / band).toBeCloseTo(31 / 213, 6);
+    expect.soft((m.pointFor("near").x - m.origin.x) / band).toBeCloseTo(14 / 213, 6);
+    // Weekend read: Friday's close sits 3 days short of TODAY, not on it.
+    expect.soft((m.origin.x - pts.at(-1).x) / band).toBeCloseTo(3 / 213, 6);
+    // By date, not by index: the Aug 21 → Aug 24 weekend gap is three days wide, a weekday step one.
+    const i = OUTLOOK_HISTORY.findIndex((s) => s.date === "2026-08-24");
+    expect.soft(pts[i].x - pts[i - 1].x).toBeCloseTo(3 * (pts[i - 1].x - pts[i - 2].x), 6);
+  });
+
+  it("widens the value domain to hold the history, so a close above every projection stays inside the plot", () => {
+    // The fixture's own high (196.86, Aug 17) sits under FAR's 205, so it cannot show this; one close
+    // lifted to 230 — above spot and all three horizons — can.
+    const spiked = OUTLOOK_HISTORY.map((s) => (s.date === "2026-08-17" ? { ...s, close: "230.00" } : s));
+    const m = projectionChartModel({ ...HERO_OUTLOOK, history: spiked, compact: false });
+    const top = Math.min(...m.history.points.map((p) => p.y));
+    expect.soft(top).toBeGreaterThan(m.padTop);
+    expect.soft(top).toBeLessThan(m.pointFor("far").y);
+    // The domain moved to take it: FAR sits lower on screen than it does without history.
+    const plain = projectionChartModel({ ...HERO_OUTLOOK, compact: false });
+    expect.soft(m.pointFor("far").y).toBeGreaterThan(plain.pointFor("far").y);
+  });
+
+  it("joins the last close to the origin with a connector, flat when the two prices agree", () => {
+    const m = withHistory();
+    expect.soft(m.history.connector.from).toEqual(m.history.points.at(-1));
+    expect.soft(m.history.connector.to).toEqual({ x: m.origin.x, y: m.origin.y });
+    expect.soft(m.history.connector.from.y).toBeCloseTo(m.origin.y, 6);
+  });
+
+  it("never splices the price of record into the closes — the connector carries the gap", () => {
+    // A price of record that differs from the last daily close (intraday spot, #3931).
+    const m = projectionChartModel({ ...HERO_OUTLOOK, spot: 187, history: OUTLOOK_HISTORY, compact: false });
+    expect.soft(m.history.points).toHaveLength(21);
+    expect.soft(m.history.points.at(-1).y).not.toBeCloseTo(m.origin.y, 1);
+    expect.soft(m.history.connector.to.y).toBeCloseTo(m.origin.y, 6);
+    expect.soft(m.history.points.at(-1).y).toBeGreaterThan(m.origin.y); // 184.52 sits below 187
+  });
+
+  it("dates the history's first session once, and states no figure for it", () => {
+    const m = withHistory();
+    expect.soft(m.history.startLabel).toEqual({ x: m.history.points[0].x, text: "JUL 31" });
+    expect.soft(Object.keys(m.history).sort()).toEqual(["connector", "points", "startLabel"]);
+  });
+
+  it("draws exactly as before when the Technicals series is missing — absent, not broken", () => {
+    const plain = projectionChartModel({ ...HERO_OUTLOOK, compact: false });
+    for (const history of [undefined, null, []]) {
+      const m = projectionChartModel({ ...HERO_OUTLOOK, history, compact: false });
+      expect.soft(m.history, String(history)).toBeNull();
+      expect.soft(m.origin, String(history)).toEqual(plain.origin);
+      expect.soft(m.points, String(history)).toEqual(plain.points);
+      expect.soft(m.spotLine, String(history)).toEqual(plain.spotLine);
+    }
+  });
+
+  it("keeps the compact state's own geometry with history drawn", () => {
+    const m = withHistory(true);
+    expect.soft(m.history.points[0].x).toBeCloseTo(12 + (300 - 24) * 0.06, 6);
+    expect.soft(m.pointFor("far").x).toBeCloseTo(12 + (300 - 24) * 0.94, 6);
   });
 });

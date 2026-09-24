@@ -672,10 +672,17 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .k-tick { fill: var(--accent-surface-marker); font-family: var(--font-family-serif); font-weight: var(--font-weight-semibold); font-size: 10px; letter-spacing: 0.5px; }
 .k-sub { fill: var(--accent-surface-on-surface-muted); font-family: var(--font-family-mono); font-size: 8.5px; }
 .k-hit { fill: transparent; }
+/* Recent price history (#3959, read-components-outlook.md v3.68) — real closes, so the origin dot's
+   ink, never the marker's bronze. Stroke weight and the connector's dash are the tryout's own
+   (assets/outlook-history-tryouts-3930.html); the date label takes the horizons' date step. */
+.k-hist { fill: none; stroke: var(--accent-surface-on-surface); stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; opacity: 0.9; }
+.k-conn { stroke: var(--accent-surface-on-surface); stroke-width: 1.5; stroke-dasharray: 2 2; opacity: 0.9; }
+.k-hist-date { fill: var(--accent-surface-on-surface); font-family: var(--font-family-mono); font-size: 8.5px; }
 /* The axis type steps DOWN with the compact viewBox (9 / 7.5 against 10 / 8.5), selected by the
    chart's own state class — not by a second query, which could disagree with the geometry. */
 .k-chart--phone .k-tick { font-size: 9px; }
-.k-chart--phone .k-sub { font-size: 7.5px; }
+.k-chart--phone .k-sub,
+.k-chart--phone .k-hist-date { font-size: 7.5px; }
 /* The figure's caption (#2520) — carries the hero's illustrative-data disclosure
    (site-prelaunch.md:119, founder-kept). Aligns to the Outlook band's edges by simply sharing the
    column with it: the max-width and auto centering this rule used to carry existed to match
