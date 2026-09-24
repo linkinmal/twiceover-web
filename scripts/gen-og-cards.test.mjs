@@ -105,7 +105,7 @@ describe("the set is three members, one chassis (ADR 0905)", () => {
       )
       .toEqual([980, 900, 744]);
     expect.soft(MEMBERS.map((m) => m.caption)).toEqual([
-      "last close $184.52 · AUG 28",
+      "price $184.52 · AUG 28",
       "last 90 sessions · the levels",
       "your 2× Jul 17 175C/190C · breakeven $181.20",
     ]);

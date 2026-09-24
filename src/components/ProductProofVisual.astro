@@ -23,7 +23,7 @@ import {
   AS_OF_CLOCK,
   HERO_OUTLOOK,
   HORIZON_CARDS,
-  LAST_CLOSE_CAPTION,
+  PRICE_CAPTION,
   money,
 } from "../charts/site-fixture.mjs";
 
@@ -38,7 +38,7 @@ const byKey = Object.fromEntries(HERO_OUTLOOK.horizons.map((h) => [h.horizon, h.
       <span class="proof__band-ttl">Outlook</span>
       <span class="proof__band-note">synthesis · conditional · as of {AS_OF_CLOCK}</span>
     </div>
-    <p class="proof__chartcap">{LAST_CLOSE_CAPTION}</p>
+    <p class="proof__chartcap">{PRICE_CAPTION}</p>
     <OutlookPathChart />
     <div class="proof__hzrow">
       {HORIZON_CARDS.map((c) => (

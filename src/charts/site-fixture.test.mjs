@@ -29,3 +29,10 @@ describe("the Fundamentals card", () => {
     expect.soft(FUNDAMENTALS.marketCap).toBe("$4.5T");
   });
 });
+
+describe("the Outlook's reference-line caption (v3.69, ADR 0992)", () => {
+  it("reads price, never last close, with the close's own date", async () => {
+    const { PRICE_CAPTION } = await import("./site-fixture.mjs");
+    expect(PRICE_CAPTION).toBe("price $184.52 · AUG 28");
+  });
+});

@@ -34,19 +34,19 @@ describe("the chart states no verdict", () => {
   });
 });
 
-describe("the last-close figure is not in the plot", () => {
+describe("the price figure is not in the plot", () => {
   it("draws the reference LINE but states its price nowhere inside the SVG", () => {
     // The signed artifact's placement: the figure is a caption above the plot. On the dip shape the
     // path descends into the label's own band and the near dot lands on it — "furniture placed in
     // the data's own region", which no vertical offset solves.
     const svg = body();
     expect.soft(svg).toContain('class="k-spotline"');
-    expect.soft(svg).not.toContain("last close");
+    expect.soft(svg).not.toContain("price $");
     expect.soft(svg).not.toContain("184.52");
   });
 
   it("keeps the caption out of the compact render too, where the plot is tightest", () => {
-    expect.soft(body(true)).not.toContain("last close");
+    expect.soft(body(true)).not.toContain("price $");
   });
 });
 

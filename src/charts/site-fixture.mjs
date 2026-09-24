@@ -65,9 +65,10 @@ export function money(v) {
   return `$${v.toFixed(2)}`;
 }
 
-/** The hero's caption above the plot — the chart's one figure, and the only place the site states it.
- *  Composed here so the price can never disagree with `SPOT`. */
-export const LAST_CLOSE_CAPTION = `last close ${money(SPOT)} · ${LAST_CLOSE_DATE}`;
+/** The Outlook band's caption above the plot — the chart's one figure. Composed here so the price can
+ *  never disagree with `SPOT`. The word is `price`, never `last close` (read-components-outlook.md
+ *  v3.69, ADR 0992, founder-directed): one fixed string, true before and after intraday spot ships. */
+export const PRICE_CAPTION = `price ${money(SPOT)} · ${LAST_CLOSE_DATE}`;
 
 /**
  * Structure 1 of the page's held position — a **2× Jul 17 175C/190C bull call spread**, the exact
