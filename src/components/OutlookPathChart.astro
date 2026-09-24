@@ -16,14 +16,17 @@
  */
 import { projectionChartModel } from "../charts/outlook-chart.mjs";
 import { outlookPathSvgBody } from "../charts/outlook-svg.mjs";
-import { HERO_OUTLOOK, HORIZON_CARDS } from "../charts/site-fixture.mjs";
+import { HERO_OUTLOOK, HORIZON_CARDS, OUTLOOK_HISTORY } from "../charts/site-fixture.mjs";
 
-const LABEL = "Projection path across three horizons — shape only; every figure is stated in the rows below";
+// The history turned the picture into two things, so the label names both — the tryout's own
+// wording (assets/outlook-history-tryouts-3930.html), stock-analyst-platform#3959.
+const LABEL =
+  "Recent daily closes leading into today, then the projection path across the three horizons. Shape only; every figure is stated in the cards below.";
 const labels = Object.fromEntries(HORIZON_CARDS.map((c) => [c.key, c.label]));
 const horizons = HERO_OUTLOOK.horizons;
 
 const states = [false, true].map((compact) => {
-  const m = projectionChartModel({ ...HERO_OUTLOOK, compact });
+  const m = projectionChartModel({ ...HERO_OUTLOOK, history: OUTLOOK_HISTORY, compact });
   return {
     compact,
     viewBox: `0 0 ${m.width} ${m.height}`,

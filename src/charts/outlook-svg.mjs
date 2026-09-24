@@ -56,6 +56,20 @@ export function outlookPathSvgBody(m, { compact, horizons, labels }) {
     `<text class="k-sub" x="${n(m.origin.x)}" y="${compact ? 21 : 22}" text-anchor="middle">${esc(m.origin.axisLabel.sub)}</text>`,
   );
 
+  // Recent price history (read-components-outlook.md v3.68, stock-analyst-platform#3959) — real
+  // closes, so ink, never bronze: bronze marks an Outlook horizon and nothing else. Drawn before the
+  // projection so the origin and the path paint over its end. The dashed connector carries any gap
+  // between the last daily close and the price of record at true scale; the one label is a date on
+  // the horizons' own date baseline. With no history, none of it is drawn.
+  if (m.history) {
+    const h = m.history;
+    parts.push(
+      `<polyline class="k-hist" points="${h.points.map((p) => `${n(p.x)},${n(p.y)}`).join(" ")}"/>`,
+      `<line class="k-conn" x1="${n(h.connector.from.x)}" y1="${n(h.connector.from.y)}" x2="${n(h.connector.to.x)}" y2="${n(h.connector.to.y)}"/>`,
+      `<text class="k-hist-date" x="${n(h.startLabel.x)}" y="${m.height - 8}" text-anchor="middle">${esc(h.startLabel.text)}</text>`,
+    );
+  }
+
   for (const s of m.segments) {
     parts.push(
       `<line class="k-seg" x1="${n(s.from.x)}" y1="${n(s.from.y)}" x2="${n(s.to.x)}" y2="${n(s.to.y)}"/>`,

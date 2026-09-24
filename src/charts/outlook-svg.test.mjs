@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { projectionChartModel } from "./outlook-chart.mjs";
 import { outlookPathSvgBody } from "./outlook-svg.mjs";
-import { HERO_OUTLOOK, HORIZON_CARDS } from "./site-fixture.mjs";
+import { HERO_OUTLOOK, HORIZON_CARDS, OUTLOOK_HISTORY } from "./site-fixture.mjs";
 
 const LABELS = Object.fromEntries(HORIZON_CARDS.map((c) => [c.key, c.label]));
 
@@ -100,5 +100,76 @@ describe("both breakpoints are the component's own states", () => {
     expect.soft(src).toContain("compact: false");
     expect.soft(src).toContain("compact: true");
     expect.soft(src).not.toMatch(/transform:\s*scale/);
+  });
+});
+
+describe("recent price history (#3959, read-components-outlook.md v3.68)", () => {
+  const withHistory = (compact = false) => {
+    const m = projectionChartModel({ ...HERO_OUTLOOK, history: OUTLOOK_HISTORY, compact });
+    return outlookPathSvgBody(m, { compact, horizons: HERO_OUTLOOK.horizons, labels: LABELS });
+  };
+  const css = readFileSync(new URL("../styles/site.css", import.meta.url), "utf8");
+  const rule = (sel) => css.match(new RegExp(`(?:^|\\n)${sel.replace(".", "\\.")}\\s*\\{([^}]*)\\}`))?.[1] ?? "";
+
+  it("draws one polyline through every session, a connector, and one date label", () => {
+    const svg = withHistory();
+    const points = svg.match(/<polyline class="k-hist" points="([^"]+)"/)?.[1] ?? "";
+    expect.soft(points.trim().split(/\s+/)).toHaveLength(21);
+    expect.soft(svg.match(/class="k-conn"/g) ?? []).toHaveLength(1);
+    expect.soft(svg.match(/class="k-hist-date"[^>]*>([^<]*)</)?.[1]).toBe("JUL 31");
+  });
+
+  it("states no figure on or near the history — the one new label is a date", () => {
+    const svg = withHistory();
+    const texts = [...svg.replace(/<title>[\s\S]*?<\/title>/g, "").matchAll(/>([^<]+)</g)].map(([, t]) => t);
+    expect(texts).toContain("JUL 31");
+    for (const t of texts) expect.soft(t, t).not.toMatch(/\$|\d+\.\d|%|\b(high|low|return)\b/i);
+  });
+
+  it("paints the history under the projection: before the path, the origin and the points", () => {
+    const svg = withHistory();
+    expect(svg.indexOf('class="k-hist"')).toBeGreaterThan(-1);
+    expect(svg.indexOf('class="k-conn"')).toBeGreaterThan(-1);
+    for (const later of ['class="k-seg"', 'class="k-origin"', 'class="k-point"']) {
+      expect.soft(svg.indexOf('class="k-hist"')).toBeLessThan(svg.indexOf(later));
+      expect.soft(svg.indexOf('class="k-conn"')).toBeLessThan(svg.indexOf(later));
+    }
+  });
+
+  it("inks the history and connector in the origin's binding, never bronze", () => {
+    // Bronze marks an Outlook horizon and nothing else; the history is real price.
+    for (const sel of [".k-hist", ".k-conn"]) {
+      expect.soft(rule(sel), sel).toContain("var(--accent-surface-on-surface)");
+      expect.soft(rule(sel), sel).not.toMatch(/var\(--accent-surface-on-surface-muted\)/);
+      expect.soft(rule(sel), sel).not.toContain("marker");
+    }
+    // The date label is muted like every other date on this axis (.k-sub) — not ink. PR #88's
+    // Designer review: the tryout's own label (assets/outlook-history-tryouts-3930.html) is muted;
+    // v3.68's prose conflated it with the ink line it sits under (doc correction tracked separately).
+    expect.soft(rule(".k-hist-date")).toContain("var(--accent-surface-on-surface-muted)");
+    expect.soft(rule(".k-hist-date")).not.toContain("marker");
+    expect.soft(rule(".k-origin")).toContain("fill: var(--accent-surface-on-surface)");
+    expect.soft(rule(".k-conn")).toMatch(/stroke-dasharray/);
+    expect.soft(rule(".k-hist")).not.toMatch(/stroke-dasharray/);
+  });
+
+  it("sets the date label in the horizons' own type step, at both breakpoints", () => {
+    expect.soft(rule(".k-hist-date")).toContain("font-family: var(--font-family-mono)");
+    expect.soft(rule(".k-hist-date")).toContain("font-size: 8.5px");
+    expect.soft(rule(".k-sub")).toContain("font-size: 8.5px");
+    expect.soft(css).toMatch(/\.k-chart--phone \.k-sub,\s*\.k-chart--phone \.k-hist-date\s*\{\s*font-size: 7\.5px;/);
+    // On the horizons' date baseline, which is what "the history's own baseline" shares.
+    const y = (cls) => withHistory().match(new RegExp(`class="${cls}"[^>]*\\sy="([\\d.]+)"`))?.[1];
+    expect.soft(y("k-hist-date")).toBe(String(190 - 8));
+  });
+
+  it("draws none of it when there is no history", () => {
+    const svg = body();
+    for (const cls of ["k-hist", "k-conn", "k-hist-date"]) expect.soft(svg).not.toContain(`class="${cls}"`);
+  });
+
+  it("is what the hero actually renders, at both states", () => {
+    const src = readFileSync(new URL("../components/OutlookPathChart.astro", import.meta.url), "utf8");
+    expect.soft(src).toMatch(/projectionChartModel\(\{ \.\.\.HERO_OUTLOOK, history: OUTLOOK_HISTORY, compact \}\)/);
   });
 });
