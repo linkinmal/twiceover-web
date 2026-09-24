@@ -266,7 +266,7 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 @media (min-width: 960px) {
   .hero { flex-direction: row; align-items: center; gap: var(--space-800); }
   .hero__copy { flex: 1 1 52%; }
-  .proof { flex: 1 1 44%; }
+  .deck-fig { flex: 1 1 44%; }
 }
 .hero__copy { display: flex; flex-direction: column; align-items: flex-start; }
 .hero h1 { margin: 0; max-width: 18ch; }
@@ -594,6 +594,7 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   font-size: var(--font-size-100);
   letter-spacing: 0.09em;
   color: var(--accent-surface-marker);
+  white-space: nowrap;
 }
 .proof__hz-v {
   font-family: var(--font-family-serif);
@@ -737,7 +738,8 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .band__wrap { overflow: hidden; }
 .band__track { display: flex; width: max-content; padding: var(--space-300) 0 var(--space-400); }
 @media (prefers-reduced-motion: no-preference) {
-  .band__track { animation: band-flow 54s linear infinite; }
+  /* 90s for thirteen cards: the eight-card band ran 54s, and the pace per card is what is held (v3.4). */
+  .band__track { animation: band-flow 90s linear infinite; }
   .band:hover .band__track, .band:focus-within .band__track { animation-play-state: paused; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -846,7 +848,9 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
    the stacked state, where the divider is a bottom hairline between the cells and there is no
    full band for it to run. */
 .pricing-strip__grid { display: grid; grid-template-columns: 1fr; }
-@media (min-width: 640px) { .pricing-strip__grid { grid-template-columns: repeat(2, 1fr); } }
+/* Three plans since v3.4 (stock-analyst-platform#3829): three equal columns, capped at 64rem as the
+   build reference caps them, so each column keeps a readable measure for its `__more` line. */
+@media (min-width: 640px) { .pricing-strip__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 64rem; } }
 .pricing-stat { padding-block: var(--space-300); border-bottom: 1px solid var(--color-border-default); }
 .pricing-strip__grid .pricing-stat:first-child { padding-block-start: 0; }
 .pricing-strip__grid .pricing-stat:last-child { border-bottom: none; }
@@ -886,11 +890,10 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
     padding-inline: var(--space-400) 0;
     border-right: none;
   }
-  /* Centred on the divider axis, so the page's one pricing link belongs to neither column and
-     therefore to both (v2.39). It lands on the seam only because the two columns are equal
-     (repeat(2, 1fr), above) with symmetric inline padding — `margin-inline: auto` centres on the
-     container, not on the divider. .btn-quiet is inline-flex, so auto margins do nothing until
-     the box is block-level. */
+  /* Centred, so the page's one pricing link belongs to no single column and therefore to all
+     (v2.39). `margin-inline: auto` centres on the container, not on a divider — with three columns
+     (v3.4) there is no single seam to land on. .btn-quiet is inline-flex, so auto margins do
+     nothing until the box is block-level. */
   .pricing-strip__link.btn-quiet { display: flex; width: fit-content; margin-inline: auto; }
 }
 .pricing-stat__label { margin: 0; color: var(--color-text-secondary); font-weight: var(--font-weight-semibold); font-size: var(--font-size-300); }
@@ -1241,8 +1244,6 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .closing-band__actions { display: flex; align-items: center; gap: var(--space-200); flex-shrink: 0; flex-wrap: wrap; margin-block-start: var(--space-400); }
 /* The band's only caption-weight text, matching the footer disclaimer's register rather than
    the body copy above it (site-prelaunch.md §2). */
-.closing-band__disclosure { margin: var(--space-300) 0 0; color: var(--color-text-muted); max-width: 70ch; }
-.closing-band__disclosure + .closing-band__disclosure { margin-block-start: var(--space-100); }
 
 /* ── Pricing ──────────────────────────────────────────────────────────── */
 /* Still the title block for /404 and the policy template. /pricing left it for the band
@@ -1501,3 +1502,187 @@ main { padding-block-end: var(--space-800); }
 .pf-tickfig { font-family: var(--font-family-mono); font-size: 9px; }
 .pf-tickfig--strike { fill: var(--color-text-primary); }
 .pf-tickfig--breakeven { fill: var(--color-text-secondary); }
+
+/* ══ Homepage v3.4 (stock-analyst-platform#3829) ══════════════════════════════════════════════
+   Build reference ai-team/design/assets/homepage-3818-v3-2026-09-23.html (ADR 0991), ported rule by
+   rule. Every colour binds a token: where the artifact hard-codes a hex, it is the value a token
+   already resolves to and the token is used instead (the P/L green and red are the app's
+   signal.positive/negative light values, #14684B/#A33028, behind the containment-safe
+   `var(--color-signal-*, fallback)` form; the "Run the … analysis" pill is the accent surface). */
+
+/* Hero: the connect CTA is the filled button now, and the ticker box is the second door. */
+.hero .hero__cta.btn-filled { font-size: var(--font-size-400); min-height: 48px; padding: 0 var(--space-400); }
+.hero .entry-box input {
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-border-interactive);
+  box-shadow: inset 0 1px 2px color-mix(in srgb, var(--color-text-primary) 7%, transparent);
+  font-size: var(--font-size-400);
+  min-height: 52px;
+}
+.hero .entry-box input::placeholder { color: var(--color-text-muted); }
+.hero .entry-box input:focus {
+  border-color: var(--color-accent-default);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent-default) 22%, transparent);
+  outline: none;
+}
+.hero .entry-box__submit { font-size: var(--font-size-400); min-height: 52px; }
+
+/* The hero deck: every card in one grid cell, stacked by data-pos (public/js/hero-deck.js). With no
+   script the server-rendered first state stands: card 0 in front, two fanned behind it, the rest
+   hidden. The front card keeps the Outlook band's v2.38 −1.5° tilt. */
+.deck-fig { display: flex; flex-direction: column; gap: var(--space-150); margin: 0; padding-block: var(--space-300); }
+.deck { display: grid; grid-template-columns: minmax(0, 1fr); margin: 18px 30px 0 0; position: relative; }
+@media (max-width: 959px) { .deck { margin-right: 26px; } }
+.dcard {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  padding: var(--space-200);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-medium);
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--color-text-primary) 30%, transparent),
+    0 16px 36px -12px color-mix(in srgb, var(--color-text-primary) 40%, transparent);
+}
+.deck > .dcard {
+  grid-area: 1 / 1;
+  transition: transform 0.7s cubic-bezier(0.2, 0.75, 0.2, 1), opacity 0.7s ease;
+}
+@media (prefers-reduced-motion: reduce) { .deck > .dcard { transition: none; } }
+.deck .dcard[data-pos="0"] { opacity: 1; transform: rotate(-1.5deg); z-index: 6; }
+.deck .dcard[data-pos="1"] { opacity: 1; transform: translate(12px, -12px) rotate(0.5deg); z-index: 5; }
+.deck .dcard[data-pos="2"] { opacity: 1; transform: translate(24px, -22px) rotate(2.5deg); z-index: 4; }
+.deck .dcard:not([data-pos]),
+.deck .dcard[data-pos="3"],
+.deck .dcard[data-pos="4"],
+.deck .dcard[data-pos="5"] { opacity: 0; transform: translate(24px, -22px) rotate(2.5deg); z-index: 1; }
+.deck .dcard.leaving { opacity: 0; transform: translate(-30%, 6%) rotate(-9deg); z-index: 7; }
+.deck .dcard:not([data-pos="0"]) * { pointer-events: none; }
+.dcard--outlook { background: transparent; border: 0; box-shadow: none; overflow: visible; padding: 0; }
+.dcard--outlook .proof__band { display: flex; flex-direction: column; height: 100%; transform: none; }
+.dcard--outlook .proof__hzrow { margin-top: auto; }
+.dcard__hd { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-100); margin-bottom: 6px; }
+.dcard__ttl { font-family: var(--font-family-serif); font-weight: var(--font-weight-semibold); }
+.dcard__note { font-family: var(--font-family-mono); font-size: var(--font-size-100); color: var(--color-text-muted); }
+.dcard__fill { display: flex; align-items: center; flex: 1 1 auto; min-height: 0; padding: 4px 0; }
+.dcard__fill > svg { display: block; width: 100%; height: auto; margin: 0; }
+.dcard .figs3, .dcard .pv__rule { margin-top: auto; }
+.dcard .pv__rule + .figs3 { margin-top: 0; }
+.dcard .pf-chart { margin: 6px 0 4px; }
+.t-chart--hero { display: block; width: 100%; height: auto; }
+.nw { white-space: nowrap; }
+
+.deck-ctl { display: flex; align-items: center; gap: var(--space-150); margin-top: 6px; }
+.deck-pause {
+  min-height: 30px;
+  padding: 6px 10px;
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 4px;
+  color: var(--color-text-secondary);
+  font: var(--font-weight-medium) 12.5px/1 var(--font-family-sans);
+  cursor: pointer;
+}
+.deck-dots { display: flex; gap: 6px; }
+.deck-dot { width: 10px; height: 10px; padding: 0; background: transparent; border: 1px solid var(--color-text-muted); border-radius: 50%; cursor: pointer; }
+.deck-dot[aria-current="true"] { background: var(--color-text-primary); border-color: var(--color-text-primary); }
+.deck-name { font-family: var(--font-family-mono); font-size: 11.5px; color: var(--color-text-muted); }
+
+/* Three figures under a card: label over value, hairline-divided. */
+.figs3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 6px; border-top: 1px solid var(--color-border-default); }
+.figs3 div { padding: 6px 8px 0; border-left: 1px solid var(--color-border-default); }
+.figs3 div:first-child { padding-left: 0; border-left: 0; }
+.figs3 span { display: block; font-size: 10.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-text-muted); }
+.figs3 b { font-family: var(--font-family-mono); font-size: 14px; font-weight: var(--font-weight-medium); }
+
+/* Your Portfolio and one opened position. */
+.pc-head, .pos-hd { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-100); }
+.pc-ttl { font-family: var(--font-family-serif); font-size: 17px; font-weight: var(--font-weight-semibold); }
+.pc-note { font-family: var(--font-family-mono); font-size: 10.5px; color: var(--color-text-muted); }
+.dcard[data-key="portfolio"] .pc-head, .pv__card .pc-head { display: none; }
+.pc-acct {
+  display: flex;
+  gap: 18px;
+  margin: 4px 0 2px;
+  padding: 5px 0;
+  border-block: 1px solid var(--color-border-default);
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+}
+.pc-acct b { margin-left: 4px; font-family: var(--font-family-mono); font-size: 12.5px; font-weight: var(--font-weight-medium); letter-spacing: 0; color: var(--color-text-primary); }
+.pc-row { display: grid; grid-template-columns: minmax(0, 1fr) auto 10px; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--color-border-default); }
+.pc-tk { font-family: var(--font-family-mono); font-size: 13.5px; font-weight: var(--font-weight-semibold); color: var(--color-accent-default); }
+.pc-st { font-size: 12px; color: var(--color-text-secondary); }
+.pc-rule { margin-top: 1px; font-size: 12px; color: var(--color-text-primary); }
+.pc-rule i { display: inline-block; width: 13px; font-style: normal; }
+.pc-r { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; }
+.pc-pl { font-family: var(--font-family-mono); font-size: 13px; font-weight: var(--font-weight-medium); }
+.up, .pc-pl.up { color: var(--color-signal-positive, #14684B); }
+.pc-pl.dn { color: var(--color-signal-negative, #A33028); }
+.pc-pct { font-family: var(--font-family-mono); font-size: 10.5px; color: var(--color-text-muted); }
+.pc-run {
+  margin-top: 2px;
+  padding: 3px 5px;
+  background: var(--accent-surface-pill);
+  border: 1px solid var(--accent-surface-border);
+  border-radius: 3px;
+  color: var(--accent-surface-marker);
+  font: var(--font-weight-semibold) 10.5px/1 var(--font-family-sans);
+  white-space: nowrap;
+}
+.pc-chev { color: var(--color-text-muted); }
+.pc-foot { padding-top: 6px; font-size: 11px; color: var(--color-text-muted); }
+.pos-pl { font-family: var(--font-family-mono); font-size: 17px; white-space: nowrap; color: var(--color-signal-positive, #14684B); }
+.pos-pl small { font-size: 11.5px; color: var(--color-text-muted); }
+
+/* The analysis band: the plan chip, the 2×2 levels grid, the Outlook card's three horizons. */
+.plan-tag {
+  margin-left: var(--space-100);
+  padding: 2px 4px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 3px;
+  color: var(--color-text-muted);
+  font: var(--font-weight-semibold) 9.5px/1 var(--font-family-sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  vertical-align: 2px;
+}
+.band-mini .kv-grid--2 { grid-template-columns: repeat(2, 1fr); padding: var(--space-100) 0 0; row-gap: var(--space-100); }
+.band-mini--ok .okh { padding: 5px 0 4px; border-top: 1px solid var(--color-border-default); }
+.band-mini--ok .okh:first-child { padding-top: 0; border-top: 0; }
+.band-mini--ok > .sub { margin: 4px 0 0; }
+.band-mini--ok .okh__r { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-100); }
+.band-mini--ok .okh b { font-family: var(--font-family-mono); font-size: var(--font-size-100); font-weight: var(--font-weight-medium); letter-spacing: 0.08em; color: var(--color-accent-default); }
+.band-mini--ok .proj-v { font-family: var(--font-family-mono); font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
+.band-mini--ok .okh i { display: block; padding-top: 2px; font-size: var(--font-size-100); font-style: normal; line-height: 1.35; color: var(--color-text-secondary); }
+
+/* How the sections become three projected prices. */
+.synth__inner { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); align-items: center; gap: var(--space-600); padding-block: var(--space-600); }
+@media (max-width: 959px) { .synth__inner { grid-template-columns: minmax(0, 1fr); } }
+.synth__p, .pv__p { margin: var(--space-200) 0 0; font-size: var(--font-size-400); color: var(--color-text-secondary); }
+.synth__p { max-width: 46ch; }
+.chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.chips span { padding: 3px 10px; background: var(--color-bg-raised); border: 1px solid var(--color-border-strong); border-radius: 99px; font-size: 12.5px; color: var(--color-text-secondary); }
+.converge { display: block; width: 100%; height: 46px; }
+.converge path { fill: none; stroke: var(--color-border-strong); }
+.synth__outlook .proof__band { transform: none; }
+
+/* Your book, checked against your own rules. */
+.pv .container { padding-block: var(--space-600); }
+.pv__p { max-width: 60ch; }
+.pv__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-400); margin-top: var(--space-400); }
+@media (max-width: 959px) { .pv__grid { grid-template-columns: minmax(0, 1fr); } }
+.pv__rule { display: flex; justify-content: space-between; margin-top: 6px; padding: 6px 0; border-top: 1px solid var(--color-border-default); font-size: 13px; }
+.pv__rule span:last-child { font-family: var(--font-family-mono); font-size: 12px; color: var(--color-text-secondary); }
+.pv__paths { padding-top: 6px; border-top: 1px solid var(--color-border-default); font-size: 12.5px; color: var(--color-accent-default); }
+
+.connect .connect__head { max-width: 32ch; }
+.pricing-stat__more { max-width: 30ch; margin: var(--space-100) 0 0; font-size: var(--font-size-200); color: var(--color-text-secondary); }
+
+/* The phone shows Your Portfolio: each row's P/L floats right of its title, its rule beneath. */
+.phone__pl { float: right; }
+.phone__rule { margin: 2px 0 0; font-size: 11px; }
+.phone__rule i { font-style: normal; }

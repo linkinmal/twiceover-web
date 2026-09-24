@@ -1,58 +1,103 @@
 ---
-// Per-section miniature fixture render used by AnalysisBand.astro's eight cards.
-// Illustrative-only figures (site-prelaunch.md §2 carousel band) — same canonical
-// NVDA/AAPL fixture used throughout the page, no invented market data.
-// The Outlook card's three projections come from the page's ONE fixture (charts/site-fixture.mjs),
-// not from literals here. Route (b), founder-decided 2026-08-31 (#2987): the published 184 / 195 /
-// 210 climbed monotonically and are replaced by the dip-shaped 178 / 192 / 205 EVERYWHERE the site
-// states them. This card was the "everywhere" — three figures in markup, beside a hero chart that
-// had already been corrected twice, which is precisely why they now share a source.
-import { HERO_OUTLOOK, money, TECHNICALS_ROWS } from "../charts/site-fixture.mjs";
+// Per-section miniature fixture render used by AnalysisBand.astro's thirteen cards (homepage v3.4,
+// stock-analyst-platform#3829; build reference ai-team/design/assets/homepage-3818-v3-2026-09-23.html).
+// Keyed by the section's key in src/data/sections.mjs, the site's one section list.
+// Illustrative-only figures, the same fixed NVDA fixture used throughout the page; every figure a
+// card states is read from charts/site-fixture.mjs, never typed here, so the band cannot disagree
+// with the hero deck or the Portfolio section beside it.
+//
+// PENDING stock-analyst-platform#3963 item 4: the five cards v3.4 adds (earnings, earnings-history,
+// insiders, options, flow) each carry a small chart in the artifact. Their data is not yet in the
+// fixture, so the cards state their figures in words and draw no chart until it is.
+import {
+  FUNDAMENTALS,
+  HERO_OUTLOOK,
+  HORIZON_CARDS,
+  HORIZON_CONDITIONS,
+  SECTION_FIGURES,
+  TECHNICALS_ROWS,
+  money,
+} from "../charts/site-fixture.mjs";
 import TechnicalsPriceChart from "./TechnicalsPriceChart.astro";
 
 const projection = Object.fromEntries(
   HERO_OUTLOOK.horizons.map((h) => [h.horizon, money(h.price).replace(/\.00$/, "")]),
 );
+// The artifact's card states the four levels as a 2×2 grid with the 200-DMA among them.
+const tech = Object.fromEntries(TECHNICALS_ROWS.map((r) => [r.label, r.value]));
+const TECH_GRID = ["50-DMA", "200-DMA", "RSI", "52-week range"].map((label) => ({
+  label: label === "52-week range" ? "52-week" : label,
+  value: tech[label],
+}));
+const F = SECTION_FIGURES;
 
 interface Props {
-  kind: "fund" | "tech" | "sect" | "peer" | "news" | "voic" | "macr" | "outl";
+  kind: string;
 }
 const { kind } = Astro.props;
 ---
-<div class="band-mini">
-  {kind === "fund" && (
+<div class={kind === "outlook" ? "band-mini band-mini--ok" : "band-mini"}>
+  {kind === "fundamentals" && (
     <>
       <div class="kv-grid">
-        <div><span class="kl">Revenue</span><span class="kv">$88.5B</span></div>
-        <div><span class="kl">EPS</span><span class="kv">$8.32</span></div>
-        <div><span class="kl">Mkt cap</span><span class="kv">$2.8T</span></div>
+        <div><span class="kl">Revenue</span><span class="kv">{FUNDAMENTALS.revenue}</span></div>
+        <div><span class="kl">EPS</span><span class="kv">{money(FUNDAMENTALS.eps)}</span></div>
+        <div><span class="kl">Mkt cap</span><span class="kv">{FUNDAMENTALS.marketCap}</span></div>
       </div>
-      <div class="row"><span>Next earnings</span><span class="v">Aug 27</span></div>
+      <div class="row"><span>P/E, trailing 12 months</span><span class="v">{FUNDAMENTALS.peTrailing}</span></div>
     </>
   )}
-  {kind === "tech" && (
+  {kind === "earnings" && (
     <>
-      {/* The chart goes ABOVE the four rows, which stay (#2992) — that reproduces the real section's
-          composition rather than inventing a "mini". Its own compact state, never a shrunk desktop
-          chart: this card is a fixed ~239px slot at every viewport.
-
-          The rows now read from the SAME fixture object the chart's level candidates come from, so
-          the two literally cannot disagree — #2992 requires the card's chart and its rows to state
-          the same figures, and four hand-typed rows beside a computed chart is exactly the shape
-          that drifts. */}
-      <div class="band-mini__chart"><TechnicalsPriceChart variant="compact" /></div>
-      {TECHNICALS_ROWS.map((r) => (
-        <div class="row"><span>{r.label}</span><span class="v">{r.value}</span></div>
-      ))}
+      <div class="row"><span>Implied move</span><span class="v">{F.earnings.impliedMove}</span></div>
+      <p class="sub">{F.earnings.through}</p>
     </>
   )}
-  {kind === "sect" && (
+  {kind === "earnings-history" && (
+    <>
+      <div class="row"><span>Average move</span><span class="v">{F.earningsHistory.avgMove}</span></div>
+      <div class="row"><span>Average implied</span><span class="v">{F.earningsHistory.avgImplied}</span></div>
+    </>
+  )}
+  {kind === "insiders" && (
+    <>
+      <div class="row"><span>Net selling</span><span class="v">{F.insiders.netSelling}</span></div>
+      <p class="sub">{F.insiders.plan}</p>
+    </>
+  )}
+  {kind === "technicals" && (
+    <>
+      {/* The chart goes ABOVE the levels (#2992) — that reproduces the real section's composition
+          rather than inventing a "mini". Its own compact state, never a shrunk desktop chart: this
+          card is a fixed ~239px slot at every viewport. The grid reads from the SAME fixture object
+          the chart's level candidates come from, so the two literally cannot disagree. */}
+      <div class="band-mini__chart"><TechnicalsPriceChart variant="compact" /></div>
+      <div class="kv-grid kv-grid--2">
+        {TECH_GRID.map((r) => (
+          <div><span class="kl">{r.label}</span><span class="kv">{r.value}</span></div>
+        ))}
+      </div>
+    </>
+  )}
+  {kind === "options" && (
+    <>
+      <div class="row"><span>Short interest</span><span class="v">{F.options.shortInterest}</span></div>
+      <p class="sub">{F.options.settled}</p>
+    </>
+  )}
+  {kind === "flow" && (
+    <>
+      <div class="row"><span>Premium</span><span class="v">{F.flow.premium}</span></div>
+      <p class="sub">{F.flow.window}</p>
+    </>
+  )}
+  {kind === "sector" && (
     <>
       <p class="narr">Technology — sector strength increasing; valuation premium compressing.</p>
       <p class="sub">unit narrative · the sector, not the stock</p>
     </>
   )}
-  {kind === "peer" && (
+  {kind === "peers" && (
     <>
       <div class="chip-pair">
         <span>P/E 32.1 <em style="font-style:normal;color:var(--color-text-muted)">vs 28.5</em></span>
@@ -64,19 +109,19 @@ const { kind } = Astro.props;
   )}
   {kind === "news" && (
     <>
-      <p class="narr"><strong>Earnings</strong> · Aug 14 — beats Q2 estimates <span class="sub">· Reuters</span></p>
+      <p class="narr"><strong>Earnings</strong> · Aug 27 — beats Q2 estimates <span class="sub">· Reuters</span></p>
       <p class="sub">why it matters: could signal AI demand continuing</p>
-      <div class="row"><span>Catalysts</span><span class="v">Aug 27 earnings</span></div>
+      <div class="row"><span>Next monthly expiry</span><span class="v">Sep 18</span></div>
     </>
   )}
-  {kind === "voic" && (
+  {kind === "voices" && (
     <>
       <p class="sub">via X</p>
       <p class="narr"><span class="handle">@handle</span><span class="sub"> · Aug 13 — </span>constructive on the AI chip cycle into year-end; capacity, not demand, is the constraint. <span class="src">X ↗</span></p>
-      <p class="sub">Each post named and linked in a real read.</p>
+      <p class="sub">Each post named and linked in a real analysis.</p>
     </>
   )}
-  {kind === "macr" && (
+  {kind === "macro" && (
     <>
       <div class="row"><span>Tactical</span><span class="v">Fed on hold</span></div>
       <div class="row"><span>Strategic</span><span class="v">Soft landing</span></div>
@@ -105,25 +150,15 @@ const { kind } = Astro.props;
       </div>
     </>
   )}
-  {kind === "outl" && (
+  {kind === "outlook" && (
     <>
-      <p class="sub" style="padding-bottom:4px">Synthesis</p>
-      <div class="horizon">
-        <b>NEAR · DAYS–WEEKS</b>
-        <span class="proj">Our projection lands at <span class="proj-v">{projection.near}</span></span>
-        <i>constructive while the recent range holds</i>
-      </div>
-      <div class="horizon">
-        <b>MID · 1–3 MONTHS</b>
-        <span class="proj">Our projection lands at <span class="proj-v">{projection.mid}</span></span>
-        <i>structure intact absent a trend change</i>
-      </div>
-      <div class="horizon">
-        <b>FAR · QUARTERS</b>
-        <span class="proj">Our projection lands at <span class="proj-v">{projection.far}</span></span>
-        <i>hinges on how the macro regime resolves</i>
-      </div>
-      <p class="sub" style="padding-top:4px">Our projection, not a guarantee — you decide.</p>
+      {HORIZON_CARDS.map((c) => (
+        <div class="okh">
+          <div class="okh__r"><b>{c.label}</b><span class="proj-v">{projection[c.key]}</span></div>
+          <i>{HORIZON_CONDITIONS[c.key]}</i>
+        </div>
+      ))}
+      <p class="sub">Our projection, not a guarantee — you decide.</p>
     </>
   )}
 </div>

@@ -48,10 +48,13 @@ const BANNED = [
 // Documented exceptions, verbatim from the signed copy sources. Negations and
 // non-trading boilerplate only — never an actual directive.
 const ALLOWED = [
-  // Home, "What TwiceOver is not" (site-copy-twiceover.md, ADR 0011 analysis-led swap) — quoted negation.
-  'no recommendations, no trading signals, no scores, no ratings — and never a one-line verdict or a "buy" or "sell."',
-  // Home, "What you see" outlook item (site-copy-twiceover.md, ADR 0011) — quoted negation.
-  'never a score, never a "buy" or "sell."',
+  // Home v3.4 (stock-analyst-platform#3829; homepage-3818-v3-2026-09-23.html, ADR 0991, copy from
+  // consult 0987), "What TwiceOver is not" — negation. Replaces the v2 "no recommendations, no
+  // trading signals…" entry, whose sentence the redesign retired.
+  "twiceover gives no recommendations or trading signals, never scores or rates a stock, and never tells you to buy or sell",
+  // Home v3.4, FAQ "What is TwiceOver, exactly?" — negation. (The v2 "What you see" entry went with
+  // its section.)
+  "it is not a registered investment adviser or broker-dealer, and it never tells you to buy or sell",
   // ToS "Nature of the service" insert (PM, compliance-load-bearing) — negation.
   "nothing it produces is investment advice, a recommendation, a solicitation, or a suitability determination",
   "not a registered investment adviser, broker-dealer, or financial planner",

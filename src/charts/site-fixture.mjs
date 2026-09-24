@@ -260,3 +260,28 @@ export function signedMoney(v) {
 export function signedPct(v) {
   return `${v < 0 ? "−" : "+"}${Math.abs(v).toFixed(1)}%`;
 }
+
+/**
+ * The band cards' stated figures for the sections v3.4 adds (homepage v3.4, stock-analyst-platform#3829;
+ * build reference `homepage-3818-v3-2026-09-23.html`). Illustrative, the artifact's own.
+ *
+ * PENDING stock-analyst-platform#3963 item 4: each of these cards also draws a small chart in the
+ * artifact, and the artifact states only the chart's pixels, not its data. The charts join once the
+ * Designer supplies the series behind them; the figures below are what each card states in words.
+ * The hero deck's Earnings-history slide states its own three (`beat` included) and takes the same
+ * series when it arrives.
+ */
+export const SECTION_FIGURES = {
+  earnings: { impliedMove: "±7.4%", through: "through the Nov 20 expiry" },
+  earningsHistory: { avgMove: "±3.5%", avgImplied: "±6.9%", beat: "7 of 8" },
+  insiders: { netSelling: "−$177.6M", plan: "10 of 12 sells under a 10b5-1 plan" },
+  options: { shortInterest: "1.1% of shares", settled: "settled Aug 14" },
+  flow: { premium: "at least $761M", window: "in large trades, last five sessions" },
+};
+
+/** The band's Outlook card: each horizon's projection with the condition it rests on, shortened. */
+export const HORIZON_CONDITIONS = {
+  near: "while the recent range holds",
+  mid: "absent a trend change",
+  far: "hinges on the macro regime",
+};

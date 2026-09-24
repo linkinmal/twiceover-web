@@ -1,28 +1,23 @@
 ---
-// Home (site-prelaunch.md §2, v2.3 — Ledger re-expression: product-proof hero +
-// five new sections, human-approved concept study 2026-07-05, #417). Deep door
-// leads the hero sub; "Or, take any US-listed ticker" demo turn follows above the fold
-// (demo-retention guardrail). Copy slots pending Growth #63 (site-copy-twiceover.md
-// reconciliation per ADR 0042 pivot) for the hero/how-it-works/what-its-not text —
-// do not reword; layout must not change when #63 lands.
-// The "Connect read-only →" CTA and header sign-in slot were reserved (ADR 0042/0074)
-// until app-launch (#32); both are now built (#1754, site-app-seam.md §3/§4) as
-// same-origin /go/* redirects — see Base.astro for the header slot. The entry-box row
-// was built earlier, v2.6, fixture-only, no backend call (#1240, ADR 0383,
-// site-prelaunch.md §2/§6, Designer artifact ai-team/design/assets/fixture-demo-open-door.html)
-// — its live handoff (carrying the typed ticker) is a separate, still-gated build.
-// v2.3 NEW SECTIONS (Depth strip, Two doors, Showcase band, Trust plate, FAQ):
-// copy below is Engineer-drafted structural placeholder text — facts already
-// established elsewhere (the constitution's own data/privacy rules, the NVDA
-// fixture, existing Growth-approved wys copy folded into the two door cards) —
-// pending the PM/Growth copy-slot pass before this ships past a preview deploy,
-// same status as the rest of the page's placeholder text (site-prelaunch.md v2.3).
+// Home — homepage v3.4 (stock-analyst-platform#3829; ADR 0991 signed the build reference
+// ai-team/design/assets/homepage-3818-v3-2026-09-23.html; section order and copy tables are
+// consult 0987's, with the PM's #3935 accuracy corrections folded into the artifact). Every string
+// on this page is the artifact's, pinned by homepage-copy.test.mjs and faq-structure.test.mjs.
+//
+// Sections, in consult 0987 §1's order (kept by the founder): hero with its product deck → the
+// analysis band → how the sections become the Outlook → Your Portfolio → broker connection →
+// facts strip → pricing strip → mobile → trust plate → FAQ → what it is not → closing band.
+//
+// The "Connect read-only →" CTA and header sign-in slot are same-origin /go/* redirects (#1754,
+// site-app-seam.md §3/§4); see Base.astro for the header slot.
 import Base from "../layouts/Base.astro";
-import ProductProofVisual from "../components/ProductProofVisual.astro";
 import AnalysisBand from "../components/AnalysisBand.astro";
-import BeforeAfterRead from "../components/BeforeAfterRead.astro";
 import MobileShowcase from "../components/MobileShowcase.astro";
-import TechnicalsPriceChart from "../components/TechnicalsPriceChart.astro";
+import HeroDeck from "../components/HeroDeck.astro";
+import OutlookBand from "../components/OutlookBand.astro";
+import PortfolioCard from "../components/PortfolioCard.astro";
+import PositionCard from "../components/PositionCard.astro";
+import { SECTIONS, sectionsOn, sectionCountLine } from "../data/sections.mjs";
 
 // Organization + WebSite JSON-LD (SEO audit 2026-07 finding 7) — brand-SERP/knowledge-panel
 // groundwork. No FAQPage schema: Google deprecated FAQ rich results 2026-05-07.
@@ -45,37 +40,26 @@ const websiteJsonLd = {
   name: "TwiceOver",
   url: "https://twiceover.io",
 };
+
+// The synthesis block's chips: every section the Outlook weighs, which is every section but itself.
+const chips = SECTIONS.filter((s) => s.key !== "outlook");
+// Decorative lines converging on the Outlook — one per chip column, evenly spaced across the viewBox.
+const CONVERGE = Array.from({ length: 11 }, (_, i) => 20 + i * 56);
 ---
 <Base
   title="TwiceOver — a second look at your own book"
-  description="Connect your brokerage read-only and the read runs on the positions you actually hold — your rules, your horizons. Or take any US-listed ticker — no account, no connection needed. Depth, never a verdict."
+  description="See every position you hold, read-only, with its full math and your own rules checked. Analyze any US-listed ticker, down to a projected price per horizon."
 >
   <script type="application/ld+json" set:html={JSON.stringify(organizationJsonLd)} />
   <script type="application/ld+json" set:html={JSON.stringify(websiteJsonLd)} />
-  {/* Hero — deep door leads the sub (ADR 0042, connect-led); demo retained above the fold.
-      No pricing link in the reserved-box state: pricing via header nav + foot Pricing cue. */}
+  {/* Hero — the connect CTA is the FILLED button now (v3.4), with the ticker box as the second
+      door beneath it. The deck on the right is the product itself, card by card. */}
   <section class="hero">
     <div class="hero__copy">
       <h1 class="type-display">A second look at your own book.</h1>
-      <p class="sub">
-        Connect your brokerage <strong>read-only</strong> and the read runs on the positions
-        you actually hold — measured against <strong>your own rules</strong>, across near-, mid-,
-        and far-term horizons. <strong>Depth, never a verdict.</strong>
-      </p>
-      {/* "Connect read-only →" quiet-outline CTA (#1754, ADR 0042/0074) — same-origin
-          /go/connect redirect to the app's entry point. No interim OAuth plumbing
-          here; the app owns the actual OAuth flow. */}
-      <a class="btn-quiet hero__cta" href="/go/connect">Connect read-only →</a>
-      {/* Caption RETIRED — ADR 0748 Amendment 3, site-prelaunch.md §2 v2.27
-          (stock-analyst-platform#2852). It read "Part of Core. Starts with a 14-day free trial." and
-          existed to name the plan and the trial standing between this press and the connector. The
-          founder decision on epic stock-analyst-platform#2811 removed both from this road — a
-          signed-up Free account may connect a brokerage read-only — so the line was not reworded but
-          struck: there is nothing left to disclose before the press. The amendment is explicit that
-          nothing replaces it; a new supporting line, if this page wants one, is Growth's call under
-          stock-analyst-platform#2812. The CTA label above is untouched and stays locked
-          (ADR 0042/0074). */}
-      <p class="demo-turn">Or, take any US-listed ticker — no connection needed.</p>
+      <p class="sub">Every position in your brokerage account, checked against the rules you set.</p>
+      <a class="btn-filled hero__cta" href="/go/connect">Connect read-only →</a>
+      <p class="demo-turn">Or analyze any US-listed ticker, down to a projected price for each horizon. No account needed.</p>
       {/* The live ticker handoff (#2520, ADR 0383 Amendment 1, consult 0739) — replaces the
           v2.6 fixture-only demo. A plain HTML GET submit: the browser serializes `ticker` and
           navigates same-origin to /go/try, whose Worker bounds the value to /^[A-Z]{1,6}$/ and
@@ -110,170 +94,112 @@ const websiteJsonLd = {
         {/* The wrapper is what the listbox anchors to (position: relative in site.css), and it
             carries the input's flex sizing so the row's geometry is unchanged. */}
         <div class="symbol-combobox entry-box__field-wrap">
-          <input id="entry-ticker" name="ticker" type="text" autocomplete="off" spellcheck="false" placeholder="A ticker — NVDA" />
+          <input id="entry-ticker" name="ticker" type="text" autocomplete="off" spellcheck="false" placeholder="Type a ticker — NVDA" />
         </div>
-        <button type="submit" class="entry-box__submit">Get the read</button>
+        <button type="submit" class="entry-box__submit">Analyze</button>
       </form>
     </div>
-    <ProductProofVisual />
+    <HeroDeck />
   </section>
 
-  {/* Analysis band (v2.13, new, #2179) — the eight analysis sections, flowing
-      continuously. Placed directly below the hero — the fixture-demo reveal it
-      used to sit above retired v2.19; the live ticker handoff now sends that
-      same visitor to a real read instead. */}
+  {/* Analysis band — the thirteen sections, from the site's one section list. */}
   <AnalysisBand />
 
-  {/* Before/after read (v2.13, #2179 — build reference ai-team/design/assets/landing-
-      carousel-hero-refresh-2026-08-14.html). Moved 5th -> 3rd, directly after the analysis
-      band, per site-prelaunch.md v2.36 §2 (founder-directed 31 Aug, #3008). */}
-  <BeforeAfterRead />
+  {/* How the sections become the Outlook (consult 0987 §1). The chips are the band's sections
+      less the Outlook itself, read from the same list; the Outlook below them is the SAME band as
+      the hero deck's first card, not a second drawing of it. */}
+  <section class="synth section-ground" aria-labelledby="synth-h">
+    <div class="container synth__inner">
+      <div class="synth__copy">
+        <h2 id="synth-h" class="type-heading-1 section-heading">How the sections become three projected prices.</h2>
+        <p class="synth__p">The Outlook is our AI synthesis. It weighs every section your plan shows you and projects where the price lands in about two weeks, three months and six months. Each price comes with the reason behind it and what would prove it wrong. Every reason draws on the sections your plan includes.</p>
+      </div>
+      <div class="synth__viz">
+        <div class="chips">{chips.map((s) => <span>{s.short}</span>)}</div>
+        <svg class="converge" viewBox="0 0 600 46" preserveAspectRatio="none" aria-hidden="true">
+          {CONVERGE.map((x) => <path d={`M${x} 0 C ${x} 26, 300 20, 300 44`} />)}
+        </svg>
+        <div class="synth__outlook"><OutlookBand /></div>
+        <p class="proof__caption type-caption">Illustrative example with made-up figures.</p>
+      </div>
+    </div>
+  </section>
 
-  {/* Depth strip (v2.3, new) — four structural facts about the product's construction,
-      never a performance/returns claim (spec §2). */}
+  {/* Your Portfolio (consult 0987 §1) — the list and one opened position, from the same book as
+      the hero deck and the phone. */}
+  <section class="pv section-ground section-ground--lifted" aria-labelledby="pv-h">
+    <div class="container">
+      <h2 id="pv-h" class="type-heading-1 section-heading">Your book, checked against your own rules.</h2>
+      <p class="pv__p">Connect read-only and Your Portfolio lists everything you hold. Positions that have hit one of your rules come first: a profit target, a max loss or an expiry line you set. Open a position to see its breakevens and where each rule stands on current prices. For an options structure, scenarios show it at other prices. Paths show what you could do next, from making no change to rolling, each with its math.</p>
+      <div class="pv__grid">
+        <PortfolioCard variant="section" />
+        <PositionCard variant="section" />
+      </div>
+      <p class="proof__caption type-caption">Illustrative example with made-up positions.</p>
+    </div>
+  </section>
+
+  {/* Broker connection (#2208; v3.4 copy, consult 0987). */}
+  <section class="connect" aria-labelledby="connect-heading">
+    <div class="container">
+      <h2 id="connect-heading" class="connect__head">Connect with the broker login you already have.</h2>
+      <p class="connect__body">Interactive Brokers, Schwab, Fidelity, Robinhood, E*Trade, tastytrade, Webull, Vanguard and more connect read-only, and TwiceOver never touches your funds.</p>
+      <p class="connect__disclosure type-caption">Connections run through SnapTrade (SOC 2 Type II) and are authorized by your broker. You sign in through SnapTrade or your broker, and TwiceOver never sees your credentials.</p>
+    </div>
+  </section>
+
+  {/* Facts strip — structural facts about the product's construction, never a performance claim.
+      The section count and its per-plan line are composed from the section list, never typed. */}
   <section class="depth-strip" aria-label="TwiceOver at a glance">
     <div class="container depth-strip__inner">
       <div class="depth-stat">
-        <p class="depth-stat__figure type-display">8</p>
-        <p class="depth-stat__caption">Analysis sections the engine draws on.</p>
+        <p class="depth-stat__figure type-display">{sectionsOn("premium").length}</p>
+        <p class="depth-stat__caption">{sectionCountLine()}</p>
       </div>
       <div class="depth-stat">
         <p class="depth-stat__figure type-display">4</p>
-        <p class="depth-stat__caption">Paths for every structure you hold — including making no change. Full math, never a ranking.</p>
+        <p class="depth-stat__caption">Paths for every options structure you hold: make no change, close, reduce or roll. Each comes with its math.</p>
       </div>
       <div class="depth-stat">
         <p class="depth-stat__figure type-display">3</p>
-        <p class="depth-stat__caption">Horizons in every outlook — near, mid, and far — each stated as a condition, never a verdict.</p>
+        <p class="depth-stat__caption">Horizons in every Outlook: about two weeks, three months and six months out. Each gets one projected price and the reason for it.</p>
       </div>
       <div class="depth-stat">
         <p class="depth-stat__figure type-display">Read-only</p>
-        <p class="depth-stat__caption">TwiceOver can view your positions — it can never place, change, or cancel an order.</p>
+        <p class="depth-stat__caption">TwiceOver can see your positions. It can never place, change or cancel an order.</p>
       </div>
     </div>
   </section>
 
-  {/* Pricing strip (v2.28, new, #2812 bullet 2 — build reference ai-team/design/assets/
-      pricing-strip-and-closing-band-trial-2026-08-28.html; the divider and link GEOMETRY is
-      superseded by v2.39 — build reference pricing-strip-divider-and-link-2026-09-02.html,
-      #3139 — which is CSS-only and leaves this markup unchanged). Sits here, immediately after the
-      depth strip, so the numbers are visible before the visitor spends real scroll (spec §2:
-      "so price is not a mid-evaluation excursion").
-
-      Both context lines are QUOTATIONS of the live /pricing cards, never restated or
-      paraphrased — pricing-strip-and-closing-band.test.mjs asserts them equal to pricing.astro's
-      own cap lines rather than to a pinned string, so a reword on either page fails the build.
-      Both lost their trailing clause on 2026-09-04 (founder direction on #3545, ratified into
-      site-copy-pricing.md by #3548, built with the /pricing redesign in #3549) — the quotation
-      moved because its source did. The closing band's own paragraph below states the same fact
-      in a longer sentence and is deliberately unchanged: it is not one of these quotations. */}
+  {/* Pricing strip (#2812; three plans in v3.4). The Free and Core cap lines are QUOTATIONS of
+      the live /pricing cards, asserted equal by pricing-strip-and-closing-band.test.mjs so a reword
+      on either page fails the build. PENDING stock-analyst-platform#3962: /pricing gains its
+      Premium card there, and the Premium line joins that quotation check when it does. */}
   <section class="pricing-strip section-ground section-ground--lifted" aria-label="Pricing at a glance">
     <div class="pricing-strip__grid">
       <div class="pricing-stat">
         <p class="pricing-stat__label">Free</p>
         <p class="pricing-stat__figure type-display">$0</p>
         <p class="pricing-stat__caption">10 analyses a month</p>
-      </div>
+        <p class="pricing-stat__more">Your Portfolio in full. The Outlook, built on fundamentals, technicals, peers, the sector and macro.</p>      </div>
       <div class="pricing-stat">
         <p class="pricing-stat__label">Core</p>
         <p class="pricing-stat__figure type-display">$49<span class="per">/mo</span></p>
         <p class="pricing-stat__caption">200 analyses a month</p>
+        <p class="pricing-stat__more">Everything in Free, plus: news and market voices, earnings and dividends, what options price in, and short interest.</p>
       </div>
+      <div class="pricing-stat">
+        <p class="pricing-stat__label">Premium</p>
+        <p class="pricing-stat__figure type-display">$99<span class="per">/mo</span></p>
+        <p class="pricing-stat__caption">300 analyses a month</p>
+        <p class="pricing-stat__more">Everything in Core, plus: the largest options trades, earnings history against the implied move, and insider buying and selling.</p>      </div>
     </div>
     <a class="btn-quiet pricing-strip__link" href="/pricing">See full pricing →</a>
   </section>
 
-  {/* Two doors (v2.3, replaces "What you see") — two door cards, each ending in a
-      static illustrative decoration, not a live control (spec §2). Checklist copy
-      folds in the existing Growth-approved (#63) wys content, restructured. */}
-  <section class="doors section-ground" aria-labelledby="two-doors">
-    <h2 id="two-doors" class="type-heading-1 section-heading">Two doors</h2>
-    <div class="door-grid">
-      <article class="door">
-        <p class="door__tag type-caption">The open door</p>
-        <h3 class="type-heading-2">Any US-listed ticker, no connection needed</h3>
-        <p class="door__body">Type any US-listed ticker — no connection needed — and get the same read, built from licensed data.</p>
-        <ul class="door__checklist">
-          <li><span class="chevron" aria-hidden="true">›</span> The key technical levels, the macro backdrop and market regime, peer positioning, and fundamentals — each with its source and timestamp. Curated voices and the news wire are part of Core.</li>
-          <li><span class="chevron" aria-hidden="true">›</span> One conditional, multi-horizon outlook, each stated as a condition. Labeled AI synthesis; every figure from the data pipeline, not the model. Never a score, never a "buy" or "sell."</li>
-          <li><span class="chevron" aria-hidden="true">›</span> The same engine either way — connecting read-only changes what the read is measured against, not the read itself.</li>
-        </ul>
-        <div class="door__decor door__decor--entry" role="presentation">
-          <input type="text" value="A ticker — NVDA" disabled aria-hidden="true" />
-          <span class="door__decor-btn" aria-hidden="true">Get the read</span>
-        </div>
-        <p class="door__decor-caption type-caption">Illustrative example — not a live control.</p>
-      </article>
-
-      <article class="door">
-        <p class="door__tag type-caption">The deep door</p>
-        <h3 class="type-heading-2">Connect read-only, see your own book</h3>
-        <p class="door__body">Link your brokerage read-only and the same engine runs on the positions you actually hold.</p>
-        <ul class="door__checklist">
-          <li><span class="chevron" aria-hidden="true">›</span> Your structure, with the math — your legs grouped into the position you actually hold, with net debit/credit, breakevens, max profit, max loss, and current P&amp;L.</li>
-          <li><span class="chevron" aria-hidden="true">›</span> Your rules, on live data — the profit targets, DTE thresholds, and max-loss lines you configured, evaluated against where the position is right now.</li>
-          <li><span class="chevron" aria-hidden="true">›</span> Your paths, with the full math — the moves available on what you hold, each with its complete numbers and trigger levels. No ranking, no "do this."</li>
-        </ul>
-        <div class="door__decor door__decor--positions" role="presentation">
-          <div class="position-row"><span>NVDA</span><span>bull call spread</span><span>+$612</span></div>
-          <div class="position-row"><span>MSFT</span><span>covered call</span><span>+$105</span></div>
-        </div>
-      </article>
-    </div>
-  </section>
-
-  {/* Mobile-app showcase (v2.13, part of the band that replaced the old three-artifact
-      showcase, #2179 — build reference ai-team/design/assets/landing-carousel-
-      hero-refresh-2026-08-14.html). Its own position in the DOM is unchanged by v2.36's
-      reorder; it simply follows `doors` now that BeforeAfterRead sits at 3rd. */}
   <MobileShowcase />
 
-  <section class="section-ground section-ground--recessed" aria-labelledby="how-it-works">
-    <h2 id="how-it-works" class="type-heading-1 section-heading">How it works</h2>
-    <ol class="steps">
-      <li>
-        <span class="num" aria-hidden="true">1</span>
-        <div class="steps__body">
-        <p><span class="step-title">Analyze any US-listed ticker.</span> Type a ticker or ask in plain words. From licensed market and options data, TwiceOver synthesizes the key technical levels, the macro backdrop and market regime, peer positioning, and fundamentals into one read — on any US-listed ticker, no broker connection required. Curated voices and the news wire are part of Core.</p>
-        {/* The chart step 1's own copy already promises ("the key technical levels") — this is the one
-            place on the page where a sentence named the artifact and the artifact was absent (#2992,
-            site-prelaunch.md v2.31 §2). The paragraph above is a PM/Growth copy slot (site-copy-
-            twiceover.md, final via #41) and ships VERBATIM — it is deliberately untouched.
-
-            NO CAPTION YET. v2.31 specifies one beneath the chart ("Every level named, valued, and
-            dated — from the data pipeline, not the model.") and marks it new copy PENDING A GROWTH
-            REVIEW. The issue is explicit that the chart is not blocked on it but the caption is, so
-            the slot ships empty rather than shipping unreviewed copy. Tracked on #2992. */}
-        <div class="steps__chart"><TechnicalsPriceChart /></div>
-        </div>
-      </li>
-      <li>
-        <span class="num" aria-hidden="true">2</span>
-        <p><span class="step-title">Connect read-only to make it yours</span> <span class="optional">(optional)</span>. Link your brokerage <strong>read-only</strong> and the same read runs on the positions you actually hold, measured against <strong>your own rules</strong>. TwiceOver can never place, change, or cancel an order, and never touches your funds.</p>
-      </li>
-    </ol>
-  </section>
-
-  {/* Connect section (new, #2208, realizes #2190) — answers "will it work with my
-      broker?" and "how much work is this?", the two questions that stall a signup
-      and that nothing above this point on the page addresses. Placed here, not
-      after Two doors: the heading needs How-it-works step 2 ("Connect read-only to
-      make it yours") as its antecedent, and escalates into the Trust plate's
-      structural guarantees directly below. Never after Two doors — that section's
-      "neither door is visually promoted" invariant (site-prelaunch.md §2) would be
-      broken by giving the deep door alone a dedicated follow-on section. Copy:
-      Growth, consult 0672 (site-copy-twiceover.md "Connect section", Option 1) —
-      supersedes the PM-verified #2190 three-step copy per two founder rejections
-      of that structure in Designer review. */}
-  <section class="connect" aria-labelledby="connect-heading">
-    <div class="container">
-      <h2 id="connect-heading" class="connect__head">Same broker. Nothing new.</h2>
-      <p class="connect__body">Interactive Brokers, Schwab, Fidelity, Robinhood, E*Trade, tastytrade, Webull, Vanguard and more — read-only, with <strong>the login you already have</strong>. TwiceOver can never place, change, or cancel an order, and never touches your funds.</p>
-      <p class="connect__disclosure type-caption">Connections run through SnapTrade (SOC 2 Type II) and are authorized by your broker — credentials are entered there, never with TwiceOver.</p>
-    </div>
-  </section>
-
-  {/* Trust plate (v2.3, new — the one deliberate register break, dark-variant Ledger
-      tokens, ADR 0035, scoped via [data-theme="dark"] to this section only). */}
+  {/* Trust plate (the one deliberate register break, dark-variant Ledger tokens, ADR 0035). */}
   <section class="trust-plate" data-theme="dark" aria-labelledby="trust-plate">
     <div class="container">
       <h2 id="trust-plate" class="type-heading-1 section-heading">Built the honest way</h2>
@@ -281,32 +207,29 @@ const websiteJsonLd = {
         <div class="trust-card">
           <svg class="trust-card__icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="11" width="12" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
           <h3 class="type-heading-2">Read-only, structurally</h3>
-          <p>Your brokerage connection can view your positions. It is technically incapable of placing, changing, or canceling an order.</p>
+          <p>Your brokerage connection can view your positions and is technically incapable of placing, changing or canceling an order.</p>
         </div>
         <div class="trust-card">
           <svg class="trust-card__icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 9h8M8 13h8M8 17h5" stroke="currentColor" stroke-width="1.5"/></svg>
           <h3 class="type-heading-2">Licensed data only</h3>
-          <p>Every quote and news item comes from a licensed vendor — never scraped.</p>
+          <p>Every quote and news item comes from a licensed vendor. None of it is scraped.</p>
         </div>
         <div class="trust-card">
           <svg class="trust-card__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v6c0 5-3 8-7 9-4-1-7-4-7-9V6z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
           <h3 class="type-heading-2">Your book stays yours</h3>
-          <p>Your account data and its analysis are never exposed to, cached for, or reused by another user.</p>
+          <p>Your positions and account data are never shown to or reused for another user.</p>
         </div>
         <div class="trust-card">
           <svg class="trust-card__icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
           <h3 class="type-heading-2">Every number stamped</h3>
-          <p>Every figure carries its source and the exact time it was fetched, so you always know how fresh it is.</p>
+          <p>Every figure in a section carries its source and the time it was fetched. The Outlook's prices are labelled as our projection.</p>
         </div>
       </div>
     </div>
   </section>
 
-  {/* FAQ (v2.3, new; grouped v2.21 #2534; chevron #2532) — native
-      details/summary accordion, no JS. Eleven items split into two labeled
-      groups (site-prelaunch.md §FAQ v2.21) — mechanics unchanged: border.strong
-      rules between every item, only the very first item of the whole list
-      starts open. */}
+  {/* FAQ — native details/summary accordion, no JS. Fifteen items in two labeled groups; the two
+      Outlook questions join after the first (consult 0987 §2). Only the very first item starts open. */}
   <section class="faq section-ground section-ground--lifted" aria-labelledby="faq-heading">
     <div class="faq__intro">
       <p class="type-caption faq__kicker">FAQ</p>
@@ -317,56 +240,63 @@ const websiteJsonLd = {
       <h3 class="type-caption faq__group-label">Before you sign up</h3>
       <details open>
         <summary class="type-heading-2">What is TwiceOver, exactly?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
-        <p>A decision-support tool, not a registered investment adviser or broker-dealer. No recommendations, no trading signals, no scores, no ratings — and never a one-line verdict or a "buy" or "sell." It never executes trades and never holds your money — the decision stays with you.</p>
+        <p>TwiceOver has two parts. Your Portfolio shows the positions you hold, read-only from your broker, with their math and your own rules checked on current prices. Our analysis is our view of any US-listed ticker, the same for every reader on the same plan. TwiceOver is a decision-support tool. It is not a registered investment adviser or broker-dealer, and it never tells you to buy or sell.</p>
+      </details>
+      <details>
+        <summary class="type-heading-2">How is the Outlook different from a price target?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
+        <p>An analyst's price target is usually one number, a year out. The Outlook gives three projected prices, about two weeks, three months and six months out, each with its reasoning and what would prove it wrong. The Outlook shows the sections it weighed.</p>
+      </details>
+      <details>
+        <summary class="type-heading-2">Does every plan get the same Outlook?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
+        <p>Each plan's Outlook weighs only the sections that plan shows, so every price rests on evidence you can read. Core and Premium give the Outlook more to weigh, so their projections for the same ticker can differ from Free's.</p>
       </details>
       <details>
         <summary class="type-heading-2">Can TwiceOver trade on my behalf?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
-        <p>No. The brokerage connection is read-only, structurally — TwiceOver can view your positions but is technically incapable of placing, changing, or canceling an order, and it never touches your funds.</p>
+        <p>No. The connection is read-only. TwiceOver can see your positions but cannot place, change or cancel an order, and it never touches your funds.</p>
       </details>
       <details>
         <summary class="type-heading-2">Where does the data come from?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
-        <p>Licensed market and news data — never scraped, and never dependent on a personal login shared between users.</p>
+        <p>Quotes, options and news data come from licensed vendors. Insider trades come from SEC filings, and short interest from FINRA. Nothing is scraped, and every figure names its source.</p>
       </details>
       <details>
         <summary class="type-heading-2">Do I need to connect my brokerage to use it?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
-        <p>No. Every US-listed ticker gets the full read with no connection at all. Connecting read-only adds your own positions and your own rules to that same read — it's optional, always.</p>
+        <p>No. Anyone can analyze a US-listed ticker without connecting. Connecting adds Your Portfolio: your positions, their math and your own rules.</p>
       </details>
       <details>
         <summary class="type-heading-2">Do I need a card to connect my brokerage?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
-        <p>No. A free account can connect one brokerage read-only — no card and no trial required. Connecting doesn't change your monthly analysis count either: it's the same whether or not a broker is connected. A card is only needed to start a Core trial.</p>
-      </details>
+        <p>No. A free account can connect one brokerage read-only, with no card and no trial. A card is only needed to start a Core or Premium trial.</p>      </details>
       <details>
         <summary class="type-heading-2">What does a connected free account actually see?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
-        <p>The same read as any tier, run on the positions you actually hold: your structure — net debit/credit, breakevens, max profit, max loss — your own configured rules evaluated on live data, and the paths available on what you hold. Curated voices and the licensed news wire are part of Core.</p>
+        <p>Your Portfolio in full, the same as on every plan. Every position shows its structure, net debit or credit, breakevens, max profit and max loss. Your own rules are checked on current prices, and each position lists its scenarios and paths with their math. Free also includes 10 analyses a month.</p>
       </details>
       <details>
         <summary class="type-heading-2">Do I need to create an account to use it?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
-        <p>No — that's a separate optional step, not a requirement. Every US-listed ticker gets the full read with no account, same as no connection. An account is only for saving your own rules, connecting your brokerage read-only, or subscribing to a paid plan.</p>
+        <p>No. Anyone can analyze a US-listed ticker without an account and see the Free plan's sections. An account is for saving your rules, connecting your brokerage read-only, or starting a paid plan.</p>
       </details>
       <details>
         <summary class="type-heading-2">Is my account data shared with anyone?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
-        <p>No. Your account data and its analysis are never exposed to, cached for, or reused by another user.</p>
+        <p>No. Your positions and account data are never shown to another user or reused for anyone else.</p>
       </details>
       <h3 class="type-caption faq__group-label">Once you're in</h3>
       <details>
         <summary class="type-heading-2">What happens when the 14-day trial ends?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
-        <p>Your saved card is charged $49/month, plus any applicable sales tax, and Core continues uninterrupted. We email you before that happens, and the app carries the date the whole time the trial is running. Cancelling before then is one click in Settings — no charge, and the account moves to Free with your rules, broker connection, and read history kept.</p>
+        <p>Your saved card is charged your plan's monthly price, $49 for Core or $99 for Premium, plus any applicable sales tax. The plan continues without a break. We email you before the charge, and the app shows the date for the whole trial. Cancelling before then is one click in Settings. There's no charge, and the account moves to Free with your rules, broker connection and analysis history kept.</p>
       </details>
       <details>
         <summary class="type-heading-2">How do I cancel?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
-        <p>One click in Settings — no retention flow, no call, no form to fill in. Cancellation takes effect at the end of the period already paid for: Core stays on until that date, then the account moves to Free, keeping your rules, broker connection, and read history. Refunds are a separate matter, handled by Dodo Payments, our merchant of record — see the <a href="/refunds">Refund Policy</a>.</p>
+        <p>One click in Settings, with no retention flow, call or form. Cancelling during a trial means no charge. On a paid plan, your plan stays on until the end of the period you've paid for, then the account moves to Free. Your rules, broker connection and analysis history are kept. Refunds are handled separately by Dodo Payments, our merchant of record. See the <a href="/refunds">Refund Policy</a>.</p>
       </details>
       <details>
         <summary class="type-heading-2">What if connecting my brokerage fails?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
-        <p>Nothing is connected and nothing is synced — a failed attempt leaves the account exactly as it was. The screen says so and offers Try again, which opens a fresh SnapTrade session where you can pick the same broker or a different one. Credentials are entered at SnapTrade, never with TwiceOver, so a failed attempt leaves nothing with us either.</p>
+        <p>Nothing is connected and nothing is synced, so the account stays exactly as it was. The screen says so and offers Try again, which opens a fresh SnapTrade session. You can pick the same broker or a different one. Credentials are entered at SnapTrade, so a failed attempt leaves nothing with us.</p>
       </details>
       <details>
         <summary class="type-heading-2">What if some of the data isn't available?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
-        <p>The read says so, in the section where the gap is. A layer that couldn't be sourced is marked missing rather than filled in — nothing is estimated to paper over it, and no section is quietly dropped. A stated limitation is the honest result; a confident answer built on absent data is not.</p>
+        <p>The analysis says so, in the section where the gap is. A section that couldn't be sourced is marked missing, and nothing is estimated to cover it. If an Outlook horizon lacks what it needs, that horizon shows no price.</p>
       </details>
       <details>
         <summary class="type-heading-2">How do I get support?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
-        <p>There's one address: support@twiceover.io. It reaches a person rather than a queue, and we typically respond within 1–2 business days.</p>
+        <p>Email support@twiceover.io. A person answers every message, and we typically reply within 1–2 business days.</p>
       </details>
     </div>
   </section>
@@ -374,40 +304,23 @@ const websiteJsonLd = {
   <section class="not-section section-ground" aria-labelledby="what-its-not">
     <h2 id="what-its-not" class="type-heading-1 section-heading">What TwiceOver is <em>not</em></h2>
     <div class="not-block">
-      <p>Not an investment adviser. No recommendations, no trading signals, no scores, no ratings — and never a one-line verdict or a "buy" or "sell." It never executes trades and never holds your money. TwiceOver is a data-analytics tool that hands you the deepest read on a ticker — the evidence, the math, and the context — and leaves the decision where it belongs: with you.</p>
+      <p>Not an investment adviser. TwiceOver gives no recommendations or trading signals, never scores or rates a stock, and never tells you to buy or sell. It never executes a trade or holds your money. You get the evidence and the math behind our projection, and the decision stays with you.</p>
     </div>
   </section>
 
-  {/* Closing band (v2.3 — promotes the old one-line pricing cue). Primary + ghost
-      button pair (site-prelaunch.md §2), resolved (#1754): primary shares the hero
-      CTA's route and copy — "same destination, same intent" (site-app-seam.md §3) —
-      ghost stays the existing Pricing link.
-
-      Grows the trial disclosure rather than getting its own section (v2.28, #2812 bullet 3,
-      closing consult 0792): a disclosure-only block below "What TwiceOver is not" would read
-      as burying Connect read-only exactly where the page is trying to close. Heading, sub and
-      buttons are unchanged; the two body paragraphs land between them and the two disclosure
-      lines sit BENEATH the buttons, per the approved mockup — which is what turned this band's
-      >=640px flex row into a column, since a right-hand action group has no "beneath."
-
-      No third disclaimer line: the footer's single-source disclaimer already covers the page
-      once, and ci/check-content.mjs enforces that one. */}
+  {/* Closing band — primary shares the hero CTA's route and copy (site-app-seam.md §3). The trial
+      disclosure lines left this band for /pricing, where the trial is started (consult 0987 §2):
+      nothing on this page starts a trial. No third disclaimer line: the footer's single-source
+      disclaimer covers the page once, and ci/check-content.mjs enforces that one. */}
   <section class="closing-band">
     <div class="container closing-band__inner">
       <p class="type-heading-1 closing-band__heading">See it on your own book.</p>
-      <p class="closing-band__sub">Any US-listed ticker, no connection needed — or connect read-only for your own read.</p>
-      <p class="closing-band__body type-body">A connected free account reads your held positions in full: structure, your own rules, scenarios and paths. Free covers 10 analyses a month.</p>
-      <p class="closing-band__body type-body">Core raises that to 200 analyses a month. It also weighs two more inputs: the licensed news wire and curated voices, alongside price, structure, levels and fundamentals.</p>
-      <div class="closing-band__actions">
+      <p class="closing-band__sub">Connect read-only to see your own positions, or analyze any US-listed ticker.</p>
+      <p class="closing-band__body type-body">Your Portfolio comes with every plan. Free includes 10 analyses a month.</p>
+      <p class="closing-band__body type-body">Core and Premium give the Outlook more to weigh. Core adds the news, market voices, earnings and the options market. Premium adds the largest options trades, earnings history and insider activity.</p>      <div class="closing-band__actions">
         <a class="btn-filled" href="/go/connect">Connect read-only →</a>
         <a class="btn-quiet" href="/pricing">Pricing</a>
       </div>
-      {/* ADR 0145 Amendment 7's TRIAL_DISCLOSURE_LINE_1 verbatim, behind Growth's lead-in
-          sentence; then trial-ux-reference.md §2's cancellation line verbatim (no-copy-variance,
-          trial-ux.md §9). Both canonical sources live in stock-analyst-platform, so this repo's
-          test can only pin the strings, not verify them against their source. */}
-      <p class="closing-band__disclosure type-caption">Core starts with a 14-day trial. $0 due today. 14 days free. Then $49/month, plus any applicable sales tax, charged automatically to the card you save at checkout. You'll see the exact date once your trial starts.</p>
-      <p class="closing-band__disclosure type-caption">You can cancel any time before the trial ends in Settings — one click, no charge.</p>
     </div>
   </section>
 

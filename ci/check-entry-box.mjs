@@ -96,8 +96,9 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const EXPECTED_SCRIPTS = {
   "404.html": { inline: 0, external: 0 },
   "cookies/index.html": { inline: 0, external: 0 },
-  // 4: the hero deck (public/js/hero-deck.js, stock-analyst-platform#3829) joined the three.
-  "index.html": { inline: 0, external: 4 },
+  // Still 3 since homepage v3.4 (stock-analyst-platform#3829): the hero deck (public/js/hero-deck.js)
+  // took the retired before/after read's place (public/js/before-after-read.js, deleted with it).
+  "index.html": { inline: 0, external: 3 },
   "pricing/index.html": { inline: 0, external: 0 },
   "privacy/index.html": { inline: 0, external: 0 },
   "refunds/index.html": { inline: 0, external: 0 },

@@ -77,35 +77,38 @@ describe("no consumer claims a colour the token does not resolve to", () => {
 });
 
 describe("the hero states the product's output instead of naming it", () => {
-  const hero = read("src/components/ProductProofVisual.astro");
+  // Since v3.4 (stock-analyst-platform#3829) the Outlook band is its own component, rendered as the
+  // hero deck's first card and again in the synthesis section — so these claims move onto it.
+  const band = read("src/components/OutlookBand.astro");
+  const deck = read("src/components/HeroDeck.astro");
 
   it("draws the projection path chart, not the three-card composition it replaced", () => {
-    expect.soft(hero).toContain("OutlookPathChart");
-    // The card composition's own marks — a fixed 620x430 collage of layered rects and hand-placed
-    // labels. None of it survives; the analysis rows and positions live further down the page as
-    // real text.
-    expect.soft(hero).not.toContain("620 430");
-    expect.soft(hero).not.toContain("cardShadow");
-    // The composition was ~40 hand-placed <text> elements. The hero now places none of its own —
-    // every string in it is real HTML, and the chart's own labels come from the SVG builder.
-    expect.soft(hero).not.toContain("<text");
+    expect.soft(band).toContain("OutlookPathChart");
+    expect.soft(band).not.toContain("620 430");
+    expect.soft(band).not.toContain("cardShadow");
+    // Every string in it is real HTML; the chart's own labels come from the SVG builder.
+    expect.soft(band).not.toContain("<text");
+    // The deck opens on the Outlook: it is card 0 in the server-rendered order.
+    expect.soft(deck.indexOf("<OutlookBand")).toBeLessThan(deck.indexOf("<PortfolioCard"));
+    expect.soft(deck).toMatch(/class="dcard dcard--outlook" data-key="outlook" data-pos="0"/);
   });
 
-  it("adds no raster — the chart is inline SVG so it themes, scales and stays text", () => {
-    expect.soft(hero).not.toMatch(/<img|\.png|\.jpg|\.webp/i);
+  it("adds no raster — the charts are inline SVG so they theme, scale and stay text", () => {
+    expect.soft(band).not.toMatch(/<img|\.png|\.jpg|\.webp/i);
+    expect.soft(deck).not.toMatch(/<img|\.png|\.jpg|\.webp/i);
   });
 
   it("states every figure from the page's one fixture, never a literal", () => {
-    expect.soft(hero).toContain("site-fixture.mjs");
+    expect.soft(band).toContain("site-fixture.mjs");
     // The three projections and the spot have each been corrected twice; a literal here is how the
     // last two corrections left stale copies standing.
-    expect.soft(hero).not.toMatch(/\$?\b(178|192|205|184\.52|184|195|210)\b/);
+    for (const src of [band, deck]) {
+      expect.soft(src).not.toMatch(/\$?\b(178|192|205|184\.52|184|195|210)\b/);
+    }
   });
 
   it("keeps the illustrative-data disclosure verbatim", () => {
-    expect.soft(hero).toContain(
-      "Illustrative example — the same fixed AAPL/NVDA data shown throughout this page, not a live account.",
-    );
+    expect.soft(deck).toContain("Illustrative example with made-up figures and positions.");
   });
 });
 
@@ -176,48 +179,43 @@ describe("Option B — the hero's presentation treatment (#2987/#3013, v2.35 ele
     expect(dark.body).not.toMatch(/color-mix/);
   });
 
-  it("takes the v2.38 tilt on the card, and stages NO second card — B is the build, G stays withdrawn", () => {
+  it("takes the v2.38 tilt on the deck's front card, and on no other surface", () => {
     // An EXACT set, not a "does it look like a chart" filter. Rotation is rare and deliberate on
-    // this page, so listing every one is cheap, and it fails on any new rotation anywhere. Two
-    // members since v2.38: the FAQ chevron (an affordance on the disclosure) and the hero card.
-    const rotated = all.filter((r) => /transform:\s*rotate\(/.test(r.body)).map((r) => r.selector);
+    // this page, so listing every one is cheap, and it fails on any new rotation anywhere. Since
+    // v3.4 (#3829) the band's −1.5° is the deck's FRONT card, the other positions fan behind it,
+    // and the band itself sits flat wherever it is rendered inside another surface.
+    const rotated = all.filter((r) => /transform:[^;]*rotate\(/.test(r.body)).map((r) => r.selector.replace(/\s+/g, " "));
     expect(new Set(rotated)).toEqual(
-      new Set([".faq__list details[open] > summary .faq__chevron", ".proof__band"]),
+      new Set([
+        ".faq__list details[open] > summary .faq__chevron",
+        ".proof__band",
+        '.deck .dcard[data-pos="0"]',
+        '.deck .dcard[data-pos="1"]',
+        '.deck .dcard[data-pos="2"]',
+        '.deck .dcard:not([data-pos]), .deck .dcard[data-pos="3"], .deck .dcard[data-pos="4"], .deck .dcard[data-pos="5"]',
+        ".deck .dcard.leaving",
+      ]),
     );
-    // The ANGLE, not merely "some rotation" — a tilt that drifted to -15deg, or flipped to +1.5deg,
-    // passes the set check above and is still wrong on the page.
-    const band = all.find((r) => r.selector === ".proof__band");
-    expect(band.body).toMatch(/transform:\s*rotate\(-1\.5deg\)/);
-    // And nothing re-introduces the staged card's own surfaces.
+    // The ANGLE, not merely "some rotation".
+    const front = all.find((r) => r.selector === '.deck .dcard[data-pos="0"]');
+    expect(front.body).toMatch(/transform:\s*rotate\(-1\.5deg\)/);
+    // Inside the deck and the synthesis section the band is flat: the card or section carries it.
+    expect(all.find((r) => r.selector === ".synth__outlook .proof__band").body).toMatch(/transform:\s*none/);
+    expect(all.find((r) => r.selector === ".dcard--outlook .proof__band").body).toMatch(/transform:\s*none/);
     expect(css).not.toMatch(/\.hero-stage|\.pm-card|\.pm-chart/);
   });
 
-  it("keeps the tilt hero-only — it sits on the band, never on the figure or the caption", () => {
-    // v2.38 puts the rotation on "the card as a whole". The .proof <figure> also holds
-    // .proof__caption; rotating running text is a different proposition and not what was ruled.
-    const figure = all.find((r) => r.selector === ".proof");
-    expect(figure.body).not.toMatch(/transform/);
-    const caption = all.find((r) => r.selector === ".proof__caption");
-    if (caption) expect(caption.body).not.toMatch(/transform:\s*rotate\(/);
-  });
-
-  it("does not make the tilt a motion treatment — nothing for reduced-motion to reduce", () => {
-    // A static transform, so no transition/animation on the card and no reduced-motion variant is
-    // owed. If someone later animates it, this fails and the spec question reopens deliberately.
+  it("lets reduced motion stop the deck; the tilt itself never moves", () => {
     const band = all.find((r) => r.selector === ".proof__band");
     expect(band.body).not.toMatch(/transition|animation/);
-    // Scanned on the raw text: `rules()` unwraps at-rules, so a @media block's own identity is not
-    // on the rule objects and has to be read from the source.
-    const reducedMotionBlocks = css.match(/@media[^{]*prefers-reduced-motion[^{]*\{[\s\S]*?\n\s*\}/g) ?? [];
-    expect(reducedMotionBlocks.some((b) => /\.proof__band/.test(b))).toBe(false);
+    expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\) \{ \.deck > \.dcard \{ transition: none; \} \}/);
   });
 
-  it("leaves the band the whole hero column — the treatment is elevation, not a re-layout", () => {
+  it("leaves the band the whole card — the treatment is elevation, not a re-layout", () => {
     const band = all.find((r) => r.selector === ".proof__band");
     expect(band.body).not.toMatch(/max-width|margin-inline|width:/);
-    // The hero's own column split is untouched by this issue.
     const lg = css.slice(css.indexOf("@media (min-width: 960px)"));
     expect(lg).toMatch(/\.hero__copy \{ flex: 1 1 52%; \}/);
-    expect(lg).toMatch(/\.proof \{ flex: 1 1 44%; \}/);
+    expect(lg).toMatch(/\.deck-fig \{ flex: 1 1 44%; \}/);
   });
 });

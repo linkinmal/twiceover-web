@@ -10,7 +10,7 @@
  * Source-level, the convention this repo already uses (`faq-structure.test.mjs`). It resolves each
  * top-level section's ground the way the cascade does — the section's own `background`, or the
  * `--ground-fill` its `section-ground*` classes set — and follows component roots rather than taking
- * the page's literal `<section>`s only, since three of the twelve are rendered by components.
+ * the page's literal `<section>`s only, since two of the twelve are rendered by components.
  */
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
@@ -91,7 +91,6 @@ describe("section grounds alternate (site-prelaunch.md §2 'Section grounds')", 
     // adjacency it checks would not be the page's adjacency.
     expect(sections.length).toBeGreaterThanOrEqual(12);
     expect(sections.map((s) => s.name)).toContain("AnalysisBand");
-    expect(sections.map((s) => s.name)).toContain("BeforeAfterRead");
     expect(sections.map((s) => s.name)).toContain("MobileShowcase");
   });
 

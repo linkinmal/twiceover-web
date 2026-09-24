@@ -4,17 +4,18 @@
  * site-prelaunch.md §6 "Engineer handoff" (v2.4 redeploy build note): "verify
  * these render with no interactive semantics — a screen reader or an automated
  * a11y check finding a focusable, non-functional control here is a defect."
- * Scoped to the Two-doors section's static illustrative decorations
- * (`.door__decor`), the only static-but-input-shaped markup on the page.
+ * Scoped since homepage v3.4 (stock-analyst-platform#3829) to the page's static illustrations of
+ * the product: the product cards (`.dcard` — the hero deck's slides and the Portfolio section's two
+ * cards) and the phone mockup (`.phone`). They replaced the retired Two-doors decorations
+ * (`.door__decor`) as the page's control-shaped-but-inert markup: rows with a chevron, a "Run the …
+ * analysis ›" pill, tab-bar items. None of it does anything, so none of it may be focusable.
  *
- * Checks, per decoration wrapper:
- *   - the wrapper carries role="presentation" (screen readers skip its children
- *     as a group rather than announcing an input/button that does nothing)
- *   - no live focusable control markup inside (<button>, <a>, <select>,
- *     <textarea>, or a non-negative tabindex)
- *   - any <input> is disabled (belt-and-suspenders alongside role/aria-hidden)
- *   - no live-CTA class (`.btn-quiet`) — the actual #734/#421 defect: a decoy
- *     styled with the real accent-border/hover CTA class, not just a stray tag
+ * Checks, per illustration:
+ *   - no live focusable control markup inside (<button>, <a>, <input>, <select>, <textarea>, or a
+ *     non-negative tabindex) — the deck's real controls live OUTSIDE the cards, in `.deck-ctl`
+ *   - no live-CTA class (`.btn-quiet` / `.btn-filled`) — the actual #734/#421 defect: a decoy
+ *     styled with the real CTA class, not just a stray tag
+ *   - the count is the page's own (structure), so a renamed class cannot pass by matching nothing
  *
  * Run after `astro build` (same dependency as ci/check-content.mjs).
  */
@@ -62,32 +63,28 @@ function divsByClass(source, className) {
 }
 
 const failures = [];
-const decorations = divsByClass(html, "door__decor");
 
-if (decorations.length !== 2) {
-  failures.push(
-    `[structure] expected 2 static door decorations (Two doors §2 — entry + positions), found ${decorations.length}`,
-  );
-}
+// 4 hero-deck slides + the Portfolio section's two cards; 1 phone. PENDING stock-analyst-platform#3963
+// item 4: the deck's options and earnings-history slides raise the first to 8 when their data lands.
+const EXPECTED = { dcard: 6, phone: 1 };
 
-for (const { openTag, block } of decorations) {
-  if (!/\brole="presentation"/.test(openTag)) {
-    failures.push(`[a11y] door decoration missing role="presentation": ${openTag}`);
+for (const [className, expected] of Object.entries(EXPECTED)) {
+  const found = divsByClass(html, className);
+  if (found.length !== expected) {
+    failures.push(`[structure] expected ${expected} .${className} illustration(s), found ${found.length}`);
   }
-  if (/<(button|a|select|textarea)\b/i.test(block)) {
-    failures.push(`[a11y] door decoration contains a live focusable control tag: ${block}`);
-  }
-  const badTabindex = block.match(/tabindex="(?!-1")[^"]*"/i);
-  if (badTabindex) {
-    failures.push(`[a11y] door decoration has a non-negative tabindex: ${badTabindex[0]}`);
-  }
-  for (const input of block.match(/<input\b[^>]*>/gi) ?? []) {
-    if (!/\bdisabled\b/.test(input)) {
-      failures.push(`[a11y] door decoration <input> is not disabled: ${input}`);
+  for (const { openTag, block } of found) {
+    const label = openTag.slice(0, 80);
+    if (/<(button|a|input|select|textarea)\b/i.test(block)) {
+      failures.push(`[a11y] .${className} illustration contains a live focusable control tag: ${label}…`);
     }
-  }
-  if (/class="[^"]*\bbtn-quiet\b/.test(block)) {
-    failures.push(`[a11y] door decoration carries the live .btn-quiet CTA class: ${block}`);
+    const badTabindex = block.match(/tabindex="(?!-1")[^"]*"/i);
+    if (badTabindex) {
+      failures.push(`[a11y] .${className} illustration has a non-negative tabindex: ${badTabindex[0]}`);
+    }
+    if (/class="[^"]*\bbtn-(quiet|filled)\b/.test(block)) {
+      failures.push(`[a11y] .${className} illustration carries a live CTA class: ${label}…`);
+    }
   }
 }
 
@@ -97,4 +94,6 @@ if (failures.length) {
   console.error(`\n${failures.length} violation(s).`);
   process.exit(1);
 }
-console.log(`A11y decoration check passed: ${decorations.length} static door decoration(s), no focusable controls.`);
+console.log(
+  `A11y decoration check passed: ${EXPECTED.dcard} product card(s) and ${EXPECTED.phone} phone, no focusable controls.`,
+);

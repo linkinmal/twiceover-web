@@ -96,13 +96,11 @@ describe("Pricing strip (#3030, site-prelaunch.md §2 'Pricing strip')", () => {
     );
 
     expect(pricingCaps, "pricing.astro no longer has the two cap figures").toHaveLength(2);
-    expect(captions).toEqual(pricingCaps);
-    // The equality above cannot see both pages drifting together — it stayed green while both
-    // said 600 after the app moved Core to 200 (stock-analyst-platform#3932). The numbers
-    // themselves are the app's plan-cap config (ADR 0960: 10 / 200 / 300), which lives in
-    // twiceover-app, so this pin catches an edit here, not a change there.
-    expect(pricingCaps).toEqual(["10 analyses a month", "200 analyses a month"]);
-  });
+    // Three plans on the strip since v3.4 (stock-analyst-platform#3829); /pricing still shows two.
+    // PENDING stock-analyst-platform#3962: when /pricing gains its Premium card, this becomes
+    // `toEqual(pricingCaps)` over all three and the pinned Premium line below goes.
+    expect(captions.slice(0, 2)).toEqual(pricingCaps);
+    expect(captions[2]).toBe("300 analyses a month");  });
 
   it("carries the two price figures with the tier labels and the shared pricing link", () => {
     const strip = astro.slice(
@@ -111,22 +109,23 @@ describe("Pricing strip (#3030, site-prelaunch.md §2 'Pricing strip')", () => {
     );
 
     expect(strip, "pricing-strip section not found in index.astro").not.toBe("");
-    expect(textsOfClass(strip, "pricing-stat__label")).toEqual(["Free", "Core"]);
-    expect(textsOfClass(strip, "pricing-stat__figure")).toEqual(["$0", "$49/mo"]);
+    expect(textsOfClass(strip, "pricing-stat__label")).toEqual(["Free", "Core", "Premium"]);
+    expect(textsOfClass(strip, "pricing-stat__figure")).toEqual(["$0", "$49/mo", "$99/mo"]);
     // One shared quiet link beneath both columns, to the full pricing page.
     expect(strip).toMatch(/<a class="btn-quiet[^"]*" href="\/pricing">See full pricing →<\/a>/);
   });
 
-  it("sits between the Depth strip and Two doors", () => {
+  it("sits between the Depth strip and the mobile showcase", () => {
     // Placement is the decision this section exists for (site-prelaunch.md §2: price visible
     // before the visitor spends real scroll), so it is asserted, not left to a reader.
     const depth = astro.indexOf('<section class="depth-strip');
     const strip = astro.indexOf('<section class="pricing-strip');
-    const doors = astro.indexOf('<section class="doors');
+    // Two doors retired with v3.4 (stock-analyst-platform#3829); the mobile showcase follows now.
+    const mobile = astro.indexOf("<MobileShowcase");
 
     expect(depth).toBeGreaterThan(-1);
     expect(strip).toBeGreaterThan(depth);
-    expect(doors).toBeGreaterThan(strip);
+    expect(mobile).toBeGreaterThan(strip);
   });
 
   it("renders the figure in the mono face with tabular numerals, not the serif display face", () => {
@@ -187,7 +186,7 @@ describe("Pricing strip (#3030, site-prelaunch.md §2 'Pricing strip')", () => {
     expect(ruleBody(".pricing-strip__link.btn-quiet")).not.toMatch(/margin-block-end/);
   });
 
-  it("centres the shared link on the divider axis at two columns", () => {
+  it("centres the shared link beneath the columns", () => {
     // site-prelaunch.md §2 v2.39: built at left:88px inside a Free column spanning 88-640, the
     // page's one pricing link read as Free-scoped. Centring lands it on the seam, where it
     // belongs to neither column and therefore to both. `.btn-quiet` is inline-flex, so auto
@@ -201,7 +200,7 @@ describe("Pricing strip (#3030, site-prelaunch.md §2 'Pricing strip')", () => {
     // `margin-inline: auto` centres on the CONTAINER; that is the divider axis only because the
     // two columns are equal with symmetric inline padding. Unequal columns would still satisfy
     // every assertion above while missing the seam.
-    expect(wideRuleBody(".pricing-strip__grid")).toMatch(/grid-template-columns:\s*repeat\(2,\s*1fr\)/);
+    expect(wideRuleBody(".pricing-strip__grid")).toMatch(/grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\)/);
     // Stacked: no columns, so no seam. Rhythm as shipped, and no inline centring — this rule sits
     // AFTER the media block, so a margin-inline added here would win at >=640 too.
     expect(baseRuleBody(".pricing-strip__link")).toMatch(/margin-block-start:\s*var\(--space-400\)/);
@@ -209,34 +208,21 @@ describe("Pricing strip (#3030, site-prelaunch.md §2 'Pricing strip')", () => {
   });
 });
 
-describe("Closing band trial disclosure (#3030, site-prelaunch.md §2 'Closing band gains trial-disclosure copy')", () => {
-  /**
-   * The canonical strings. Unlike the Pricing strip's captions above, these have no second end
-   * inside THIS repo to compare against — both sources live in stock-analyst-platform
-   * (ADR 0145 Amendment 7's TRIAL_DISCLOSURE_LINE_1, and trial-ux-reference.md §2). Pinned
-   * literals here therefore catch an accidental edit to the shipped string, and nothing more;
-   * they are not a check that the canonical source still says this.
-   */
-  const TRIAL_LINE =
-    "Core starts with a 14-day trial. $0 due today. 14 days free. Then $49/month, plus any applicable sales tax, charged automatically to the card you save at checkout. You'll see the exact date once your trial starts.";
-  const CANCEL_LINE =
-    "You can cancel any time before the trial ends in Settings — one click, no charge.";
-  const BODY_1 =
-    "A connected free account reads your held positions in full: structure, your own rules, scenarios and paths. Free covers 10 analyses a month.";
+describe("Closing band (homepage v3.4, stock-analyst-platform#3829)", () => {
+  // The two body paragraphs, verbatim from the build reference (homepage-copy.test.mjs pins the
+  // rest of the page). The trial-disclosure lines left this band for /pricing (consult 0987 §2):
+  // nothing on the homepage starts a trial, and /pricing is where one is started.
+  const BODY_1 = "Your Portfolio comes with every plan. Free includes 10 analyses a month.";
   const BODY_2 =
-    "Core raises that to 200 analyses a month. It also weighs two more inputs: the licensed news wire and curated voices, alongside price, structure, levels and fundamentals.";
-
-  it("carries both body paragraphs and both disclosure lines verbatim, and no third disclaimer", () => {
+    "Core and Premium give the Outlook more to weigh. Core adds the news, market voices, earnings and the options market. Premium adds the largest options trades, earnings history and insider activity.";
+  it("carries both body paragraphs verbatim, and no trial disclosure", () => {
     const band = astro.slice(astro.indexOf('<section class="closing-band"'));
 
     expect(textsOfClass(band, "closing-band__body")).toEqual([BODY_1, BODY_2]);
-    expect(textsOfClass(band, "closing-band__disclosure")).toEqual([TRIAL_LINE, CANCEL_LINE]);
+    expect(band).not.toMatch(/closing-band__disclosure/);
   });
 
-  it("puts the disclosure lines beneath the buttons, in the specced order", () => {
-    // The whole reason the band's ≥640px flex ROW became a column: the spec and the approved
-    // mockup both place the disclosures under the button pair. Ordering is the commitment; a
-    // layout change that quietly restored the row would still pass every copy assertion above.
+  it("orders heading, sub, body and actions as a column", () => {
     const band = astro.slice(astro.indexOf('<section class="closing-band"'));
     const at = (needle) => band.indexOf(needle);
     const order = [
@@ -244,35 +230,26 @@ describe("Closing band trial disclosure (#3030, site-prelaunch.md §2 'Closing b
       at("closing-band__sub"),
       at("closing-band__body"),
       at("closing-band__actions"),
-      at("closing-band__disclosure"),
     ];
 
     expect(order.every((i) => i > -1), `missing part in: ${order.join(",")}`).toBe(true);
     expect(order).toEqual([...order].sort((a, b) => a - b));
     expect(ruleBody(".closing-band__inner")).toMatch(/flex-direction:\s*column/);
-    // The row rule the disclosures cannot live under. Its media query is unwrapped by ruleBody,
-    // so a reinstated `flex-direction: row` on this selector shows up here.
     expect(ruleBody(".closing-band__inner")).not.toMatch(/flex-direction:\s*row/);
   });
 
-  it("binds body and disclosure text to the specced tokens and measures", () => {
-    // site-prelaunch.md §2: body = typography.body / text.secondary / 60ch;
-    // disclosures = typography.caption / text.muted / 70ch.
+  it("binds body text to the specced token and measure", () => {
+    // site-prelaunch.md §2: body = typography.body / text.secondary / 60ch.
     const body = ruleBody(".closing-band__body");
-    const disclosure = ruleBody(".closing-band__disclosure");
 
     expect(body).toMatch(/color:\s*var\(--color-text-secondary\)/);
     expect(body).toMatch(/max-width:\s*60ch/);
-    expect(disclosure).toMatch(/color:\s*var\(--color-text-muted\)/);
-    expect(disclosure).toMatch(/max-width:\s*70ch/);
     expect(astro).toMatch(/class="closing-band__body type-body"/);
-    expect(astro).toMatch(/class="closing-band__disclosure type-caption"/);
   });
 
   it("no longer colours the band's last paragraph by position", () => {
-    // `.closing-band__inner p:last-child` used to be how the sub got its secondary ink. With
-    // the disclosures appended it would retarget the LAST disclosure line instead — a silent
-    // mis-paint that no copy or ordering assertion above would catch.
+    // `.closing-band__inner p:last-child` used to be how the sub got its secondary ink; it would
+    // retarget whatever paragraph ends the band — a silent mis-paint no copy assertion catches.
     expect(css).not.toMatch(/\.closing-band__inner\s+p:last-child/);
     expect(ruleBody(".closing-band__sub")).toMatch(/color:\s*var\(--color-text-secondary\)/);
   });
