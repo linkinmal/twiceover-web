@@ -262,26 +262,71 @@ export function signedPct(v) {
 }
 
 /**
- * The band cards' stated figures for the sections v3.4 adds (homepage v3.4, stock-analyst-platform#3829;
- * build reference `homepage-3818-v3-2026-09-23.html`). Illustrative, the artifact's own.
+ * The thirteen band cards, NVDA edition (homepage v3.4, stock-analyst-platform#3829; build reference
+ * `homepage-3818-v3-2026-09-23.html`) — as blocks in the vocabulary `AnalysisMini.astro` renders, the
+ * same one the explainer's EXMP cards use (`exmp-fixture.mjs`), so one renderer draws both.
+ * Every figure here is read from the objects above, or is the artifact's stated illustrative figure.
  *
- * PENDING stock-analyst-platform#3963 item 4: each of these cards also draws a small chart in the
- * artifact, and the artifact states only the chart's pixels, not its data. The charts join once the
- * Designer supplies the series behind them; the figures below are what each card states in words.
- * The hero deck's Earnings-history slide states its own three (`beat` included) and takes the same
- * series when it arrives.
+ * PENDING stock-analyst-platform#3963 item 4: the five cards v3.4 adds (earnings, earnings-history,
+ * insiders, options, flow) each draw a small chart in the artifact, which states only the chart's
+ * pixels. They state their figures in words until the Designer supplies the series behind them.
  */
-export const SECTION_FIGURES = {
-  earnings: { impliedMove: "±7.4%", through: "through the Nov 20 expiry" },
-  earningsHistory: { avgMove: "±3.5%", avgImplied: "±6.9%", beat: "7 of 8" },
-  insiders: { netSelling: "−$177.6M", plan: "10 of 12 sells under a 10b5-1 plan" },
-  options: { shortInterest: "1.1% of shares", settled: "settled Aug 14" },
-  flow: { premium: "at least $761M", window: "in large trades, last five sessions" },
+const tech = Object.fromEntries(TECHNICALS_ROWS.map((r) => [r.label, r.value]));
+const trimWhole = (v) => money(v).replace(/\.00$/, "");
+
+export const BAND_CARDS = {
+  fundamentals: [
+    { kv: [["Revenue", FUNDAMENTALS.revenue], ["EPS", money(FUNDAMENTALS.eps)], ["Mkt cap", FUNDAMENTALS.marketCap]] },
+    { row: ["P/E, trailing 12 months", FUNDAMENTALS.peTrailing] },
+  ],
+  earnings: [{ row: ["Implied move", "±7.4%"] }, { sub: "through the Nov 20 expiry" }],
+  "earnings-history": [{ row: ["Average move", "±3.5%"] }, { row: ["Average implied", "±6.9%"] }],
+  insiders: [{ row: ["Net selling", "−$177.6M"] }, { sub: "10 of 12 sells under a 10b5-1 plan" }],
+  technicals: [
+    // The chart goes ABOVE the levels (#2992), and the grid reads the same object the chart's level
+    // candidates come from, so the two cannot disagree.
+    { chart: "technicals" },
+    { kv2: [["50-DMA", tech["50-DMA"]], ["200-DMA", tech["200-DMA"]], ["RSI", tech["RSI"]], ["52-week", tech["52-week range"]]] },
+  ],
+  options: [{ row: ["Short interest", "1.1% of shares"] }, { sub: "settled Aug 14" }],
+  flow: [{ row: ["Premium", "at least $761M"] }, { sub: "in large trades, last five sessions" }],
+  sector: [
+    { narr: "Technology — sector strength increasing; valuation premium compressing." },
+    { sub: "unit narrative · the sector, not the stock" },
+  ],
+  peers: [
+    // PENDING stock-analyst-platform#3963 item 6: 32.1 disagrees with Fundamentals' derived 22.2×.
+    { chips: [["P/E 32.1", "vs 28.5"], ["3M +8.2%", "vs +4.1%"]] },
+    { row: ["MSFT", "P/E 28.3 · +5.2%"] },
+    { sub: "open table · subject vs peer median" },
+  ],
+  news: [
+    { news: ["Earnings", "Aug 27", "beats Q2 estimates", "Reuters"] },
+    { sub: "why it matters: could signal AI demand continuing" },
+    { row: ["Next monthly expiry", "Sep 18"] },
+  ],
+  voices: [
+    { sub: "via X" },
+    { post: ["Aug 13", "constructive on the AI chip cycle into year-end; capacity, not demand, is the constraint."] },
+    { sub: "Each post named and linked in a real analysis." },
+  ],
+  macro: [{ row: ["Tactical", "Fed on hold"] }, { row: ["Strategic", "Soft landing"] }, { mra: 0.35 }],
+  outlook: [
+    {
+      okh: HERO_OUTLOOK.horizons.map((h) => [
+        HORIZON_CARDS.find((c) => c.key === h.horizon).label,
+        trimWhole(h.price),
+        { near: "while the recent range holds", mid: "absent a trend change", far: "hinges on the macro regime" }[h.horizon],
+      ]),
+    },
+    { sub: "Our projection, not a guarantee — you decide." },
+  ],
 };
 
-/** The band's Outlook card: each horizon's projection with the condition it rests on, shortened. */
-export const HORIZON_CONDITIONS = {
-  near: "while the recent range holds",
-  mid: "absent a trend change",
-  far: "hinges on the macro regime",
-};
+/**
+ * The macro card's risk-appetite axis position, in percent along the rail: net −1 → 0%, 0 → 50%,
+ * +1 → 100%. The marker and the net value both sit here — one number, as in the real component.
+ */
+export function riskAxisLeft(net) {
+  return ((net + 1) / 2) * 100;
+}

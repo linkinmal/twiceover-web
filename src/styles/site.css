@@ -767,6 +767,7 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .band-mini .kv-grid .kl { display: block; font-size: var(--font-size-100); text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-muted); }
 .band-mini .kv-grid .kv { font-family: var(--font-family-mono); font-size: var(--font-size-200); color: var(--color-text-primary); }
 .band-mini .chip-pair { display: flex; gap: var(--space-100); padding-bottom: var(--space-150); }
+.band-mini .chip-pair em { font-style: normal; color: var(--color-text-muted); }
 .band-mini .chip-pair span { flex: 1; border: 1px solid var(--color-border-default); border-radius: var(--radius-small); padding: var(--space-050) var(--space-100); font-family: var(--font-family-mono); font-size: var(--font-size-100); color: var(--color-text-secondary); }
 /* The macro card's risk-appetite axis (#2995) — the product's real `.macro-risk-axis` anatomy at
    card scale, replacing an invented rounded bar with an accent dot at a hardcoded 55%. Ported from

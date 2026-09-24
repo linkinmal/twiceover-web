@@ -70,7 +70,6 @@ const PINNED = [
       "Horizons in every Outlook: about two weeks, three months and six months out. Each gets one projected price and the reason for it.",
       "Read-only",
       "TwiceOver can see your positions. It can never place, change or cancel an order.",
-      "13",
     ]],
     ["mobile", [
       "The same read, on your phone.",
@@ -103,6 +102,15 @@ describe("the homepage states the signed-off copy", () => {
       for (const s of strings) expect.soft(pageText, s).toContain(s);
     });
   }
+
+  it("states the section count and its per-plan line from the one section list, never typed", () => {
+    // The values themselves ("13", "6 on Free, 10 on Core, all 13 on Premium") are pinned where
+    // they are computed, src/data/sections.test.mjs.
+    const strip = index.slice(index.indexOf('class="depth-strip"'), index.indexOf('class="pricing-strip '));
+    expect.soft(strip).toContain('{sectionsOn("premium").length}');
+    expect.soft(strip).toContain("{sectionCountLine()}");
+    expect.soft(strip).not.toMatch(/>\s*13\s*</);
+  });
 
   it("keeps the ticker box's placeholder and its pinned form attributes", () => {
     expect.soft(index).toContain('placeholder="Type a ticker — NVDA"');

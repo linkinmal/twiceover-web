@@ -79,16 +79,19 @@ describe("AnalysisMini macr — the real risk-appetite axis (#2995, v2.32 §2)",
     expect(mini).toMatch(/<b>Supportive<\/b>/);
   });
 
-  it("keeps the marker and the net value on the SAME derived position", () => {
-    // In the real component both come from one number; here they are two literals, so the thing
-    // that can silently rot is them disagreeing. net = +0.35 → (0.35 + 1) / 2 = 67.5%.
-    const net = Number(mini.match(/class="mra__num"[^>]*>\s*([+−-]?[\d.]+)\s*</)[1].replace("−", "-"));
-    const lefts = [...mini.matchAll(/class="mra__(?:num|mark)"[^>]*left:\s*([\d.]+)%/g)].map((m) =>
-      Number(m[1]),
-    );
-    expect(lefts, "num and mark must both carry an explicit left").toHaveLength(2);
+  it("keeps the marker and the net value on the SAME derived position", async () => {
+    // In the real component both come from one number. Since #3829 the card is data-driven, so the
+    // guarantee is structural: both read riskAxisLeft of the same block value, and riskAxisLeft maps
+    // net +0.35 → (0.35 + 1) / 2 = 67.5%, the artifact's own figure and position.
+    const lefts = [...mini.matchAll(/class="mra__(?:num|mark)"\s+style=\{`left:\$\{([^}]+)\}%`\}/g)].map((m) => m[1]);
+    expect(lefts, "num and mark must both carry a derived left").toHaveLength(2);
     expect(lefts[0]).toBe(lefts[1]);
-    expect(lefts[0]).toBeCloseTo(((net + 1) / 2) * 100, 5);
+    expect(lefts[0]).toBe("riskAxisLeft(b.mra)");
+    const { riskAxisLeft, BAND_CARDS } = await import("../charts/site-fixture.mjs");
+    expect(riskAxisLeft(0.35)).toBeCloseTo(67.5, 10);
+    expect(riskAxisLeft(-1)).toBe(0);
+    expect(riskAxisLeft(1)).toBe(100);
+    expect(BAND_CARDS.macro.find((x) => x.mra !== undefined).mra).toBe(0.35);
   });
 
   it("holds the anatomy's own measurements — 1px hairline, 9px ticks, a 2px marker", () => {
