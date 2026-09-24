@@ -75,15 +75,17 @@
 // 0788 + consult 0792), mirroring Free's cap-first bullet — this page was the one gap left
 // after #2843 moved Free's cap to 10 without touching Core's.
 // BOTH caps are now figures in the card's figure block, not list bullets, and both lost
-// their trailing gloss (2026-09-04, ADR 0912 + #3549, ratified by #3548): "10 reads a
-// month" and "600 reads a month". ADR 0788 is unaffected — it names the NUMBER 600 as
-// Core's differentiator, never the prose gloss around it. The landing page's Pricing strip
-// captions are quotations of these two lines and move with them in the same commit;
-// pricing-strip-and-closing-band.test.mjs asserts that equality from both surfaces.
-// NOT touched here: the landing page's closing-band paragraph, which states the same fact
-// in its own longer sentence ("Core raises your monthly read count to 600 — a full book
-// pass, every day. ..."). It is not a cap bullet, no test derives it from this page, and
-// consult 0792's trip-wire makes a wording change there a PM/Growth call, not a build one.
+// their trailing gloss (2026-09-04, ADR 0912 + #3549, ratified by #3548).
+// Re-set to "10 analyses a month" and "200 analyses a month" (2026-09-24,
+// stock-analyst-platform#3932): ADR 0960 moved the allowance to 10 / 200 / 300 (Core was 600;
+// Free's 10 and ADR 0788's cap-as-differentiator reasoning stand) and the app applied it
+// 2026-09-23; the unit noun is the #3817 copy deck's.
+// The landing page's Pricing strip captions are quotations of these two lines and move with
+// them in the same commit; pricing-strip-and-closing-band.test.mjs asserts that equality from
+// both surfaces, and pins the two numbers so both pages cannot drift together.
+// The landing page's closing-band paragraph states the same fact in its own longer sentence
+// ("Core raises that to 200 analyses a month. ..."). It is not a cap bullet and no test
+// derives it from this page; its wording is Growth's (#3932), pinned in that same test.
 import Base from "../layouts/Base.astro";
 
 // Offer JSON-LD (SEO audit 2026-07 finding 7) — the Accepted prices, verbatim from
@@ -149,7 +151,7 @@ const productJsonLd = {
         {/* The space between the two spans is load-bearing for TEXT, not layout: the 10px gap is
             flex `gap`, so without it the cap copies and reads out as "10reads a month". A
             whitespace-only node between flex items is not rendered, so the visual is unchanged. */}
-        <p class="tier__cap"><span class="tier__cap-n">10</span> <span class="tier__cap-w">reads a month</span></p>
+        <p class="tier__cap"><span class="tier__cap-n">10</span> <span class="tier__cap-w">analyses a month</span></p>
       </div>
       <div class="tier__body">
         <ul class="tier__rows">
@@ -168,7 +170,7 @@ const productJsonLd = {
       <div class="tier__figures">
         <h2 class="tier__eyebrow">Core</h2>
         <p class="tier__price">$49<span class="per">/mo</span></p>
-        <p class="tier__cap"><span class="tier__cap-n">600</span> <span class="tier__cap-w">reads a month</span></p>
+        <p class="tier__cap"><span class="tier__cap-n">200</span> <span class="tier__cap-w">analyses a month</span></p>
       </div>
       <div class="tier__body">
         <ul class="tier__rows">
