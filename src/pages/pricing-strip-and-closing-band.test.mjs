@@ -97,6 +97,11 @@ describe("Pricing strip (#3030, site-prelaunch.md §2 'Pricing strip')", () => {
 
     expect(pricingCaps, "pricing.astro no longer has the two cap figures").toHaveLength(2);
     expect(captions).toEqual(pricingCaps);
+    // The equality above cannot see both pages drifting together — it stayed green while both
+    // said 600 after the app moved Core to 200 (stock-analyst-platform#3932). The numbers
+    // themselves are the app's plan-cap config (ADR 0960: 10 / 200 / 300), which lives in
+    // twiceover-app, so this pin catches an edit here, not a change there.
+    expect(pricingCaps).toEqual(["10 analyses a month", "200 analyses a month"]);
   });
 
   it("carries the two price figures with the tier labels and the shared pricing link", () => {
@@ -217,9 +222,9 @@ describe("Closing band trial disclosure (#3030, site-prelaunch.md §2 'Closing b
   const CANCEL_LINE =
     "You can cancel any time before the trial ends in Settings — one click, no charge.";
   const BODY_1 =
-    "A connected free account reads your held positions in full: structure, your own rules, scenarios and paths. Free covers 10 reads a month.";
+    "A connected free account reads your held positions in full: structure, your own rules, scenarios and paths. Free covers 10 analyses a month.";
   const BODY_2 =
-    "Core raises your monthly read count to 600 — a full book pass, every day. It also weighs two more inputs: the licensed news wire and curated voices, alongside price, structure, levels and fundamentals.";
+    "Core raises that to 200 analyses a month. It also weighs two more inputs: the licensed news wire and curated voices, alongside price, structure, levels and fundamentals.";
 
   it("carries both body paragraphs and both disclosure lines verbatim, and no third disclaimer", () => {
     const band = astro.slice(astro.indexOf('<section class="closing-band"'));
