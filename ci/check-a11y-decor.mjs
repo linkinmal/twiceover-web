@@ -17,6 +17,11 @@
  *     styled with the real CTA class, not just a stray tag
  *   - the count is the page's own (structure), so a renamed class cannot pass by matching nothing
  *
+ * The two explainer pages (stock-analyst-platform#3829, ADR 0993) are held to the same rule: their
+ * product pictures (`.app`, the signed Portfolio/Position artifact's own markup) and section cards
+ * (`.xp-card`) and the analysis screenshot (`.xp-shot`) render the artifact's links, sort buttons,
+ * section nav and disclosure as plain text.
+ *
  * Run after `astro build` (same dependency as ci/check-content.mjs).
  */
 
@@ -25,15 +30,6 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const indexPath = join(root, "dist", "index.html");
-
-let html;
-try {
-  html = readFileSync(indexPath, "utf8");
-} catch {
-  console.error(`FATAL: ${indexPath} not found — run \`npm run build\` first.`);
-  process.exit(1);
-}
 
 /** Outer HTML of every top-level <div> whose class attribute contains `className`,
  *  matched by counting nested <div>/</div> tags (no DOM parser dependency). */
@@ -48,7 +44,7 @@ function divsByClass(source, className) {
     while (depth > 0) {
       const nextOpen = source.indexOf("<div", i);
       const nextClose = source.indexOf("</div>", i);
-      if (nextClose === -1) throw new Error("unbalanced <div> in dist/index.html");
+      if (nextClose === -1) throw new Error("unbalanced <div> in a built page");
       if (nextOpen !== -1 && nextOpen < nextClose) {
         depth++;
         i = nextOpen + 4;
@@ -64,26 +60,43 @@ function divsByClass(source, className) {
 
 const failures = [];
 
-// 4 hero-deck slides + the Portfolio section's two cards; 1 phone. PENDING stock-analyst-platform#3963
-// item 4: the deck's options and earnings-history slides raise the first to 8 when their data lands.
-const EXPECTED = { dcard: 6, phone: 1 };
+const EXPECTED = {
+  // 4 hero-deck slides + the Portfolio section's two cards; 1 phone. PENDING stock-analyst-platform#3963
+  // item 4: the deck's options and earnings-history slides raise the first to 8 when their data lands.
+  "index.html": { dcard: 6, phone: 1 },
+  // The 13 section cards and the hero's analysis screenshot.
+  "how-our-analysis-works/index.html": { "xp-card": 13, "xp-shot": 1 },
+  // The seven product pictures: the portfolio desk, two row close-ups, the position page, the rules,
+  // scenarios and paths cards.
+  "your-portfolio/index.html": { app: 7 },
+};
 
-for (const [className, expected] of Object.entries(EXPECTED)) {
-  const found = divsByClass(html, className);
-  if (found.length !== expected) {
-    failures.push(`[structure] expected ${expected} .${className} illustration(s), found ${found.length}`);
+for (const [page, classes] of Object.entries(EXPECTED)) {
+  const path = join(root, "dist", page);
+  let html;
+  try {
+    html = readFileSync(path, "utf8");
+  } catch {
+    console.error(`FATAL: ${path} not found — run \`npm run build\` first.`);
+    process.exit(1);
   }
-  for (const { openTag, block } of found) {
-    const label = openTag.slice(0, 80);
-    if (/<(button|a|input|select|textarea)\b/i.test(block)) {
-      failures.push(`[a11y] .${className} illustration contains a live focusable control tag: ${label}…`);
+  for (const [className, expected] of Object.entries(classes)) {
+    const found = divsByClass(html, className);
+    if (found.length !== expected) {
+      failures.push(`[structure] ${page}: expected ${expected} .${className} illustration(s), found ${found.length}`);
     }
-    const badTabindex = block.match(/tabindex="(?!-1")[^"]*"/i);
-    if (badTabindex) {
-      failures.push(`[a11y] .${className} illustration has a non-negative tabindex: ${badTabindex[0]}`);
-    }
-    if (/class="[^"]*\bbtn-(quiet|filled)\b/.test(block)) {
-      failures.push(`[a11y] .${className} illustration carries a live CTA class: ${label}…`);
+    for (const { openTag, block } of found) {
+      const label = `${page} ${openTag.slice(0, 80)}`;
+      if (/<(button|a|input|select|textarea|details|summary)\b/i.test(block)) {
+        failures.push(`[a11y] .${className} illustration contains a live focusable control tag: ${label}…`);
+      }
+      const badTabindex = block.match(/tabindex="(?!-1")[^"]*"/i);
+      if (badTabindex) {
+        failures.push(`[a11y] ${page}: .${className} illustration has a non-negative tabindex: ${badTabindex[0]}`);
+      }
+      if (/class="[^"]*\bbtn-(quiet|filled)\b/.test(block)) {
+        failures.push(`[a11y] .${className} illustration carries a live CTA class: ${label}…`);
+      }
     }
   }
 }
@@ -94,6 +107,5 @@ if (failures.length) {
   console.error(`\n${failures.length} violation(s).`);
   process.exit(1);
 }
-console.log(
-  `A11y decoration check passed: ${EXPECTED.dcard} product card(s) and ${EXPECTED.phone} phone, no focusable controls.`,
-);
+const total = Object.values(EXPECTED).flatMap(Object.values).reduce((a, b) => a + b, 0);
+console.log(`A11y decoration check passed: ${total} illustrations across ${Object.keys(EXPECTED).length} pages, no focusable controls.`);

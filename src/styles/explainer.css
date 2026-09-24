@@ -311,3 +311,8 @@
 .app .xp-app__legs-k { margin: 0; font-size: 12.5px; color: var(--accent); }
 .app .xp-app__legs-k::before { content: "\25BE  "; }
 .app .xp-app__legs .inner { padding-top: 8px; display: flex; flex-direction: column; gap: 8px; }
+
+/* The explainer's section cards space their news items and posts apart; the homepage band's
+   smaller cards do not (build references explainer-pages-3818 and homepage-3818-v3 respectively). */
+.xp-card .narr--news { padding-bottom: 4px; }
+.xp-card .narr--post { padding-bottom: 6px; }

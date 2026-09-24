@@ -44,10 +44,10 @@ const fmtNet = (n: number) => `${n < 0 ? "−" : "+"}${Math.abs(n).toFixed(2)}`;
         </div>
       )}
       {b.news && (
-        <p class="narr"><strong>{b.news[0]}</strong> · {b.news[1]} — {b.news[2]} <span class="sub">· {b.news[3]}</span></p>
+        <p class="narr narr--news"><strong>{b.news[0]}</strong> · {b.news[1]} — {b.news[2]} <span class="sub">· {b.news[3]}</span></p>
       )}
       {b.post && (
-        <p class="narr"><span class="handle">@handle</span><span class="sub"> · {b.post[0]} — </span>{b.post[1]} <span class="src">X ↗</span></p>
+        <p class="narr narr--post"><span class="handle">@handle</span><span class="sub"> · {b.post[0]} — </span>{b.post[1]} <span class="src">X ↗</span></p>
       )}
       {b.mra !== undefined && (
         /* The product's real `.macro-risk-axis` anatomy (#2995; build reference
