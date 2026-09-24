@@ -318,8 +318,8 @@ describe("ADR 0905 build rule 2 — stacked label pairs render on one baseline",
     expect
       .soft(names.map((t) => t.y), "merged onto the name's baseline, never the value's")
       .toEqual(ruleYs.map((y) => Number((y - 1).toFixed(2))));
-    // Geometry untouched: one dashed rule per merged label, still three.
-    expect.soft((body.match(/class="t-level"/g) ?? []).length, "three rules, three labels").toBe(3);
+    // Geometry untouched: one dashed rule per merged label — four since the 200-DMA un-crowded (#3829).
+    expect.soft((body.match(/class="t-level"/g) ?? []).length, "four rules, four labels").toBe(4);
   });
 
   it("refuses to merge when the pair it was told to expect is not there", () => {
