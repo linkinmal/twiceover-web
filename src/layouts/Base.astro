@@ -12,8 +12,13 @@ import { YEAR } from "../config.mjs";
 interface Props {
   title: string;
   description: string;
+  // "none" is the /in-app/* legal pages the iOS app opens in its in-app browser
+  // (stock-analyst-platform#4033): no header (lockup, Pricing, Sign in/up) and no footer
+  // nav, so nothing there leads to a purchase outside Apple's IAP (ADR 1018 Decision 4).
+  // ci/check-content.mjs's IN-APP clause holds them to that.
+  chrome?: "full" | "none";
 }
-const { title, description } = Astro.props;
+const { title, description, chrome = "full" } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site).href;
 
 // The live member of the rotating share-card set (ADR 0905). Three cards exist —
@@ -35,6 +40,7 @@ const ogImageURL = new URL(OG_CARD, Astro.site).href;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {chrome === "none" && <meta name="robots" content="noindex" />}
     <link rel="canonical" href={canonicalURL} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -57,6 +63,7 @@ const ogImageURL = new URL(OG_CARD, Astro.site).href;
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
+    {chrome === "full" && (
     <header class="site-header">
       <div class="container">
         <a class="lockup" href="/">
@@ -81,11 +88,13 @@ const ogImageURL = new URL(OG_CARD, Astro.site).href;
         </div>
       </div>
     </header>
+    )}
     <main id="main" class="container">
       <slot />
     </main>
     <footer class="site-footer">
       <div class="container">
+        {chrome === "full" && (
         <nav class="footer-links" aria-label="Policies and contact">
           <a href="/terms">Terms</a>
           <a href="/privacy">Privacy</a>
@@ -126,6 +135,7 @@ const ogImageURL = new URL(OG_CARD, Astro.site).href;
             </svg>
           </a>
         </nav>
+        )}
         <Disclaimer />
         <div class="footer-meta">
           <span>© {YEAR} TwiceOver</span>

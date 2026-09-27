@@ -6,5 +6,7 @@ import sitemap from "@astrojs/sitemap";
 export default defineConfig({
   site: "https://twiceover.io",
   trailingSlash: "never",
-  integrations: [sitemap()],
+  // /in-app/* are the iOS app's chromeless legal copies (stock-analyst-platform#4033) —
+  // noindex, and the full /terms, /privacy and /cookies stay the pages search finds.
+  integrations: [sitemap({ filter: (page) => !new URL(page).pathname.startsWith("/in-app/") })],
 });

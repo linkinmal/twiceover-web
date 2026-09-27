@@ -11,11 +11,14 @@
 // ADR 0013 fork 3; backs the auto-block + fair-use posture (site-copy-twiceover.md,
 // /terms section). Last-updated date left at June 11, 2026 per human direction.
 import Policy from "../layouts/Policy.astro";
+// Set only by the /in-app/* page that renders this one (stock-analyst-platform#4033).
+const { chrome = "full" } = Astro.props;
 ---
 <Policy
   title="Terms of Service — TwiceOver"
   description="TwiceOver's Terms of Service — US-resident eligibility, acceptable use, and the legal terms governing your use of twiceover.io."
   heading="Terms of Service"
+  chrome={chrome}
 >
   <aside class="callout" aria-label="Nature of the service">
     <h2 class="type-heading-2">Nature of the service</h2>
