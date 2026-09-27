@@ -34,19 +34,19 @@ describe("the chart states no verdict", () => {
   });
 });
 
-describe("the last-close figure is not in the plot", () => {
+describe("the price figure is not in the plot", () => {
   it("draws the reference LINE but states its price nowhere inside the SVG", () => {
     // The signed artifact's placement: the figure is a caption above the plot. On the dip shape the
     // path descends into the label's own band and the near dot lands on it — "furniture placed in
     // the data's own region", which no vertical offset solves.
     const svg = body();
     expect.soft(svg).toContain('class="k-spotline"');
-    expect.soft(svg).not.toContain("last close");
+    expect.soft(svg).not.toContain("price $");
     expect.soft(svg).not.toContain("184.52");
   });
 
   it("keeps the caption out of the compact render too, where the plot is tightest", () => {
-    expect.soft(body(true)).not.toContain("last close");
+    expect.soft(body(true)).not.toContain("price $");
   });
 });
 
@@ -169,7 +169,15 @@ describe("recent price history (#3959, read-components-outlook.md v3.68)", () =>
   });
 
   it("is what the hero actually renders, at both states", () => {
-    const src = readFileSync(new URL("../components/OutlookPathChart.astro", import.meta.url), "utf8");
-    expect.soft(src).toMatch(/projectionChartModel\(\{ \.\.\.HERO_OUTLOOK, history: OUTLOOK_HISTORY, compact \}\)/);
+    // OutlookPathChart.astro takes outlook/cards/history as props since stock-analyst-platform#3829
+    // (the explainer pages reuse it for EXMP's Outlook), so the model call itself no longer names
+    // HERO_OUTLOOK/OUTLOOK_HISTORY literally. What still has to be true is that the homepage's own
+    // caller — OutlookBand.astro, the only one that renders no explicit `outlook` — wires the real
+    // history through, and the component defaults `outlook`/`cards` to the homepage's own fixture.
+    const chart = readFileSync(new URL("../components/OutlookPathChart.astro", import.meta.url), "utf8");
+    const band = readFileSync(new URL("../components/OutlookBand.astro", import.meta.url), "utf8");
+    expect.soft(chart).toMatch(/outlook = HERO_OUTLOOK,\s*cards = HORIZON_CARDS/);
+    expect.soft(chart).toMatch(/projectionChartModel\(\{ \.\.\.outlook, history, compact \}\)/);
+    expect.soft(band).toMatch(/<OutlookPathChart history=\{OUTLOOK_HISTORY\}\s*\/>/);
   });
 });

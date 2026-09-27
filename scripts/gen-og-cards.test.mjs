@@ -105,7 +105,7 @@ describe("the set is three members, one chassis (ADR 0905)", () => {
       )
       .toEqual([980, 900, 744]);
     expect.soft(MEMBERS.map((m) => m.caption)).toEqual([
-      "last close $184.52 · AUG 28",
+      "price $184.52 · AUG 28",
       "last 90 sessions · the levels",
       "your 2× Jul 17 175C/190C · breakeven $181.20",
     ]);
@@ -299,8 +299,12 @@ describe("ADR 0905 build rule 2 — stacked label pairs render on one baseline",
         "value as a mono span after its name, one baseline each",
       )
       .toEqual([
-        '50-DMA <tspan class="t-level-value">175.43</tspan>',
+        // The 50-DMA is derived from the series since #3829 (178.70, not the typed 175.43), which
+        // un-crowds it from the 200-DMA at this width — so the 200-DMA draws again, in the
+        // chart's own candidate order.
+        '50-DMA <tspan class="t-level-value">178.70</tspan>',
         '52-week high <tspan class="t-level-value">198.00</tspan>',
+        '200-DMA <tspan class="t-level-value">168.90</tspan>',
         '52-week low <tspan class="t-level-value">156.00</tspan>',
       ]);
     expect
@@ -314,8 +318,8 @@ describe("ADR 0905 build rule 2 — stacked label pairs render on one baseline",
     expect
       .soft(names.map((t) => t.y), "merged onto the name's baseline, never the value's")
       .toEqual(ruleYs.map((y) => Number((y - 1).toFixed(2))));
-    // Geometry untouched: one dashed rule per merged label, still three.
-    expect.soft((body.match(/class="t-level"/g) ?? []).length, "three rules, three labels").toBe(3);
+    // Geometry untouched: one dashed rule per merged label — four since the 200-DMA un-crowded (#3829).
+    expect.soft((body.match(/class="t-level"/g) ?? []).length, "four rules, four labels").toBe(4);
   });
 
   it("refuses to merge when the pair it was told to expect is not there", () => {

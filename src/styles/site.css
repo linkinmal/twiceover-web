@@ -266,7 +266,7 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 @media (min-width: 960px) {
   .hero { flex-direction: row; align-items: center; gap: var(--space-800); }
   .hero__copy { flex: 1 1 52%; }
-  .proof { flex: 1 1 44%; }
+  .deck-fig { flex: 1 1 44%; }
 }
 .hero__copy { display: flex; flex-direction: column; align-items: flex-start; }
 .hero h1 { margin: 0; max-width: 18ch; }
@@ -311,7 +311,10 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .entry-box input {
   flex: 1 1 14rem;
   min-height: 44px;
-  border: 1px solid var(--color-border-interactive);
+  /* color.text.muted, not accent-surface.on-surface-muted (#3963 item 3 ruling): they share a hex
+     by coincidence, but the accent-surface token is scoped to bronze accent surfaces (the Outlook
+     band); this is a plain white input outside that context. */
+  border: 1px solid var(--color-text-muted);
   border-radius: var(--radius-medium);
   padding: var(--space-200) var(--space-300);
   font-family: var(--font-family-mono);
@@ -580,13 +583,19 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 }
 .proof__hzrow {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* minmax(0, 1fr), not bare 1fr: a bare 1fr track's default min-width:auto refuses to shrink
+     below its own content's min-content size, which for the FAR column's nowrap label
+     ("FAR · 6 MONTHS") is wider than this whole row gets on the hero deck's card at a phone
+     viewport — the exact cause of a real horizontal-overflow regression the Designer's PR #89
+     review measured (scrollWidth 392 vs clientWidth 375 at 375px). */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-150);
   margin-top: var(--space-150);
 }
 .proof__hz {
   border-top: 1px solid color-mix(in srgb, var(--accent-surface-border) 45%, transparent);
   padding-top: var(--space-050);
+  min-width: 0;
 }
 .proof__hz-k {
   font-family: var(--font-family-serif);
@@ -595,6 +604,10 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   letter-spacing: 0.09em;
   color: var(--accent-surface-marker);
 }
+/* The label wraps between the window name and its date (e.g. "FAR" / "· 6 MONTHS") when a narrow
+   column won't hold both on one line, rather than the column overflowing: the two parts are their
+   own nodes for exactly this. `.hz-d` stays nowrap so "6 MONTHS" itself never breaks mid-phrase. */
+.hz-d { white-space: nowrap; }
 .proof__hz-v {
   font-family: var(--font-family-serif);
   font-weight: var(--font-weight-semibold);
@@ -737,7 +750,8 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .band__wrap { overflow: hidden; }
 .band__track { display: flex; width: max-content; padding: var(--space-300) 0 var(--space-400); }
 @media (prefers-reduced-motion: no-preference) {
-  .band__track { animation: band-flow 54s linear infinite; }
+  /* 90s for thirteen cards: the eight-card band ran 54s, and the pace per card is what is held (v3.4). */
+  .band__track { animation: band-flow 90s linear infinite; }
   .band:hover .band__track, .band:focus-within .band__track { animation-play-state: paused; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -765,6 +779,7 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .band-mini .kv-grid .kl { display: block; font-size: var(--font-size-100); text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-muted); }
 .band-mini .kv-grid .kv { font-family: var(--font-family-mono); font-size: var(--font-size-200); color: var(--color-text-primary); }
 .band-mini .chip-pair { display: flex; gap: var(--space-100); padding-bottom: var(--space-150); }
+.band-mini .chip-pair em { font-style: normal; color: var(--color-text-muted); }
 .band-mini .chip-pair span { flex: 1; border: 1px solid var(--color-border-default); border-radius: var(--radius-small); padding: var(--space-050) var(--space-100); font-family: var(--font-family-mono); font-size: var(--font-size-100); color: var(--color-text-secondary); }
 /* The macro card's risk-appetite axis (#2995) — the product's real `.macro-risk-axis` anatomy at
    card scale, replacing an invented rounded bar with an accent dot at a hardcoded 55%. Ported from
@@ -846,7 +861,9 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
    the stacked state, where the divider is a bottom hairline between the cells and there is no
    full band for it to run. */
 .pricing-strip__grid { display: grid; grid-template-columns: 1fr; }
-@media (min-width: 640px) { .pricing-strip__grid { grid-template-columns: repeat(2, 1fr); } }
+/* Three plans since v3.4 (stock-analyst-platform#3829): three equal columns, capped at 64rem as the
+   build reference caps them, so each column keeps a readable measure for its `__more` line. */
+@media (min-width: 640px) { .pricing-strip__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 64rem; } }
 .pricing-stat { padding-block: var(--space-300); border-bottom: 1px solid var(--color-border-default); }
 .pricing-strip__grid .pricing-stat:first-child { padding-block-start: 0; }
 .pricing-strip__grid .pricing-stat:last-child { border-bottom: none; }
@@ -886,11 +903,10 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
     padding-inline: var(--space-400) 0;
     border-right: none;
   }
-  /* Centred on the divider axis, so the page's one pricing link belongs to neither column and
-     therefore to both (v2.39). It lands on the seam only because the two columns are equal
-     (repeat(2, 1fr), above) with symmetric inline padding — `margin-inline: auto` centres on the
-     container, not on the divider. .btn-quiet is inline-flex, so auto margins do nothing until
-     the box is block-level. */
+  /* Centred, so the page's one pricing link belongs to no single column and therefore to all
+     (v2.39). `margin-inline: auto` centres on the container, not on a divider — with three columns
+     (v3.4) there is no single seam to land on. .btn-quiet is inline-flex, so auto margins do
+     nothing until the box is block-level. */
   .pricing-strip__link.btn-quiet { display: flex; width: fit-content; margin-inline: auto; }
 }
 .pricing-stat__label { margin: 0; color: var(--color-text-secondary); font-weight: var(--font-weight-semibold); font-size: var(--font-size-300); }
@@ -914,7 +930,9 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .connect {
   margin-inline: calc(50% - 50vw);
   border-block: 1px solid var(--color-border-strong);
-  background: var(--color-bg-raised); /* was bg.surface — 2% off canvas, no ground change (#2216) */
+  /* bg.canvas, not bg.raised (#3963 item 5 ruling): the Portfolio section directly above stays
+     raised, so this seam needs its own ground to stay a seam. */
+  background: var(--color-bg-canvas);
   padding-block: var(--space-600);
 }
 .connect__head {
@@ -1241,8 +1259,6 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .closing-band__actions { display: flex; align-items: center; gap: var(--space-200); flex-shrink: 0; flex-wrap: wrap; margin-block-start: var(--space-400); }
 /* The band's only caption-weight text, matching the footer disclaimer's register rather than
    the body copy above it (site-prelaunch.md §2). */
-.closing-band__disclosure { margin: var(--space-300) 0 0; color: var(--color-text-muted); max-width: 70ch; }
-.closing-band__disclosure + .closing-band__disclosure { margin-block-start: var(--space-100); }
 
 /* ── Pricing ──────────────────────────────────────────────────────────── */
 /* Still the title block for /404 and the policy template. /pricing left it for the band
@@ -1286,18 +1302,22 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 
 /* The straddle (ADR 0912): the cards overlap the band's lower edge, biting into the closing
    padding above. They are later siblings, so their grounds paint over the band's with no
-   stacking context needed. 4rem is space.800; 5.5rem has no member on the scale. */
+   stacking context needed. 4rem is space.800; 5.5rem has no member on the scale.
+   Three plans (ADR 0912 Amendment 1, #3829): the cards stack until 860px and then go straight
+   to three-up — there is no two-up state, which would orphan one plan on its own row. From
+   860px each card spans three rows of a shared subgrid (figures / plan line / foot), so the
+   three CTAs sit on one line whatever each card's copy length (ruling 3). */
 .tier-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--space-300);
-  max-width: 58rem;
+  max-width: 72rem;
   margin: -4rem auto 0;
   padding: 0;
   list-style: none;
 }
-@media (min-width: 640px) {
-  .tier-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: -5.5rem; }
+@media (min-width: 860px) {
+  .tier-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: auto auto auto; gap: 1.25rem; margin-top: -5.5rem; }
 }
 /* Symmetry is a compliance feature (spec §6.2): identical card treatment on every
    tier — no badge, no accent border, no size difference. Do not differentiate.
@@ -1308,11 +1328,15 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-medium);
   overflow: hidden;
-  /* Flex column so the card's CTA (and, on Core, its disclosure lines) are laid out as
-     siblings of the feature list rather than inline flow — see `.tier__cta` below for why
-     the buttons are list-attached rather than bottom-aligned. */
+  /* Flex column below 860px, where the cards stack; a subgrid above it (see .tier-grid). */
   display: flex;
   flex-direction: column;
+}
+/* After the base rule, not beside .tier-grid's: at equal specificity the later `display: flex`
+   won and the subgrid never formed — measured, Premium's longer plan line pushed its CTA 24px
+   below the other two. */
+@media (min-width: 860px) {
+  .tier { display: grid; grid-row: span 3; grid-template-rows: subgrid; }
 }
 /* Figure block — eyebrow, price, cap figure. NO tinted fill (ADR 0912 ruling 2): an earlier
    draft tinted it bg.inset, the founder removed the tint, and that removal is the approved
@@ -1365,42 +1389,36 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 }
 @media (min-width: 640px) { .tier__cap-n { font-size: 2rem; } }
 .tier__cap-w { color: var(--color-text-secondary); }
-.tier__body { padding: 0 1.25rem 1.75rem; display: flex; flex-direction: column; }
-@media (min-width: 640px) { .tier__body { padding: 0 var(--space-400) var(--space-400); } }
-/* Ledger rows — hairline-separated, no markers. Checkmarks stay barred (site-prelaunch.md
-   §3): a list of ticks reads as a scorecard, which drifts toward ranking. The "– " marker
-   these rows replace was the same idea in a quieter form; the rule between rows is the
-   Ledger register's own way of grouping. */
-.tier__rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-.tier__rows li {
-  padding-block: var(--space-150);
-  border-top: 1px solid var(--color-border-default);
+/* The card's one plan line (ruling 1) — the homepage strip's own sentence, verbatim. The
+   20/28px inline padding matches the figure block's, so the two read as one column. */
+.tier__line {
+  margin: 0;
+  padding: 1.25rem 1.25rem 0;
   color: var(--color-text-secondary);
-  line-height: 1.45;
+  line-height: 1.5;
   text-wrap: pretty;
 }
-.tier__rows li:first-child { border-top: none; } /* the figure divider already rules here */
-/* Card CTA (site-prelaunch.md §3: "each card gains the same quiet outline button — equal
-   weight"; stock-analyst-platform#2513/#2514). Identical `.btn-quiet` on both tiers — the
-   labels differ because the actions differ, nothing else does. `align-self` keeps the button
-   at its content's width inside the flex column instead of stretching edge to edge.
-   The button sits in the card foot, under the border.default rule that closes the ledger
-   (v2.40 — the rule and its padding are the gap the list's `margin-block-end` used to be),
-   so each card still reads as list-then-action. Two alternatives were built and MEASURED
-   rather than eyeballed, and both were worse:
-     - `margin-block-start:auto` (bottom-flush groups) put the two buttons 150px apart and
-       stranded Free's at the card floor under ~200px of dead space — symmetric by the ruler,
-       visibly broken on screen.
-     - Any `.tier ul + .tier__cta` spacing rule beside an `auto` margin silently outranks it
-       (0,2,1 vs 0,1,0) and replaces the alignment with a fixed margin, which looks exactly
-       like working spacing while doing the opposite.
-   The buttons therefore do NOT share a y-position — Core's list is twice Free's. The
-   2026-08-22 ruling stands and #3549 restates it: do not "fix" it. */
-.tier__foot { border-top: 1px solid var(--color-border-default); padding-top: var(--space-300); margin-top: var(--space-050); }
-.tier__cta { align-self: flex-start; }
-/* Core's two negative-option disclosure lines (FTC / EU-UK auto-renewal, ADR 0145). Quiet
-   caption directly under the button they qualify — they are what makes an auto-renewing
-   trial CTA lawful to offer, so they travel WITH the CTA and never wrap to another region.
+@media (min-width: 640px) { .tier__line { padding: 1.375rem var(--space-400) 0; } }
+/* Card foot: the CTA, and on the paid cards its disclosure, under a border.default rule
+   (site-prelaunch.md §3: "each card gains the same quiet outline button — equal weight";
+   stock-analyst-platform#2513/#2514). Identical `.btn-quiet` on every tier — the labels differ
+   because the actions differ, nothing else does. `align-items: flex-start` keeps the button at
+   its content's width. Above 860px the foot is the third subgrid row, so all three rules and
+   buttons share one y-position; that is the two-card page's "do not fix it" (#3549) reversed on
+   purpose by ruling 3, now that one mechanism aligns them without stranding any card. */
+.tier__foot {
+  margin: 1.25rem 1.25rem 1.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-border-default);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+@media (min-width: 640px) { .tier__foot { margin: 1.375rem var(--space-400) 1.75rem; } }
+/* The paid cards' two negative-option disclosure lines (FTC / EU-UK auto-renewal, ADR 0145;
+   Amendment 9 for Premium). Quiet caption directly under the button they qualify — they are
+   what makes an auto-renewing trial CTA lawful to offer, so they travel WITH the CTA and never
+   wrap to another region.
    Free carries none because Free auto-charges nothing: §6.2 bars ranking tiers, not a
    disclosure one tier owes and the other does not. */
 .tier__disclosure {
@@ -1409,9 +1427,84 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   max-width: 42ch;
   margin: var(--space-150) 0 0;
 }
-/* Centred under the cards since v2.40 — the page's axis is the band's, not the column's. */
-.mor-line { font-size: var(--font-size-200); color: var(--color-text-muted); max-width: 65ch; text-align: center; margin: var(--space-400) auto var(--space-800); }
-@media (min-width: 640px) { .mor-line { margin-block: 2.5rem 5rem; } }
+/* Centred under the cards since v2.40 — the page's axis is the band's, not the column's. The
+   section table now follows it, so its closing margin is the table's opening one. */
+.mor-line { font-size: var(--font-size-200); color: var(--color-text-muted); max-width: 65ch; text-align: center; margin: var(--space-400) auto 0; }
+
+/* ── Section-by-plan table (ADR 0912 Amendment 1 ruling 2, #3829) ───────────────────────
+   One list, grouped by the plan that adds each section, rendered from src/data/sections.mjs.
+   Measures are the build reference's; 72/96/104px margins and the 84/128px plan columns have
+   no member on the space scale. */
+.plans { max-width: 58rem; margin: 4.5rem auto 5rem; }
+@media (min-width: 640px) { .plans { margin-block: 6rem 6.5rem; } }
+.plans__title {
+  margin: 0;
+  font-family: var(--font-family-serif);
+  font-size: 1.75rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+@media (min-width: 640px) { .plans__title { font-size: var(--font-size-800); } }
+.plans__lead { margin: var(--space-150) 0 0; max-width: 60ch; font-size: 1.0625rem; color: var(--color-text-secondary); text-wrap: pretty; }
+.plans__table-wrap { margin-top: var(--space-400); overflow-x: auto; border-top: 1px solid var(--color-border-strong); }
+.plans__table { width: 100%; border-collapse: collapse; }
+.plans__plan-col { width: 5.25rem; }
+@media (min-width: 640px) { .plans__plan-col { width: 8rem; } }
+.plans__table thead th {
+  padding: 0.875rem var(--space-050);
+  border-bottom: 1px solid var(--color-border-strong);
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--font-letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+.plans__table thead th:first-child { padding-left: 0; text-align: left; }
+.plans__price {
+  display: block;
+  margin-top: var(--space-025);
+  font-family: var(--font-family-mono);
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-regular);
+  letter-spacing: var(--font-letter-spacing-normal);
+  text-transform: none;
+}
+.plans__table tbody th { padding: var(--space-150) var(--space-150) var(--space-150) 0; vertical-align: top; text-align: left; font-weight: var(--font-weight-semibold); color: var(--color-text-primary); }
+.plans__tag { display: block; margin-top: var(--space-025); font-size: var(--font-size-200); font-weight: var(--font-weight-regular); color: var(--color-text-muted); text-wrap: pretty; }
+.plans__table tbody td { padding: 0.875rem var(--space-050); vertical-align: top; text-align: center; }
+.plans__table tbody tr + tr > * { border-top: 1px solid var(--color-border-default); }
+/* The group heading row: a border.strong rule opens each group but the first, which already
+   sits under the header's own rule. Compounded selectors rather than !important. */
+.plans__table .plans__group > th {
+  padding: 1.375rem 0 var(--space-100);
+  border-top: 1px solid var(--color-border-strong);
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--font-letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.plans__table tbody:first-of-type .plans__group > th { border-top: none; }
+.plans__count { margin-left: 0.375rem; font-family: var(--font-family-mono); letter-spacing: var(--font-letter-spacing-normal); color: var(--color-text-secondary); }
+/* Ink dot, not a tick (ADR 0912 bars ticks) and not the accent (navy marks actions only). */
+.plans__table .dot { display: inline-block; width: 9px; height: 9px; margin-top: 7px; border-radius: 50%; background: var(--color-text-primary); }
+.plans__table .none { display: inline-block; width: 10px; height: 1px; margin-top: 11px; background: var(--color-border-strong); }
+.plans__table tfoot th,
+.plans__table tfoot td { padding: 0.875rem var(--space-050); border-top: 1px solid var(--color-border-strong); }
+.plans__table tfoot th { padding-left: 0; text-align: left; font-weight: var(--font-weight-semibold); color: var(--color-text-secondary); }
+.plans__table tfoot td {
+  text-align: center;
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  font-size: var(--font-size-500);
+  font-weight: var(--font-weight-semibold);
+}
+.plans__foot { margin: 1.25rem 0 0; max-width: 60ch; font-size: var(--font-size-200); color: var(--color-text-muted); }
+.plans__foot + .plans__foot { margin-top: var(--space-100); }
 
 /* ── Policy template ─────────────────────────────────────────────────── */
 .policy { max-width: 70ch; }
@@ -1501,3 +1594,206 @@ main { padding-block-end: var(--space-800); }
 .pf-tickfig { font-family: var(--font-family-mono); font-size: 9px; }
 .pf-tickfig--strike { fill: var(--color-text-primary); }
 .pf-tickfig--breakeven { fill: var(--color-text-secondary); }
+
+/* ══ Homepage v3.4 (stock-analyst-platform#3829) ══════════════════════════════════════════════
+   Build reference ai-team/design/assets/homepage-3818-v3-2026-09-23.html (ADR 0991), ported rule by
+   rule. Every colour binds a token: where the artifact hard-codes a hex, it is the value a token
+   already resolves to and the token is used instead (the P/L green and red are the app's
+   signal.positive/negative light values, #14684B/#A33028, behind the containment-safe
+   `var(--color-signal-*, fallback)` form; the "Run the … analysis" pill is the accent surface). */
+
+/* Hero: the connect CTA is the filled button now, and the ticker box is the second door. */
+.hero .hero__cta.btn-filled { font-size: var(--font-size-400); min-height: 48px; padding: 0 var(--space-400); }
+.hero .entry-box input {
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-border-interactive);
+  box-shadow: inset 0 1px 2px color-mix(in srgb, var(--color-text-primary) 7%, transparent);
+  font-size: var(--font-size-400);
+  min-height: 52px;
+}
+.hero .entry-box input::placeholder { color: var(--color-text-muted); }
+.hero .entry-box input:focus {
+  border-color: var(--color-accent-default);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent-default) 22%, transparent);
+  outline: none;
+}
+.hero .entry-box__submit { font-size: var(--font-size-400); min-height: 52px; }
+
+/* The hero deck: every card in one grid cell, stacked by data-pos (public/js/hero-deck.js). With no
+   script the server-rendered first state stands: card 0 in front, two fanned behind it, the rest
+   hidden. The front card keeps the Outlook band's v2.38 −1.5° tilt. */
+.deck-fig { display: flex; flex-direction: column; gap: var(--space-150); margin: 0; padding-block: var(--space-300); }
+.deck { display: grid; grid-template-columns: minmax(0, 1fr); margin: 18px 30px 0 0; position: relative; }
+@media (max-width: 959px) { .deck { margin-right: 26px; } }
+.dcard {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  padding: var(--space-200);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-medium);
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--color-text-primary) 30%, transparent),
+    0 16px 36px -12px color-mix(in srgb, var(--color-text-primary) 40%, transparent);
+}
+.deck > .dcard {
+  grid-area: 1 / 1;
+  transition: transform 0.7s cubic-bezier(0.2, 0.75, 0.2, 1), opacity 0.7s ease;
+}
+@media (prefers-reduced-motion: reduce) { .deck > .dcard { transition: none; } }
+.deck .dcard[data-pos="0"] { opacity: 1; transform: rotate(-1.5deg); z-index: 6; }
+.deck .dcard[data-pos="1"] { opacity: 1; transform: translate(12px, -12px) rotate(0.5deg); z-index: 5; }
+.deck .dcard[data-pos="2"] { opacity: 1; transform: translate(24px, -22px) rotate(2.5deg); z-index: 4; }
+.deck .dcard:not([data-pos]),
+.deck .dcard[data-pos="3"],
+.deck .dcard[data-pos="4"],
+.deck .dcard[data-pos="5"] { opacity: 0; transform: translate(24px, -22px) rotate(2.5deg); z-index: 1; }
+.deck .dcard.leaving { opacity: 0; transform: translate(-30%, 6%) rotate(-9deg); z-index: 7; }
+.deck .dcard:not([data-pos="0"]) * { pointer-events: none; }
+.dcard--outlook { background: transparent; border: 0; box-shadow: none; overflow: visible; padding: 0; }
+.dcard--outlook .proof__band { display: flex; flex-direction: column; height: 100%; transform: none; }
+.dcard--outlook .proof__hzrow { margin-top: auto; }
+.dcard__hd { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-100); margin-bottom: 6px; }
+.dcard__ttl { font-family: var(--font-family-serif); font-weight: var(--font-weight-semibold); }
+.dcard__note { font-family: var(--font-family-mono); font-size: var(--font-size-100); color: var(--color-text-muted); }
+.dcard__fill { display: flex; align-items: center; flex: 1 1 auto; min-height: 0; padding: 4px 0; }
+.dcard__fill > svg { display: block; width: 100%; height: auto; margin: 0; }
+.dcard .figs3, .dcard .pv__rule { margin-top: auto; }
+.dcard .pv__rule + .figs3 { margin-top: 0; }
+.dcard .pf-chart { margin: 6px 0 4px; }
+.t-chart--hero { display: block; width: 100%; height: auto; }
+.nw { white-space: nowrap; }
+
+.deck-ctl { display: flex; align-items: center; gap: var(--space-150); margin-top: 6px; }
+.deck-pause {
+  min-height: 30px;
+  padding: 6px 10px;
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 4px;
+  color: var(--color-text-secondary);
+  font: var(--font-weight-medium) 12.5px/1 var(--font-family-sans);
+  cursor: pointer;
+}
+.deck-dots { display: flex; gap: 6px; }
+.deck-dot { width: 10px; height: 10px; padding: 0; background: transparent; border: 1px solid var(--color-text-muted); border-radius: 50%; cursor: pointer; }
+.deck-dot[aria-current="true"] { background: var(--color-text-primary); border-color: var(--color-text-primary); }
+.deck-name { font-family: var(--font-family-mono); font-size: 11.5px; color: var(--color-text-muted); }
+
+/* Three figures under a card: label over value, hairline-divided. */
+.figs3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 6px; border-top: 1px solid var(--color-border-default); }
+.figs3 div { padding: 6px 8px 0; border-left: 1px solid var(--color-border-default); }
+.figs3 div:first-child { padding-left: 0; border-left: 0; }
+.figs3 span { display: block; font-size: 10.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-text-muted); }
+.figs3 b { font-family: var(--font-family-mono); font-size: 14px; font-weight: var(--font-weight-medium); }
+
+/* Your Portfolio and one opened position. */
+.pc-head, .pos-hd { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-100); }
+.pc-ttl { font-family: var(--font-family-serif); font-size: 17px; font-weight: var(--font-weight-semibold); }
+.pc-note { font-family: var(--font-family-mono); font-size: 10.5px; color: var(--color-text-muted); }
+.dcard[data-key="portfolio"] .pc-head, .pv__card .pc-head { display: none; }
+.pc-acct {
+  display: flex;
+  gap: 18px;
+  margin: 4px 0 2px;
+  padding: 5px 0;
+  border-block: 1px solid var(--color-border-default);
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+}
+.pc-acct b { margin-left: 4px; font-family: var(--font-family-mono); font-size: 12.5px; font-weight: var(--font-weight-medium); letter-spacing: 0; color: var(--color-text-primary); }
+/* .pc-acct b's own specificity (0,1,1) beats the bare .up/.dn rules above (0,1,0), so neither ever
+   actually reached OPEN P/L's figure — verified live: adding bare .dn alone left it rendering
+   --color-text-primary, not signal-negative. A pre-existing bug (bare .up was equally overridden;
+   it went unnoticed because the header was always positive until #3963 item 1's fix). These beat
+   .pc-acct b's specificity on purpose. */
+.pc-acct b.up { color: var(--color-signal-positive, #14684B); }
+.pc-acct b.dn { color: var(--color-signal-negative, #A33028); }
+.pc-row { display: grid; grid-template-columns: minmax(0, 1fr) auto 10px; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--color-border-default); }
+.pc-tk { font-family: var(--font-family-mono); font-size: 13.5px; font-weight: var(--font-weight-semibold); color: var(--color-accent-default); }
+.pc-st { font-size: 12px; color: var(--color-text-secondary); }
+.pc-rule { margin-top: 1px; font-size: 12px; color: var(--color-text-primary); }
+.pc-rule i { display: inline-block; width: 13px; font-style: normal; }
+.pc-r { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; }
+.pc-pl { font-family: var(--font-family-mono); font-size: 13px; font-weight: var(--font-weight-medium); }
+/* Bare .up/.dn are the header figures' own classes (PortfolioCard's OPEN P/L, no .pc-pl prefix);
+   .pc-pl.up/.dn are the row figures'. Both need their own rule — .pc-pl.dn alone left a bare .dn
+   with no color at all, invisible until PORTFOLIO#3963 item 1's fix turned the header from a
+   positive figure (bare .up, always styled) into a loss (bare .dn, never was). */
+.up, .pc-pl.up { color: var(--color-signal-positive, #14684B); }
+.dn, .pc-pl.dn { color: var(--color-signal-negative, #A33028); }
+.pc-pct { font-family: var(--font-family-mono); font-size: 10.5px; color: var(--color-text-muted); }
+.pc-run {
+  margin-top: 2px;
+  padding: 3px 5px;
+  background: var(--accent-surface-pill);
+  border: 1px solid var(--accent-surface-border);
+  border-radius: 3px;
+  color: var(--accent-surface-marker);
+  font: var(--font-weight-semibold) 10.5px/1 var(--font-family-sans);
+  white-space: nowrap;
+}
+.pc-chev { color: var(--color-text-muted); }
+.pc-foot { padding-top: 6px; font-size: 11px; color: var(--color-text-muted); }
+/* No hardcoded color here (Designer's PR #89 review, non-blocking but same family as the .pc-pl
+   fix above): NVDA's canonical spread is always profitable in this fixture today, which hid that
+   this figure's color never actually depended on its own sign. `.pos-pl.up`/`.pos-pl.dn`, matching
+   the `.pc-pl` pattern, so a future negative figure here colors correctly rather than staying green. */
+.pos-pl { font-family: var(--font-family-mono); font-size: 17px; white-space: nowrap; }
+.pos-pl.up { color: var(--color-signal-positive, #14684B); }
+.pos-pl.dn { color: var(--color-signal-negative, #A33028); }
+.pos-pl small { font-size: 11.5px; color: var(--color-text-muted); }
+
+/* The analysis band: the plan chip, the 2×2 levels grid, the Outlook card's three horizons. */
+.plan-tag {
+  margin-left: var(--space-100);
+  padding: 2px 4px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 3px;
+  color: var(--color-text-muted);
+  font: var(--font-weight-semibold) 9.5px/1 var(--font-family-sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  vertical-align: 2px;
+}
+.band-mini .kv-grid--2 { grid-template-columns: repeat(2, 1fr); padding: var(--space-100) 0 0; row-gap: var(--space-100); }
+.band-mini--ok .okh { padding: 5px 0 4px; border-top: 1px solid var(--color-border-default); }
+.band-mini--ok .okh:first-child { padding-top: 0; border-top: 0; }
+.band-mini--ok > .sub { margin: 4px 0 0; }
+.band-mini--ok .okh__r { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-100); }
+.band-mini--ok .okh b { font-family: var(--font-family-mono); font-size: var(--font-size-100); font-weight: var(--font-weight-medium); letter-spacing: 0.08em; color: var(--color-accent-default); }
+.band-mini--ok .proj-v { font-family: var(--font-family-mono); font-weight: var(--font-weight-medium); color: var(--color-text-primary); }
+.band-mini--ok .okh i { display: block; padding-top: 2px; font-size: var(--font-size-100); font-style: normal; line-height: 1.35; color: var(--color-text-secondary); }
+
+/* How the sections become three projected prices. */
+.synth__inner { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); align-items: center; gap: var(--space-600); padding-block: var(--space-600); }
+@media (max-width: 959px) { .synth__inner { grid-template-columns: minmax(0, 1fr); } }
+.synth__p, .pv__p { margin: var(--space-200) 0 0; font-size: var(--font-size-400); color: var(--color-text-secondary); }
+.synth__p { max-width: 46ch; }
+.synth__more { margin: var(--space-300) 0 0; }
+.synth__link { color: var(--color-accent-default); font-weight: 500; }
+.chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.chips span { padding: 3px 10px; background: var(--color-bg-raised); border: 1px solid var(--color-border-strong); border-radius: 99px; font-size: 12.5px; color: var(--color-text-secondary); }
+.converge { display: block; width: 100%; height: 46px; }
+.converge path { fill: none; stroke: var(--color-border-strong); }
+.synth__outlook .proof__band { transform: none; }
+
+/* Your book, checked against your own rules. */
+.pv .container { padding-block: var(--space-600); }
+.pv__p { max-width: 60ch; }
+.pv__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-400); margin-top: var(--space-400); }
+@media (max-width: 959px) { .pv__grid { grid-template-columns: minmax(0, 1fr); } }
+.pv__rule { display: flex; justify-content: space-between; margin-top: 6px; padding: 6px 0; border-top: 1px solid var(--color-border-default); font-size: 13px; }
+.pv__rule span:last-child { font-family: var(--font-family-mono); font-size: 12px; color: var(--color-text-secondary); }
+.pv__paths { padding-top: 6px; border-top: 1px solid var(--color-border-default); font-size: 12.5px; color: var(--color-accent-default); }
+
+.connect .connect__head { max-width: 32ch; }
+.pricing-stat__more { max-width: 30ch; margin: var(--space-100) 0 0; font-size: var(--font-size-200); color: var(--color-text-secondary); }
+
+/* The phone shows Your Portfolio: each row's P/L floats right of its title, its rule beneath. */
+.phone__pl { float: right; }
+.phone__rule { margin: 2px 0 0; font-size: 11px; }
+.phone__rule i { font-style: normal; }

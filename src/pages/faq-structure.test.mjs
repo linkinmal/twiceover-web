@@ -25,6 +25,9 @@ beforeAll(() => {
 
 const BEFORE_SIGNUP_GROUP = [
   "What is TwiceOver, exactly?",
+  // The two Outlook questions (consult 0987 §2, #3829) join after the first.
+  "How is the Outlook different from a price target?",
+  "Does every plan get the same Outlook?",
   "Can TwiceOver trade on my behalf?",
   "Where does the data come from?",
   "Do I need to connect my brokerage to use it?",
@@ -43,7 +46,7 @@ const NEW_FIVE = [
 ];
 
 describe("FAQ grouping (#2534)", () => {
-  it("splits the thirteen items into two labeled groups in spec order, unreordered within each", () => {
+  it("splits the fifteen items into two labeled groups in spec order, unreordered within each", () => {
     const beforeIdx = faqList.indexOf(">Before you sign up<");
     const onceIdx = faqList.indexOf(">Once you're in<");
     expect(beforeIdx, '"Before you sign up" heading present').toBeGreaterThan(-1);
@@ -75,7 +78,7 @@ describe("FAQ grouping (#2534)", () => {
   it("keeps accordion mechanics unchanged — exactly one open item, borders on every entry", () => {
     const detailsCount = (faqList.match(/<details/g) || []).length;
     const openCount = (faqList.match(/<details open/g) || []).length;
-    expect(detailsCount, "thirteen total items").toBe(13);
+    expect(detailsCount, "fifteen total items").toBe(15);
     expect(openCount, "only one item starts open").toBe(1);
     // The one open item is the very first item of the whole list, not per-group.
     const firstDetailsIdx = faqList.indexOf("<details");
@@ -118,7 +121,7 @@ describe("FAQ chevron (#2532)", () => {
   it("gives every item a chevron affordance that rotates open, cross-browser", () => {
     const chevronCount = (faqList.match(/faq__chevron/g) || []).length;
     // One SVG per summary (13 markup occurrences) — CSS selectors add more hits below.
-    expect(chevronCount, "a chevron element in every one of the thirteen summaries").toBeGreaterThanOrEqual(13);
+    expect(chevronCount, "a chevron element in every one of the fifteen summaries").toBeGreaterThanOrEqual(15);
     expect(faqList, "chevron is an aria-hidden decorative SVG, matching the trust-card icon convention").toMatch(
       /<svg class="faq__chevron"[^>]*viewBox="0 0 24 24"[^>]*aria-hidden="true"/
     );

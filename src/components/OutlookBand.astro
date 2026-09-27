@@ -1,0 +1,37 @@
+---
+/**
+ * The Outlook band — the product's real projection chart on the reserved accent surface
+ * (stock-analyst-platform#2987; homepage v3.4, #3829). One component, rendered twice on the page:
+ * the hero deck's first card and the synthesis section's Outlook. Build reference
+ * `ai-team/design/assets/homepage-3818-v3-2026-09-23.html`.
+ *
+ * The figure above the plot is `PRICE_CAPTION` ("price" + the spot + the last close date, v3.69 /
+ * ADR 0992), never inside it: on the dip shape the path descends into the label's own band. Each horizon label splits
+ * into NEAR + "2 WEEKS" so a narrow container can stack the two (`@container`, site.css) instead of
+ * clipping — the band is a size container for exactly that.
+ */
+import OutlookPathChart from "./OutlookPathChart.astro";
+import { AS_OF_CLOCK, HERO_OUTLOOK, HORIZON_CARDS, OUTLOOK_HISTORY, PRICE_CAPTION, money } from "../charts/site-fixture.mjs";
+
+const byKey = Object.fromEntries(HERO_OUTLOOK.horizons.map((h) => [h.horizon, h.price]));
+---
+
+<div class="proof__band">
+  <div class="proof__band-hd">
+    <span class="proof__band-ttl">Outlook</span>
+    <span class="proof__band-note">synthesis · conditional · as of {AS_OF_CLOCK}</span>
+  </div>
+  <p class="proof__chartcap">{PRICE_CAPTION}</p>
+  <OutlookPathChart history={OUTLOOK_HISTORY} />
+  <div class="proof__hzrow">
+    {HORIZON_CARDS.map((c) => {
+      const [k, d] = c.label.split(" · ");
+      return (
+        <div class="proof__hz">
+          <div class="proof__hz-k">{k}<span class="hz-sep"> · </span><span class="hz-d">{d}</span></div>
+          <div class="proof__hz-v">{money(byKey[c.key])}</div>
+        </div>
+      );
+    })}
+  </div>
+</div>

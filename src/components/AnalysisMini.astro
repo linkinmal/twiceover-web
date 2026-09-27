@@ -1,129 +1,81 @@
 ---
-// Per-section miniature fixture render used by AnalysisBand.astro's eight cards.
-// Illustrative-only figures (site-prelaunch.md §2 carousel band) — same canonical
-// NVDA/AAPL fixture used throughout the page, no invented market data.
-// The Outlook card's three projections come from the page's ONE fixture (charts/site-fixture.mjs),
-// not from literals here. Route (b), founder-decided 2026-08-31 (#2987): the published 184 / 195 /
-// 210 climbed monotonically and are replaced by the dip-shaped 178 / 192 / 205 EVERYWHERE the site
-// states them. This card was the "everywhere" — three figures in markup, beside a hero chart that
-// had already been corrected twice, which is precisely why they now share a source.
-import { HERO_OUTLOOK, money, TECHNICALS_ROWS } from "../charts/site-fixture.mjs";
+// One band card's miniature, drawn from blocks (homepage v3.4, stock-analyst-platform#3829; the
+// explainer's page 1, ADR 0993). The homepage feeds it the NVDA cards (`BAND_CARDS`,
+// charts/site-fixture.mjs); "How our analysis works" feeds it the EXMP cards (`EXMP_BAND_CARDS`,
+// charts/exmp-fixture.mjs) — "the homepage band's own card renderers, fed EXMP figures" (ADR 0993),
+// so the two pages draw each section the same way. Every figure is the fixture's; nothing is typed here.
+//
+// Block vocabulary: kv / kv2 (label-over-value grid), row (label · value), sub, narr, chips (subject vs
+// median), news, post, mra (the risk-appetite axis), okh (the Outlook's three horizons), chart.
 import TechnicalsPriceChart from "./TechnicalsPriceChart.astro";
-
-const projection = Object.fromEntries(
-  HERO_OUTLOOK.horizons.map((h) => [h.horizon, money(h.price).replace(/\.00$/, "")]),
-);
+import { BAND_CARDS, riskAxisLeft } from "../charts/site-fixture.mjs";
 
 interface Props {
-  kind: "fund" | "tech" | "sect" | "peer" | "news" | "voic" | "macr" | "outl";
+  kind: string;
+  cards?: Record<string, Array<Record<string, any>>>;
 }
-const { kind } = Astro.props;
+const { kind, cards = BAND_CARDS } = Astro.props;
+const blocks = cards[kind];
+const fmtNet = (n: number) => `${n < 0 ? "−" : "+"}${Math.abs(n).toFixed(2)}`;
 ---
-<div class="band-mini">
-  {kind === "fund" && (
+<div class={kind === "outlook" ? "band-mini band-mini--ok" : "band-mini"}>
+  {blocks.map((b) => (
     <>
-      <div class="kv-grid">
-        <div><span class="kl">Revenue</span><span class="kv">$88.5B</span></div>
-        <div><span class="kl">EPS</span><span class="kv">$8.32</span></div>
-        <div><span class="kl">Mkt cap</span><span class="kv">$2.8T</span></div>
-      </div>
-      <div class="row"><span>Next earnings</span><span class="v">Aug 27</span></div>
-    </>
-  )}
-  {kind === "tech" && (
-    <>
-      {/* The chart goes ABOVE the four rows, which stay (#2992) — that reproduces the real section's
-          composition rather than inventing a "mini". Its own compact state, never a shrunk desktop
-          chart: this card is a fixed ~239px slot at every viewport.
-
-          The rows now read from the SAME fixture object the chart's level candidates come from, so
-          the two literally cannot disagree — #2992 requires the card's chart and its rows to state
-          the same figures, and four hand-typed rows beside a computed chart is exactly the shape
-          that drifts. */}
-      <div class="band-mini__chart"><TechnicalsPriceChart variant="compact" /></div>
-      {TECHNICALS_ROWS.map((r) => (
-        <div class="row"><span>{r.label}</span><span class="v">{r.value}</span></div>
+      {b.chart === "technicals" && (
+        /* Its own compact state, never a shrunk desktop chart: this card is a fixed ~239px slot. */
+        <div class="band-mini__chart"><TechnicalsPriceChart variant="compact" /></div>
+      )}
+      {b.kv && (
+        <div class="kv-grid">
+          {b.kv.map(([l, v]) => <div><span class="kl">{l}</span><span class="kv">{v}</span></div>)}
+        </div>
+      )}
+      {b.kv2 && (
+        <div class="kv-grid kv-grid--2">
+          {b.kv2.map(([l, v]) => <div><span class="kl">{l}</span><span class="kv">{v}</span></div>)}
+        </div>
+      )}
+      {b.row && <div class="row"><span>{b.row[0]}</span><span class="v">{b.row[1]}</span></div>}
+      {b.sub && <p class="sub">{b.sub}</p>}
+      {b.narr && <p class="narr">{b.narr}</p>}
+      {b.chips && (
+        <div class="chip-pair">
+          {b.chips.map(([subject, median]) => <span>{subject} <em>{median}</em></span>)}
+        </div>
+      )}
+      {b.news && (
+        <p class="narr narr--news"><strong>{b.news[0]}</strong> · {b.news[1]} — {b.news[2]} <span class="sub">· {b.news[3]}</span></p>
+      )}
+      {b.post && (
+        <p class="narr narr--post"><span class="handle">@handle</span><span class="sub"> · {b.post[0]} — </span>{b.post[1]} <span class="src">X ↗</span></p>
+      )}
+      {b.mra !== undefined && (
+        /* The product's real `.macro-risk-axis` anatomy (#2995; build reference
+           site-charts-hero-2026-08-30.html §8): hairline rule, three ticks with the zero tick
+           full-height and heavier, a 2px marker, the net value above the marker, and the product's
+           own Cautious/Supportive bounds. The marker and the value take ONE position, riskAxisLeft. */
+        <div class="mra">
+          <span class="mra__num" style={`left:${riskAxisLeft(b.mra)}%`}>{fmtNet(b.mra)}</span>
+          <div class="mra__rail" aria-hidden="true">
+            <span class="mra__line"></span>
+            <span class="mra__tick mra__tick--min" style="left:0%"></span>
+            <span class="mra__tick mra__tick--zero" style="left:50%"></span>
+            <span class="mra__tick mra__tick--max" style="left:100%"></span>
+            <span class="mra__mark" style={`left:${riskAxisLeft(b.mra)}%`}></span>
+          </div>
+          <div class="mra__scale">
+            <span><span class="mra__bound">−1.00</span> <b>Cautious</b></span>
+            <span class="mra__bound">0</span>
+            <span><b>Supportive</b> <span class="mra__bound">+1.00</span></span>
+          </div>
+        </div>
+      )}
+      {b.okh && b.okh.map(([label, value, cond]) => (
+        <div class="okh">
+          <div class="okh__r"><b>{label}</b><span class="proj-v">{value}</span></div>
+          {cond && <i>{cond}</i>}
+        </div>
       ))}
     </>
-  )}
-  {kind === "sect" && (
-    <>
-      <p class="narr">Technology — sector strength increasing; valuation premium compressing.</p>
-      <p class="sub">unit narrative · the sector, not the stock</p>
-    </>
-  )}
-  {kind === "peer" && (
-    <>
-      <div class="chip-pair">
-        <span>P/E 32.1 <em style="font-style:normal;color:var(--color-text-muted)">vs 28.5</em></span>
-        <span>3M +8.2% <em style="font-style:normal;color:var(--color-text-muted)">vs +4.1%</em></span>
-      </div>
-      <div class="row"><span>MSFT</span><span class="v">P/E 28.3 · +5.2%</span></div>
-      <p class="sub">open table · subject vs peer median</p>
-    </>
-  )}
-  {kind === "news" && (
-    <>
-      <p class="narr"><strong>Earnings</strong> · Aug 14 — beats Q2 estimates <span class="sub">· Reuters</span></p>
-      <p class="sub">why it matters: could signal AI demand continuing</p>
-      <div class="row"><span>Catalysts</span><span class="v">Aug 27 earnings</span></div>
-    </>
-  )}
-  {kind === "voic" && (
-    <>
-      <p class="sub">via X</p>
-      <p class="narr"><span class="handle">@handle</span><span class="sub"> · Aug 13 — </span>constructive on the AI chip cycle into year-end; capacity, not demand, is the constraint. <span class="src">X ↗</span></p>
-      <p class="sub">Each post named and linked in a real read.</p>
-    </>
-  )}
-  {kind === "macr" && (
-    <>
-      <div class="row"><span>Tactical</span><span class="v">Fed on hold</span></div>
-      <div class="row"><span>Strategic</span><span class="v">Soft landing</span></div>
-      {/* The product's real `.macro-risk-axis` anatomy, not an invented bar-and-dot (#2995,
-          site-prelaunch.md v2.32 §2; build reference site-charts-hero-2026-08-30.html §8).
-          Hairline rule, three ticks with the zero tick full-height and heavier, a 2px marker, the
-          net value above the marker, and the product's own Cautious/Supportive bounds — never the
-          words "defensive / Balanced / risk-on", which the product does not use.
-
-          net +0.35 → (0.35 + 1) / 2 = 67.5%, the artifact's own figure and position. The two are
-          derived from one number in the real component; kept in step here by construction. */}
-      <div class="mra">
-        <span class="mra__num" style="left:67.5%">+0.35</span>
-        <div class="mra__rail" aria-hidden="true">
-          <span class="mra__line"></span>
-          <span class="mra__tick mra__tick--min" style="left:0%"></span>
-          <span class="mra__tick mra__tick--zero" style="left:50%"></span>
-          <span class="mra__tick mra__tick--max" style="left:100%"></span>
-          <span class="mra__mark" style="left:67.5%"></span>
-        </div>
-        <div class="mra__scale">
-          <span><span class="mra__bound">−1.00</span> <b>Cautious</b></span>
-          <span class="mra__bound">0</span>
-          <span><b>Supportive</b> <span class="mra__bound">+1.00</span></span>
-        </div>
-      </div>
-    </>
-  )}
-  {kind === "outl" && (
-    <>
-      <p class="sub" style="padding-bottom:4px">Synthesis</p>
-      <div class="horizon">
-        <b>NEAR · DAYS–WEEKS</b>
-        <span class="proj">Our projection lands at <span class="proj-v">{projection.near}</span></span>
-        <i>constructive while the recent range holds</i>
-      </div>
-      <div class="horizon">
-        <b>MID · 1–3 MONTHS</b>
-        <span class="proj">Our projection lands at <span class="proj-v">{projection.mid}</span></span>
-        <i>structure intact absent a trend change</i>
-      </div>
-      <div class="horizon">
-        <b>FAR · QUARTERS</b>
-        <span class="proj">Our projection lands at <span class="proj-v">{projection.far}</span></span>
-        <i>hinges on how the macro regime resolves</i>
-      </div>
-      <p class="sub" style="padding-top:4px">Our projection, not a guarantee — you decide.</p>
-    </>
-  )}
+  ))}
 </div>

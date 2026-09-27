@@ -21,77 +21,34 @@
 // The chooser block remains unbuilt — it is separate copy, not part of #2513/#2514.
 // Labels differ per site-copy-twiceover.md §Pricing (signed off); the CTA *treatment* is
 // identical, which is what §6.2 and site-prelaunch.md §3's "equal weight" govern.
-// Core's two sub-lines are the negative-option disclosure (ADR 0145, FTC/EU-UK
+// The paid cards' two sub-lines are the negative-option disclosure (ADR 0145, FTC/EU-UK
 // auto-renewal) — verbatim, legal-flagged; they are not decoration and never ship
-// without the CTA they qualify, nor it without them.
-// "No card required" was trimmed from the #1307 canonical draft (human direction
-// 2026-07-22) and restored (2026-08-22, stock-analyst-platform#2567): it had been dropped
-// as redundant on a card with no CTA/checkout to contrast against, and #2513/#2514
-// falsified that premise by adding one, so it now has the contrast it was dropped for
-// lacking (a card-required CTA beside it). The PM's site-copy-twiceover.md re-derivation
-// (routed from #2544) ratified restoring it, in the same pass that added the
-// Sector/Voices/news-wire bullets below.
-// Its companion "— ongoing, not a trial" is NO LONGER on this page: both cap bullets lost
-// their trailing clause under the C4 redesign (2026-09-04, founder direction on #3545,
-// ratified into ai-team/pm/site-copy-pricing.md by #3548) — see the cap-figure note below.
-// The "ongoing, not a trial" fact itself is not lost; it still reads in site-copy-pricing.md's
-// "Two ways to start" paragraph, which this page has never built.
-// "Any ticker" → "any US-listed
-// ticker" per consult 0416 (PM ruling): the product is US-only by design (ADR
-// 0027/0028) and US-venue-scoped by construction; inline qualifier, not a footnote,
-// to preserve tier-card symmetry (spec §6.2).
-// Premium card removed (2026-08-02, stock-analyst-platform#1766/#1767): realizes
-// pricing-artifact.md's go-live gate (human direction, 2026-07-22) — while #1304
-// (live analyst research) is open, Premium is held out of checkout/pricing entirely
-// (hidden, not offered), matching the in-app Plans page's Free/Core state. Re-add
-// trigger: when #1304 and the deferred-layers.lit flip both close, re-add as its own
-// copy PR (content preserved in site-copy-twiceover.md's git history pre-2026-08-02).
-// Core card's options/research bullets narrowed (2026-08-22, stock-analyst-platform#2519,
-// ADR 0741): "Licensed market and options data" and "...and the research layer" claimed
-// two layers served on no tier (options-iv/options-chain/flow dark per ADR 0560 item 1;
-// analyst research Core "—" per pricing-artifact.md §3) on a page public+indexed since
-// 2026-07-21. Narrowed to what's actually served; re-add each half as its own bullet
-// when that layer ships and is licensed (site-copy-twiceover.md §Pricing has the ruling).
-// Free/Core bullets re-derived against live production flag state (2026-08-22,
-// stock-analyst-platform#2544/#2567): both cards omitted three things the product
-// already serves live. Sector regime & peer positioning (always-on, no tier gate —
-// layers.ts's `sector` carries no LAYER_MIN_TIER entry, #1233) belongs on both cards;
-// curated voices and the licensed news wire are Core-minimum entitlements
-// (LAYER_MIN_TIER: { voices: 'core', news: 'core' }) that were never listed on Core at
-// all — voices.lit retired (#2064), so "coming soon" no longer applies. Options
-// analytics stays correctly absent from both cards — that layer is still dark
-// (DEFERRED_LAYERS, ADR 0560).
-// Free card gains broker connect + structure math (2026-08-28, PM,
-// stock-analyst-platform#2822, realizes epic #2811; ADR 0751 Amendment 2, human
-// sign-off "go with A"). pricing-artifact.md §3's Broker read row now reads
-// `1 broker` on Free too (was `—`), and a new Position & structure math row is
-// `✓ (when connected)` on all three tiers — untiered: @twiceover/options-math
-// computes it from the broker-reported legs plus the live quote, no vendor licence,
-// no LAYER_MIN_TIER entry. Two bullets added below, worded to the artifact row
-// exactly. Still correctly absent from Free: options analytics (dark at every tier,
-// ADR 0560, unaffected), curated voices, and the licensed news wire (Core-minimum,
-// unchanged) — the two rows a connected Free account still lacks vs. Core.
-// Core gained its own cap line (2026-08-28, stock-analyst-platform#2862, realizes ADR
-// 0788 + consult 0792), mirroring Free's cap-first bullet — this page was the one gap left
-// after #2843 moved Free's cap to 10 without touching Core's.
-// BOTH caps are now figures in the card's figure block, not list bullets, and both lost
-// their trailing gloss (2026-09-04, ADR 0912 + #3549, ratified by #3548).
-// Re-set to "10 analyses a month" and "200 analyses a month" (2026-09-24,
-// stock-analyst-platform#3932): ADR 0960 moved the allowance to 10 / 200 / 300 (Core was 600;
-// Free's 10 and ADR 0788's cap-as-differentiator reasoning stand) and the app applied it
-// 2026-09-23; the unit noun is the #3817 copy deck's.
-// The landing page's Pricing strip captions are quotations of these two lines and move with
-// them in the same commit; pricing-strip-and-closing-band.test.mjs asserts that equality from
-// both surfaces, and pins the two numbers so both pages cannot drift together.
-// The landing page's closing-band paragraph states the same fact in its own longer sentence
-// ("Core raises that to 200 analyses a month. ..."). It is not a cap bullet and no test
-// derives it from this page; its wording is Growth's (#3932), pinned in that same test.
+// without the CTA they qualify, nor it without them. Premium's are Core's with $99 for $49:
+// ADR 0145 Amendment 9 gives Premium the same 14-day, card-required, auto-charge trial.
+// THREE PLANS (stock-analyst-platform#3829; ADR 0912 Amendment 1, build reference
+// ai-team/design/assets/pricing-page-c4-three-plans-2026-09-24.html, #3962; copy filled by
+// Growth on #3693). This supersedes the page's two-card history — the Premium card held out
+// (#1766/#1767), and the per-card feature lists that were narrowed and re-derived against
+// live flag state (#2519, #2544/#2567, #2822). That history is in git; what replaced it:
+//   - Each card carries ONE plan line, the homepage strip's own, verbatim (ruling 1). The
+//     feature lists drifted; the plans now differ only in which sections they include, and
+//     the section table below says that once.
+//   - The table renders from src/data/sections.mjs, the site's one section list (ruling 2,
+//     ADR 0990), so its rows, captions and 6 / 10 / 13 totals cannot disagree with the band.
+//   - A subgrid keeps the three CTAs level from 860px (ruling 3); below that the cards stack.
+//   - Premium's CTA is /go/plan-premium, not the reference's `/go/plan?tier=premium`: the
+//     forwarder drops unnamed params, so that URL would have opened Core's trial.
+// The caps are figures in the card's figure block (ADR 0912, #3549), set to 10 / 200 / 300
+// by ADR 0960 (#3932). The homepage strip's captions and plan lines quote these cards;
+// pricing-strip-and-closing-band.test.mjs asserts both equalities from both surfaces and
+// pins the three numbers so neither page can drift, nor both together.
 import Base from "../layouts/Base.astro";
+import { PLANS, sectionGroups, sectionsOn } from "../data/sections.mjs";
 
 // Offer JSON-LD (SEO audit 2026-07 finding 7) — the Accepted prices, verbatim from
 // pricing-artifact.md §1 (human sign-off 2026-06-30). No numbers invented here.
-// Premium omitted (#1766/#1767) — the go-live gate holds it out of pricing entirely;
-// a structured-data Offer is as much an advertisement of it as the visible card.
+// Premium joins with its card (#3829) — a structured-data Offer advertises a plan as much as
+// the visible card does, so the two appear and go together.
 // url/availability/per-offer url (SEO re-audit 2026-08-23, stock-analyst-platform#2634): the site is
 // trailingSlash: "never", so the old "/pricing/" 307-redirected to the real canonical — dropped the
 // trailing slash. Each offer now also carries its own url (the live CTA it's actually redeemed
@@ -118,8 +75,20 @@ const productJsonLd = {
       availability: "https://schema.org/InStock",
       url: "https://twiceover.io/go/plan",
     },
+    {
+      "@type": "Offer",
+      name: "Premium",
+      price: "99",
+      priceCurrency: "USD",
+      availability: "https://schema.org/InStock",
+      url: "https://twiceover.io/go/plan-premium",
+    },
   ],
 };
+
+const groups = sectionGroups();
+// One row of marks per section: included from the plan that adds it upward.
+const includedOn = (section) => PLANS.map((plan) => PLANS.indexOf(plan) >= PLANS.indexOf(section.plan));
 ---
 <Base
   title="Pricing — TwiceOver"
@@ -149,21 +118,13 @@ const productJsonLd = {
         <h2 class="tier__eyebrow">Free</h2>
         <p class="tier__price">$0</p>
         {/* The space between the two spans is load-bearing for TEXT, not layout: the 10px gap is
-            flex `gap`, so without it the cap copies and reads out as "10reads a month". A
+            flex `gap`, so without it the cap copies and reads out as "10analyses a month". A
             whitespace-only node between flex items is not rendered, so the visual is unchanged. */}
         <p class="tier__cap"><span class="tier__cap-n">10</span> <span class="tier__cap-w">analyses a month</span></p>
       </div>
-      <div class="tier__body">
-        <ul class="tier__rows">
-          <li>The synthesis read on any US-listed ticker</li>
-          <li>Read-only broker connection</li>
-          <li>Position &amp; structure math on your connected book (breakeven, max profit/loss, net debit/credit, your rules on live data)</li>
-          <li>Key technical levels (basic), macro and sector regime, peer positioning, and SEC/EDGAR fundamentals</li>
-          <li>No card required</li>
-        </ul>
-        <div class="tier__foot">
-          <a class="btn-quiet tier__cta" href="/go/try">Run a free read</a>
-        </div>
+      <p class="tier__line">Your Portfolio in full. The Outlook, built on fundamentals, technicals, peers, the sector and macro.</p>
+      <div class="tier__foot">
+        <a class="btn-quiet tier__cta" href="/go/try">Run a free analysis</a>
       </div>
     </li>
     <li class="tier">
@@ -172,24 +133,76 @@ const productJsonLd = {
         <p class="tier__price">$49<span class="per">/mo</span></p>
         <p class="tier__cap"><span class="tier__cap-n">200</span> <span class="tier__cap-w">analyses a month</span></p>
       </div>
-      <div class="tier__body">
-        <ul class="tier__rows">
-          <li>Read-only broker connection</li>
-          <li>Held-position reads and new-idea reads</li>
-          <li>Options math &amp; structure engine (breakevens, max profit/loss, collateral, P&amp;L)</li>
-          <li>Your own rules, evaluated on live data</li>
-          <li>Macro and sector regime, with peer positioning</li>
-          <li>Curated voices, plus the licensed news wire</li>
-          <li>Licensed market data</li>
-        </ul>
-        <div class="tier__foot">
-          <a class="btn-quiet tier__cta" href="/go/plan">Start 14-day trial</a>
-          <p class="tier__disclosure">Free for 14 days. Then $49/month, charged automatically to the card you save at checkout.</p>
-          <p class="tier__disclosure">Cancel any time before the trial ends — one click in Settings, no charge. We email you three days before.</p>
-        </div>
+      <p class="tier__line">Everything in Free, plus: news and market voices, earnings and dividends, what options price in, and short interest.</p>
+      <div class="tier__foot">
+        <a class="btn-quiet tier__cta" href="/go/plan">Start 14-day trial</a>
+        <p class="tier__disclosure">Free for 14 days. Then $49/month, charged automatically to the card you save at checkout.</p>
+        <p class="tier__disclosure">Cancel any time before the trial ends — one click in Settings, no charge. We email you three days before.</p>
+      </div>
+    </li>
+    <li class="tier">
+      <div class="tier__figures">
+        <h2 class="tier__eyebrow">Premium</h2>
+        <p class="tier__price">$99<span class="per">/mo</span></p>
+        <p class="tier__cap"><span class="tier__cap-n">300</span> <span class="tier__cap-w">analyses a month</span></p>
+      </div>
+      <p class="tier__line">Everything in Core, plus: the largest options trades, earnings history against the implied move, and insider buying and selling.</p>
+      <div class="tier__foot">
+        <a class="btn-quiet tier__cta" href="/go/plan-premium">Start 14-day trial</a>
+        <p class="tier__disclosure">Free for 14 days. Then $99/month, charged automatically to the card you save at checkout.</p>
+        <p class="tier__disclosure">Cancel any time before the trial ends — one click in Settings, no charge. We email you three days before.</p>
       </div>
     </li>
   </ul>
 
   <p class="mor-line">Subscriptions are sold by <strong>Dodo Payments</strong>, our merchant of record; TwiceOver is the software and service you're using. Prices in USD. You can cancel anytime; see the <a href="/refunds">Refund Policy</a>.</p>
+
+  {/* Section-by-plan table (ADR 0912 Amendment 1 ruling 2). The mark is a plain ink dot — not a
+      tick (ADR 0912 bars ticks as a scorecard read) and not the accent (navy marks actions only).
+      Dot and dash are decoration; the visually-hidden word is what a screen reader hears. */}
+  <section class="plans" aria-labelledby="plans-title">
+    <h2 id="plans-title" class="plans__title">What each plan includes</h2>
+    <p class="plans__lead">Your Portfolio comes with every plan. The plans differ in which sections of the analysis they include.</p>
+    <div class="plans__table-wrap">
+      <table class="plans__table">
+        <caption class="visually-hidden">Sections of the analysis included on each plan</caption>
+        <colgroup><col />{PLANS.map(() => <col class="plans__plan-col" />)}</colgroup>
+        <thead>
+          <tr>
+            <th scope="col">Section</th>
+            <th scope="col">Free<span class="plans__price">$0</span></th>
+            <th scope="col">Core<span class="plans__price">$49/mo</span></th>
+            <th scope="col">Premium<span class="plans__price">$99/mo</span></th>
+          </tr>
+        </thead>
+        {groups.map((group) => (
+          <tbody>
+            <tr class="plans__group">
+              <th scope="rowgroup" colspan={PLANS.length + 1}>{group.label}<span class="plans__count">{group.sections.length}</span></th>
+            </tr>
+            {group.sections.map((section) => (
+              <tr>
+                <th scope="row">{section.name}<span class="plans__tag">{section.tagline}</span></th>
+                {includedOn(section).map((included) =>
+                  included ? (
+                    <td><span class="dot" aria-hidden="true"></span><span class="visually-hidden">Included</span></td>
+                  ) : (
+                    <td><span class="none" aria-hidden="true"></span><span class="visually-hidden">Not included</span></td>
+                  ),
+                )}
+              </tr>
+            ))}
+          </tbody>
+        ))}
+        <tfoot>
+          <tr>
+            <th scope="row">Sections</th>
+            {PLANS.map((plan) => <td>{sectionsOn(plan).length}</td>)}
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <p class="plans__foot">Each plan's Outlook weighs only the sections that plan shows.</p>
+    <p class="plans__foot">Every figure in a section carries its source and the exact time it was fetched.</p>
+  </section>
 </Base>
