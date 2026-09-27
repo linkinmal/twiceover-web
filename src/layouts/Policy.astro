@@ -1,7 +1,8 @@
 ---
 // Policy template (site-prelaunch.md §4) — one template, four instances
 // (/terms, /privacy, /refunds, /cookies). 70ch measure, H1 + effective-date
-// caption, typography.legal body.
+// caption, typography.legal body. `chrome` passes through to Base: "none" is the
+// /in-app/* variant of terms, privacy and cookies (stock-analyst-platform#4033).
 import Base from "./Base.astro";
 import { EFFECTIVE_DATE } from "../config.mjs";
 
@@ -9,10 +10,11 @@ interface Props {
   title: string;
   description: string;
   heading: string;
+  chrome?: "full" | "none";
 }
-const { title, description, heading } = Astro.props;
+const { title, description, heading, chrome = "full" } = Astro.props;
 ---
-<Base title={title} description={description}>
+<Base title={title} description={description} chrome={chrome}>
   <article class="policy">
     <div class="page-title-block">
       <h1 class="type-heading-1">{heading}</h1>

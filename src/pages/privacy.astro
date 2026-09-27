@@ -12,11 +12,15 @@
 // Amendment 1), named directly in place of the generic payment-provider wording.
 // Do not reword (PM #41 / #1266).
 import Policy from "../layouts/Policy.astro";
+// Set only by the /in-app/* page that renders this one (stock-analyst-platform#4033).
+const { chrome = "full" } = Astro.props;
+const cookiesHref = chrome === "none" ? "/in-app/cookies" : "/cookies";
 ---
 <Policy
   title="Privacy Policy — TwiceOver"
   description="How TwiceOver collects, uses, retains, and protects your personal information, including brokerage-account data."
   heading="Privacy Policy"
+  chrome={chrome}
 >
   <nav aria-label="Sections">
     <ul class="toc">
@@ -205,7 +209,7 @@ import Policy from "../layouts/Policy.astro";
 
   <h2 class="type-heading-2" id="cookies">Use of Cookies</h2>
   <p>We use "cookies" to collect information about you and your activity across our site. A cookie is a small piece of data that our website stores on your computer, and accesses each time you visit, so we can understand how you use our site. This helps us serve you content based on preferences you have specified.</p>
-  <p>Please refer to our <a href="/cookies">Cookie Policy</a> for more information.</p>
+  <p>Please refer to our <a href={cookiesHref}>Cookie Policy</a> for more information.</p>
 
   <h2 class="type-heading-2" id="business-transfers">Business Transfers</h2>
   <p>If we or our assets are acquired, or in the unlikely event that we go out of business or enter bankruptcy, we would include data, including your personal information, among the assets transferred to any parties who acquire us. You acknowledge that such transfers may occur, and that any parties who acquire us may, to the extent permitted by applicable law, continue to use your personal information according to this policy, which they will be required to assume as it is the basis for any ownership or use rights we have over such information.</p>

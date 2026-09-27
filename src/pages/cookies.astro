@@ -4,13 +4,17 @@
 // strictly-necessary cookies only, per the #40 flag resolution) + shared disclaimer
 // footer. Text is verbatim; editorial markers omitted. Do not reword (PM #41).
 import Policy from "../layouts/Policy.astro";
+// Set only by the /in-app/* page that renders this one (stock-analyst-platform#4033).
+const { chrome = "full" } = Astro.props;
+const privacyHref = chrome === "none" ? "/in-app/privacy" : "/privacy";
 ---
 <Policy
   title="Cookie Policy — TwiceOver"
   description="Which cookies twiceover.io sets, why, and how to control them — strictly-necessary only, no advertising or analytics tracking."
   heading="Cookie Policy"
+  chrome={chrome}
 >
-  <p>We use cookies to help improve your experience of our website at https://twiceover.io and its subdomains. This cookie policy is part of our <a href="/privacy">privacy policy</a>. It covers the use of cookies between your device and our site.</p>
+  <p>We use cookies to help improve your experience of our website at https://twiceover.io and its subdomains. This cookie policy is part of our <a href={privacyHref}>privacy policy</a>. It covers the use of cookies between your device and our site.</p>
   <p><em>Pre-launch note: the site currently sets only strictly-necessary cookies (if any) and uses no analytics or advertising cookies. This policy describes how cookies are handled, including if and when additional cookies are introduced.</em></p>
   <p>We also provide basic information on third-party services we may use, who may also use cookies as part of their service. This policy does not cover their cookies.</p>
   <p>If you don't wish to accept cookies from us, you should instruct your browser to refuse cookies from https://twiceover.io. In such a case, we may be unable to provide you with some of your desired content and services.</p>
