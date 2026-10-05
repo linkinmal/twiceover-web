@@ -23,15 +23,15 @@ export const SECTIONS = [
   { key: "earnings", name: "Earnings & dividends", plan: "core", tagline: "The next report, and the move options price in for it." },
   { key: "earnings-history", name: "Earnings history", plan: "premium", tagline: "The last eight reports: what options implied, and what the stock did." },
   { key: "insiders", name: "Insiders", plan: "premium", tagline: "What officers and directors bought and sold, in their own filings." },
-  { key: "technicals", name: "Technicals & levels", plan: "free", tagline: "Moving averages, momentum, and the 52-week range." },
+  { key: "technicals", name: "Technicals & levels", plan: "free", tagline: "Moving averages, momentum, the 52-week range and how the stock has moved before." },
   { key: "options", name: "Options & short interest", plan: "core", tagline: "The options market's expected move and skew, and how heavily the stock is shorted." },
   { key: "flow", name: "Large options trades", plan: "premium", tagline: "The biggest options trades of the last five sessions." },
   { key: "sector", name: "Sector regime", plan: "free", tagline: "The sector's own strength and valuation trend." },
-  { key: "peers", name: "Peers & relative position", short: "Peers", plan: "free", tagline: "P/E and 3-month return against the stock's closest peers." },
+  { key: "peers", name: "Peers & relative position", short: "Peers", plan: "free", tagline: "P/E and 3-month return against the stock's closest peers, and how the stock moves with its sector and the market." },
   { key: "news", name: "News & catalysts", plan: "core", tagline: "What just changed, and what's scheduled next." },
   { key: "voices", name: "Voices", plan: "core", tagline: "What prominent market voices are saying — attributed." },
   { key: "macro", name: "Macro & regime", plan: "free", tagline: "The backdrop: rates, risk appetite, volatility." },
-  { key: "outlook", name: "Outlook", plan: "free", tagline: "Near, mid and far — each stated as a condition." },
+  { key: "outlook", name: "Outlook", plan: "free", tagline: "Near, mid and far: a projected price for each, with its reasoning." },
 ].map((s) => ({ short: s.name, ...s }));
 
 /** The sections a plan shows: its own plus every lower plan's. */

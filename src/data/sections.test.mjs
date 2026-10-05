@@ -47,9 +47,12 @@ describe("the thirteen sections", () => {
     // #3693 second pass (stock-analyst-platform commit 91727c5b), in both build references
     // (homepage-3818-v3-2026-09-23.html and pricing-page-c4-three-plans-2026-09-24.html).
     const tagline = (key) => SECTIONS.find((s) => s.key === key).tagline;
-    expect.soft(tagline("technicals")).toBe("Moving averages, momentum, and the 52-week range.");
+    expect.soft(tagline("technicals")).toBe("Moving averages, momentum, the 52-week range and how the stock has moved before.");
     expect.soft(tagline("sector")).toBe("The sector's own strength and valuation trend.");
-    expect.soft(tagline("peers")).toBe("P/E and 3-month return against the stock's closest peers.");
+    expect.soft(tagline("peers")).toBe(
+      "P/E and 3-month return against the stock's closest peers, and how the stock moves with its sector and the market.",
+    );
+    expect.soft(tagline("outlook")).toBe("Near, mid and far: a projected price for each, with its reasoning.");
     expect.soft(tagline("options")).toBe(
       "The options market's expected move and skew, and how heavily the stock is shorted.",
     );

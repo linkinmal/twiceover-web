@@ -44,7 +44,7 @@ export const EXPLAINER_ENTRIES = {
     feeds: "Its written read, as the backdrop for the stock.",
   },
   "peers": {
-    shows: "The stock's closest peers, with P/E and 3-month return side by side.",
+    shows: "The stock's closest peers, with P/E and 3-month return side by side. Also how closely the stock has moved with its sector fund and with the S&P 500 over the last 252 trading days, as beta and correlation of daily returns. Against the S&P 500 alone when the stock has no sector fund.",
     feeds: "Everything it shows.",
   },
   "news": {

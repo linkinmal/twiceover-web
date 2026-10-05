@@ -78,8 +78,8 @@ const PINNED = [
     ["trust plate", [
       "Read-only, structurally",
       "Your brokerage connection can view your positions and is technically incapable of placing, changing or canceling an order.",
-      "Licensed data only",
-      "Every quote and news item comes from a licensed vendor. None of it is scraped.",
+      "Every figure sourced",
+      "Quotes, options and news data come from data vendors. Insider trades come from SEC filings, and short interest from FINRA. Every figure names its source and the time it was fetched.",
       "Your book stays yours",
       "Your positions and account data are never shown to or reused for another user.",
       "Every number stamped",

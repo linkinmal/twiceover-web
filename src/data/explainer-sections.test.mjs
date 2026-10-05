@@ -49,3 +49,15 @@ describe("one section list across the homepage, page 1 and /pricing (ADR 0990)",
     expect.soft(entryAnchor("Peers & relative position")).toBe("s-peers-and-relative-position");
   });
 });
+
+describe("beta and correlation sit under Peers, not Sector (#3693, ADR 1037)", () => {
+  const BETA =
+    "Also how closely the stock has moved with its sector fund and with the S&P 500 over the last 252 trading days, as beta and correlation of daily returns. Against the S&P 500 alone when the stock has no sector fund.";
+
+  it("gives Peers the beta and correlation sentence and keeps it out of Sector", () => {
+    expect.soft(EXPLAINER_ENTRIES.peers.shows).toContain(BETA);
+    expect.soft(EXPLAINER_ENTRIES.sector.shows).not.toMatch(/beta|correlation|252/i);
+    expect.soft(EXPLAINER_ENTRIES.sector.shows.endsWith("the sector's own earnings.")).toBe(true);
+    expect.soft(EXPLAINER_ENTRIES.sector.feeds).toBe("Its written read, as the backdrop for the stock.");
+  });
+});

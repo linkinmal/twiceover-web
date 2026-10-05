@@ -41,8 +41,9 @@ const CHEVRON = '<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true
 const FAQ = [
   ["How is the Outlook different from a price target?", "An analyst's price target is usually one number, a year out. The Outlook gives three projected prices, about two weeks, three months and six months out, each with its reasoning and what would prove it wrong. The Outlook shows the sections it weighed."],
   ["Why can the Outlook differ between plans?", "Each plan's Outlook weighs only the sections that plan shows. Core and Premium give it more to weigh, so their projections for a ticker can differ from Free's."],
+  ["Why can an analysis take a moment?", "Two AI models make the Outlook, one after the other: the first thinks through the sections and reaches a call for each horizon, and the second writes the notes. A first analysis of a ticker on a given day is usually ready in under a minute."],
   ["What happens when data is missing?", "The section with the gap says so, and nothing is estimated to cover it. If an Outlook horizon lacks the inputs it needs, that horizon shows no price."],
-  ["Which parts are written by AI?", "The Outlook's three prices and their notes are written by our AI. So are the short written summaries in some sections, such as the one-line summary of each news item. Every figure in a section comes from licensed data or public filings, through our own code."],
+  ["Which parts are written by AI?", "The Outlook's three prices and their notes are written by our AI. So are the short written summaries in some sections, such as the one-line summary of each news item. Every figure in a section comes from vendor data or public filings, through our own code."],
 ];
 ---
 <Base
@@ -87,7 +88,7 @@ const FAQ = [
               </div>
             </div>
             <p class="xp-stage__n">1 · Collect</p>
-            <p>We pull licensed market data and public filings for the ticker. Every figure keeps its source and the time we fetched it.</p>
+            <p>We pull market data and public filings for the ticker. Every figure keeps its source and the time we fetched it.</p>
           </li>
           <li class="xp-stage">
             <div class="xp-stage__g"><div class="xp-tiles">{tiles.map((t) => <span>{t}</span>)}</div></div>
