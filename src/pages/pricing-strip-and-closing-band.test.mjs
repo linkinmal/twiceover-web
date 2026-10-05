@@ -224,7 +224,7 @@ describe("Closing band trial disclosure (#3030, site-prelaunch.md §2 'Closing b
   const BODY_1 =
     "A connected free account reads your held positions in full: structure, your own rules, scenarios and paths. Free covers 10 analyses a month.";
   const BODY_2 =
-    "Core raises that to 200 analyses a month. It also weighs two more inputs: the licensed news wire and curated voices, alongside price, structure, levels and fundamentals.";
+    "Core raises that to 200 analyses a month. It also weighs two more inputs: the news wire and curated voices, alongside price, structure, levels and fundamentals.";
 
   it("carries both body paragraphs and both disclosure lines verbatim, and no third disclaimer", () => {
     const band = astro.slice(astro.indexOf('<section class="closing-band"'));
