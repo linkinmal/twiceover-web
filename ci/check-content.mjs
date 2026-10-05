@@ -8,6 +8,10 @@
  *   AC3 — no banned advice/directive terms in any page's rendered text, after
  *         stripping the disclaimer and a short, documented allowlist of negation
  *         phrases that come verbatim from the PM copy / GetTerms boilerplate.
+ *   IN-APP — the /in-app/* legal pages the iOS app opens in its in-app browser
+ *         (stock-analyst-platform#4033) link nowhere but their own anchors, mailto:
+ *         and each other, and are noindex. A path from them to Pricing or Sign up
+ *         is a purchase path outside Apple's IAP (ADR 1018 Decision 4).
  *
  * The copy itself is clean (PM self-check in site-copy-twiceover.md); this gate
  * guards against build-time drift. Allowlist entries are reviewed exceptions —
@@ -21,6 +25,12 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
 
+const IN_APP_PAGES = [
+  "in-app/terms/index.html",
+  "in-app/privacy/index.html",
+  "in-app/cookies/index.html",
+];
+
 const EXPECTED_PAGES = [
   "index.html",
   "pricing/index.html",
@@ -32,7 +42,20 @@ const EXPECTED_PAGES = [
   "cookies/index.html",
   "refunds/index.html",
   "404.html",
+  ...IN_APP_PAGES,
 ];
+
+// The closed set an in-app page may link to. Everything else — "/", "/pricing", "/go/*",
+// "/refunds", any absolute URL — fails.
+const IN_APP_HREF_ALLOWED = /^(?:#[\w-]*|mailto:[^"\s]+|\/in-app\/(?:terms|privacy|cookies)(?:#[\w-]*)?)$/;
+
+function hrefsOf(html) {
+  return [...html.matchAll(/<a\b[^>]*?\bhref="([^"]*)"/gi)].map((m) => m[1]);
+}
+
+function disallowedInAppHrefs(html) {
+  return hrefsOf(html).filter((href) => !IN_APP_HREF_ALLOWED.test(href));
+}
 
 const BANNED = [
   /\bbuy\b/g,
@@ -125,9 +148,26 @@ for (const expected of EXPECTED_PAGES) {
   }
 }
 
+// IN-APP control — the same scan, on the full-chrome /terms, must find its header's /pricing.
+// If it finds nothing there, the scan is blind and its silence on the in-app pages proves nothing.
+const fullTerms = pages.find((p) => relative(dist, p) === "terms/index.html");
+if (fullTerms && !disallowedInAppHrefs(readFileSync(fullTerms, "utf8")).includes("/pricing")) {
+  failures.push("[IN-APP] control: the link scan found no /pricing on the full /terms page — scan is blind");
+}
+
 for (const page of pages) {
   const rel = relative(dist, page);
-  const text = textOf(readFileSync(page, "utf8")).toLowerCase();
+  const html = readFileSync(page, "utf8");
+  const text = textOf(html).toLowerCase();
+
+  if (IN_APP_PAGES.includes(rel)) {
+    for (const href of disallowedInAppHrefs(html)) {
+      failures.push(`[IN-APP] ${rel}: links to "${href}" — only its own anchors, mailto: and /in-app/* pages`);
+    }
+    if (!/<meta name="robots" content="noindex"/.test(html)) {
+      failures.push(`[IN-APP] ${rel}: missing <meta name="robots" content="noindex">`);
+    }
+  }
 
   // AC4 — disclaimer verbatim on every page.
   if (!text.includes(disclaimer.toLowerCase())) {
