@@ -39,7 +39,7 @@ describe("the Outlook FAQ lines (#3693)", () => {
     expect.soft(index).not.toContain("under a minute");
   });
 
-  it("holds the cache sentence until the PM's accuracy check on #3693 lands", () => {
+  it("holds the cache sentence until the ADR 1044 cache is built and live (#4083; PM ship-order ruling on #3693)", () => {
     expect.soft(explainer).not.toMatch(/8-K/);
     expect.soft(explainer).not.toContain("kept for the rest of that trading day");
   });

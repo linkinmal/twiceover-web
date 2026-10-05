@@ -28,7 +28,7 @@ export const EXPLAINER_ENTRIES = {
     feeds: "Insiders' net buying or selling over those six months.",
   },
   "technicals": {
-    shows: "The 50- and 200-day moving averages, RSI and the 52-week range, with today's price marked.",
+    shows: "The 50- and 200-day moving averages, RSI and the 52-week range, with today's price marked. Also how the stock has moved over the past five years, or its full history if shorter, across rolling 10-, 63- and 126-trading-day windows: the share that ended higher, the median move and the middle half of outcomes. A window shows only when there is enough history for it.",
     feeds: "Everything it shows, plus Fibonacci levels drawn from recent price swings and today's volume against its average.",
   },
   "options": {
