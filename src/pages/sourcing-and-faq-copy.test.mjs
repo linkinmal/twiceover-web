@@ -44,3 +44,49 @@ describe("the Outlook FAQ lines (#3693)", () => {
     expect.soft(explainer).not.toContain("kept for the rest of that trading day");
   });
 });
+
+// #3829 / #3693: the 10-03 explainer strings (Growth deb4fe2a, as the 10-05 re-pass left them in
+// `site-copy-explainer-pages.md`; PM ruling 2026-10-06 that they ride this PR). ADR 1036 Amendment 1:
+// one model reaches the call, a second writes the notes; the page may name the split, the product may not.
+describe("'How the Outlook is made' describes one reasoner and one writer (ADR 1036 A1, 1037, 1047)", () => {
+  it("says it in the intro, steps 2 to 5 and the record row", () => {
+    expect.soft(explainer).toContain("Two separate AI models make it: one thinks through the sections and reaches a call for each horizon, and the other writes the notes.");
+    expect.soft(explainer).toContain("On every plan it also sees how the stock has actually moved over each horizon across the past five years.");
+    expect.soft(explainer).toContain("One AI model thinks it through and reaches a call for each horizon.");
+    expect.soft(explainer).toContain("A second, separate AI model writes each note.");
+    expect.soft(explainer).toContain("It works from the first model's call and cannot change a price. The note gives the reason the Outlook states for that price");
+    expect.soft(explainer).toContain("and the Outlook's note for that horizon is one click away, as on any other.");
+    expect.soft(explainer).toContain("for each of the Outlook's two steps, the version of the model and of the instructions used");
+    expect.soft(explainer).toContain("for each of the two steps, the model version and the instructions version");
+  });
+
+  it("no longer says one pass projects the price, or that the note names the main driver", () => {
+    expect.soft(explainer).not.toContain("It projects one price for each horizon");
+    expect.soft(explainer).not.toContain("names the main thing driving it");
+    expect.soft(explainer).not.toContain("the version of the model and instructions that produced it");
+  });
+
+  it("names no model and counts no reads", () => {
+    expect.soft(explainer).not.toMatch(/opus|sonnet|claude|committee|several (AI )?reads/i);
+  });
+});
+
+describe("the explainer's News entry says what the headline filter does, without naming newsrooms (ADR 1045)", () => {
+  it("carries the filter sentences and names no outlet", async () => {
+    const { EXPLAINER_ENTRIES } = await import("../data/explainer-sections.mjs");
+    const shows = EXPLAINER_ENTRIES.news.shows;
+    expect.soft(shows).toContain("Headlines come from major financial newsrooms and are kept only when they name the company. Commentary is dropped.");
+    expect.soft(shows).not.toMatch(/yahoo|cnbc|benzinga/i);
+  });
+});
+
+describe("the homepage's meta description and the no-positions rule (#3842, ADR 0959 Decisions 4-5)", () => {
+  it("uses Growth's meta description", () => {
+    expect(index).toContain('description="See your positions against your own rules, read-only from your broker. Run an analysis on any US-listed ticker, no account needed. Depth, never a verdict."');
+  });
+
+  it("has no sentence saying the analysis runs on, or is built from, the positions you hold", () => {
+    expect.soft(index).not.toMatch(/runs? on (the )?positions/i);
+    expect.soft(index).not.toMatch(/(read|analysis|outlook)[^.]{0,40}(of|on|from) (the )?positions you (actually )?hold/i);
+  });
+});

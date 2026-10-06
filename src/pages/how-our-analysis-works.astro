@@ -185,7 +185,7 @@ const FAQ = [
 
     <section class="xp-sec" id="made" aria-labelledby="made-h">
       <h2 id="made-h" class="type-heading-1 section-heading">How the Outlook is made</h2>
-      <p class="xp-lead2">The Outlook is our AI synthesis.</p>
+      <p class="xp-lead2">The Outlook is our AI synthesis. Two separate AI models make it: one thinks through the sections and reaches a call for each horizon, and the other writes the notes.</p>
       <figure class="xp-fig xp-fig--outlook">
         <ExplainerOutlook />
         <figcaption class="proof__caption type-caption">Illustrative example with made-up figures.</figcaption>
@@ -197,19 +197,19 @@ const FAQ = [
         </li>
         <li>
           <h3 class="type-heading-2">It gets a sense of scale and a calendar for each horizon.</h3>
-          <p>First, the Outlook is told how far the stock usually moves over each horizon. On Free, that scale comes from the stock's recent volatility. On Core and Premium, it comes from what options imply, where quotes allow. The Outlook also gets a calendar of what falls inside each horizon. That includes the monthly options expiry and, on Core and Premium, the earnings date.</p>
+          <p>First, the Outlook is told how far the stock usually moves over each horizon. On Free, that scale comes from the stock's recent volatility. On Core and Premium, it comes from what options imply, where quotes allow. On every plan it also sees how the stock has actually moved over each horizon across the past five years. The Outlook also gets a calendar of what falls inside each horizon. That includes the monthly options expiry and, on Core and Premium, the earnings date.</p>
         </li>
         <li>
-          <h3 class="type-heading-2">It projects one price for each horizon.</h3>
-          <p>The three horizons end about two weeks, three months and six months out: 10, 63 and 126 trading days. Each price shows the date it projects to.</p>
+          <h3 class="type-heading-2">One AI model thinks it through and reaches a call for each horizon.</h3>
+          <p>It goes through the sections and projects one price for each of the three horizons. They end about two weeks, three months and six months out: 10, 63 and 126 trading days. Each price shows the date it projects to.</p>
         </li>
         <li>
-          <h3 class="type-heading-2">Each price comes with its reason and what would prove it wrong.</h3>
-          <p>A short note under each price names the main thing driving it and the one thing most likely to prove it wrong. A note cites at most two figures. Every figure a note cites is checked against our data before the analysis is shown.</p>
+          <h3 class="type-heading-2">A second, separate AI model writes each note.</h3>
+          <p>It works from the first model's call and cannot change a price. The note gives the reason the Outlook states for that price and the one thing most likely to prove it wrong. A note cites at most two figures. Every figure a note cites is checked against our data before the analysis is shown.</p>
         </li>
         <li>
           <h3 class="type-heading-2">A horizon without up-to-date inputs shows no price.</h3>
-          <p>Each horizon needs certain sections to be up to date. When one isn't, that horizon shows no price. A line in its place says the horizon's inputs aren't all live.</p>
+          <p>Each horizon needs certain sections to be up to date. When one isn't, that horizon shows no price. A line in its place says the horizon's inputs aren't all live, and the Outlook's note for that horizon is one click away, as on any other.</p>
           <figure class="xp-fig xp-fig--step">
             <ExplainerOutlook darkFar />
             <figcaption class="proof__caption type-caption">Illustrative example with made-up figures.</figcaption>
@@ -221,14 +221,14 @@ const FAQ = [
     <section class="xp-sec xp-split section-ground" aria-labelledby="ours-h">
       <div class="xp-copy">
         <h2 id="ours-h" class="type-heading-1">Labelled as ours, and recorded</h2>
-        <p>Each price reads "Our projection lands at", and the Outlook is labelled as AI synthesis wherever it appears. We record every analysis: its inputs, their sources and times, and the version of the model and instructions that produced it. Any Outlook can be traced back to what it was given.</p>
+        <p>Each price reads "Our projection lands at", and the Outlook is labelled as AI synthesis wherever it appears. We record every analysis: its inputs, their sources and times, and for each of the Outlook's two steps, the version of the model and of the instructions used. Any Outlook can be traced back to what it was given.</p>
       </div>
       <figure class="xp-fig">
         <div class="xp-rec">
           <p class="xp-rec__k">ANALYSIS RECORD · EXMP · AUG 31 {EXMP_AS_OF_CLOCK}</p>
           <div class="xp-rec__r"><span>Inputs</span><span>the 9 other sections on Core, every figure as given</span></div>
           <div class="xp-rec__r"><span>Sources, times</span><span>each figure’s source and the time it was fetched</span></div>
-          <div class="xp-rec__r"><span>Produced by</span><span>the model version and the instructions version</span></div>
+          <div class="xp-rec__r"><span>Produced by</span><span>for each of the two steps, the model version and the instructions version</span></div>
           <div class="xp-rec__r"><span>Labelled</span><span>“Our projection lands at {projections[0].v}” · AI synthesis</span></div>
         </div>
         <figcaption class="proof__caption type-caption">Illustrative example with made-up figures.</figcaption>

@@ -48,7 +48,7 @@ export const EXPLAINER_ENTRIES = {
     feeds: "Everything it shows.",
   },
   "news": {
-    shows: "Up to three material news items from the last 30 days, such as earnings, guidance, deals, share offerings, regulatory or trial outcomes and leadership changes. Each item carries its source, its time and a one-line summary. The next monthly options expiry appears below the news.",
+    shows: "Up to three material news items from the last 30 days, such as earnings, guidance, deals, share offerings, regulatory or trial outcomes and leadership changes. Headlines come from major financial newsrooms and are kept only when they name the company. Commentary is dropped. Each item carries its source, its time and a one-line summary. The next monthly options expiry appears below the news.",
     feeds: "The catalysts that could move the stock inside each horizon.",
   },
   "voices": {
