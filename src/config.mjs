@@ -15,7 +15,12 @@ export const YEAR = "2026";
 // as EFFECTIVE_DATE: that constant is shared across BOTH /terms and /privacy via
 // Policy.astro, so a privacy-only edit would silently "bump" the ToS version and vice
 // versa — the wrong coupling for a record that has to prove "ToS version X was accepted."
-// Bump ONLY on a substantive terms.astro change (not a privacy-only edit, not a typo fix),
+// Bump ONLY on a substantive terms.astro change or a change to the act of accepting them
+// (not a privacy-only edit, not a typo fix),
 // and keep in sync with apps/account-api/wrangler.jsonc's TOS_VERSION var in the other repo
 // (manual, human/PM-gated — ToS changes are rare and already gated by legal review).
-export const TOS_VERSION = "2026-06-11";
+// 2026-10-06 (stock-analyst-platform#3092/#4053): the signup checkbox dropped "I confirm I'm
+// a US resident" — acceptance of these Terms (whose Geographic Eligibility clause carries the
+// residency representation) is now the whole act. The visible "last updated" date on /terms
+// is deliberately unchanged (human direction, terms.astro header).
+export const TOS_VERSION = "2026-10-06";

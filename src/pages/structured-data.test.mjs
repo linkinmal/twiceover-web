@@ -5,7 +5,7 @@
 // ADR 0062).
 
 import { describe, it, expect, beforeAll } from "vitest";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -79,5 +79,43 @@ describe("stock-analyst-platform#2634 — pricing Product JSON-LD (pricing.astro
         .soft(offer, `${label} offer declares its own url`)
         .toMatch(/url:\s*"https:\/\/twiceover\.io\/go\/[\w-]+"/);
     }
+  });
+});
+
+// stock-analyst-platform#4156 — Search Console Merchant listings: image (critical), description and
+// brand (non-critical) missing from the Product block.
+describe("stock-analyst-platform#4156 — pricing Product JSON-LD image, description, brand", () => {
+  it("points image at an existing brand card by its own file name", () => {
+    const block = jsonLdBlock(pricingAstro, "productJsonLd");
+    const image = block.match(/image:\s*"(https:\/\/twiceover\.io\/(og-card-[\w-]+\.png))"/);
+
+    expect.soft(image, "image is an absolute URL of an og-card file").toBeTruthy();
+    expect
+      .soft(existsSync(join(root, "../../public", image?.[2] ?? "missing")), "the card file exists")
+      .toBe(true);
+    expect
+      .soft(block, "not the rotating OG_CARD pointer")
+      .not.toMatch(/image:\s*(OG_CARD|ogImageURL)/);
+  });
+
+  it("derives description from the same const as the Base description prop", () => {
+    const block = jsonLdBlock(pricingAstro, "productJsonLd");
+    const literal =
+      "One simple monthly subscription. No per-analysis charges. Use it with or without a broker connection.";
+
+    expect
+      .soft(pricingAstro.replace(/\s+/g, " "))
+      .toContain(`const pricingDescription = "${literal}";`);
+    expect.soft(block, "Product description reads the const").toMatch(/description:\s*pricingDescription,/);
+    expect
+      .soft(pricingAstro, "Base description reads the same const")
+      .toMatch(/<Base[^>]*description=\{pricingDescription\}/);
+  });
+
+  it("declares the brand as a TwiceOver Brand", () => {
+    const block = jsonLdBlock(pricingAstro, "productJsonLd");
+    expect
+      .soft(block)
+      .toMatch(/brand:\s*{\s*"@type":\s*"Brand",\s*name:\s*"TwiceOver",?\s*}/);
   });
 });

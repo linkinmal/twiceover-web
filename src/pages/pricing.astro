@@ -53,11 +53,19 @@ import { PLANS, sectionGroups, sectionsOn } from "../data/sections.mjs";
 // trailingSlash: "never", so the old "/pricing/" 307-redirected to the real canonical — dropped the
 // trailing slash. Each offer now also carries its own url (the live CTA it's actually redeemed
 // through, already on the page below) and availability, per Google's Offer recommendations.
+// image/description/brand (Search Console Merchant listings, stock-analyst-platform#4156): image names
+// one brand card by its own file (ADR 0905 rotates og:image by changing OG_CARD in Base.astro, never
+// the files), and description is the same const the <Base> description prop reads, so they cannot drift.
+const pricingDescription =
+  "One simple monthly subscription. No per-analysis charges. Use it with or without a broker connection.";
 const productJsonLd = {
   "@context": "https://schema.org",
   "@type": "Product",
   name: "TwiceOver",
   url: "https://twiceover.io/pricing",
+  description: pricingDescription,
+  image: "https://twiceover.io/og-card-path.png",
+  brand: { "@type": "Brand", name: "TwiceOver" },
   offers: [
     {
       "@type": "Offer",
@@ -92,7 +100,7 @@ const includedOn = (section) => PLANS.map((plan) => PLANS.indexOf(plan) >= PLANS
 ---
 <Base
   title="Pricing — TwiceOver"
-  description="One simple monthly subscription. No per-analysis charges. Use it with or without a broker connection."
+  description={pricingDescription}
 >
   <script type="application/ld+json" set:html={JSON.stringify(productJsonLd)} />
   {/* The band (ADR 0912 ruling 1) — ink graphite, NOT the accent: a full-bleed
