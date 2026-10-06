@@ -1,0 +1,60 @@
+---
+/**
+ * EXMP's Outlook, as page 1 of "How our analysis works" draws it (stock-analyst-platform#3829; ADR
+ * 0993, build reference `explainer-pages-3818-2026-09-24.html`): the product's chart on the accent
+ * surface, then each horizon's price with the note under it. Three placements: the hero's screenshot
+ * frame (notes hidden by CSS), "How the Outlook is made", and its fifth step with the far horizon dark.
+ *
+ * `darkFar` draws the degraded state the product draws: the far price leaves the chart and the
+ * row shows twiceover-app's own `degradedProjectionLine()` string, copied exactly. The chart's
+ * degraded drawing is the product's (outlook-chart.mjs, ported from the app): a "· · ·" mark at the
+ * far horizon's calendar position. PENDING a Designer ruling (the #3829 explainer flags): the build
+ * reference draws the far tick and date instead, which the product does not.
+ */
+import OutlookPathChart from "./OutlookPathChart.astro";
+import {
+  DEGRADED_FAR_LINE,
+  EXMP_AS_OF,
+  EXMP_AS_OF_CLOCK,
+  EXMP_LAST_CLOSE,
+  EXMP_OUTLOOK,
+  EXMP_PRICE,
+  usd,
+} from "../charts/exmp-fixture.mjs";
+
+interface Props {
+  darkFar?: boolean;
+}
+const { darkFar = false } = Astro.props;
+const horizons = EXMP_OUTLOOK.horizons.map((h) => ({ ...h, dark: darkFar && h.key === "far" }));
+const outlook = {
+  spot: EXMP_PRICE,
+  asOf: EXMP_AS_OF,
+  horizons: horizons.map((h) => ({ horizon: h.key, price: h.dark ? null : h.price })),
+};
+---
+
+<div class="proof__band">
+  <div class="proof__band-hd">
+    <span class="proof__band-ttl">Outlook</span>
+    <span class="proof__band-note">AI synthesis · Core · as of {EXMP_AS_OF_CLOCK}</span>
+  </div>
+  <p class="proof__chartcap">price {usd(EXMP_PRICE)} · {EXMP_LAST_CLOSE}</p>
+  <OutlookPathChart outlook={outlook} cards={EXMP_OUTLOOK.horizons} />
+  <div class="xp-hzrow">
+    {horizons.map((h) =>
+      h.dark ? (
+        <div class="xp-hz xp-hz--dark">
+          <div class="xp-hz__k">{h.label}</div>
+          <p class="xp-hz__deg">{DEGRADED_FAR_LINE}</p>
+        </div>
+      ) : (
+        <div class="xp-hz">
+          <div class="xp-hz__k">{h.label} · {h.date}</div>
+          <div class="xp-hz__p">Our projection lands at <b>{usd(h.price)}</b></div>
+          <p class="xp-hz__n">{h.note}</p>
+        </div>
+      ),
+    )}
+  </div>
+</div>

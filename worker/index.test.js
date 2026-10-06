@@ -192,17 +192,24 @@ describe("fetch — /go/* routes", () => {
          hash on "?" and reading THAT substring; a real query param is never read.
      Either mistake still returns a 302 to the right origin, which is why status- and
      origin-level assertions cannot catch it — this asserts the hash itself. */
-  it("carries the Core plan intent inside the hash fragment, where the app's parser reads it", async () => {
+  // Premium's card gained its own route (stock-analyst-platform#3829, ADR 0912 Amendment 1): the
+  // build reference's `/go/plan?tier=premium` would have 302'd to the CORE intent, because the
+  // forwarder drops every unnamed query param and the intent is baked into each literal. One route
+  // per plan is what keeps the intent a hardcoded literal (consult 0739) rather than request input.
+  it.each([
+    ["/go/plan", "core"],
+    ["/go/plan-premium", "premium"],
+  ])("carries %s's plan intent (%s) inside the hash fragment, where the app's parser reads it", async (path, plan) => {
     const env = fakeEnv();
     const response = await worker.fetch(
-      new Request("https://twiceover.io/go/plan?utm_source=ph&foo=SECRET"),
+      new Request(`https://twiceover.io${path}?utm_source=ph&foo=SECRET`),
       env,
     );
 
     expect(response.status).toBe(302);
     const location = new URL(response.headers.get("location"));
     // The intent lives in the hash — not in searchParams, where it would be dropped on the floor.
-    expect(location.hash).toBe("#signin?intent=core");
+    expect(location.hash).toBe(`#signin?intent=${plan}`);
     expect(location.searchParams.has("intent")).toBe(false);
     // UTM still rides the query string, unchanged by the hash carrier sitting beside it.
     expect(location.searchParams.get("utm_source")).toBe("ph");
@@ -211,7 +218,7 @@ describe("fetch — /go/* routes", () => {
     // future edit to the destination that breaks parsing fails this test, not production.
     const [routeName, query = ""] = location.hash.replace(/^#/, "").split("?");
     expect(routeName).toBe("signin");
-    expect(new URLSearchParams(query).get("intent")).toBe("core");
+    expect(new URLSearchParams(query).get("intent")).toBe(plan);
   });
 
   it("does not forward a ticker on /go/plan — only /go/try opts in", async () => {
@@ -643,6 +650,7 @@ const GO_LOCATIONS = {
   "/go/connect": "https://app.twiceover.io/#connection",
   "/go/signin": "https://app.twiceover.io/#signin",
   "/go/plan": "https://app.twiceover.io/#signin?intent=core",
+  "/go/plan-premium": "https://app.twiceover.io/#signin?intent=premium",
 };
 
 describe("fetch — Content-Security-Policy", () => {
@@ -652,7 +660,7 @@ describe("fetch — Content-Security-Policy", () => {
 
   beforeEach(() => vi.clearAllMocks());
 
-  it.each(["/go/try", "/go/connect", "/go/signin", "/go/plan"])(
+  it.each(Object.keys(GO_LOCATIONS))(
     "carries the exact directive set on the %s redirect, without disturbing the redirect itself",
     async (path) => {
       const env = fakeEnv();

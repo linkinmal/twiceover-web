@@ -1,0 +1,56 @@
+---
+/**
+ * The hero deck (homepage v3.4, stock-analyst-platform#3829; site-prelaunch.md §2 "Hero deck"; build
+ * reference `ai-team/design/assets/homepage-3818-v3-2026-09-23.html`). Product views stacked as a
+ * deck, one in front, advancing every 5s — "opening on a random card, advancing every 5s, pausable
+ * (WCAG 2.2.2), reduced-motion static."
+ *
+ * Progressive enhancement. The markup is the deck's FIRST state, server-rendered: card 0 in front
+ * (`data-pos="0"`), the rest stacked behind and `aria-hidden`, so with no script it is a correct,
+ * static picture of the Outlook. The controls ship `hidden` and only appear once
+ * `public/js/hero-deck.js` runs, because a Pause button that pauses nothing is a false control.
+ * The script only reorders these cards and toggles attributes — it reads no field and opens no
+ * connection (ci/check-entry-box.mjs scans it, declared in EXPECTED_SCRIPTS).
+ *
+ * PENDING stock-analyst-platform#3963 item 4: the artifact's fifth and sixth cards — "Options & short
+ * interest" (what options price in to each horizon) and "Earnings history" — join once their data is
+ * in the fixture; the script and the CSS take any card count.
+ */
+import OutlookBand from "./OutlookBand.astro";
+import PortfolioCard from "./PortfolioCard.astro";
+import PositionCard from "./PositionCard.astro";
+import TechnicalsPriceChart from "./TechnicalsPriceChart.astro";
+import { TECHNICALS_ROWS } from "../charts/site-fixture.mjs";
+
+const tech = Object.fromEntries(TECHNICALS_ROWS.map((r) => [r.label, r.value]));
+const CARDS = ["Outlook", "Your Portfolio", "Your position", "Technicals & levels"];
+---
+
+<figure class="deck-fig">
+  <div class="deck" id="deck" aria-roledescription="carousel" aria-label="Product views, changing every 5 seconds">
+    <div role="group" aria-roledescription="slide" aria-label="Outlook" class="dcard dcard--outlook" data-key="outlook" data-pos="0">
+      <OutlookBand />
+    </div>
+    <PortfolioCard variant="deck" />
+    <PositionCard variant="deck" />
+    <div role="group" aria-roledescription="slide" aria-label="Technicals & levels" class="dcard" data-key="technicals">
+      <div class="dcard__hd"><span class="dcard__ttl">Technicals &amp; levels</span><span class="dcard__note">section · every plan</span></div>
+      <div class="dcard__fill"><TechnicalsPriceChart variant="hero" /></div>
+      <div class="figs3">
+        <div><span>50-DMA</span><b>{tech["50-DMA"]}</b></div>
+        <div><span>RSI</span><b>{tech["RSI"]}</b></div>
+        <div><span>52-week</span><b>{tech["52-week range"]}</b></div>
+      </div>
+    </div>
+  </div>
+  <div class="deck-ctl" id="deckCtl" hidden>
+    <button type="button" class="deck-pause" id="deckPause" aria-pressed="false">Pause</button>
+    <div class="deck-dots">
+      {CARDS.map((name, i) => <button type="button" class="deck-dot" data-i={i} aria-label={`Show ${name}`}></button>)}
+    </div>
+    <span class="deck-name" id="deckName" aria-live="polite"></span>
+  </div>
+  <figcaption class="proof__caption type-caption">Illustrative example with made-up figures and positions.</figcaption>
+</figure>
+
+<script src="/js/hero-deck.js" defer></script>
