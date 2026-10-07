@@ -38,6 +38,7 @@ const EXPECTED_PAGES = [
   "privacy/index.html",
   "cookies/index.html",
   "refunds/index.html",
+  "delete-account/index.html",
   "404.html",
   ...IN_APP_PAGES,
 ];

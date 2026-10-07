@@ -96,6 +96,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const EXPECTED_SCRIPTS = {
   "404.html": { inline: 0, external: 0 },
   "cookies/index.html": { inline: 0, external: 0 },
+  "delete-account/index.html": { inline: 0, external: 0 },
   "index.html": { inline: 0, external: 3 },
   "in-app/cookies/index.html": { inline: 0, external: 0 },
   "in-app/privacy/index.html": { inline: 0, external: 0 },
