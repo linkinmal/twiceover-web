@@ -46,11 +46,11 @@ import { EMAIL, ENTITY } from "../config.mjs";
   </ul>
 
   <h2 class="type-heading-2" id="anonymized">What is anonymized</h2>
-  <p>These records stay, with everything that identifies you removed so they can no longer be linked back to you:</p>
+  <p>These records stay, with your account identifier removed or replaced:</p>
   <ul>
     <li>The payment-event log (billing events), kept for financial record-keeping.</li>
     <li>The record that the Terms of Service were accepted, with its version and time.</li>
-    <li>Your account-status record, whose identifier is replaced by a one-way keyed digest.</li>
+    <li>Your account-status record (an operator-set status and reason), whose identifier is replaced by a one-way keyed digest.</li>
   </ul>
 
   <h2 class="type-heading-2" id="retained">What is kept</h2>
@@ -62,7 +62,7 @@ import { EMAIL, ENTITY } from "../config.mjs";
   </ul>
 
   <h2 class="type-heading-2" id="timing">How long it takes</h2>
-  <p>Deletion from our live systems runs as soon as you finish the steps above. Our <a href="/privacy">Privacy Policy</a> commits to deleting your personal information within 30 days of the deletion of your account.</p>
+  <p>Deleting from the app runs straight away once you enter the code. An emailed request is carried out by us after we verify it. Our <a href="/privacy">Privacy Policy</a> commits to deleting your personal information within 30 days of the deletion of your account.</p>
 
   <p>Questions: <a href={`mailto:${EMAIL}`}>{EMAIL}</a>.</p>
 </Policy>
