@@ -1,0 +1,68 @@
+---
+// Account-deletion page (stock-analyst-platform#4202) — the public web URL Google Play's Data
+// safety form requires. Static, no script, no form: the only route off the page is mailto:.
+// Content follows Security's requirements on #4202 and is drawn from twiceover-app source, not
+// from the Privacy Policy: packages/account/src/deletion/account-purge-store.ts (what is deleted /
+// anonymized), apps/account-api/src/deletion/orchestrator.ts (cross-system steps),
+// apps/account-api/src/index.ts deletionCancelFirstBlocked (the precondition), ADR 0120 (retained
+// records, best-effort SnapTrade step). The in-app path labels are SettingsHome.tsx's.
+import Policy from "../layouts/Policy.astro";
+import { EMAIL, ENTITY } from "../config.mjs";
+---
+<Policy
+  title="Delete your account — TwiceOver"
+  description="How to delete your TwiceOver account and data, from the app or by email, and what is deleted, anonymized and kept."
+  heading="Delete your account"
+  effective="October 7, 2026"
+>
+  <p>TwiceOver (Android and iOS app <code>io.twiceover.app</code>, and twiceover.io) is operated by {ENTITY}, a sole proprietor. This page explains how to delete your TwiceOver account and the data held with it.</p>
+
+  <h2 class="type-heading-2" id="in-app">Delete from the app</h2>
+  <ol>
+    <li>Open the <strong>Account</strong> tab, then <strong>Settings</strong>.</li>
+    <li>In the <strong>Data &amp; privacy</strong> section, choose <strong>Delete account…</strong></li>
+    <li>Type <strong>DELETE</strong> to confirm.</li>
+    <li>Enter the 6-digit code we email to your account address.</li>
+  </ol>
+  <p>Deletion is permanent. When it finishes, we send one email confirming it. The same steps work in TwiceOver on the web.</p>
+
+  <h2 class="type-heading-2" id="by-email">Delete without the app</h2>
+  <p>If you cannot open the app, email <a href={`mailto:${EMAIL}`}>{EMAIL}</a> from the address on your account and ask us to delete your account. We verify the request against that address before deleting anything.</p>
+
+  <h2 class="type-heading-2" id="subscriptions">If you have a paid plan</h2>
+  <ul>
+    <li><strong>Plans billed through our merchant of record, Dodo Payments:</strong> cancel the plan first. While such a plan is active, or a failed renewal is still being retried, deletion is refused. Once it is cancelled you can delete the account.</li>
+    <li><strong>Plans billed through the App Store:</strong> deleting your account does not cancel the subscription. Cancel it in your Apple ID subscription settings.</li>
+  </ul>
+
+  <h2 class="type-heading-2" id="deleted">What is deleted</h2>
+  <ul>
+    <li>Your sign-in identity and its sessions.</li>
+    <li>Your brokerage connection and all the data synced through it (connection record, stored credentials, position, order and balance snapshots, cached option prices). We ask our connection provider, SnapTrade, to remove the connection on a best-effort basis; if that request fails, the failure is logged and our own copies are still deleted.</li>
+    <li>The trading rules you wrote.</li>
+    <li>Your plan and entitlement record, and the link between your account and an App Store subscription.</li>
+    <li>Your analysis-usage record and the stored record of your analyses.</li>
+    <li>Working records tied to your account: the one-time deletion codes, the last-seen time, the connection-reminder bookkeeping and account-mode settings.</li>
+  </ul>
+
+  <h2 class="type-heading-2" id="anonymized">What is anonymized</h2>
+  <p>These records stay, with everything that identifies you removed so they can no longer be linked back to you:</p>
+  <ul>
+    <li>The payment-event log (billing events), kept for financial record-keeping.</li>
+    <li>The record that the Terms of Service were accepted, with its version and time.</li>
+    <li>Your account-status record, whose identifier is replaced by a one-way keyed digest.</li>
+  </ul>
+
+  <h2 class="type-heading-2" id="retained">What is kept</h2>
+  <ul>
+    <li>Audit records and error records that hold no personal information.</li>
+    <li>Shared analysis caches keyed by ticker, not by person.</li>
+    <li>Ban and abuse-enforcement records, so a deletion request cannot be used to evade them.</li>
+    <li>Payment records held by Dodo Payments, our merchant of record, under its own terms, and App Store records held by Apple under Apple's.</li>
+  </ul>
+
+  <h2 class="type-heading-2" id="timing">How long it takes</h2>
+  <p>Deletion from our live systems runs as soon as you finish the steps above. Our <a href="/privacy">Privacy Policy</a> commits to deleting your personal information within 30 days of the deletion of your account.</p>
+
+  <p>Questions: <a href={`mailto:${EMAIL}`}>{EMAIL}</a>.</p>
+</Policy>
