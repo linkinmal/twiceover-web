@@ -4,6 +4,7 @@
  * iframe in a post and the page gate would be the only thing standing between it and the site. So the
  * build fails on the first HTML node, and the writer sees why.
  */
+import { readFileSync } from "node:fs";
 import { createMarkdownProcessor } from "@astrojs/markdown-remark";
 import { describe, expect, it } from "vitest";
 import { remarkNoHtml } from "./remark-no-html.mjs";
@@ -38,5 +39,13 @@ describe("raw HTML in Markdown", () => {
     expect.soft(out.code).toContain("&#x3C;script>");
     expect.soft(out.code).not.toMatch(/<script/);
     expect.soft(out.code).toContain('alt="alt text"');
+  });
+});
+
+describe("wiring", () => {
+  it("is registered as a Markdown plugin in astro.config.mjs, so a post cannot reach the renderer without it", () => {
+    const config = readFileSync(new URL("../../astro.config.mjs", import.meta.url), "utf8");
+    expect.soft(config).toContain('import { remarkNoHtml } from "./src/blog/remark-no-html.mjs";');
+    expect.soft(config).toMatch(/markdown:\s*\{\s*remarkPlugins:\s*\[remarkNoHtml\]\s*\}/);
   });
 });

@@ -20,6 +20,7 @@
  */
 import { JSDOM } from "jsdom";
 import { isValidSlug } from "../src/blog/publish.mjs";
+import { isRootRelative } from "../src/blog/url.mjs";
 
 // ---------------------------------------------------------------------------------------------
 // Compliance rules (unchanged from the pre-blog gate)
@@ -199,11 +200,7 @@ export function postStrings(html) {
 // Blog: markup rules and the door form
 // ---------------------------------------------------------------------------------------------
 
-// A backslash is out everywhere: browsers read "/\\host" as "//host", an off-site address that a
-// "starts with one slash" test lets through; a tab or newline, which browsers drop, is out too.
 const SITE = "https://twiceover.io";
-const ROOT_RELATIVE_RE = /^\/(?![/\\])[^\s\\]*$/;
-const isRootRelative = (v) => ROOT_RELATIVE_RE.test(v);
 const isSafeHref = (v) => /^https:\/\/[^\s\\]+$/.test(v) || /^#[^\s\\]*$/.test(v) || isRootRelative(v);
 const isSiteLink = (v) => isRootRelative(v) || v.startsWith(SITE + "/");
 const UTM_SMALL = /^[a-z0-9-]{1,32}$/;

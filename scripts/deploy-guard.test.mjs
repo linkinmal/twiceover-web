@@ -3,23 +3,34 @@
  * set BLOG_NOW far ahead so every post is built; if that reached a deploy, future posts would go live.
  */
 import { spawnSync } from "node:child_process";
+import { chmodSync, existsSync, mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-// deploy.sh is a REAL deploy. This runs it only with BLOG_NOW set, and with a PATH that holds no npm, node
-// or wrangler, so that even if the guard were ever removed the script would fail at its first command
-// instead of building and deploying (a test of this once shipped a branch to production).
-const run = (env) => spawnSync("/bin/bash", ["scripts/deploy.sh"], { env: { PATH: "/usr/bin:/bin", ...env }, encoding: "utf8", timeout: 20000 });
+// deploy.sh is a REAL deploy (a test of this once shipped a branch to production). So it runs here only
+// with BLOG_NOW set, with no HOME (no Keychain), and with a PATH whose first entry holds fake `npm`,
+// `npx`, `node`, `wrangler` and `security` that record themselves and exit 99: if the guard were ever
+// removed, the script would hit a fake and the test would say which one ran.
+function runGuarded() {
+  const bin = mkdtempSync(join(tmpdir(), "deploy-guard-"));
+  const ran = join(bin, "ran.log");
+  for (const name of ["npm", "npx", "node", "wrangler", "security"]) {
+    const f = join(bin, name);
+    writeFileSync(f, `#!/bin/sh\necho ${name} >> "${ran}"\nexit 99\n`);
+    chmodSync(f, 0o755);
+  }
+  const r = spawnSync("/bin/bash", ["scripts/deploy.sh"], { env: { PATH: `${bin}:/usr/bin:/bin`, BLOG_NOW: "2100-01-01T00:00:00Z" }, encoding: "utf8", timeout: 20000 });
+  return { ...r, ran: existsSync(ran) };
+}
 
 describe("scripts/deploy.sh", () => {
-  it("refuses to run with BLOG_NOW set, before it builds or touches a credential", () => {
-    const r = run({ BLOG_NOW: "2100-01-01T00:00:00Z" });
+  it("refuses to run with BLOG_NOW set, before it builds, runs any gate or reads a credential", () => {
+    const r = runGuarded();
     expect.soft(r.status).toBe(1);
     expect.soft(r.stderr).toContain("BLOG_NOW is set");
-    expect.soft(r.stdout).not.toContain("Build");
-    expect.soft(readFileSync(new URL("./deploy.sh", import.meta.url), "utf8").indexOf("BLOG_NOW")).toBeLessThan(
-      readFileSync(new URL("./deploy.sh", import.meta.url), "utf8").indexOf("npm run build"),
-    );
+    expect.soft(r.ran, "no npm, npx, node, wrangler or security was started").toBe(false);
   });
 });
 

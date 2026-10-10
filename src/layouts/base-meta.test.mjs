@@ -16,7 +16,7 @@ describe("Base.astro share metadata", () => {
 
   it("takes an optional root-relative image that feeds both share tags, and falls back to the site card", () => {
     expect.soft(base).toMatch(/image\?: string;/);
-    expect.soft(base).toContain("image ? new URL(image, Astro.site).href : cardURL");
+    expect.soft(base).toContain("image ? new URL(assertShareImage(image), Astro.site).href : cardURL");
     expect.soft(base).toMatch(/og:image"\s+content=\{ogImageURL\}/);
     expect.soft(base).toMatch(/twitter:image"\s+content=\{ogImageURL\}/);
   });
