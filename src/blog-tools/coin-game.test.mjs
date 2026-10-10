@@ -111,6 +111,13 @@ describe("the 2,000-game bars (seed 1987)", () => {
     expect.soft(barsAll().map((b) => [b.fraction, b.cap, b.bust])).toEqual(want);
   });
 
+  it("gives the middle game's end stack, which the page prints in whole dollars: $250, $250, $250, $250, $2, $0", () => {
+    // Worked with the independent port: the 1,000th and 1,001st sorted end values are equal at every bet size.
+    const want = [250, 250, 250, 250, 1.7179869184, 0];
+    expect.soft(barsAll().map((b) => b.median)).toEqual(want.map((w) => expect.closeTo(w, 9)));
+    expect.soft(barsAll().map((b) => Math.round(b.median))).toEqual([250, 250, 250, 250, 2, 0]);
+  });
+
   it("is the same every visit: a repeat call, and a call after another bet size, give identical bars", () => {
     const a = simulateBars(0.4);
     simulateBars(0.1);

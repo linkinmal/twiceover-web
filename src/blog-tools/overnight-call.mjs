@@ -14,7 +14,7 @@
  *
  * **Deliberate differences from the kit prototype**, each stated for the Designer's gate: a
  * double-precision normal CDF (the kit's error is a visible cent at a $100,000 stock); a zero or
- * unreachable break-even says "none" where the kit would print −80%; the heat grid never includes a
+ * unreachable break-even says "none" (at either end of the range) where the kit would print −80%; the heat grid never includes a
  * 0% volatility row (the kit divides by zero for an implied volatility of 1%); a preset stays pressed
  * after the slider clamped it.
  */
@@ -121,7 +121,7 @@ function breakEvenMove(inputs, target) {
   const left = daysToExpiry - daysPass;
   const iv = ivAfterPct / 100;
   const f = (s) => callPrice(s, strike, iv, left);
-  if (target <= 0 || f(stock * BREAK_EVEN_HIGH) < target) return { kind: "none" };
+  if (target <= 0 || f(stock * BREAK_EVEN_LOW) >= target || f(stock * BREAK_EVEN_HIGH) < target) return { kind: "none" };
   let lo = stock * BREAK_EVEN_LOW;
   let hi = stock * BREAK_EVEN_HIGH;
   for (let i = 0; i < BREAK_EVEN_STEPS; i++) {

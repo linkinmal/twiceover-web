@@ -80,21 +80,26 @@ export function playToEnd(run, fraction, rng) {
 }
 
 /**
- * 2,000 seeded games at one bet size, as whole percents.
+ * 2,000 seeded games at one bet size: whole percents, and the middle game's end stack.
+ * The middle game is the 1,001st of the 2,000 sorted end values (index 1,000), as the signed-off kit
+ * takes it; the design's handoff text is being corrected to match.
  * @param {number} fraction
- * @returns {{cap:number, bust:number, neither:number}}
+ * @returns {{cap:number, bust:number, neither:number, median:number}}
  */
 export function simulateBars(fraction) {
   const rng = createRng(COIN.barsSeed);
   let cap = 0;
   let bust = 0;
+  const ends = [];
   for (let g = 0; g < COIN.barsGames; g++) {
-    const { outcome } = playToEnd([COIN.start], fraction, rng);
+    const { run, outcome } = playToEnd([COIN.start], fraction, rng);
+    ends.push(run[run.length - 1]);
     if (outcome === "cap") cap++;
     else if (outcome === "bust") bust++;
   }
   const pct = (n) => Math.round((n / COIN.barsGames) * 100);
-  return { cap: pct(cap), bust: pct(bust), neither: 100 - pct(cap) - pct(bust) };
+  ends.sort((a, b) => a - b);
+  return { cap: pct(cap), bust: pct(bust), neither: 100 - pct(cap) - pct(bust), median: ends[COIN.barsGames / 2] };
 }
 
 /** The bars for every bet chip, in chip order. */

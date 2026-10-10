@@ -177,6 +177,14 @@ describe("when no stock move can bring the call back", () => {
     expect.soft(r.breakEven).toEqual({ kind: "none" });
   });
 
+  it("says none when the call is already worth the starting value at 0.2x the stock (the low end of the range), not -80%", () => {
+    // Architect review: 1% volatility now, 150% after: the call at $20 is still worth more than $0.56.
+    const r = runOvernight({ stock: 100, strike: 100, daysToExpiry: 730, ivNowPct: 1, movePct: 0, ivAfterPct: 150, daysPass: 0 });
+    expect.soft(r.values.v0).toBe(0.56);
+    expect.soft(callPrice(20, 100, 1.5, 730)).toBeGreaterThan(0.56);
+    expect.soft(r.breakEven).toEqual({ kind: "none" });
+  });
+
   it("still finds a break-even when the call expires worthless-or-intrinsic after the days pass (zero days left)", () => {
     // 1 day to expiry, 1 day passes: the call is then its intrinsic value, so the break-even is the
     // price where max(S - 105, 0) = the starting value.
