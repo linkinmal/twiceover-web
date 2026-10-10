@@ -12,24 +12,34 @@
  *         (stock-analyst-platform#4033) link nowhere but their own anchors, mailto:
  *         and each other, and are noindex. A path from them to Pricing or Sign up
  *         is a purchase path outside Apple's IAP (ADR 1018 Decision 4).
+ *   BLOG — posts under blog/<slug> leave the banned-word scan for a phrase floor; the blog index and
+ *         topic pages keep it after their exact post titles are subtracted; every other page,
+ *         including blog games and tools, keeps it. Blog pages also meet the markup and door-form
+ *         rules (ADR 1090 Decisions 9 and 11). The rules live in content-rules.mjs, where they are
+ *         mutation-tested; this file only walks dist/.
  *
  * The copy itself is clean (PM self-check in site-copy-twiceover.md); this gate
  * guards against build-time drift. Allowlist entries are reviewed exceptions —
  * negation or non-advice boilerplate only. Adding one is a content-review decision.
  */
 
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, dirname, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  IN_APP_PAGES,
+  contentSlugFailures,
+  crossPageFailures,
+  disallowedInAppHrefs,
+  normalize,
+  pageKind,
+  postStrings,
+  scanPage,
+} from "./content-rules.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
-
-const IN_APP_PAGES = [
-  "in-app/terms/index.html",
-  "in-app/privacy/index.html",
-  "in-app/cookies/index.html",
-];
+const blogContent = join(root, "src/content/blog");
 
 const EXPECTED_PAGES = [
   "index.html",
@@ -42,71 +52,6 @@ const EXPECTED_PAGES = [
   "404.html",
   ...IN_APP_PAGES,
 ];
-
-// The closed set an in-app page may link to. Everything else — "/", "/pricing", "/go/*",
-// "/refunds", any absolute URL — fails.
-const IN_APP_HREF_ALLOWED = /^(?:#[\w-]*|mailto:[^"\s]+|\/in-app\/(?:terms|privacy|cookies)(?:#[\w-]*)?)$/;
-
-function hrefsOf(html) {
-  return [...html.matchAll(/<a\b[^>]*?\bhref="([^"]*)"/gi)].map((m) => m[1]);
-}
-
-function disallowedInAppHrefs(html) {
-  return hrefsOf(html).filter((href) => !IN_APP_HREF_ALLOWED.test(href));
-}
-
-const BANNED = [
-  /\bbuy\b/g,
-  /\bsell\b/g,
-  /\bbuy now\b/g,
-  /\bsell now\b/g,
-  /\bstrong buy\b/g,
-  /\brecommend(?:s|ed|ation|ations)?\b/g,
-  /\bsuitable\b/g,
-  /\bsuitability\b/g,
-  /\badvice\b/g,
-  /\badvise(?:s|d)?\b/g,
-  /\byou should\b/g,
-];
-
-// Documented exceptions, verbatim from the signed copy sources. Negations and
-// non-trading boilerplate only — never an actual directive.
-const ALLOWED = [
-  // Home, "What TwiceOver is not" (site-copy-twiceover.md, ADR 0011 analysis-led swap) — quoted negation.
-  'no recommendations, no trading signals, no scores, no ratings — and never a one-line verdict or a "buy" or "sell."',
-  // Home, "What you see" outlook item (site-copy-twiceover.md, ADR 0011) — quoted negation.
-  'never a score, never a "buy" or "sell."',
-  // ToS "Nature of the service" insert (PM, compliance-load-bearing) — negation.
-  "nothing it produces is investment advice, a recommendation, a solicitation, or a suitability determination",
-  "not a registered investment adviser, broker-dealer, or financial planner",
-  // Privacy PM clause — negation (data sale, not trading).
-  "we do not sell or rent personal data",
-  // GetTerms Privacy, Security section — security caveat, not investment advice.
-  "we advise that no method of electronic transmission or storage is 100% secure",
-  // GetTerms boilerplate "you should" instances — browser/policy mechanics, not
-  // trading directives (privacy intro, cookie policy ×2).
-  "you should read their posted privacy policy information",
-  "you should instruct your browser to refuse cookies",
-  "you should check the date of this cookie policy",
-];
-
-const normalize = (s) => s.replace(/\s+/g, " ").replace(/[‘’]/g, "'").replace(/[“”]/g, '"').trim();
-
-/** Rendered text of an HTML document (script/style dropped, tags stripped, entities decoded). */
-function textOf(html) {
-  return normalize(
-    html
-      .replace(/<script[\s\S]*?<\/script>/gi, " ")
-      .replace(/<style[\s\S]*?<\/style>/gi, " ")
-      .replace(/<[^>]+>/g, " ")
-      .replace(/&amp;/g, "&")
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;|&apos;/g, "'")
-      .replace(/&nbsp;/g, " ")
-  );
-}
 
 function htmlFiles(dir) {
   const out = [];
@@ -129,6 +74,11 @@ try {
   process.exit(1);
 }
 
+// The posts are the files in the content folder; a page under blog/ is a post only if its slug is one.
+const postFiles = existsSync(blogContent) ? readdirSync(blogContent) : [];
+failures.push(...contentSlugFailures(postFiles));
+const postSlugs = postFiles.filter((f) => f.endsWith(".md")).map((f) => f.slice(0, -3));
+
 for (const expected of EXPECTED_PAGES) {
   if (!pages.some((p) => relative(dist, p) === expected)) {
     failures.push(`[structure] missing built page: dist/${expected}`);
@@ -142,35 +92,14 @@ if (fullTerms && !disallowedInAppHrefs(readFileSync(fullTerms, "utf8")).includes
   failures.push("[IN-APP] control: the link scan found no /pricing on the full /terms page — scan is blind");
 }
 
-for (const page of pages) {
-  const rel = relative(dist, page);
-  const html = readFileSync(page, "utf8");
-  const text = textOf(html).toLowerCase();
+const built = pages.map((p) => ({ rel: relative(dist, p), html: readFileSync(p, "utf8") }));
 
-  if (IN_APP_PAGES.includes(rel)) {
-    for (const href of disallowedInAppHrefs(html)) {
-      failures.push(`[IN-APP] ${rel}: links to "${href}" — only its own anchors, mailto: and /in-app/* pages`);
-    }
-    if (!/<meta name="robots" content="noindex"/.test(html)) {
-      failures.push(`[IN-APP] ${rel}: missing <meta name="robots" content="noindex">`);
-    }
-  }
+// A list page prints each post's exact heading, description and title; those strings are subtracted
+// before its full scan, so a headline with "sell-off" in it is not a violation by itself.
+const listStrings = built.filter((b) => pageKind(b.rel, postSlugs) === "post").flatMap((b) => postStrings(b.html));
 
-  // AC4 — disclaimer verbatim on every page.
-  if (!text.includes(disclaimer.toLowerCase())) {
-    failures.push(`[AC4] ${rel}: shared disclaimer missing or altered`);
-  }
-
-  // AC3 — banned terms outside the disclaimer + documented exceptions.
-  let scrubbed = text.replaceAll(disclaimer.toLowerCase(), " ");
-  for (const phrase of ALLOWED) scrubbed = scrubbed.replaceAll(normalize(phrase).toLowerCase(), " ");
-  for (const re of BANNED) {
-    for (const m of scrubbed.matchAll(re)) {
-      const ctx = scrubbed.slice(Math.max(0, m.index - 35), m.index + m[0].length + 35).trim();
-      failures.push(`[AC3] ${rel}: banned term "${m[0]}" — …${ctx}…`);
-    }
-  }
-}
+for (const page of built) failures.push(...scanPage({ ...page, disclaimer, postSlugs, listStrings }));
+failures.push(...crossPageFailures(built, postSlugs));
 
 if (failures.length) {
   console.error("CONTENT CHECK FAILED:\n");
