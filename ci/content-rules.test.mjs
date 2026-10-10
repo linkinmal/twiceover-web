@@ -112,6 +112,14 @@ describe("the phrase floor on a post (Decision 9a, 11)", () => {
     expect.soft(scan(post("<p>The buy side, a sell-off, a nowhere, you can see it.</p>"))).toEqual([]);
   });
 
+  it("reads the disclaimer from visible text only: one that sits only in a meta description or alt text does not count", () => {
+    const hidden = `<meta name="description" content="${disclaimer}">`;
+    const f = scan({ rel: "blog/why-a-call-loses/index.html", html: html("<h1>x</h1>", { head: hidden, disc: "x" }) });
+    expect.soft(f.some((x) => x.includes("[AC4]"))).toBe(true);
+    const g = scan({ rel: "blog/why-a-call-loses/index.html", html: html(`<h1>x</h1><img src="/blog-images/a.png" alt="${disclaimer}">`, { disc: "x" }) });
+    expect.soft(g.some((x) => x.includes("[AC4]"))).toBe(true);
+  });
+
   it("flags the meta description, which a search result shows", () => {
     const f = scan(post("<p>x</p>", "why-a-call-loses", { head: '<meta name="description" content="Close your calls early.">' }));
     expect.soft(f.some((x) => x.includes("[BLOG-PHRASE]"))).toBe(true);
@@ -131,9 +139,14 @@ describe("the blog index and topic pages: exemption B (Decision 9b, 11)", () => 
     expect.soft(scan(ok, { listStrings: [] }).some((f) => f.includes("[AC3]"))).toBe(true);
   });
 
+  it("does not subtract a string short enough to be a single banned word, so one such title cannot excuse the word across the page", () => {
+    const f = scan(list("blog/index.html", "<p>Sell</p><p>Sell the dip.</p>"), { listStrings: ["Sell"] });
+    expect.soft(f.filter((x) => x.includes("[AC3]")).length).toBeGreaterThan(0);
+  });
+
   it("applies to the index, topic pages and pagination by exact route only", () => {
-    const strings = ["A sell-off"];
-    const body = "<p>A sell-off</p>";
+    const strings = ["A sell-off and what it priced in"];
+    const body = "<p>A sell-off and what it priced in</p>";
     for (const rel of ["blog/index.html", "blog/topic/earnings/index.html", "blog/page/2/index.html", "blog/topic/earnings/page/2/index.html"]) {
       expect.soft(scan(list(rel, body), { listStrings: strings }), rel).toEqual([]);
     }
@@ -215,9 +228,27 @@ describe("markup rules on every blog page (Decision 11)", () => {
     expect.soft(fails(withBody('<a href="https://example.org/x" rel="noreferrer noopener nofollow">a</a>'))).toBe(false);
   });
 
+  it("refuses a backslash after the first slash: browsers read /\\host as //host, an off-site address", () => {
+    for (const v of ["/\\evil.test/a.png", "/\\/evil.test/a.png", "/a\\b", "\\evil.test", "/\\\\evil.test/x"]) {
+      expect.soft(fails(withBody(`<img src="${v}" alt="a">`)), `img ${v}`).toBe(true);
+      expect.soft(fails(withBody(`<img src="/blog-images/a.png" srcset="${v} 2x" alt="a">`)), `srcset ${v}`).toBe(true);
+      expect.soft(fails(withBody(`<a href="${v}">a</a>`)), `a ${v}`).toBe(true);
+    }
+    // A tab or newline inside the URL is stripped by browsers, so "/<tab>/host" is "//host" too.
+    for (const v of ["/\t/evil.test/x", "/\n/evil.test/x"]) expect.soft(fails(withBody(`<a href="${v}">a</a>`)), JSON.stringify(v)).toBe(true);
+  });
+
+  it("holds <link> to root-relative or this site's own address", () => {
+    const head = (h) => ({ rel: "blog/why-a-call-loses/index.html", html: html("<h1>x</h1>" + door("why-a-call-loses"), { head: `<link rel="x" href="${h}">` }) });
+    for (const h of ["/blog/feed.xml", "https://twiceover.io/blog/why-a-call-loses"]) expect.soft(fails(head(h)), h).toBe(false);
+    for (const h of ["https://cdn.example.org/a.css", "https://twiceover.io.evil.test/x", "http://twiceover.io/x"]) expect.soft(fails(head(h)), h).toBe(true);
+  });
+
   it("lets a /go/try link carry only the three pinned keys, and no ticker", () => {
     expect.soft(fails(withBody('<a href="/go/try">a</a>'))).toBe(false);
     expect.soft(fails(withBody('<a href="/go/try?utm_source=blog&amp;utm_medium=post&amp;utm_campaign=why-a-call-loses">a</a>'))).toBe(false);
+    for (const href of ["/go/try/?ticker=AAPL", "/go/try//?ticker=AAPL", "/go/try/?x=1"]) expect.soft(fails(withBody(`<a href="${href}">a</a>`)), href).toBe(true);
+    expect.soft(fails(withBody('<a href="/go/try/">a</a>'))).toBe(false);
     for (const q of ["?ticker=AAPL", "?utm_source=blog&utm_medium=post&utm_campaign=x&ref=1", "?utm_source=BLOG", "?utm_source=blog&utm_source=blog", "?x=1"]) {
       expect.soft(fails(withBody(`<a href="/go/try${q}">a</a>`)), q).toBe(true);
     }

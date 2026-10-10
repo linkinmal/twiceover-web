@@ -146,6 +146,9 @@ export function pageKind(rel, postSlugs) {
 // Blog: rendered, normalized text
 // ---------------------------------------------------------------------------------------------
 
+// A list page subtracts a post's exact title or description before its full scan. A string this short
+// could be one banned word, which would then pass across the whole page, so a short one is not subtracted.
+const MIN_SUBTRACT = 20;
 const INVISIBLE = /[\u00AD\u200B-\u200D\u2060\uFEFF]/g;
 const TEXT_ATTRS = ["alt", "aria-label", "title"];
 
@@ -163,8 +166,11 @@ const BLOCK = new Set(
   "address article aside blockquote body br caption dd details div dl dt fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 header hgroup hr li main nav ol option p pre section summary table tbody td tfoot th thead title tr ul".split(" "),
 );
 
-/** What a reader, a screen reader and a search result show: text, alt/aria-label/title, meta text. */
-function blogText(doc) {
+/**
+ * What a reader sees (`visibleOnly`), or also what a screen reader and a search result show:
+ * alt/aria-label/title and meta text. The disclaimer must be visible; the phrase floor reads it all.
+ */
+function blogText(doc, visibleOnly = false) {
   const clone = doc.documentElement.cloneNode(true);
   for (const el of clone.querySelectorAll("script, style")) el.remove();
   for (const el of clone.querySelectorAll("*")) {
@@ -173,6 +179,7 @@ function blogText(doc) {
     el.after(" ");
   }
   const parts = [clone.textContent];
+  if (visibleOnly) return normalizeBlog(parts.join(" "));
   for (const el of clone.querySelectorAll("*")) for (const a of TEXT_ATTRS) if (el.hasAttribute(a)) parts.push(el.getAttribute(a));
   for (const m of clone.querySelectorAll("meta[content]")) {
     const key = (m.getAttribute("name") || m.getAttribute("property") || "").toLowerCase();
@@ -192,8 +199,13 @@ export function postStrings(html) {
 // Blog: markup rules and the door form
 // ---------------------------------------------------------------------------------------------
 
-const SAFE_HREF = /^(?:https:\/\/\S+|\/(?!\/)\S*|#\S*)$/;
-const ROOT_RELATIVE = /^\/(?!\/)\S*$/;
+// A backslash is out everywhere: browsers read "/\\host" as "//host", an off-site address that a
+// "starts with one slash" test lets through; a tab or newline, which browsers drop, is out too.
+const SITE = "https://twiceover.io";
+const ROOT_RELATIVE_RE = /^\/(?![/\\])[^\s\\]*$/;
+const isRootRelative = (v) => ROOT_RELATIVE_RE.test(v);
+const isSafeHref = (v) => /^https:\/\/[^\s\\]+$/.test(v) || /^#[^\s\\]*$/.test(v) || isRootRelative(v);
+const isSiteLink = (v) => isRootRelative(v) || v.startsWith(SITE + "/");
 const UTM_SMALL = /^[a-z0-9-]{1,32}$/;
 const UTM_CAMPAIGN = /^[a-z0-9-]{1,64}$/;
 const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign"];
@@ -201,7 +213,7 @@ const FORM_ATTRS = ["formaction", "formmethod", "formtarget", "formenctype", "fo
 
 function goTryQueryOk(href) {
   const u = new URL(href, "https://twiceover.io");
-  if (u.pathname !== "/go/try") return true;
+  if (u.pathname.replace(/\/+$/, "") !== "/go/try") return true;
   const keys = [...u.searchParams.keys()];
   if (keys.length === 0) return true;
   if (keys.length !== 3 || !UTM_KEYS.every((k) => keys.includes(k))) return false;
@@ -260,18 +272,18 @@ function markupFailures(doc, rel, kind, slug, allowedScripts) {
   for (const tag of ["iframe", "object", "embed", "base"]) if (doc.querySelector(tag)) add(`<${tag}> is not allowed`);
   if ([...doc.querySelectorAll("meta[http-equiv]")].some((m) => m.getAttribute("http-equiv").toLowerCase() === "refresh")) add("meta refresh");
   for (const el of doc.querySelectorAll("img[src], source[src]")) {
-    if (!ROOT_RELATIVE.test(el.getAttribute("src"))) add(`image src "${el.getAttribute("src")}" is not root-relative`);
+    if (!isRootRelative(el.getAttribute("src"))) add(`image src "${el.getAttribute("src")}" is not root-relative`);
   }
   for (const el of doc.querySelectorAll("img[srcset], source[srcset]")) {
     for (const cand of el.getAttribute("srcset").split(",")) {
       const url = cand.trim().split(/\s+/)[0];
-      if (url && !ROOT_RELATIVE.test(url)) add(`srcset url "${url}" is not root-relative`);
+      if (url && !isRootRelative(url)) add(`srcset url "${url}" is not root-relative`);
     }
   }
   for (const el of doc.querySelectorAll("a[href], link[href]")) {
     const href = el.getAttribute("href");
-    if (!SAFE_HREF.test(href)) {
-      add(`href "${href}" is not https, root-relative or a fragment`);
+    if (!isSafeHref(href) || (el.tagName === "LINK" && !isSiteLink(href))) {
+      add(`href "${href}" is not ${el.tagName === "LINK" ? "root-relative or on this site" : "https, root-relative or a fragment"}`);
       continue;
     }
     if (el.tagName === "A" && href.startsWith("https://")) {
@@ -336,7 +348,8 @@ export function scanPage({ rel, html, disclaimer, postSlugs = [], listStrings = 
   }
 
   // AC4 — disclaimer verbatim on every page.
-  if (!text.includes(disc)) failures.push(`[AC4] ${rel}: shared disclaimer missing or altered`);
+  const visible = isBlog ? blogText(doc, true) : text;
+  if (!visible.includes(disc)) failures.push(`[AC4] ${rel}: shared disclaimer missing or altered`);
 
   let scrubbed = text.replaceAll(disc, " ");
 
@@ -353,7 +366,10 @@ export function scanPage({ rel, html, disclaimer, postSlugs = [], listStrings = 
   // keep it after their exact post titles and descriptions are subtracted; everything else keeps it.
   if (kind !== "post") {
     for (const phrase of ALLOWED) scrubbed = scrubbed.replaceAll(isBlog ? normalizeBlog(phrase) : normalize(phrase).toLowerCase(), " ");
-    if (kind === "list") for (const s of listStrings) scrubbed = scrubbed.replaceAll(normalizeBlog(s), " ");
+    if (kind === "list") for (const s of listStrings) {
+        const n = normalizeBlog(s);
+        if (n.length >= MIN_SUBTRACT) scrubbed = scrubbed.replaceAll(n, " ");
+      }
     for (const re of BANNED) {
       for (const m of scrubbed.matchAll(re)) {
         const ctx = scrubbed.slice(Math.max(0, m.index - 35), m.index + m[0].length + 35).trim();
