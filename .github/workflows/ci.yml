@@ -10,6 +10,11 @@ on:
 jobs:
   build-and-check:
     runs-on: ubuntu-latest
+    # Pull requests build the blog with its clock far ahead, so every post, future ones included, is
+    # built and checked and a broken post fails its own pull request (ADR 1090 Decision 4). A push
+    # builds on the real clock, and scripts/deploy.sh refuses a deploy with BLOG_NOW set.
+    env:
+      BLOG_NOW: ${{ github.event_name == 'pull_request' && '2100-01-01T00:00:00Z' || '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

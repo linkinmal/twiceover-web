@@ -19,6 +19,13 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+# A set BLOG_NOW moves the blog's clock (pull-request builds set it far ahead so every post is built
+# and checked). In a deploy it would publish posts early, so a deploy refuses it (ADR 1090, Security 1091).
+if [ -n "${BLOG_NOW:-}" ]; then
+  echo "BLOG_NOW is set (${BLOG_NOW}); a deploy must use the real clock. Refusing." >&2
+  exit 1
+fi
+
 # ── 1 · Build + content gate (AC3/AC4) ──────────────────────────────────────
 echo "▸ Build…"
 npm run build
