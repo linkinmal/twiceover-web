@@ -17,8 +17,11 @@ interface Props {
   // nav, so nothing there leads to a purchase outside Apple's IAP (ADR 1018 Decision 4).
   // ci/check-content.mjs's IN-APP clause holds them to that.
   chrome?: "full" | "none";
+  // A root-relative path to this page's own share image (a blog post's, 1200 × 630). Omitted, the
+  // rotating site card below stays the og:image (ADR 1088 Decision 4).
+  image?: string;
 }
-const { title, description, chrome = "full" } = Astro.props;
+const { title, description, chrome = "full", image } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site).href;
 
 // The live member of the rotating share-card set (ADR 0905). Three cards exist —
@@ -31,7 +34,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site).href;
 // that changes. Never delete a retired member either — links already shared resolve
 // to it. README §Rotating the share card.
 const OG_CARD = "/og-card-path.png";
-const ogImageURL = new URL(OG_CARD, Astro.site).href;
+const cardURL = new URL(OG_CARD, Astro.site).href;
+const ogImageURL = image ? new URL(image, Astro.site).href : cardURL;
 ---
 <!doctype html>
 <html lang="en-US">
@@ -45,6 +49,7 @@ const ogImageURL = new URL(OG_CARD, Astro.site).href;
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:image" content={ogImageURL} />
     <meta property="og:image:width" content="1200" />
