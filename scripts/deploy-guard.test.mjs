@@ -26,6 +26,9 @@ function runGuarded(extraEnv = { BLOG_NOW: "2100-01-01T00:00:00Z" }) {
 }
 
 describe("scripts/deploy.sh", () => {
+  it("runs the stable-address gate among its gates", () => {
+    expect.soft(readFileSync(new URL("./deploy.sh", import.meta.url), "utf8")).toContain("node ci/check-stable-addresses.mjs");
+  });
   it("refuses to run with BLOG_NOW set, before it builds, runs any gate or reads a credential", () => {
     const r = runGuarded();
     expect.soft(r.status).toBe(1);
@@ -52,5 +55,27 @@ describe(".github/workflows/ci.yml", () => {
     expect.soft(deployJob).toBeDefined();
     expect.soft(deployJob).not.toContain("BLOG_NOW");
     expect.soft(ci, "no job points the build at another folder of posts").not.toContain("BLOG_CONTENT_DIR");
+  });
+
+  it("names exactly three triggers that can deploy, each only on main, and never a pull request", () => {
+    const cond = /deploy:[\s\S]*?\n    if: ([^\n]+)/.exec(ci)[1];
+    expect.soft([...cond.matchAll(/github\.event_name == '(\w+)'/g)].map((m) => m[1]).sort()).toEqual(["push", "schedule", "workflow_dispatch"]);
+    expect.soft(cond).toContain("github.ref == 'refs/heads/main'");
+    expect.soft(cond).not.toContain("pull_request");
+    expect.soft(ci).toMatch(/\n  schedule:\n    - cron: "7 11 \* \* \*"\n    - cron: "7 12 \* \* \*"\n  workflow_dispatch:/);
+  });
+
+  it("checks the run is the head of main before the one deploy step, and has no second deploy step", () => {
+    const steps = deployJob.split("\n").filter((l) => /^      - run:/.test(l));
+    const guard = steps.findIndex((l) => l.includes("scripts/assert-head-of-main.sh"));
+    const deploy = steps.findIndex((l) => l.includes("npm run deploy"));
+    expect.soft(guard).toBeGreaterThan(-1);
+    expect.soft(guard).toBeLessThan(deploy);
+    expect.soft(steps.filter((l) => /deploy|wrangler/.test(l))).toHaveLength(1);
+  });
+
+  it("runs the stable-address check in the checking job, after the build", () => {
+    const steps = buildJob.split("\n").filter((l) => /^      - run:/.test(l));
+    expect.soft(steps.findIndex((l) => l.includes("check:addresses"))).toBeGreaterThan(steps.findIndex((l) => l.includes("npm run build")));
   });
 });
