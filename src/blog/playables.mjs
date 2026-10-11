@@ -53,8 +53,11 @@ export const PLAYABLES = Object.freeze([
 
 export const playablePath = (p) => p.path;
 
-/** The first playable, where the bar's "Playable" link goes. */
-export const FIRST_PLAYABLE = PLAYABLES[0];
+/** The games-and-tools hub (blog-handoff.md section 5.4): where the bar's "Games and tools" link and each strip's last cell go. */
+export const HUB_PATH = "/blog/play";
 
-/** The other playables, for the "More to play" strip. */
-export const otherPlayables = (slug) => PLAYABLES.filter((p) => p.slug !== slug);
+/** The other playables, for the "More to play" strip: two, then the strip's own last cell opens the hub. */
+export const otherPlayables = (slug) => PLAYABLES.filter((p) => p.slug !== slug).slice(0, 2);
+
+/** Every playable, newest update first; the registry's order breaks a tie (the sort is stable). */
+export const playablesNewestFirst = () => [...PLAYABLES].sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
