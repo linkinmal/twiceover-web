@@ -21,7 +21,8 @@
   - Additions at the end (marked, none in the kit): the skip link; filter pills as links and filing-line items
     as plain spans, which the kit draws only as buttons and links; the "Keep reading" heading (the kit's `.xh`
     label, a mockup class, here a real heading); the footer's links; the mapping of a Markdown body's
-    elements (h2, h3, lists, quote, table, code) onto the theme's type; and the photograph's aspect box.
+    elements (h2, h3, lists, quote, table, code) onto the theme's type; the photograph's aspect box and its
+    failed-load box; the tile's photograph; and `.deck` and `.sig` spacing, which `.post p` otherwise zeroes.
   - The end block's literals are the product's own tokens, not new ones: #F4F0E8 warm-ink.100, #211D17
     warm-ink.900, #4C463D warm-ink.700, #23436F navy.600, #6B6358 themes.light.text.muted, #FFFFFF
     warm-white.100 (tokens/twiceover.tokens.json); ci/blog-style.mjs pins each.
@@ -459,7 +460,11 @@
   .foot a{color:inherit}
   .foot p{margin:0 0 8px;max-width:70em}
   .photo .ph{aspect-ratio:5/3}
-  .photo .ph img{height:100%;object-fit:cover}
+  .photo .ph img{height:100%;object-fit:cover;border:1px solid var(--rule);border-radius:var(--rad);font:14.5px/1.45 "Source Sans 3",system-ui,sans-serif;color:var(--ink2);text-indent:14px}
+  .photo figcaption .credit{display:block;margin-top:4px}
+  .post p.deck{margin:30px 0 0}
+  .post p.sig{margin:18px 0 0}
+  .t-ph img{display:block;width:100%;height:auto;aspect-ratio:5/3;object-fit:cover;filter:var(--phf);mix-blend-mode:var(--phb)}
   .body > :first-child{margin-top:0}
   .body h2{font-family:var(--fd);font-weight:var(--fdw);font-style:var(--fdst);font-size:calc(clamp(24px,3.5vw,35px)*var(--fdsz));line-height:1.08;letter-spacing:var(--fdls);margin:clamp(40px,6vw,60px) 0 14px;text-wrap:balance}
   .body h3{font-family:var(--fd);font-weight:var(--fdw);font-style:var(--fdst);font-size:calc(clamp(20px,2.4vw,25px)*var(--fdsz));line-height:1.15;letter-spacing:var(--fdls);margin:32px 0 10px}

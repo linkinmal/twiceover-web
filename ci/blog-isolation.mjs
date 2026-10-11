@@ -12,7 +12,7 @@
  * Pure functions are exported for the tests; the CLI at the bottom reads dist/ (or `--dist <dir>`).
  */
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
-import { join, dirname, relative, resolve } from "node:path";
+import { join, dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseFontFaces } from "./blog-fonts.mjs";
 
@@ -107,13 +107,18 @@ function main() {
     console.error(`FATAL: ${dist} not found — run \`npm run build\` first.`);
     process.exit(1);
   }
-  const pages = htmlFiles(dist).map((p) => ({ rel: relative(dist, p), html: readFileSync(p, "utf8") }));
+  const pages = htmlFiles(dist).map((p) => ({ rel: relative(dist, p).split(sep).join("/"), html: readFileSync(p, "utf8") }));
   const readCss = (href) => {
     if (!href.startsWith("/") || href.startsWith("//")) return "";
     const p = join(dist, href.split("?")[0]);
     return existsSync(p) ? readFileSync(p, "utf8") : null;
   };
   const blogOnly = blogOnlyFonts(readFileSync(join(root, "src/styles/blog-fonts.css"), "utf8"), readFileSync(join(root, "src/styles/site.css"), "utf8"));
+  // A font arm that matches nothing would pass on nothing: the blog loads files and families the site does not.
+  if (!blogOnly.files.length || !blogOnly.families.length) {
+    console.error("FATAL: blog-fonts.css declares no blog-only font file or family, so the font scan is blind.");
+    process.exit(1);
+  }
   const failures = checkIsolation({ pages, readCss, blogOnly });
   if (failures.length) {
     console.error("BLOG ISOLATION CHECK FAILED:\n");

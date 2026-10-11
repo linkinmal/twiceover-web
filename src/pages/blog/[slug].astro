@@ -50,7 +50,7 @@ const jsonLd = serializeJsonLd(blogPostingJsonLd(data, { slug }));
       {data.image && (
         <figure class="photo blk">
           <div class="ph"><img src={data.image.src} alt={data.image.alt} decoding="async" /></div>
-          <figcaption>{data.image.alt} <b>Source</b> {data.image.source} · <b>Licence</b> {data.image.licence}</figcaption>
+          <figcaption>{/[.!?]$/.test(data.image.alt.trim()) ? data.image.alt.trim() : `${data.image.alt.trim()}.`}<span class="credit"><b>Source</b> {data.image.source} · <b>Licence</b> {data.image.licence}</span></figcaption>
         </figure>
       )}
       <div class="body blk"><Content /></div>

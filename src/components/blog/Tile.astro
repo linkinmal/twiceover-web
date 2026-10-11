@@ -29,8 +29,17 @@ const Heading = `h${level}` as "h2" | "h3";
     <Heading class="t-title">{before}{hit && <span class="hit">{hit}</span>}{after}</Heading>
   </div>
   <div class="t-cell skin" data-look={LOOKS[data.look].kit}>
-    {data.figure && <b class="t-fig">{data.figure.value}</b>}
-    {data.figure && <span class="t-note">{data.figure.note}</span>}
+    {/* The cell shows, in order: the post's photograph, else its figure, else its marked words (Designer ruling on PR 100). */}
+    {data.image ? (
+      <span class="t-ph"><span class="ph"><img src={data.image.src} alt="" loading="lazy" decoding="async" /></span></span>
+    ) : data.figure ? (
+      <>
+        <b class="t-fig">{data.figure.value}</b>
+        <span class="t-note">{data.figure.note}</span>
+      </>
+    ) : (
+      data.hit && <b class="t-fig">{data.hit}</b>
+    )}
   </div>
   <div class="t-build">{BUILD_LABELS[data.build]}</div>
 </a>
