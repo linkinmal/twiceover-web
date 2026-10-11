@@ -16,6 +16,7 @@
     "check:fonts": "node ci/blog-fonts.mjs",
     "check:style": "node ci/blog-style.mjs",
     "check:isolation": "node ci/blog-isolation.mjs",
+    "check:addresses": "node ci/check-stable-addresses.mjs",
     "test": "vitest run",
     "gen:favicons": "node scripts/gen-favicons.mjs",
     "gen:og-cards": "node scripts/gen-og-cards.mjs",
