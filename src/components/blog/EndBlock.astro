@@ -1,0 +1,33 @@
+---
+// The end of a post: the product mentioned once, the ticker door, and the full site disclaimer
+// (blog-handoff.md section 7). The door is a plain GET form to /go/try with `ticker` and three hidden
+// fields: two fixed literals and the post's own slug (ADR 1088 Decision 7). No script reads it; the
+// content gate pins its exact shape on every post page (ci/content-rules.mjs).
+import disclaimer from "../../content/disclaimer.txt?raw";
+import { DOOR_UTM } from "../../blog/door.mjs";
+import BlogMark from "./BlogMark.astro";
+
+interface Props {
+  slug: string;
+}
+const { slug } = Astro.props;
+---
+<section class="endblk" aria-labelledby="endh">
+  <div class="col">
+    <div class="e-mark"><BlogMark />TwiceOver</div>
+    <h2 class="e-h" id="endh">A second look at your own book.</h2>
+    <p class="e-p">TwiceOver reads your positions against live market data. Your broker connection is read-only.</p>
+    <form class="e-form" method="get" action="/go/try">
+      <label for="door-ticker">Read a ticker in TwiceOver</label>
+      <div class="e-row">
+        <input id="door-ticker" type="text" name="ticker" placeholder="AAPL" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="8" />
+        <input type="hidden" name="utm_source" value={DOOR_UTM.source} />
+        <input type="hidden" name="utm_medium" value={DOOR_UTM.medium} />
+        <input type="hidden" name="utm_campaign" value={slug} />
+        <button type="submit">See the read</button>
+        <a href="/">or go to twiceover.io</a>
+      </div>
+    </form>
+    <p class="e-d">{disclaimer.trim()}</p>
+  </div>
+</section>

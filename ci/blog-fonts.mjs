@@ -52,8 +52,9 @@ export const THEME_FACES = {
   ],
 };
 
-/** Per-theme ceiling on font bytes. Set from the measured worst theme; the Architect proposed 250 KB
- * (stock-analyst-platform#4233) and the measurement is on the PR for ratification. */
+/** Per-theme ceiling on font bytes: a regression guard, not a performance budget. Ratified at 520,000 by the
+ * Architect (stock-analyst-platform#4233) over a measured worst case of 511,260 (Newsprint); a new face or a
+ * wider axis must show up as a deliberate edit here. Real fetched bytes are measured on the live site. */
 export const CEILING_BYTES = 520_000;
 
 /** Every woff2 a stylesheet names, with its @font-face block. */

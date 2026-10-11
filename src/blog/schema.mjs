@@ -8,7 +8,7 @@
  */
 import { z } from "astro/zod";
 import { parsePublishTime } from "./publish.mjs";
-import { BUILDS, LENSES, TOPICS } from "./vocabulary.mjs";
+import { BUILDS, LENSES, LOOK_NAMES, TOPICS } from "./vocabulary.mjs";
 
 const noMarkup = (s) => !/[<>]/.test(s);
 // YAML turns an unquoted timestamp into a Date, and one with no offset into a UTC instant — a silent
@@ -25,6 +25,14 @@ const image = z
   })
   .strict();
 
+// The one figure a post turns on, printed in its index tile (the kit's `.t-fig` and its note).
+const figure = z
+  .object({
+    value: z.string().min(1).max(14).refine(noMarkup, "no markup"),
+    note: z.string().min(1).max(80).refine(noMarkup, "no markup"),
+  })
+  .strict();
+
 export const postSchema = z
   .object({
     title: z.string().min(1).max(140).refine(noMarkup, "no markup"),
@@ -34,6 +42,10 @@ export const postSchema = z
     topic: z.enum(TOPICS),
     lens: z.enum(LENSES),
     build: z.enum(BUILDS),
+    look: z.enum(LOOK_NAMES),
+    hit: z.string().min(1).max(60).refine(noMarkup, "no markup").optional(),
+    figure: figure.optional(),
     image: image.optional(),
   })
-  .strict();
+  .strict()
+  .refine((p) => p.hit === undefined || p.title.includes(p.hit), { path: ["hit"], message: "must be words that appear in the title" });

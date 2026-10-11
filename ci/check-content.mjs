@@ -24,7 +24,7 @@
  */
 
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { join, dirname, relative } from "node:path";
+import { join, dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   IN_APP_PAGES,
@@ -38,8 +38,14 @@ import {
 } from "./content-rules.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const dist = join(root, "dist");
-const blogContent = join(root, "src/content/blog");
+// `--dist <dir> --content <dir>` check another build and its posts (the fixture build, test/blog-build.test.mjs).
+// Arguments, not environment: scripts/deploy.sh passes none, so a deploy always checks dist/ and src/content/blog.
+const arg = (name) => {
+  const i = process.argv.indexOf(name);
+  return i > -1 ? process.argv[i + 1] : undefined;
+};
+const dist = arg("--dist") ? resolve(arg("--dist")) : join(root, "dist");
+const blogContent = arg("--content") ? resolve(arg("--content")) : join(root, "src/content/blog");
 
 const EXPECTED_PAGES = [
   "index.html",

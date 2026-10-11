@@ -15,6 +15,7 @@
     "check:worker": "node ci/check-worker-source.mjs",
     "check:fonts": "node ci/blog-fonts.mjs",
     "check:style": "node ci/blog-style.mjs",
+    "check:isolation": "node ci/blog-isolation.mjs",
     "test": "vitest run",
     "gen:favicons": "node scripts/gen-favicons.mjs",
     "gen:og-cards": "node scripts/gen-og-cards.mjs",
@@ -23,6 +24,7 @@
     "deploy": "bash scripts/deploy.sh"
   },
   "dependencies": {
+    "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.3",
     "astro": "^5.0.0"
   },

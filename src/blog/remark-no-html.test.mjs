@@ -33,12 +33,18 @@ describe("raw HTML in Markdown", () => {
   });
 
   it("renders ordinary Markdown, and HTML shown as code is code, not HTML", async () => {
-    const out = await render("# Title\n\nSome *emphasis*, a [link](/blog/x) and `<script>` in code.\n\n```html\n<script>1</script>\n```\n\n![alt text](/blog-images/a.png)\n");
+    const out = await render("# Title\n\nSome *emphasis*, a [link](/blog/x) and `<script>` in code.\n\n```html\n<script>1</script>\n```\n");
     expect.soft(out.code).toContain("<em>emphasis</em>");
     expect.soft(out.code).toContain('<a href="/blog/x">link</a>');
     expect.soft(out.code).toContain("&#x3C;script>");
     expect.soft(out.code).not.toMatch(/<script/);
-    expect.soft(out.code).toContain('alt="alt text"');
+  });
+
+  it("refuses a Markdown image, inline or by reference, because a post's picture is the front-matter field", async () => {
+    for (const md of ["![alt text](/blog-images/a.png)", "text ![a][r] more\n\n[r]: /blog-images/a.png", "- item ![](/blog-images/a.png)"]) {
+      await expect.soft(render(md), md).rejects.toThrow(/Markdown image.*front-matter/);
+    }
+    await expect.soft(render("one\n\n![x](/blog-images/a.png)\n")).rejects.toThrow(/line 3/);
   });
 });
 

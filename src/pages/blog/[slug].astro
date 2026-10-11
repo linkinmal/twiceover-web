@@ -1,0 +1,74 @@
+---
+// A post: /blog/<slug>. The shell (bar, filing line, end block, Keep reading) is constant; the theme owns the
+// post (blog-handoff.md section 1). The body is the post's Markdown, rendered with no raw HTML; the
+// headline, deck, date, picture and structured data come from its front matter. Only published posts get a
+// route, so a future post has no page, feed item or sitemap entry (ADR 1090 Decision 2).
+import { render } from "astro:content";
+import BlogBase from "../../layouts/BlogBase.astro";
+import BlogMark from "../../components/blog/BlogMark.astro";
+import EndBlock from "../../components/blog/EndBlock.astro";
+import Tile from "../../components/blog/Tile.astro";
+import { getPublished } from "../../blog/collection.mjs";
+import { issueNumbers, keepReading } from "../../blog/list.mjs";
+import { LOOKS } from "../../blog/vocabulary.mjs";
+import { BUILD_LABELS, LENS_LABELS, TOPIC_LABELS } from "../../blog/labels.mjs";
+import { formatStamp, hasUpdate, splitHit, toNewYorkIso } from "../../blog/format.mjs";
+import { blogPostingJsonLd, serializeJsonLd } from "../../blog/jsonld.mjs";
+
+export async function getStaticPaths() {
+  const posts = await getPublished();
+  const numbers = issueNumbers(posts);
+  return posts.map((post, i) => ({
+    params: { slug: post.id },
+    props: { post, number: numbers.get(post.id)!, numbers, more: keepReading(post, posts), before: posts[i + 1] ?? null },
+  }));
+}
+const { post, number, numbers, more, before } = Astro.props;
+const { data } = post;
+const slug = post.id;
+const { Content } = await render(post);
+const look = LOOKS[data.look as keyof typeof LOOKS];
+const [pre, hit, after] = splitHit(data.title, data.hit);
+const updated = hasUpdate(data);
+const jsonLd = serializeJsonLd(blogPostingJsonLd(data, { slug }));
+---
+<BlogBase title={`${data.title} — TwiceOver`} description={data.description} ogType="article" preload={[look.display]} footerDisclaimer={false}>
+  <script slot="head" type="application/ld+json" set:html={jsonLd} />
+  <nav slot="meta" class="meta" aria-label="This post">
+    <a href="/blog">No. {number}</a>
+    <span>Published <time datetime={toNewYorkIso(data.publishAt)}>{formatStamp(data.publishAt)}</time></span>
+    {updated && <span>Updated <time datetime={toNewYorkIso(data.updatedAt)}>{formatStamp(data.updatedAt)}</time></span>}
+    <a href={`/blog/topic/${data.topic}`}>{TOPIC_LABELS[data.topic as keyof typeof TOPIC_LABELS]}</a>
+    <span>{LENS_LABELS[data.lens as keyof typeof LENS_LABELS]}</span>
+    <span>{BUILD_LABELS[data.build as keyof typeof BUILD_LABELS]}</span>
+  </nav>
+  <article class="post skin" data-look={look.kit}>
+    <div class="col">
+      <h1 class="h1">{pre}{hit && <span class="hit">{hit}</span>}{after}</h1>
+      <p class="deck">{data.description}</p>
+      <p class="sig"><BlogMark />TwiceOver</p>
+      {data.image && (
+        <figure class="photo blk">
+          <div class="ph"><img src={data.image.src} alt={data.image.alt} decoding="async" /></div>
+          <figcaption>{/[.!?]$/.test(data.image.alt.trim()) ? data.image.alt.trim() : `${data.image.alt.trim()}.`}<span class="credit"><b>Source</b> {data.image.source} · <b>Licence</b> {data.image.licence}</span></figcaption>
+        </figure>
+      )}
+      <div class="body blk"><Content /></div>
+    </div>
+  </article>
+  <EndBlock slug={slug} />
+  <div class="page">
+    <nav class="pnav" aria-label="More posts">
+      {before && <a href={`/blog/${before.id}`}>Before this · No. {numbers.get(before.id)}<b>{before.data.title}</b></a>}
+      <a href="/blog">All posts<b>Back to the front page</b></a>
+    </nav>
+    {more.length > 0 && (
+      <>
+        <h2 class="xh">Keep reading</h2>
+        <div class="wall rel">
+          {more.map((p) => <Tile slug={p.id} number={numbers.get(p.id)!} data={p.data} showDate={false} level={3} />)}
+        </div>
+      </>
+    )}
+  </div>
+</BlogBase>

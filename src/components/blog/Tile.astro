@@ -1,0 +1,45 @@
+---
+// One post's row on the index, a topic page or "Keep reading" (the kit's `.tile`): number and date on the left,
+// kicker and title in the middle, the picture cell on the right wearing the post's own theme. A row that
+// links to other posts ("Keep reading") drops the date (handoff 4a item 5), because the list page is the
+// page that lists them; `.rel` hides it in CSS, and here it is not printed at all.
+import { LOOKS } from "../../blog/vocabulary.mjs";
+import { BUILD_LABELS, LENS_LABELS, TOPIC_LABELS } from "../../blog/labels.mjs";
+import { formatDay, splitHit } from "../../blog/format.mjs";
+
+interface Props {
+  slug: string;
+  number: string;
+  data: any;
+  lead?: boolean;
+  showDate?: boolean;
+  level?: 2 | 3;
+}
+const { slug, number, data, lead = false, showDate = true, level = 2 } = Astro.props;
+const [before, hit, after] = splitHit(data.title, data.hit);
+const Heading = `h${level}` as "h2" | "h3";
+---
+<a class:list={["tile", { lead }]} href={`/blog/${slug}`}>
+  <div class="t-top">
+    <span class="t-no">No. {number}</span>
+    {showDate && <span class="t-date">{formatDay(data.publishAt)}</span>}
+  </div>
+  <div class="t-main">
+    <div class="t-kick">{TOPIC_LABELS[data.topic]} · {LENS_LABELS[data.lens]}</div>
+    <Heading class="t-title">{before}{hit && <span class="hit">{hit}</span>}{after}</Heading>
+  </div>
+  <div class="t-cell skin" data-look={LOOKS[data.look].kit}>
+    {/* The cell shows, in order: the post's photograph, else its figure, else its marked words (Designer ruling on PR 100). */}
+    {data.image ? (
+      <span class="t-ph"><span class="ph"><img src={data.image.src} alt="" loading="lazy" decoding="async" /></span></span>
+    ) : data.figure ? (
+      <>
+        <b class="t-fig">{data.figure.value}</b>
+        <span class="t-note">{data.figure.note}</span>
+      </>
+    ) : (
+      data.hit && <b class="t-fig">{data.hit}</b>
+    )}
+  </div>
+  <div class="t-build">{BUILD_LABELS[data.build]}</div>
+</a>

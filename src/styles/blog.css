@@ -18,6 +18,11 @@
   - The paper grain (Newsprint, Risograph) is a file, `/blog-textures/paper-grain.svg`, not the kit's data URI:
     the site's CSP is `img-src 'self'` (worker/index.js), which a data URI would break (ADR 1088 Decision 6).
   - `@keyframes` are hoisted out of the nest, which CSS does not allow inside a rule.
+  - Additions at the end (marked, none in the kit): the skip link; filter pills as links and filing-line items
+    as plain spans, which the kit draws only as buttons and links; the "Keep reading" heading (the kit's `.xh`
+    label, a mockup class, here a real heading); the footer's links; the mapping of a Markdown body's
+    elements (h2, h3, lists, quote, table, code) onto the theme's type; the photograph's aspect box and its
+    failed-load box; the tile's photograph; and `.deck` and `.sig` spacing, which `.post p` otherwise zeroes.
   - The end block's literals are the product's own tokens, not new ones: #F4F0E8 warm-ink.100, #211D17
     warm-ink.900, #4C463D warm-ink.700, #23436F navy.600, #6B6358 themes.light.text.muted, #FFFFFF
     warm-white.100 (tokens/twiceover.tokens.json); ci/blog-style.mjs pins each.
@@ -439,4 +444,43 @@
 @media (max-width:760px){
   #blog .tile,#blog .tile.lead{grid-template-columns:auto 1fr;grid-template-areas:"no date" "main main" "cell cell" "build build";grid-template-rows:auto}
   #blog .t-cell{aspect-ratio:auto;min-height:110px}
+}
+
+/* ===== Additions the Markdown template needs (not in the kit) ===== */
+:where(#blog){
+  .skip-link{position:absolute;left:-9999px;top:0;background:var(--sink);color:var(--sbg);padding:10px 14px;z-index:50}
+  .skip-link:focus{left:12px;top:12px}
+  .filt a{font:inherit;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;background:none;color:inherit;border:1.5px solid var(--sline);padding:6px 10px;text-decoration:none;display:inline-flex;align-items:center;min-height:32px}
+  .filt a:hover{border-color:var(--sink)}
+  .filt a[aria-current="page"]{background:var(--sink);color:var(--sbg);border-color:var(--sink)}
+  .meta span{padding-right:14px;margin-right:14px;border-right:1px solid var(--sline)}
+  .meta span:last-child{border:0}
+  .xh{font:600 12px/1.45 "Source Sans 3",system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--smut);margin:0;padding:40px 0 12px}
+  .t-note{font:12px/1.3 var(--fm);color:var(--ink2);max-width:11em;text-align:right}
+  .foot a{color:inherit}
+  .foot p{margin:0 0 8px;max-width:70em}
+  .photo .ph{aspect-ratio:5/3}
+  .photo .ph img{height:100%;object-fit:cover;border:1px solid var(--rule);border-radius:var(--rad);font:14.5px/1.45 "Source Sans 3",system-ui,sans-serif;color:var(--ink2);text-indent:14px}
+  .photo figcaption .credit{display:block;margin-top:4px}
+  .post p.deck{margin:30px 0 0}
+  .post p.sig{margin:18px 0 0}
+  .t-ph img{display:block;width:100%;height:auto;aspect-ratio:5/3;object-fit:cover;filter:var(--phf);mix-blend-mode:var(--phb)}
+  .body > :first-child{margin-top:0}
+  .body h2{font-family:var(--fd);font-weight:var(--fdw);font-style:var(--fdst);font-size:calc(clamp(24px,3.5vw,35px)*var(--fdsz));line-height:1.08;letter-spacing:var(--fdls);margin:clamp(40px,6vw,60px) 0 14px;text-wrap:balance}
+  .body h3{font-family:var(--fd);font-weight:var(--fdw);font-style:var(--fdst);font-size:calc(clamp(20px,2.4vw,25px)*var(--fdsz));line-height:1.15;letter-spacing:var(--fdls);margin:32px 0 10px}
+  .body ul,.body ol{font-size:19px;line-height:1.56;max-width:34em;margin:0 0 14px;padding-left:1.3em}
+  .body li{margin:0 0 6px}
+  .body a{text-decoration:underline;text-underline-offset:.15em}
+  .body code{font-family:var(--fm);font-size:.9em}
+  .body hr{border:0;border-top:1px solid var(--rule);margin:36px 0}
+  .body blockquote{margin:28px 0;border-left:4px solid var(--a);padding-left:20px}
+  .body blockquote p{font-family:var(--fd);font-weight:var(--fdw);font-style:var(--fdst);font-size:calc(clamp(22px,3vw,30px)*var(--fdsz));line-height:1.14;letter-spacing:var(--fdls);max-width:22em;margin:0 0 10px}
+  .body table{display:block;overflow-x:auto;border-collapse:collapse;width:100%;font-size:16.5px;line-height:1.4;margin:0 0 14px}
+  .body th{font-family:var(--fl);font-size:var(--labsz);letter-spacing:var(--labls);text-transform:var(--labtt);text-align:left;padding:10px 12px;border-bottom:2px solid var(--ink);color:var(--lab)}
+  .body td{padding:12px;border-bottom:1px solid var(--rule);vertical-align:top}
+}
+#blog{
+  .filt a{border-radius:99px;border-width:1px}
+  .meta span{border:0;margin:0;padding:0 10px}
+  .foot{max-width:1020px;margin-inline:auto;text-align:center}
 }

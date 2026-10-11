@@ -29,3 +29,22 @@ export const LENSES = Object.freeze(["concept", "actuality", "history"]);
 
 /** How a post is built: the design's four shapes. */
 export const BUILDS = Object.freeze(["playable", "chart-led", "picture-led", "text-led"]);
+
+/**
+ * The ten themes a post may wear, by token name (blog-handoff.md section 3: token names win over the
+ * kit's shorthand), each with the kit's `data-look` id the stylesheet is keyed on and the display face
+ * file the page preloads. A writer picks one per post (blog.md section 3); nothing here ranks them.
+ */
+export const LOOKS = Object.freeze({
+  house: { kit: "house", display: "source-serif-4-latin-opsz-normal" },
+  "night-desk": { kit: "nightdesk", display: "big-shoulders-display-latin-wght-normal" },
+  "paper-marker": { kit: "marker", display: "source-serif-4-latin-opsz-normal" },
+  blueprint: { kit: "blueprint", display: "bricolage-grotesque-latin-opsz-normal" },
+  newsprint: { kit: "newsprint", display: "fraunces-latin-opsz-normal" },
+  neon: { kit: "neon", display: "fraunces-latin-opsz-italic" },
+  risograph: { kit: "riso", display: "bricolage-grotesque-latin-opsz-normal" },
+  exhibit: { kit: "exhibit", display: "archivo-latin-wdth-normal" },
+  ticket: { kit: "ticket", display: "besley-latin-wght-normal" },
+  printout: { kit: "printout", display: "ibm-plex-mono-latin-700-normal" },
+});
+export const LOOK_NAMES = Object.freeze(Object.keys(LOOKS));

@@ -7,7 +7,8 @@
 import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
 import { postSchema } from "./blog/schema.mjs";
+import { blogContentDir } from "./blog/content-dir.mjs";
 
 export const collections = {
-  blog: defineCollection({ loader: glob({ pattern: "*.md", base: "./src/content/blog" }), schema: postSchema }),
+  blog: defineCollection({ loader: glob({ pattern: "*.md", base: blogContentDir(process.env) }), schema: postSchema }),
 };

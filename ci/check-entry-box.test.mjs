@@ -54,6 +54,35 @@ describe("scanPages — the declared expectation", () => {
   });
 });
 
+describe("scanPages — a page under blog/ is bound by the fixed list, not a row (ADR 1090 Decision 10)", () => {
+  const list = ["/js/blog-guess.js"];
+  const blogPage = (html, rel = "blog/a-post/index.html") => scanPages([...page(rel, html), ...page("index.html", "<p>x</p>")], ONE_PAGE, cleanAssets, list);
+
+  it("passes a blog page with no declaration and no script, so a new post or topic page cannot break the gate", () => {
+    for (const rel of ["blog/index.html", "blog/a-post/index.html", "blog/topic/earnings/index.html", "blog/tools/x/index.html"]) {
+      expect.soft(blogPage("<p>text</p>", rel), rel).toEqual([]);
+    }
+  });
+  it("allows a JSON-LD data block, and an external script that is on the list when its body is clean", () => {
+    expect.soft(blogPage('<script type="application/ld+json">{"a":1}</script>')).toEqual([]);
+    expect.soft(blogPage('<script src="/js/blog-guess.js"></script>')).toEqual([]);
+  });
+  it("fails an inline executable script on a blog page, and a script that is not on the list", () => {
+    expect.soft(blogPage("<script>var a=1;</script>")).toEqual([expect.stringMatching(/expected 0 inline executable .*found 1/)]);
+    expect.soft(blogPage('<script src="/js/other.js"></script>')).toEqual([expect.stringMatching(/not on the blog's fixed list/)]);
+    expect.soft(blogPage('<script src="/_astro/x.abc.js"></script>')).toEqual([expect.stringMatching(/not on the blog's fixed list/)]);
+  });
+  it("still scans a listed script's body, so a reviewed block file cannot call out", () => {
+    const failures = scanPages(page("blog/a/index.html", '<script src="/js/blog-guess.js"></script>'), {}, () => "fetch('/x')", list);
+    expect(failures.join("\n")).toMatch(/fetch/);
+  });
+  it("does not widen to a page that merely looks like blog: only the blog/ path is list-bound", () => {
+    for (const rel of ["blogger/index.html", "x/blog/index.html", "pricing/blog/index.html"]) {
+      expect.soft(scanPages(page(rel, "<p>x</p>"), ONE_PAGE, cleanAssets, list).join("\n"), rel).toMatch(/not declared in EXPECTED_SCRIPTS/);
+    }
+  });
+});
+
 describe("scanPages — external src shape", () => {
   const declared = { "index.html": { inline: 0, external: 1 } };
   const srcFails = (src) => {
