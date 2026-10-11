@@ -48,7 +48,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 // and keep FORKED_PATHS in token-scope-digest.mjs in lockstep with that repo's copy of the same
 // file. There is no cross-repo import for either; if the two ever drift, both sides' digests stop
 // agreeing and BOTH go red (fails closed, never silently trusts a mismatch).
-const CANONICAL_SCOPED_SHA256 = 'ea1f61275d98f4eb805b4612fd974aac21795e9e45e08661500d5533bec902fb';
+const CANONICAL_SCOPED_SHA256 = 'cc62eb35d419e8ef876e723ab2121c3f3122303ff97ba20c52582b05f17b0cd2';
 
 describe("the site's token file matches canonical outside its deliberate fork", () => {
   it('hashes to the digest recorded upstream, with the forked groups excluded', () => {
