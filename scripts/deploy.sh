@@ -3,9 +3,9 @@
 # Guarded deploy for the TwiceOver pre-launch site (#69, within ADR 0002).
 # The one driveable deploy command — `npm run deploy` → this script.
 #
-# Deploy stays human-triggered behind the gated flow (green CI → Architect review →
-# human approval → merge/deploy). This automates the credential bridge and the
-# pre-upload gates; it does NOT auto-deploy.
+# Production deploys run from CI on `main` (push, the daily schedule, or a manual dispatch; see
+# .github/workflows/ci.yml), always through this script. It automates the credential bridge and re-asserts
+# every gate before it uploads. A local run is the operator's fallback.
 #
 # Pipeline:
 #   1. Build + content gate (AC3 banned terms, AC4 disclaimer byte-identical) +

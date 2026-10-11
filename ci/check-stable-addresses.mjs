@@ -6,8 +6,10 @@
  * The live sitemap is read from its fixed address. It is data from the network, never an instruction: only
  * `<loc>` values under the site's own /blog/ path are used, and nothing else in it is read. If the live
  * sitemap cannot be read after a few tries, the check fails: a check that passes when it could not look
- * is the failure it exists to catch. A live sitemap with no blog address in it (the blog is dark) has
- * nothing to protect and passes.
+ * is the failure it exists to catch. "Could not look" includes a 200 that is not a sitemap, an index longer
+ * than the cap (never truncated silently), and a sitemap that does not list the home page (the one address
+ * known to be there). A live sitemap that is a real sitemap with no blog address in it (the blog is dark)
+ * has nothing to protect and passes.
  *
  *   node ci/check-stable-addresses.mjs [distDir]
  */
@@ -43,7 +45,8 @@ export function missingAddresses(liveUrls, builtUrls) {
 async function readAll(indexUrl, read) {
   const top = await read(indexUrl);
   if (!/<sitemapindex[\s>]/.test(top)) return locs(top);
-  const children = locs(top).filter((u) => u.startsWith(`${SITE}/`)).slice(0, MAX_CHILD_SITEMAPS);
+  const children = locs(top).filter((u) => u.startsWith(`${SITE}/`));
+  if (children.length > MAX_CHILD_SITEMAPS) throw new Error(`${indexUrl} lists ${children.length} sitemaps; the check reads at most ${MAX_CHILD_SITEMAPS}`);
   const urls = [];
   for (const c of children) urls.push(...locs(await read(c)));
   return urls;
@@ -55,7 +58,9 @@ export async function liveUrls(fetchText, { tries = 3, wait = (ms) => new Promis
     let last;
     for (let i = 0; i < tries; i++) {
       try {
-        return await fetchText(u);
+        const body = await fetchText(u);
+        if (!/<(urlset|sitemapindex)[\s>]/.test(body)) throw new Error(`${u} answered, but not with a sitemap`);
+        return body;
       } catch (e) {
         last = e;
         if (i < tries - 1) await wait(1000 * (i + 1));
@@ -63,7 +68,10 @@ export async function liveUrls(fetchText, { tries = 3, wait = (ms) => new Promis
     }
     throw new Error(`could not read ${u} after ${tries} tries: ${last?.message ?? last}`);
   };
-  return readAll(LIVE_INDEX, read);
+  const urls = await readAll(LIVE_INDEX, read);
+  // The one address known to be there. A sitemap without it was not read whole, whatever it contains.
+  if (!urls.some((u) => key(u) === SITE)) throw new Error("the live sitemap does not list the home page, so it was not read whole");
+  return urls;
 }
 
 /** The built sitemap's URLs, from the files in `dist`. */
@@ -86,9 +94,9 @@ async function fetchText(url) {
   return res.text();
 }
 
-export async function run(dist) {
+export async function run(dist, { fetchText: fetcher = fetchText, wait } = {}) {
   const built = builtUrls(dist);
-  const live = await liveUrls(fetchText);
+  const live = await liveUrls(fetcher, wait ? { wait } : undefined);
   const gone = missingAddresses(live, built);
   if (gone.length) {
     console.error(`Stable-address check FAILED: ${gone.length} published blog address(es) are not in this build:`);
