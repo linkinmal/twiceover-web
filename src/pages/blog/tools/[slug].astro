@@ -3,6 +3,7 @@
 // with its primer folded, the answer beside the inputs, and the method and limits stated. It exists only once a
 // post is published (ADR 1090 Decision 2), and its one block script is on the fixed list (BLOG_SCRIPTS).
 import BlogBase from "../../../layouts/BlogBase.astro";
+import PayoffBuilder from "../../../components/blog/PayoffBuilder.astro";
 import OvernightCall from "../../../components/blog/OvernightCall.astro";
 import { getPublished } from "../../../blog/collection.mjs";
 import { PLAYABLES, otherPlayables } from "../../../blog/playables.mjs";
@@ -17,7 +18,6 @@ export async function getStaticPaths() {
 const { p } = Astro.props;
 const look = LOOKS[p.look as keyof typeof LOOKS];
 const more = otherPlayables(p.slug);
-const SCRIPTS: Record<string, string> = { "overnight-call": "/js/blog-call.js" };
 ---
 <BlogBase title={`${p.title} — TwiceOver`} description={p.description} preload={[look.display]}>
   <nav slot="meta" class="meta" aria-label="This page">
@@ -26,22 +26,32 @@ const SCRIPTS: Record<string, string> = { "overnight-call": "/js/blog-call.js" }
     <span>Updated <time datetime={toNewYorkIso(p.updatedAt)}>{formatStamp(p.updatedAt)}</time></span>
   </nav>
   <article class="post skin" data-look={look.kit}>
-    <div class="col" style="max-width:1000px">
+    <div class="col">
       <p class="lab">Tool</p>
       <h1 class="h1">{p.title}</h1>
       <p class="deck">{p.deck}</p>
-      <details class="prim"><summary>New to options? The four words this page uses</summary><dl>
-        <dt>Call</dt><dd>A contract that gives the right to purchase 100 shares at a set price until a set date. It is worth more when the stock is higher.</dd>
-        <dt>Strike</dt><dd>That set price. This page starts with a $105 strike on a $100 stock.</dd>
-        <dt>Expiry</dt><dd>That set date. Each day closer, the call has less time to work.</dd>
-        <dt>Implied volatility</dt><dd>How big a stock move the call's price has built in. It tends to rise before a known event such as earnings and fall once the news is out.</dd>
-      </dl></details>
-      {p.slug === "overnight-call" && <OvernightCall />}
-      <section class="blk plate">
-        <p class="lab">How it is computed</p>
-        <p class="fine"><b>Method.</b> Black-Scholes price of a European call, with no interest rate and no dividend. Volatility is annualised and days are calendar days over 365. The change is split in order: the stock moves first, then volatility changes, then the days pass. The one-day priced move is implied volatility divided by the square root of 365.</p>
-        <p class="fine"><b>Limits.</b> Real options are American style, carry bid and ask spreads and rarely change volatility by one number. Results change with every input and with the market. This is a hypothetical illustration of option pricing math. It does not predict any stock or option.</p>
-      </section>
+      {p.slug === "overnight-call" && (
+        <>
+          <p class="words">A <b>call</b> is a contract that lets you pay a set price per share for 100 shares, any time until a set date. The contract itself has a price, called the premium. It is worth more when the stock is higher. The set price is the <b>strike</b>. The set date is the <b>expiration</b>. <b>Implied volatility</b> is how big a stock move the call's price has built in, quoted as a yearly percentage.</p>
+          <OvernightCall />
+          <section class="blk plate">
+            <p class="lab">How it is computed</p>
+            <p class="fine"><b>Method.</b> Black-Scholes price of a European call, with no interest rate and no dividend. Volatility is annualized and days are calendar days over 365. The change is split in order: the stock moves first, then volatility changes, then the days pass. The one-day priced move is implied volatility divided by the square root of 365.</p>
+            <p class="fine"><b>Limits.</b> Real options are American style, carry bid and ask spreads and rarely change volatility by one number. Results change with every input and with the market. This is a hypothetical illustration of option pricing math. It does not predict any stock or option.</p>
+          </section>
+        </>
+      )}
+      {p.slug === "option-payoff-calculator" && (
+        <>
+          <p class="words">A <b>call</b> is a contract that lets you pay a set price per share for 100 shares, any time until a set date. A <b>put</b> is the reverse: a contract that lets you hand over 100 shares and be paid a set price per share for them, any time until a set date. The set price is the <b>strike</b>. The set date is the <b>expiration</b>, the contract's last day. The contract itself has a price, called the <b>premium</b>, quoted per share. One contract covers 100 shares, so a $2.46 premium is $246 a contract.</p>
+          <PayoffBuilder />
+          <section class="blk plate">
+            <p class="lab">How it is computed</p>
+            <p class="fine"><b>Method.</b> Each option's value on its last day is its intrinsic value: a call is the stock price minus the strike, a put is the strike minus the stock price, never below zero. Subtract the premium for an option you bought, add it for one you sold. The line is the sum, times 100 shares a contract and the number of contracts. A covered call also holds the shares, bought at the stock price now.</p>
+            <p class="fine"><b>Limits.</b> The line is the last day only. Before then an option is worth more or less than this because of time left and implied volatility, and an option you sold can be assigned early. Commissions, taxes, dividends and margin are left out. The numbers are invented examples and are not a quote. This is a hypothetical illustration of option math. It does not predict any stock or option.</p>
+          </section>
+        </>
+      )}
     </div>
   </article>
   <div class="page">
@@ -54,5 +64,5 @@ const SCRIPTS: Record<string, string> = { "overnight-call": "/js/blog-call.js" }
       </>
     )}
   </div>
-  <script is:inline src={SCRIPTS[p.slug]} defer></script>
+  <script is:inline src={`/js/blog-${p.script}.js`} defer></script>
 </BlogBase>

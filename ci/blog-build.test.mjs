@@ -182,62 +182,170 @@ describe("Growth's page copy (blog-site-copy.md)", () => {
   });
 });
 
+// The two tool pages (blog-handoff.md section 5, kit v3): one column of three open numbered steps. The bundle that
+// ships runs against the built page in jsdom, as a browser would, with no network.
+const liveTool = (page, script) => {
+  const w = new JSDOM(read(dist, page), { runScripts: "outside-only", pretendToBeVisual: true }).window;
+  w.Element.prototype.scrollIntoView = () => {};
+  w.eval(read(dist, script));
+  return w;
+};
+const norm = (w, sel) => w.document.querySelector(sel).textContent.replace(/\s+/g, " ").trim();
+const type = (w, id, v) => {
+  const el = w.document.getElementById(id);
+  el.value = String(v);
+  el.dispatchEvent(new w.Event("input", { bubbles: true }));
+};
+
 describe("the overnight call page", () => {
   const PAGE = "blog/tools/overnight-call/index.html";
-  const page = () => dom(dist, PAGE);
-  // Run the shipped bundle against the built page, as a browser would, with no network.
-  function live() {
-    const w = new JSDOM(read(dist, PAGE), { runScripts: "outside-only", pretendToBeVisual: true }).window;
-    w.Element.prototype.scrollIntoView = () => {};
-    w.eval(read(dist, "js/blog-call.js"));
-    return w;
-  }
-  const set = (w, id, v) => {
-    const el = w.document.getElementById(id);
-    el.value = String(v);
-    el.dispatchEvent(new w.Event("input", { bubbles: true }));
-  };
-  const text = (w, s) => w.document.querySelector(s).textContent.replace(/\s+/g, " ");
+  const live = () => liveTool(PAGE, "js/blog-call.js");
 
-  it("is built with the one reviewed script and the opening night worked out in the served HTML", () => {
-    const d = page();
+  it("is one column of three open steps with the one reviewed script, and works out the opening night in the served HTML", () => {
+    const d = dom(dist, PAGE);
     expect.soft([...d.querySelectorAll("script")].map((x) => x.getAttribute("src"))).toEqual(["/js/blog-call.js"]);
-    expect.soft(d.querySelector("h1").textContent).toBe("The overnight call calculator");
     expect.soft(d.querySelector("article").getAttribute("data-look")).toBe("exhibit");
+    expect.soft(d.querySelectorAll("details"), "nothing is folded").toHaveLength(0);
+    expect.soft(d.querySelector(".words").textContent).toContain("quoted as a yearly percentage");
+    expect.soft([...d.querySelectorAll("h2.lab")].map((h) => h.textContent)).toEqual(["Step 1 · Pick a night", "Step 2 · Change the night", "Step 3 · Change the call"]);
     expect.soft(d.querySelector("[data-head]").textContent).toBe("Stock +4%. Call \u221221%.");
     expect.soft(d.querySelector("[data-sent]").textContent).toContain("Worth $2.46 before and $1.94 the next morning");
-    expect.soft(d.querySelector("[data-wf]").getAttribute("aria-label")).toContain("after $1.94");
-    expect.soft(d.querySelectorAll("[data-heat] tbody tr").length).toBe(4);
-    expect.soft(d.querySelectorAll("[data-finds] li").length).toBe(3);
-    expect.soft(d.querySelector("[data-controls]").hasAttribute("hidden"), "controls wait for script").toBe(true);
+    expect.soft(d.querySelector("[data-be]").textContent).toBe("The call is worth $2.46 again if the stock moves +5.1% from its starting price.");
+    expect.soft(d.querySelector("[data-night]").textContent).toContain("Overnight the stock rises 4%, implied volatility falls from 80% to 45%, and 1 day passes.");
+    expect.soft(d.querySelectorAll("[data-heat] td[role]"), "grid cells are not controls").toHaveLength(0);
+    expect.soft(d.querySelectorAll("[data-heat] td[aria-current]")).toHaveLength(1);
+    expect.soft(d.querySelectorAll("button.stp"), "no minus and plus buttons").toHaveLength(0);
+  });
+  it("hides every control until the script runs, and shows the example as a page of its own without it", () => {
+    const d = dom(dist, PAGE);
+    expect.soft([...d.querySelectorAll("[data-js]")].every((n) => n.hasAttribute("hidden"))).toBe(true);
+    expect.soft([...d.querySelectorAll("[data-nojs]")].some((n) => n.hasAttribute("hidden"))).toBe(false);
+    const w = live();
+    expect.soft([...w.document.querySelectorAll("[data-js]")].some((n) => n.hasAttribute("hidden"))).toBe(false);
+    expect.soft([...w.document.querySelectorAll("[data-nojs]")].every((n) => n.hasAttribute("hidden"))).toBe(true);
+  });
+  it("prints, on first run, exactly what the build served", () => {
+    const served = dom(dist, PAGE);
+    const w = live();
+    for (const s of ["[data-night]", "[data-head]", "[data-sent]", "[data-be]", "[data-why]", "[data-em]", "[data-heat]", "[data-finds]"]) {
+      expect.soft(norm(w, s).replace(/\s/g, ""), s).toBe(served.querySelector(s).textContent.replace(/\s/g, ""));
+    }
   });
   it("recomputes from the sliders: a quiet night leaves time alone to take the call down", () => {
     const w = live();
-    expect.soft(w.document.querySelector("[data-controls]").hasAttribute("hidden")).toBe(false);
-    set(w, "t-m", 0);
-    set(w, "t-iva", 80);
-    expect.soft(text(w, "[data-head]")).toMatch(/^Stock flat\. Call [\u2212-]\d+%\.$/);
-    expect.soft(text(w, "[data-why]")).toContain("Nothing moved. The call still lost");
-    expect.soft(text(w, "[data-fc]")).toBe("\u00b7 2 of 3 found");
-    expect.soft(w.document.querySelectorAll("[data-heat] .hc[data-m]").length, "grid cells become buttons").toBe(24);
+    w.document.querySelectorAll(".chip[data-p]")[3].click();
+    expect.soft(norm(w, "[data-head]")).toMatch(/^Stock flat\. Call [\u2212-]\d+%\.$/);
+    expect.soft(norm(w, "[data-why]")).toContain("Nothing moved. The call still lost");
+    expect.soft(norm(w, "[data-fc]")).toBe("\u00b7 2 of 3 found");
+    expect.soft(norm(w, "[data-night]")).toContain("the stock does not move, implied volatility stays at 80%");
   });
-  it("marks an out-of-range field, keeps the last good result and says so", () => {
+  it("takes a typed box with a dot or a comma, marks anything else, and keeps the last good result", () => {
     const w = live();
-    const before = text(w, "[data-sent]");
-    set(w, "t-s", 0);
+    type(w, "t-k", "104,5");
+    expect.soft(w.document.getElementById("t-k").getAttribute("aria-invalid")).toBe("false");
+    expect.soft(norm(w, "[data-night]")).toContain("a $104.5 strike");
+    const before = norm(w, "[data-sent]");
+    type(w, "t-s", "0");
     expect.soft(w.document.getElementById("t-s").getAttribute("aria-invalid")).toBe("true");
-    expect.soft(text(w, "#t-s-x")).toBe("Enter a price above 0.");
-    expect.soft(w.document.querySelector("[data-bad]").hasAttribute("hidden")).toBe(false);
-    expect.soft(w.document.querySelector("[data-fold]").open).toBe(true);
-    expect.soft(text(w, "[data-sent]"), "the last good result stays").toBe(before);
+    expect.soft(norm(w, "#t-s-x")).toBe("Enter a price above 0.");
+    expect.soft(norm(w, "[data-bad]")).toContain("still shows the last numbers that worked");
+    expect.soft(norm(w, "[data-sent]"), "the last good result stays").toBe(before);
+    type(w, "t-s", "1e2");
+    expect.soft(w.document.getElementById("t-s").getAttribute("aria-invalid"), "an exponent is not a plain number").toBe("true");
+    type(w, "t-s", "100");
+    expect.soft(norm(w, "[data-bad]")).toBe("");
   });
-  it("loads a preset and a grid cell into the sliders", () => {
+  it("loads a preset into the sliders and marks only the matching chip", () => {
     const w = live();
     w.document.querySelectorAll(".chip[data-p]")[1].click();
     expect.soft(w.document.getElementById("t-m").value).toBe("-6");
-    expect.soft(text(w, "[data-head]")).toMatch(/^Stock \u22126%\./);
-    w.document.querySelector('.hc[data-m="8"]').click();
-    expect.soft(w.document.getElementById("t-m").value).toBe("8");
+    expect.soft(norm(w, "[data-head]")).toMatch(/^Stock \u22126%\./);
+    expect.soft([...w.document.querySelectorAll(".chip[data-p]")].map((b) => b.getAttribute("aria-pressed"))).toEqual(["false", "true", "false", "false"]);
+  });
+});
+
+describe("a control the script shows is hidden by the stylesheet while it has not run", () => {
+  it("has a rule that lets [hidden] beat the layout's own display on every data-js element", () => {
+    const css = read(".", "src/styles/blog.css");
+    expect(css, "[data-js][hidden] must win over class display rules such as input.rng and .axh").toMatch(/\[data-js\]\[hidden\]\{display:none!important\}/);
+  });
+});
+
+describe("the option payoff calculator page", () => {
+  const PAGE = "blog/tools/option-payoff-calculator/index.html";
+  const live = () => liveTool(PAGE, "js/blog-payoff.js");
+
+  it("is one column of three open steps with the one reviewed script and the opening long call in the served HTML", () => {
+    const d = dom(dist, PAGE);
+    expect.soft([...d.querySelectorAll("script")].map((x) => x.getAttribute("src"))).toEqual(["/js/blog-payoff.js"]);
+    expect.soft(d.querySelector("h1").textContent).toBe("The option payoff calculator");
+    expect.soft(d.querySelector("article").getAttribute("data-look")).toBe("blueprint");
+    expect.soft(d.querySelectorAll("details"), "nothing is folded").toHaveLength(0);
+    expect.soft([...d.querySelectorAll("h2.lab")].map((h) => h.textContent)).toEqual(["Step 1 · Pick a structure", "Step 2 · Drag the price", "Step 3 · Change its numbers"]);
+    expect.soft(d.querySelector("[data-head]").textContent).toBe("Stock at $110. Profit or loss +$254.");
+    expect.soft(d.querySelectorAll("[data-stats] > div"), "three figures").toHaveLength(3);
+    expect.soft(d.querySelector("[data-stats]").textContent).toContain("breakeven, where it neither gains nor loses");
+    expect.soft(d.querySelectorAll(".six li")).toHaveLength(6);
+    expect.soft(d.querySelectorAll(".six button, .six [role=button]"), "the six are for reading").toHaveLength(0);
+    expect.soft(d.querySelector("[data-chart]").getAttribute("aria-label")).toContain("Most it can lose $246");
+    expect.soft(d.querySelectorAll("button.stp"), "no minus and plus buttons").toHaveLength(0);
+    expect.soft(d.querySelector("#po-h").getAttribute("type")).toBe("range");
+  });
+  it("prints, on first run, exactly what the build served", () => {
+    const served = dom(dist, PAGE);
+    const w = live();
+    for (const s of ["[data-head]", "[data-s1]", "[data-why]", "[data-stats]", "[data-finds]", "[data-desc]"]) {
+      expect.soft(norm(w, s).replace(/\s/g, ""), s).toBe(served.querySelector(s).textContent.replace(/\s/g, ""));
+    }
+  });
+  it("picks a structure from a card; a covered call has a ceiling and a cash-secured put shows its cash", () => {
+    const w = live();
+    w.document.querySelector('[data-cards] [data-k="cc"]').click();
+    expect.soft(norm(w, "[data-tt]")).toBe("Covered call");
+    expect.soft(norm(w, "#po-sh")).toBe("100");
+    expect.soft(norm(w, "[data-stats]")).not.toContain("No limit most it can make");
+    w.document.querySelector('[data-cards] [data-k="csp"]').click();
+    expect.soft(norm(w, "#po-cash")).toBe("$9,500");
+    expect.soft(norm(w, "[data-why]")).toContain("set aside $9,500 in cash");
+    expect.soft(w.document.querySelector('[data-cards] [data-k="csp"]').getAttribute("aria-pressed")).toBe("true");
+  });
+  it("moves the price slider, takes a comma, and marks a bad box while the last good result stays", () => {
+    const w = live();
+    type(w, "po-h", 90);
+    expect.soft(norm(w, "[data-head]")).toContain("Stock at $90.");
+    expect.soft(norm(w, "[data-fc]")).toBe("\u00b7 1 of 3 found");
+    type(w, "po-P", "2,5");
+    expect.soft(w.document.getElementById("po-P").getAttribute("aria-invalid")).toBe("false");
+    const before = norm(w, "[data-s1]");
+    type(w, "po-K", "abc");
+    expect.soft(w.document.getElementById("po-K").getAttribute("aria-invalid")).toBe("true");
+    expect.soft(norm(w, "[data-bad]")).toContain("still shows the last numbers that worked");
+    expect.soft(norm(w, "[data-s1]")).toBe(before);
+  });
+  it("offers Calls and Puts for a vertical spread and the put spread changes the answer", () => {
+    const w = live();
+    w.document.querySelector('[data-cards] [data-k="vs"]').click();
+    expect.soft(w.document.querySelector("[data-type]").hasAttribute("hidden")).toBe(false);
+    const calls = norm(w, "[data-why]");
+    w.document.querySelector('[data-type] [data-vt="p"]').click();
+    expect.soft(norm(w, "[data-why]")).toContain("put you bought");
+    expect.soft(norm(w, "[data-why]")).not.toBe(calls);
+  });
+  it("never puts typed text back into the page raw when a structure is picked", () => {
+    const w = live();
+    type(w, "po-S0", '1"><img src=x onerror=alert(1)>');
+    w.document.querySelector('[data-cards] [data-k="lp"]').click();
+    expect.soft(w.document.querySelector("[data-in] img"), "no element came from the typed text").toBeNull();
+    expect.soft(w.document.getElementById("po-S0").value, "an unreadable box falls back to its default").toBe("100");
+    type(w, "po-S0", "120");
+    w.document.querySelector('[data-cards] [data-k="lc"]').click();
+    expect.soft(w.document.getElementById("po-S0").value, "a readable box is kept").toBe("120");
+  });
+  it("starts the structure over with its example numbers", () => {
+    const w = live();
+    type(w, "po-P", "9");
+    w.document.querySelector("[data-reset]").click();
+    expect.soft(w.document.getElementById("po-P").value).toBe("2.46");
   });
 });
 
@@ -297,7 +405,7 @@ describe("the gates over the built fixture site", () => {
   });
   it("passes the isolation gate, with blog pages present so its blindness controls run", () => {
     const r = node("ci/blog-isolation.mjs", "--dist", dist);
-    expect(r.stdout).toMatch(/Blog isolation check passed: \d+ site page\(s\) carry no blog styles; 11 blog page\(s\)/);
+    expect(r.stdout).toMatch(/Blog isolation check passed: \d+ site page\(s\) carry no blog styles; 12 blog page\(s\)/);
     expect(r.status).toBe(0);
   });
   it("fails the isolation gate when a site page is made to load the blog's stylesheet (known positive)", () => {
