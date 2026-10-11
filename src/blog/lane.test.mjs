@@ -84,7 +84,9 @@ describe("a post pull request", () => {
     const big = await lane({ files: [add("public/blog-images/a.png")], head: { "public/blog-images/a.png": PNG }, sizes: { "public/blog-images/a.png": LIMITS.imageBytes + 1 } });
     expect(big.problems.join("\n")).toContain("the cap is");
     const names = Array.from({ length: 5 }, (_, i) => `public/blog-images/i${i}.png`);
-    const total = await lane({ files: names.map(add), head: Object.fromEntries(names.map((n) => [n, PNG])), sizes: Object.fromEntries(names.map((n) => [n, 1_900_000])) });
+    const png = new Uint8Array(1_900_000);
+    png.set(PNG);
+    const total = await lane({ files: names.map(add), head: Object.fromEntries(names.map((n) => [n, png])) });
     expect(total.problems.join("\n")).toContain("images total");
   });
   it("fails closed on a tree entry with no size, and on bytes that outgrow the size the tree reported", async () => {
@@ -94,10 +96,52 @@ describe("a post pull request", () => {
     const liar = await lane({ files: [add(path)], head: { [path]: Uint8Array.from([...PNG, ...new Uint8Array(LIMITS.shareBytes + 1)]) }, sizes: { [path]: 100 } });
     expect.soft(liar.problems.join("\n"), "reported 100 bytes, read more than the cap").toContain("the cap is");
   });
-  it("fails a post with no readable publishAt", async () => {
-    const r = await lane({ files: [add("src/content/blog/a.md")], head: { "src/content/blog/a.md": enc("---\ntitle: x\n---\n") } });
+  it("fails a post with no publishAt in the strict form", async () => {
+    const r = await lane({ files: [add("src/content/blog/a.md")], head: { "src/content/blog/a.md": enc('---\ntitle: "x"\n---\n') } });
     expect(r.problems.join("\n")).toContain("no readable publishAt");
   });
+  it("fails a post whose front matter is outside the strict form, and says which line without echoing it", async () => {
+    const r = await lane({ files: [add("src/content/blog/a.md")], head: { "src/content/blog/a.md": enc('---\ntitle: x\npublishAt: "2026-10-20T07:00:00-04:00"\n---\n') } });
+    const text = r.problems.join("\n");
+    expect.soft(text).toContain("outside the strict form");
+    expect.soft(text).toContain("line 2");
+    expect.soft(text).not.toContain("2026-10-20");
+  });
+});
+
+// Security's blocking finding on PR 108: the lane and the build read `publishAt` differently, so a live post could
+// be re-dated past the lane. Each head below is a different way to plant a decoy `publishAt:` line; the build reads
+// 2030 from every one of them, while a regex reads 2020. The lane must refuse all of them.
+describe("a pull request that tries to re-date a live post with a decoy publishAt", () => {
+  const REAL = "2030-01-01T00:00:00Z";
+  const DECOYS = {
+    "a multi-line title and a flow mapping": `---\n{title: "x\npublishAt: '2020-01-01T00:00:00Z'\ny", publishAt: "${REAL}"}\n---\n`,
+    "a multi-line title and an escaped key": `---\ntitle: "x\npublishAt: '2020-01-01T00:00:00Z'\ny"\n"\\u0070ublishAt": "${REAL}"\n---\n`,
+    "a multi-line title and a second plain key": `---\ntitle: "x\npublishAt: '2020-01-01T00:00:00Z'\ny"\npublishAt: "${REAL}"\n---\n`,
+  };
+  it.each(Object.entries(DECOYS))("is refused: %s", async (_n, text) => {
+    const path = "src/content/blog/a.md";
+    const r = await lane({ files: [{ filename: path, status: "modified" }], head: { [path]: enc(text) }, base: { [path]: LIVE } });
+    expect(r.problems.join("\n")).toContain("outside the strict form");
+  });
+  it("is refused when the BASE text is the decoy: a base the lane cannot read counts as live", async () => {
+    const path = "src/content/blog/a.md";
+    const r = await lane({ files: [{ filename: path, status: "modified" }], head: { [path]: enc(FUTURE) }, base: { [path]: DECOYS["a multi-line title and a flow mapping"] } });
+    expect(r.problems.join("\n")).toContain("cannot be shown not to be live");
+  });
+  it("still lets an honest edit of a live post through when its publishAt is the same", async () => {
+    const path = "src/content/blog/a.md";
+    const edited = LIVE.replace('title: "x"', 'title: "x, corrected"');
+    clean(await lane({ files: [{ filename: path, status: "modified" }], head: { [path]: enc(edited) }, base: { [path]: LIVE } }));
+  });
+  it("still fails an honest re-date of a live post", async () => {
+    const path = "src/content/blog/a.md";
+    const r = await lane({ files: [{ filename: path, status: "modified" }], head: { [path]: enc(FUTURE) }, base: { [path]: LIVE } });
+    expect(r.problems.join("\n")).toContain("its publishAt cannot change");
+  });
+});
+
+describe("the rest of a post pull request", () => {
   it("fails a file missing from the head tree, and an unknown status", async () => {
     expect((await lane({ files: [add("src/content/blog/a.md")] })).problems.join("\n")).toContain("not in the head commit's tree");
     expect((await lane({ files: [{ filename: "src/content/blog/a.md", status: "weird" }] })).problems.join("\n")).toContain("does not know");

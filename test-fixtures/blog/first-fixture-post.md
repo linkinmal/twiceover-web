@@ -2,10 +2,10 @@
 title: "The stock jumped 4% and this call lost 21% of its value"
 description: "A call bought before earnings already carries the price of the jump, so the stock has to move further than that for the call to gain."
 publishAt: "2026-10-09T07:00:00-04:00"
-topic: option-math
-lens: concept
-build: playable
-look: blueprint
+topic: "option-math"
+lens: "concept"
+build: "playable"
+look: "blueprint"
 hit: "21%"
 figure:
   value: "−21%"

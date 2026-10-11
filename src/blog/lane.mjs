@@ -14,7 +14,7 @@
  * builds with the clock far ahead and cannot see that on its own (PR 5b's stable-address check catches it
  * only after merge).
  */
-import { frontMatterTimes } from "./sitemap.mjs";
+import { readStrictFrontMatter } from "./frontmatter-grammar.mjs";
 import { isValidSlug, parsePublishTime } from "./publish.mjs";
 
 export const POST_DIR = "src/content/blog/";
@@ -115,7 +115,6 @@ export async function evaluateLane({ files, tree, readHead, readBase, now }) {
       problems.push(`${show(path)} is ${entry.size} bytes; the cap is ${cap}`);
       continue;
     }
-    if (kind !== "post") imageBytes += entry.size;
     if (entry.type !== "blob" || entry.mode !== "100644") continue;
 
     const bytes = await readHead(path, entry.sha);
@@ -123,17 +122,27 @@ export async function evaluateLane({ files, tree, readHead, readBase, now }) {
       problems.push(`${show(path)} reads as ${bytes.length} bytes; the cap is ${cap}`);
       continue;
     }
+    if (kind !== "post") imageBytes += bytes.length;
     if (kind === "post") {
-      const head = frontMatterTimes(Buffer.from(bytes).toString("utf8"));
-      if (parsePublishTime(head.publishAt) === null) {
+      // The lane reads a post only through the strict grammar (frontmatter-grammar.mjs), never as YAML: on text the
+      // grammar accepts, its reading and the build's cannot differ. Anything else fails closed.
+      const fm = readStrictFrontMatter(Buffer.from(bytes).toString("utf8"));
+      if (!fm.ok) {
+        problems.push(`${show(path)}: its front matter is outside the strict form the lane reads (line ${fm.line}: ${fm.reason})`);
+        continue;
+      }
+      const headAt = parsePublishTime(fm.publishAt);
+      if (headAt === null) {
         problems.push(`${show(path)}: no readable publishAt in its front matter`);
         continue;
       }
       if (f.status === "modified" || f.status === "changed") {
         const base = await readBase(path);
         if (base === null) problems.push(`${show(path)}: its text at the base could not be read`);
-        else if (isLive(base, now) && parsePublishTime(frontMatterTimes(base).publishAt) !== parsePublishTime(head.publishAt)) {
-          problems.push(`${show(path)} is a live post; its publishAt cannot change`);
+        else {
+          const baseAt = publishTime(base);
+          if (baseAt === null) problems.push(`${show(path)}: its text at the base is outside the strict form or has no readable publishAt, so it cannot be shown not to be live`);
+          else if (baseAt <= now && baseAt !== headAt) problems.push(`${show(path)} is a live post; its publishAt cannot change`);
         }
       }
     } else {
@@ -149,6 +158,12 @@ export async function evaluateLane({ files, tree, readHead, readBase, now }) {
 
 /** A post is live when its publishAt has passed. A time that cannot be read counts as live: fail closed. */
 function isLive(text, now) {
-  const at = parsePublishTime(frontMatterTimes(text).publishAt);
+  const at = publishTime(text);
   return at === null || at <= now;
+}
+
+/** A post's publishAt as an instant, read through the strict grammar; null when the text is outside it or has none. */
+function publishTime(text) {
+  const fm = readStrictFrontMatter(text);
+  return fm.ok ? parsePublishTime(fm.publishAt) : null;
 }
