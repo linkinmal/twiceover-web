@@ -134,6 +134,9 @@ export function init(root, opts = {}) {
     el("t-m").value = cell.dataset.m;
     el("t-iva").value = cell.dataset.iv;
     run();
+    // The grid is rebuilt by run(); put the keyboard back on the cell that was picked.
+    const again = root.querySelector(`.hc[data-m="${cell.dataset.m}"][data-iv="${cell.dataset.iv}"]`);
+    again && again.focus({ preventScroll: true });
     q("[data-head]").scrollIntoView({ block: "center", behavior: reduceMotion ? "auto" : "smooth" });
   }
 

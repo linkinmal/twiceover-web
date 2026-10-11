@@ -1,0 +1,66 @@
+---
+// "The payoff builder" as served (blog-handoff.md sections 4 and 5.3). The opening structure (a long call at the
+// design's invented numbers, the handle at $110) is printed in full: the answer, the line, the four figures, the
+// three finds and the six shapes. The same functions the block script imports (src/blog-tools/payoff-view.mjs)
+// write it, so the script only moves what is already here. Controls are hidden until script runs them.
+import { curvePoints, evaluate, findsMet } from "../../blog-tools/payoff-builder.mjs";
+import { DESCRIPTIONS, structureOf, kindsHtml, inputsHtml, fieldHtml, whyHtml, headHtml, sentenceHtml, breakEvenHtml, statsHtml, handleText, summaryHtml, findsHtml, chartSvg, chartLabel, chartCaption, shapesHtml } from "../../blog-tools/payoff-view.mjs";
+
+const kind = "lc";
+const def = structureOf(kind, null)!;
+const values = Object.fromEntries(def.fields.map((f) => [f.id, f.default]));
+const e = evaluate({ kind, spreadType: null, values, stockNow: 100, contracts: 1, handle: def.handle });
+if (!e.ok) throw new Error("the design's opening structure must be valid");
+const model = { kind, spreadType: null, values, stockNow: 100, e };
+const curve = curvePoints(e.position, 100, e.range.lo, e.range.hi);
+const chart = chartSvg(e, curve, 600);
+const h = handleText(e);
+const found = findsMet(e);
+---
+<div data-payoff>
+  <p class="sim-nojs" data-nojs>The controls need script. The opening structure is worked out below.</p>
+  <section class="blk tool pay">
+    <div class="tl" data-controls hidden>
+      <div class="tpre"><p class="lab">Start with a structure</p><div class="chips" data-kinds role="group" aria-label="Option structure" set:html={kindsHtml(kind)}></div><p class="pdesc" data-desc>{DESCRIPTIONS[kind]}</p></div>
+      <div class="plate tctl">
+        <p class="tstep">Then change the numbers<span>Type, or tap − and +. These are invented example numbers.</span></p>
+        <div class="ptype" data-type hidden></div>
+        <div class="pin" data-in set:html={inputsHtml(def)}></div>
+        <details class="tcall" data-fold><summary><span data-sum set:html={summaryHtml(e)}></span><i>Change the stock and the size</i></summary>
+          <div class="pin" data-in2 style="margin-top:10px" set:html={fieldHtml("S0", "Stock price now, $", 100, 1) + fieldHtml("n", "Contracts", 1, 1)}></div>
+          <div class="row" style="margin-top:12px"><button class="btn alt" type="button" data-reset>Back to the example</button></div>
+        </details>
+      </div>
+    </div>
+    <div class="tr">
+      <div class="tans" aria-live="polite">
+        <p class="thead" data-head set:html={headHtml(e)}></p>
+        <p class="tsent" data-s1 set:html={sentenceHtml(model)}></p>
+        <p class="tsent" data-s2 set:html={breakEvenHtml(e)}></p>
+        <div class="why"><p data-why set:html={whyHtml(model)}></p></div>
+        <p class="twarn" data-bad hidden>One of the numbers is out of range. This is the last result that worked.</p>
+      </div>
+      <div class="plate twfp"><p class="lab">Profit or loss on the last day</p>
+        <svg class="ch" data-chart viewBox={`0 0 600 ${chart.H}`} role="img" aria-label={chartLabel(def, e)} set:html={chart.svg}></svg>
+        <p class="cap" data-cap>{chartCaption(def, e)}</p>
+        <div class="sx" style="margin-top:6px" data-handle hidden>
+          <div class="sx-h"><label for="po-h">Stock price at expiry</label><output id="po-hv" for="po-h">{h.value}</output><span class={`eff ${h.tone}`} id="po-he">{h.effect}</span></div>
+          <div class="sx-r"><button type="button" class="stp" data-for="po-h" data-d="-1" aria-label="Stock price at expiry, down">−</button><div class="sx-t"><input type="range" id="po-h" min={e.range.lo} max={e.range.hi} step={e.range.step} value={e.handle} /></div><button type="button" class="stp" data-for="po-h" data-d="1" aria-label="Stock price at expiry, up">+</button></div>
+        </div>
+      </div>
+      <div class="stats pst" data-stats set:html={statsHtml(e)}></div>
+      <p class="stamp tst"><span><b>As of</b> the numbers you set</span><span><b>Source</b> computed in this page. Illustrative, not a quote. Nothing is sent anywhere.</span></p>
+    </div>
+  </section>
+  <section class="blk">
+    <p class="lab">Three things to find <span data-fc style="font-weight:400">· {found.filter(Boolean).length} of 3 found</span></p>
+    <h2 class="bt">Pick a structure and drag the price until each one happens.</h2>
+    <ol class="finds" data-finds aria-live="polite" set:html={findsHtml(found)}></ol>
+  </section>
+  <section class="blk">
+    <p class="lab">The six shapes side by side</p>
+    <h2 class="bt">Same stock, six different lines.</h2>
+    <p>Each card uses its own example numbers. Tap one to load it above.</p>
+    <ul class="shapes" data-shapes set:html={shapesHtml({ kind, spreadType: null }, false)}></ul>
+  </section>
+</div>

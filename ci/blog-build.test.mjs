@@ -241,6 +241,73 @@ describe("the overnight call page", () => {
   });
 });
 
+describe("the payoff builder page", () => {
+  const PAGE = "blog/tools/payoff-builder/index.html";
+  const live = () => {
+    const w = new JSDOM(read(dist, PAGE), { runScripts: "outside-only", pretendToBeVisual: true }).window;
+    w.eval(read(dist, "js/blog-payoff.js"));
+    return w;
+  };
+  const text = (w, s) => w.document.querySelector(s).textContent.replace(/\s+/g, " ");
+  const set = (w, id, v) => {
+    const el = w.document.getElementById(id);
+    el.value = String(v);
+    el.dispatchEvent(new w.Event("input", { bubbles: true }));
+  };
+
+  it("is built with the one reviewed script and the opening long call worked out in the served HTML", () => {
+    const d = dom(dist, PAGE);
+    expect.soft([...d.querySelectorAll("script")].map((x) => x.getAttribute("src"))).toEqual(["/js/blog-payoff.js"]);
+    expect.soft(d.querySelector("article").getAttribute("data-look")).toBe("blueprint");
+    expect.soft(d.querySelector("[data-head]").textContent).toBe("Stock at $110. Position +$254.");
+    expect.soft(d.querySelector("[data-s2]").textContent).toBe("Break-even on the last day: $107.46.");
+    expect.soft(d.querySelectorAll("[data-shapes] li")).toHaveLength(6);
+    expect.soft(d.querySelector("[data-chart]").getAttribute("aria-label")).toContain("Most it can lose $246");
+    expect.soft(d.querySelector("[data-controls]").hasAttribute("hidden")).toBe(true);
+  });
+  it("prints, on first run, exactly what the build served", () => {
+    const served = dom(dist, PAGE);
+    const w = live();
+    for (const s of ["[data-head]", "[data-s1]", "[data-s2]", "[data-why]", "[data-stats]", "[data-finds]", "[data-shapes]"]) {
+      expect.soft(text(w, s).replace(/\s/g, ""), s).toBe(served.querySelector(s).textContent.replace(/\s+/g, " ").replace(/\s/g, ""));
+    }
+    const call = dom(dist, "blog/tools/overnight-call/index.html");
+    const wc = new JSDOM(read(dist, "blog/tools/overnight-call/index.html"), { runScripts: "outside-only", pretendToBeVisual: true }).window;
+    wc.Element.prototype.scrollIntoView = () => {};
+    wc.eval(read(dist, "js/blog-call.js"));
+    for (const s of ["[data-head]", "[data-sent]", "[data-be]", "[data-why]", "[data-em]", "[data-heat]", "[data-finds]"]) {
+      expect.soft(wc.document.querySelector(s).textContent.replace(/\s/g, ""), `call ${s}`).toBe(call.querySelector(s).textContent.replace(/\s/g, ""));
+    }
+  });
+  it("switches structure: a covered call has a ceiling, a cash-secured put sets cash aside", () => {
+    const w = live();
+    w.document.querySelector('[data-kinds] [data-k="cc"]').click();
+    expect.soft(text(w, "[data-stats]")).toContain("most it can make");
+    expect.soft(text(w, "[data-stats]")).not.toContain("No limit most it can make");
+    w.document.querySelector('[data-kinds] [data-k="csp"]').click();
+    expect.soft(text(w, "[data-s1]")).toContain("set aside");
+    expect.soft(text(w, "[data-why]")).toContain("set aside $9,500 in cash");
+  });
+  it("moves the handle, marks an out-of-range number and keeps the last good result", () => {
+    const w = live();
+    set(w, "po-h", 90);
+    expect.soft(text(w, "[data-head]")).toContain("Stock at $90.");
+    expect.soft(text(w, "[data-fc]")).toBe("\u00b7 1 of 3 found");
+    const before = text(w, "[data-s1]");
+    set(w, "po-K", 0);
+    expect.soft(w.document.getElementById("po-K").getAttribute("aria-invalid")).toBe("true");
+    expect.soft(w.document.querySelector("[data-bad]").hasAttribute("hidden")).toBe(false);
+    expect.soft(text(w, "[data-s1]")).toBe(before);
+  });
+  it("loads a shape card into the picker, a put spread included", () => {
+    const w = live();
+    w.document.querySelector('.shape[data-k="vs"]').click();
+    expect.soft(w.document.querySelector('[data-type] [data-vt="c"]').getAttribute("aria-pressed")).toBe("true");
+    w.document.querySelector('[data-type] [data-vt="p"]').click();
+    expect.soft(text(w, "[data-why]")).toContain("put");
+  });
+});
+
 describe("the index and a subject page", () => {
   it("makes the nameplate the h1 on the index and the filter's name the h1 on a subject page", () => {
     const idx = dom(dist, "blog/index.html");
@@ -297,7 +364,7 @@ describe("the gates over the built fixture site", () => {
   });
   it("passes the isolation gate, with blog pages present so its blindness controls run", () => {
     const r = node("ci/blog-isolation.mjs", "--dist", dist);
-    expect(r.stdout).toMatch(/Blog isolation check passed: \d+ site page\(s\) carry no blog styles; 11 blog page\(s\)/);
+    expect(r.stdout).toMatch(/Blog isolation check passed: \d+ site page\(s\) carry no blog styles; 12 blog page\(s\)/);
     expect(r.status).toBe(0);
   });
   it("fails the isolation gate when a site page is made to load the blog's stylesheet (known positive)", () => {

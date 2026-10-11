@@ -42,7 +42,7 @@ export function breakEvenHtml(r) {
 
 export function whyHtml(r) {
   const { ivNowPct, ivAfterPct } = r.inputs;
-  const { stock, volatility, time } = r.parts;
+  const { volatility, time } = r.parts;
   const text = {
     "stock-up-call-down-volatility": `The stock went the call's way. But the call's price already had a big move built in. When implied volatility fell from ${ivNowPct}% to ${ivAfterPct}%, that part of the price left. It was bigger than the gain from the stock.`,
     "stock-down-call-up": "The stock fell. Implied volatility rose enough to lift the call by more than the fall cost.",
@@ -51,7 +51,6 @@ export function whyHtml(r) {
     "stock-no-help": `The stock did not help the call${volatility < 0 ? ", and implied volatility fell too" : ""}.`,
     neutral: "The three middle bars add up to the change.",
   }[r.whyKey];
-  void stock;
   return `<b>Why.</b> ${text}`;
 }
 

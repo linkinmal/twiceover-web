@@ -40,21 +40,21 @@ export const STRUCTURES = Object.freeze(
       { id: "K", label: "Strike, $", default: 95, step: 0.5, type: "strike" },
       { id: "P", label: "Premium paid per share, $", default: 2.1, step: 0.05, type: "premium" }] },
     { kind: "cc", name: "Covered call", handle: 110, fields: [
-      { id: "K", label: "Strike of the call you sell, $", default: 105, step: 0.5, type: "strike" },
+      { id: "K", label: "Strike of the call you sold, $", default: 105, step: 0.5, type: "strike" },
       { id: "P", label: "Premium received per share, $", default: 1.8, step: 0.05, type: "premium" }] },
     { kind: "csp", name: "Cash-secured put", handle: 92, fields: [
-      { id: "K", label: "Strike of the put you sell, $", default: 95, step: 0.5, type: "strike" },
+      { id: "K", label: "Strike of the put you sold, $", default: 95, step: 0.5, type: "strike" },
       { id: "P", label: "Premium received per share, $", default: 1.9, step: 0.05, type: "premium" }] },
     { kind: "vs", spreadType: "c", name: "Vertical spread", handle: 108, fields: [
-      { id: "Kb", label: "Strike you buy, $", default: 100, step: 0.5, type: "strike" },
-      { id: "Ks", label: "Strike you sell, $", default: 110, step: 0.5, type: "strike" },
-      { id: "Pb", label: "Premium paid for the one you buy, $", default: 4.2, step: 0.05, type: "premium" },
-      { id: "Ps", label: "Premium received for the one you sell, $", default: 1.7, step: 0.05, type: "premium" }] },
+      { id: "Kb", label: "Strike you bought, $", default: 100, step: 0.5, type: "strike" },
+      { id: "Ks", label: "Strike you sold, $", default: 110, step: 0.5, type: "strike" },
+      { id: "Pb", label: "Premium paid for the one you bought, $", default: 4.2, step: 0.05, type: "premium" },
+      { id: "Ps", label: "Premium received for the one you sold, $", default: 1.7, step: 0.05, type: "premium" }] },
     { kind: "vs", spreadType: "p", name: "Vertical spread", handle: 92, fields: [
-      { id: "Kb", label: "Strike you buy, $", default: 100, step: 0.5, type: "strike" },
-      { id: "Ks", label: "Strike you sell, $", default: 90, step: 0.5, type: "strike" },
-      { id: "Pb", label: "Premium paid for the one you buy, $", default: 3.8, step: 0.05, type: "premium" },
-      { id: "Ps", label: "Premium received for the one you sell, $", default: 1.5, step: 0.05, type: "premium" }] },
+      { id: "Kb", label: "Strike you bought, $", default: 100, step: 0.5, type: "strike" },
+      { id: "Ks", label: "Strike you sold, $", default: 90, step: 0.5, type: "strike" },
+      { id: "Pb", label: "Premium paid for the one you bought, $", default: 3.8, step: 0.05, type: "premium" },
+      { id: "Ps", label: "Premium received for the one you sold, $", default: 1.5, step: 0.05, type: "premium" }] },
     { kind: "st", name: "Straddle", handle: 112, fields: [
       { id: "K", label: "Strike, $", default: 100, step: 0.5, type: "strike" },
       { id: "Pc", label: "Call premium paid per share, $", default: 3.1, step: 0.05, type: "premium" },
