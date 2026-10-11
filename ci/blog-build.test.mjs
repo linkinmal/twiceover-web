@@ -151,6 +151,65 @@ describe("the game page", () => {
   });
 });
 
+describe("the overnight call page", () => {
+  const PAGE = "blog/tools/overnight-call/index.html";
+  const page = () => dom(dist, PAGE);
+  // Run the shipped bundle against the built page, as a browser would, with no network.
+  function live() {
+    const w = new JSDOM(read(dist, PAGE), { runScripts: "outside-only", pretendToBeVisual: true }).window;
+    w.Element.prototype.scrollIntoView = () => {};
+    w.eval(read(dist, "js/blog-call.js"));
+    return w;
+  }
+  const set = (w, id, v) => {
+    const el = w.document.getElementById(id);
+    el.value = String(v);
+    el.dispatchEvent(new w.Event("input", { bubbles: true }));
+  };
+  const text = (w, s) => w.document.querySelector(s).textContent.replace(/\s+/g, " ");
+
+  it("is built with the one reviewed script and the opening night worked out in the served HTML", () => {
+    const d = page();
+    expect.soft([...d.querySelectorAll("script")].map((x) => x.getAttribute("src"))).toEqual(["/js/blog-call.js"]);
+    expect.soft(d.querySelector("h1").textContent).toBe("The overnight call calculator");
+    expect.soft(d.querySelector("article").getAttribute("data-look")).toBe("exhibit");
+    expect.soft(d.querySelector("[data-head]").textContent).toBe("Stock +4%. Call \u221221%.");
+    expect.soft(d.querySelector("[data-sent]").textContent).toContain("Worth $2.46 before and $1.94 the next morning");
+    expect.soft(d.querySelector("[data-wf]").getAttribute("aria-label")).toContain("after $1.94");
+    expect.soft(d.querySelectorAll("[data-heat] tbody tr").length).toBe(4);
+    expect.soft(d.querySelectorAll("[data-finds] li").length).toBe(3);
+    expect.soft(d.querySelector("[data-controls]").hasAttribute("hidden"), "controls wait for script").toBe(true);
+  });
+  it("recomputes from the sliders: a quiet night leaves time alone to take the call down", () => {
+    const w = live();
+    expect.soft(w.document.querySelector("[data-controls]").hasAttribute("hidden")).toBe(false);
+    set(w, "t-m", 0);
+    set(w, "t-iva", 80);
+    expect.soft(text(w, "[data-head]")).toMatch(/^Stock flat\. Call [\u2212-]\d+%\.$/);
+    expect.soft(text(w, "[data-why]")).toContain("Nothing moved. The call still lost");
+    expect.soft(text(w, "[data-fc]")).toBe("\u00b7 2 of 3 found");
+    expect.soft(w.document.querySelectorAll("[data-heat] .hc[data-m]").length, "grid cells become buttons").toBe(24);
+  });
+  it("marks an out-of-range field, keeps the last good result and says so", () => {
+    const w = live();
+    const before = text(w, "[data-sent]");
+    set(w, "t-s", 0);
+    expect.soft(w.document.getElementById("t-s").getAttribute("aria-invalid")).toBe("true");
+    expect.soft(text(w, "#t-s-x")).toBe("Enter a price above 0.");
+    expect.soft(w.document.querySelector("[data-bad]").hasAttribute("hidden")).toBe(false);
+    expect.soft(w.document.querySelector("[data-fold]").open).toBe(true);
+    expect.soft(text(w, "[data-sent]"), "the last good result stays").toBe(before);
+  });
+  it("loads a preset and a grid cell into the sliders", () => {
+    const w = live();
+    w.document.querySelectorAll(".chip[data-p]")[1].click();
+    expect.soft(w.document.getElementById("t-m").value).toBe("-6");
+    expect.soft(text(w, "[data-head]")).toMatch(/^Stock \u22126%\./);
+    w.document.querySelector('.hc[data-m="8"]').click();
+    expect.soft(w.document.getElementById("t-m").value).toBe("8");
+  });
+});
+
 describe("the index and a subject page", () => {
   it("makes the nameplate the h1 on the index and the filter's name the h1 on a subject page", () => {
     const idx = dom(dist, "blog/index.html");
@@ -207,7 +266,7 @@ describe("the gates over the built fixture site", () => {
   });
   it("passes the isolation gate, with blog pages present so its blindness controls run", () => {
     const r = node("ci/blog-isolation.mjs", "--dist", dist);
-    expect(r.stdout).toMatch(/Blog isolation check passed: \d+ site page\(s\) carry no blog styles; 10 blog page\(s\)/);
+    expect(r.stdout).toMatch(/Blog isolation check passed: \d+ site page\(s\) carry no blog styles; 11 blog page\(s\)/);
     expect(r.status).toBe(0);
   });
   it("fails the isolation gate when a site page is made to load the blog's stylesheet (known positive)", () => {

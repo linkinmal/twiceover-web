@@ -1,0 +1,58 @@
+---
+// A tool page: /blog/tools/<slug> (blog-handoff.md section 1). Built like a game page: a standing page in a theme,
+// with its primer folded, the answer beside the inputs, and the method and limits stated. It exists only once a
+// post is published (ADR 1090 Decision 2), and its one block script is on the fixed list (BLOG_SCRIPTS).
+import BlogBase from "../../../layouts/BlogBase.astro";
+import OvernightCall from "../../../components/blog/OvernightCall.astro";
+import { getPublished } from "../../../blog/collection.mjs";
+import { PLAYABLES, otherPlayables } from "../../../blog/playables.mjs";
+import { LOOKS } from "../../../blog/vocabulary.mjs";
+import { TOPIC_LABELS } from "../../../blog/labels.mjs";
+import { formatStamp, toNewYorkIso } from "../../../blog/format.mjs";
+
+export async function getStaticPaths() {
+  if ((await getPublished()).length === 0) return [];
+  return PLAYABLES.filter((p) => p.kind === "tool").map((p) => ({ params: { slug: p.slug }, props: { p } }));
+}
+const { p } = Astro.props;
+const look = LOOKS[p.look as keyof typeof LOOKS];
+const more = otherPlayables(p.slug);
+const SCRIPTS: Record<string, string> = { "overnight-call": "/js/blog-call.js" };
+---
+<BlogBase title={`${p.title} — TwiceOver`} description={p.description} preload={[look.display]}>
+  <nav slot="meta" class="meta" aria-label="This page">
+    <a href={p.path}>Tool</a>
+    <a href={`/blog/topic/${p.topic}`}>{TOPIC_LABELS[p.topic as keyof typeof TOPIC_LABELS]}</a>
+    <span>Updated <time datetime={toNewYorkIso(p.updatedAt)}>{formatStamp(p.updatedAt)}</time></span>
+  </nav>
+  <article class="post skin" data-look={look.kit}>
+    <div class="col" style="max-width:1000px">
+      <p class="lab">Tool</p>
+      <h1 class="h1">{p.title}</h1>
+      <p class="deck">{p.deck}</p>
+      <details class="prim"><summary>New to options? The four words this page uses</summary><dl>
+        <dt>Call</dt><dd>A contract that gives the right to purchase 100 shares at a set price until a set date. It is worth more when the stock is higher.</dd>
+        <dt>Strike</dt><dd>That set price. This page starts with a $105 strike on a $100 stock.</dd>
+        <dt>Expiry</dt><dd>That set date. Each day closer, the call has less time to work.</dd>
+        <dt>Implied volatility</dt><dd>How big a stock move the call's price has built in. It tends to rise before a known event such as earnings and fall once the news is out.</dd>
+      </dl></details>
+      {p.slug === "overnight-call" && <OvernightCall />}
+      <section class="blk plate">
+        <p class="lab">How it is computed</p>
+        <p class="fine"><b>Method.</b> Black-Scholes price of a European call, with no interest rate and no dividend. Volatility is annualised and days are calendar days over 365. The change is split in order: the stock moves first, then volatility changes, then the days pass. The one-day priced move is implied volatility divided by the square root of 365.</p>
+        <p class="fine"><b>Limits.</b> Real options are American style, carry bid and ask spreads and rarely change volatility by one number. Results change with every input and with the market. This is a hypothetical illustration of option pricing math. It does not predict any stock or option.</p>
+      </section>
+    </div>
+  </article>
+  <div class="page">
+    {more.length > 0 && (
+      <>
+        <p class="xh">More to play</p>
+        <nav class="pnav" aria-label="More to play">
+          {more.map((m) => <a href={m.path}>{m.kind === "game" ? "Game" : "Tool"}<b>{m.label}</b></a>)}
+        </nav>
+      </>
+    )}
+  </div>
+  <script is:inline src={SCRIPTS[p.slug]} defer></script>
+</BlogBase>
