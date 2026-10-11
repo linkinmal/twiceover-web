@@ -233,7 +233,7 @@ describe("scanPages — inline handlers", () => {
 
 describe("scanEntryForm", () => {
   const form = (attrs, inner) => `<form ${attrs} id="entry-form">${inner}</form>`;
-  const OK_INNER = '<input name="ticker" type="text" /><button type="submit">Get the read</button>';
+  const OK_INNER = '<input name="ticker" type="text" /><button type="submit">Analyze</button>';
 
   it("passes the shipped form shape", () => {
     expect(scanEntryForm(form('action="/go/try" method="get"', OK_INNER))).toEqual([]);

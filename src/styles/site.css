@@ -321,7 +321,7 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   background: var(--color-bg-surface);
 }
 /* The placeholder is a hint, not a symbol, so it stays sans and sentence-case —
-   mono-uppercased it reads as data ("A TICKER — NVDA") rather than guidance. */
+   mono-uppercased it reads as data ("A STOCK — NVDA") rather than guidance. */
 .entry-box input::placeholder {
   color: var(--color-text-muted);
   font-family: var(--font-family-sans);
@@ -477,7 +477,7 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 }
 
 /* ── Hero: "Or" demo turn + stage indicator (ADR 0042 — connect-led) ──────── */
-/* Deep door leads in .sub; "Or, take any ticker" follows as the demo-retention
+/* Deep door leads in .sub; "Or, take any stock" follows as the demo-retention
    guardrail (immediately above the fold). No separate connect-turn section. */
 .hero .demo-turn {
   margin: var(--space-300) 0 0;
