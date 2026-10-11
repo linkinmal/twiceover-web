@@ -30,9 +30,11 @@ const { Content } = await render(post);
 const look = LOOKS[data.look as keyof typeof LOOKS];
 const [pre, hit, after] = splitHit(data.title, data.hit);
 const updated = hasUpdate(data);
-const jsonLd = serializeJsonLd(blogPostingJsonLd(data, { slug }));
+// The post's own share card, committed with it (ADR 1088 Decision 4); `npm run check:share` fails a post without one.
+const shareImage = `/blog-share/${slug}.png`;
+const jsonLd = serializeJsonLd(blogPostingJsonLd(data, { slug, imagePath: shareImage }));
 ---
-<BlogBase title={`${data.title} — TwiceOver`} description={data.description} ogType="article" preload={[look.display]} footerDisclaimer={false}>
+<BlogBase title={`${data.title} — TwiceOver`} description={data.description} image={shareImage} ogType="article" preload={[look.display]} footerDisclaimer={false}>
   <script slot="head" type="application/ld+json" set:html={jsonLd} />
   <nav slot="meta" class="meta" aria-label="This post">
     <a href="/blog">No. {number}</a>

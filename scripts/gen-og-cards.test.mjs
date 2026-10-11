@@ -47,6 +47,7 @@ import {
   DISCLAIMER,
   loadStyleSources,
 } from "./gen-og-cards.mjs";
+import { FACES as BLOG_SHARE_FACES } from "./blog-share/card.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -577,14 +578,16 @@ describe("the member being pointed at is the one whose bytes are committed", () 
     ).toBe(true);
   });
 
-  it("carries exactly the four static faces the rasteriser needs", () => {
+  it("carries exactly the static faces the rasterisers need: the four site-card faces and the blog share card's headline faces", () => {
     // The quietest failure in the whole script: resvg does not error on a missing face, it falls
     // back. Measured — deleting `source-serif-4-600.ttf` re-rendered A at 45,933 bytes instead of
     // 48,390, exit code 0, wordmark and headline reflowed. Nothing downstream would have noticed.
     const onDisk = readdirSync(join(root, "scripts/og-fonts")).filter((f) => f.endsWith(".ttf"));
+    // The per-post share card (ADR 1088 Amendment 2) adds one TTF per headline face its themes wear.
+    const wanted = [...new Set([...REQUIRED_FACES, ...Object.values(BLOG_SHARE_FACES).map((f) => f.file)])];
 
-    expect.soft([...onDisk].sort(), "the set is named, not globbed").toEqual([...REQUIRED_FACES].sort());
-    for (const face of REQUIRED_FACES) {
+    expect.soft([...onDisk].sort(), "the set is named, not globbed").toEqual(wanted.sort());
+    for (const face of wanted) {
       expect
         .soft(statSync(join(root, "scripts/og-fonts", face)).size, `${face} is a real font, not a stub`)
         .toBeGreaterThan(10000);
