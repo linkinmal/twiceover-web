@@ -179,6 +179,13 @@ describe("Growth's page copy (blog-site-copy.md)", () => {
     expect.soft(d.querySelector(".teach .big").textContent).toBe("Every bet size faces the same 60% coin. The bars show how 2,000 simulated games ended at each size.");
     expect.soft(d.querySelector(".study").textContent).toContain("28% went bust and were paid nothing");
     expect.soft(d.body.textContent).not.toMatch(/\bstack\b/);
+    expect.soft(d.body.textContent, "a cold read took 'what you hold' as stock holdings").toContain("Each flip bets a share of your balance. Heads adds the bet.");
+    expect.soft(d.body.textContent).not.toContain("what you hold");
+  });
+  it("names the post page's All posts link Back to the blog, not the front page", () => {
+    const d = dom(dist, "blog/first-fixture-post/index.html");
+    expect.soft(d.querySelector('.pnav a[href="/blog"] b').textContent).toBe("Back to the blog");
+    expect.soft(d.querySelector(".pnav").textContent).not.toContain("front page");
   });
 });
 

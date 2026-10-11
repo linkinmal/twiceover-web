@@ -60,7 +60,7 @@ const jsonLd = serializeJsonLd(blogPostingJsonLd(data, { slug }));
   <div class="page">
     <nav class="pnav" aria-label="More posts">
       {before && <a href={`/blog/${before.id}`}>Before this · No. {numbers.get(before.id)}<b>{before.data.title}</b></a>}
-      <a href="/blog">All posts<b>Back to the front page</b></a>
+      <a href="/blog">All posts<b>Back to the blog</b></a>
     </nav>
     {more.length > 0 && (
       <>
