@@ -13,7 +13,7 @@ import { describe, expect, it } from "vitest";
 // with BLOG_NOW set, with no HOME (no Keychain), and with a PATH whose first entry holds fake `npm`,
 // `npx`, `node`, `wrangler` and `security` that record themselves and exit 99: if the guard were ever
 // removed, the script would hit a fake and the test would say which one ran.
-function runGuarded() {
+function runGuarded(extraEnv = { BLOG_NOW: "2100-01-01T00:00:00Z" }) {
   const bin = mkdtempSync(join(tmpdir(), "deploy-guard-"));
   const ran = join(bin, "ran.log");
   for (const name of ["npm", "npx", "node", "wrangler", "security"]) {
@@ -21,7 +21,7 @@ function runGuarded() {
     writeFileSync(f, `#!/bin/sh\necho ${name} >> "${ran}"\nexit 99\n`);
     chmodSync(f, 0o755);
   }
-  const r = spawnSync("/bin/bash", ["scripts/deploy.sh"], { env: { PATH: `${bin}:/usr/bin:/bin`, BLOG_NOW: "2100-01-01T00:00:00Z" }, encoding: "utf8", timeout: 20000 });
+  const r = spawnSync("/bin/bash", ["scripts/deploy.sh"], { env: { PATH: `${bin}:/usr/bin:/bin`, ...extraEnv }, encoding: "utf8", timeout: 20000 });
   return { ...r, ran: existsSync(ran) };
 }
 
@@ -34,6 +34,15 @@ describe("scripts/deploy.sh", () => {
   });
 });
 
+describe("scripts/deploy.sh and the post folder", () => {
+  it("refuses to run with BLOG_CONTENT_DIR set, before it builds, runs any gate or reads a credential", () => {
+    const r = runGuarded({ BLOG_CONTENT_DIR: "test-fixtures/blog" });
+    expect.soft(r.status).toBe(1);
+    expect.soft(r.stderr).toContain("BLOG_CONTENT_DIR is set");
+    expect.soft(r.ran, "no npm, npx, node, wrangler or security was started").toBe(false);
+  });
+});
+
 describe(".github/workflows/ci.yml", () => {
   const ci = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8");
   const [buildJob, deployJob] = ci.split(/\n  deploy:/);
@@ -42,5 +51,6 @@ describe(".github/workflows/ci.yml", () => {
     expect.soft(buildJob).toMatch(/BLOG_NOW: \$\{\{ github\.event_name == 'pull_request' && '2100-01-01T00:00:00Z' \|\| '' \}\}/);
     expect.soft(deployJob).toBeDefined();
     expect.soft(deployJob).not.toContain("BLOG_NOW");
+    expect.soft(ci, "no job points the build at another folder of posts").not.toContain("BLOG_CONTENT_DIR");
   });
 });

@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync, statSync } from "node:fs";
+import { LOOKS } from "../src/blog/vocabulary.mjs";
 import {
   parseFontFaces,
   rangeCovers,
@@ -122,6 +123,14 @@ describe("the repo as committed", () => {
     expect.soft(Object.keys(THEME_FACES)).toHaveLength(10);
     const used = new Set([...BASE_FACES, ...Object.values(THEME_FACES).flat()]);
     for (const f of Object.keys(sizes)) expect.soft(used.has(f) || f === "source-serif-4-latin-wght-normal", f).toBe(true);
+  });
+
+  it("each theme's preloaded display face (vocabulary LOOKS) is one its font table loads", () => {
+    for (const l of Object.values(LOOKS)) {
+      const table = [...BASE_FACES, ...THEME_FACES[l.kit]];
+      expect.soft(table, l.kit).toContain(l.display);
+    }
+    expect.soft(Object.values(LOOKS).map((l) => l.kit).sort()).toEqual(Object.keys(THEME_FACES).sort());
   });
 
   it("keeps the ceiling at or above the measured worst theme", () => {

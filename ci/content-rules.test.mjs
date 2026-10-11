@@ -199,6 +199,18 @@ describe("markup rules on every blog page (Decision 11)", () => {
     expect.soft(fails(withBody('<script type="text/plain">x</script>'))).toBe(true);
   });
 
+  // ADR 1090 Amendment 1, build requirements: the gate matches the type exactly, parses the body, and allows one block.
+  it("treats only an exact, parseable, single application/ld+json block as data", () => {
+    const ld = '<script type="application/ld+json">{"@type":"BlogPosting"}</script>';
+    expect.soft(fails(withBody(ld + ld)), "a second block").toBe(true);
+    expect.soft(fails(withBody("<script>{}</script>")), "no type").toBe(true);
+    expect.soft(fails(withBody('<script type="text/javascript">{}</script>')), "a javascript type").toBe(true);
+    expect.soft(fails(withBody('<script type="application/ld+json; x=1">{}</script>')), "a type that merely contains the string").toBe(true);
+    expect.soft(fails(withBody('<script type="application/ld+jsonx">{}</script>')), "a longer type").toBe(true);
+    // A body that closes the element early leaves JSON that does not parse, and a live script after it.
+    expect.soft(fails(withBody('<script type="application/ld+json">{"a":"</script><script>alert(1)</script>"}</script>')), "a body containing </script>").toBe(true);
+  });
+
   it("allows a script only from the fixed list, root-relative and same-origin", () => {
     const pageWith = (src) => scanPage({ ...withBody(`<script src="${src}" defer></script>`), disclaimer, postSlugs: SLUGS, allowedScripts: ["/js/blog-guess.js"] });
     expect.soft(pageWith("/js/blog-guess.js")).toEqual([]);

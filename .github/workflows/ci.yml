@@ -43,6 +43,9 @@ jobs:
       # Blog style gate (#4233, ADR 1088 Decision 3): the ported kit CSS matches the token files, the end
       # block is the product's own tokens, contrast and containment hold.
       - run: npm run check:style
+      # Blog isolation (#4233, ADR 1088 Decision 3): no page outside /blog loads the blog's styles or fonts, and no
+      # blog page loads the site's. The fixture build in `npm test` runs it with blog pages present.
+      - run: npm run check:isolation
       - run: npm test
 
   # Deploy-on-merge to production (ADR 0056, #305). Here deploy ≈ release, and that is intentional:

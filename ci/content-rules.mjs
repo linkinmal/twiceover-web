@@ -249,6 +249,9 @@ function doorProblems(form, slug) {
 function markupFailures(doc, rel, kind, slug, allowedScripts) {
   const out = [];
   const add = (msg) => out.push(`[BLOG-MARKUP] ${rel}: ${msg}`);
+  // The template emits exactly one structured-data block per page (ADR 1090 Amendment 1); a second is not its.
+  const ldBlocks = [...doc.querySelectorAll("script")].filter((s) => s.getAttribute("src") === null && (s.getAttribute("type") ?? "").toLowerCase() === "application/ld+json");
+  if (ldBlocks.length > 1) add(`${ldBlocks.length} JSON-LD blocks (the template emits one)`);
   for (const s of doc.querySelectorAll("script")) {
     const src = s.getAttribute("src");
     if (src === null) {

@@ -12,6 +12,7 @@ import {
   END_BLOCK_PINS,
   CONTRAST_EXCEPTIONS,
 } from "./blog-style.mjs";
+import { LOOKS } from "../src/blog/vocabulary.mjs";
 
 const root = new URL("..", import.meta.url).pathname;
 const read = (p) => readFileSync(root + p, "utf8");
@@ -65,6 +66,13 @@ describe("token helpers", () => {
   it("mixHex matches a hand-computed reference (62% black over white is 38% of 255 = 97 = 0x61)", () => {
     expect.soft(mixHex("#000000", "#FFFFFF", 62)).toBe("#616161");
     expect.soft(mixHex("#FFFFFF", "#000000", 100)).toBe("#ffffff");
+  });
+});
+
+describe("the style gate's theme table and the post vocabulary", () => {
+  it("name the same ten themes with the same kit ids, so a post's `look` always lands on a checked block", () => {
+    expect.soft(THEMES.map((t) => t.token)).toEqual(Object.keys(LOOKS));
+    expect.soft(THEMES.map((t) => t.kit)).toEqual(Object.values(LOOKS).map((l) => l.kit));
   });
 });
 

@@ -4,7 +4,7 @@
  */
 import { describe, expect, it } from "vitest";
 import { postSchema } from "./schema.mjs";
-import { BUILDS, LENSES, TOPICS } from "./vocabulary.mjs";
+import { BUILDS, LENSES, LOOKS, LOOK_NAMES, TOPICS } from "./vocabulary.mjs";
 
 const good = () => ({
   title: "Why a call can lose money on the day the stock jumps",
@@ -13,6 +13,7 @@ const good = () => ({
   topic: TOPICS[0],
   lens: LENSES[0],
   build: BUILDS[0],
+  look: LOOK_NAMES[0],
 });
 const fails = (over) => !postSchema.safeParse({ ...good(), ...over }).success;
 
@@ -36,7 +37,7 @@ describe("a closed schema", () => {
   });
 
   it("fails a missing required field, one by one", () => {
-    for (const key of ["title", "description", "publishAt", "topic", "lens", "build"]) {
+    for (const key of ["title", "description", "publishAt", "topic", "lens", "build", "look"]) {
       const p = good();
       delete p[key];
       expect.soft(postSchema.safeParse(p).success, key).toBe(false);
@@ -97,5 +98,29 @@ describe("images stay inside the image directory", () => {
       expect.soft(fails(img(s)), s).toBe(true);
     }
     expect.soft(fails({ image: { src: "/blog-images/a.png", alt: "", source: "s", licence: "l" } })).toBe(true);
+  });
+});
+
+describe("theme, highlighted words and tile figure", () => {
+  it("a theme is one of the ten token names, and the kit shorthand is not a name", () => {
+    for (const l of LOOK_NAMES) expect.soft(fails({ look: l }), l).toBe(false);
+    for (const l of ["nightdesk", "marker", "riso", "Blueprint", "", "plaid"]) expect.soft(fails({ look: l }), l).toBe(true);
+    expect.soft(LOOK_NAMES).toHaveLength(10);
+  });
+  it("every theme maps to a distinct kit id and a display font file", () => {
+    expect.soft(new Set(Object.values(LOOKS).map((l) => l.kit)).size).toBe(10);
+    for (const l of Object.values(LOOKS)) expect.soft(l.display).toMatch(/^[a-z0-9-]+$/);
+  });
+  it("`hit` must be words in the title; `figure` is a bounded pair with no markup and no extra key", () => {
+    const title = "The stock jumped 4% and this call lost 21% of its value";
+    expect.soft(fails({ title, hit: "21%" })).toBe(false);
+    expect.soft(fails({ title, hit: "22%" })).toBe(true);
+    expect.soft(fails({ title, hit: "" })).toBe(true);
+    expect.soft(fails({ hit: "<b>" })).toBe(true);
+    expect.soft(fails({ figure: { value: "−21%", note: "on a call, with the stock up 4%" } })).toBe(false);
+    expect.soft(fails({ figure: { value: "−21%" } })).toBe(true);
+    expect.soft(fails({ figure: { value: "x".repeat(15), note: "n" } })).toBe(true);
+    expect.soft(fails({ figure: { value: "1", note: "<i>n</i>" } })).toBe(true);
+    expect.soft(fails({ figure: { value: "1", note: "n", extra: 1 } })).toBe(true);
   });
 });

@@ -26,6 +26,13 @@ if [ -n "${BLOG_NOW:-}" ]; then
   exit 1
 fi
 
+# A set BLOG_CONTENT_DIR points the build at another folder of posts (the fixture build). A deploy must
+# publish the posts in the tree, so it refuses that too.
+if [ -n "${BLOG_CONTENT_DIR:-}" ]; then
+  echo "BLOG_CONTENT_DIR is set (${BLOG_CONTENT_DIR}); a deploy must build the posts in src/content/blog. Refusing." >&2
+  exit 1
+fi
+
 # ── 1 · Build + content gate (AC3/AC4) ──────────────────────────────────────
 echo "▸ Build…"
 npm run build
@@ -39,6 +46,8 @@ echo "▸ Blog font gate (files exist, no orphans, OFL licence per family, per-t
 node ci/blog-fonts.mjs
 echo "▸ Blog style gate (ported kit CSS vs the token files, end block = product tokens, contrast, containment — #4233/ADR 1088)…"
 node ci/blog-style.mjs
+echo "▸ Blog isolation gate (no non-blog page loads the blog's styles — #4233/ADR 1088)…"
+node ci/blog-isolation.mjs
 
 # ── 2 · Consultation-0008 log gate ──────────────────────────────────────────
 # Security's "no operator-accessible access/edge logs" posture (consultation 0008,
