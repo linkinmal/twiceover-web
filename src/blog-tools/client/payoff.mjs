@@ -1,57 +1,51 @@
 /**
- * Block script for "The payoff builder" (ADR 1088 Decision 1, ADR 1090 Decision 8). Bundled to public/js/blog-payoff.js.
- * It reads the page's own number and range fields, runs the shared engine and writes the same sentences and drawing the
- * build printed (payoff-view.mjs) back into the page. The chart handle drags by pointer; the range slider with its
- * minus and plus buttons is the accessible control. Nothing is sent, stored or read from the address.
+ * Block script for "The option payoff calculator" (ADR 1088 Decision 1, ADR 1090 Decision 8). Bundled to
+ * public/js/blog-payoff.js. It reads the page's own typed boxes and range slider, runs the shared engine and writes
+ * the same sentences and drawing the build printed (payoff-view.mjs) back into the page. The slider sits on the
+ * chart's price axis; dragging the chart moves the same slider. Nothing is sent, stored or read from the address.
  */
-import { STRUCTURES, curvePoints, evaluate, findsMet, validatePayoffInputs } from "../payoff-builder.mjs";
-import { breakEvenHtml, chartCaption, chartLabel, chartSvg, fieldHtml, findsHtml, handleText, headHtml, inputsHtml, kindsHtml, sentenceHtml, shapesHtml, spreadTypeHtml, statsHtml, structureOf, summaryHtml, whyHtml, DESCRIPTIONS } from "../payoff-view.mjs";
+import { curvePoints, evaluate, findsMet, validatePayoffInputs } from "../payoff-builder.mjs";
+import { readNumber } from "../number-input.mjs";
+import { BAD_NUMBER, cardsHtml, chartCaption, chartLabel, chartSvg, describe, findsHtml, headHtml, pm, pp, sentenceHtml, statsHtml, structureOf, termsHtml, typeRowHtml, whyHtml } from "../payoff-view.mjs";
 
 /** @param {Element} root the [data-payoff] element */
-export function init(root, opts = {}) {
+export function init(root) {
   const q = (s) => root.querySelector(s);
   const el = (id) => root.querySelector("#" + id);
-  const controls = q("[data-controls]");
   const svg = q("[data-chart]");
-  if (!controls || !svg || !el("po-h")) return null;
-  const reduceMotion = opts.reduceMotion ?? (typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const slider = el("po-h");
+  if (!svg || !slider) return null;
 
-  const state = { kind: "lc", spreadType: null, handleSet: false, drag: false, geom: null };
+  const state = { kind: "lc", spreadType: null, geom: null, drag: false };
   const found = [false, false, false];
   let last = null;
 
-  q("[data-nojs]") && (q("[data-nojs]").hidden = true);
-  controls.hidden = false;
-  q("[data-handle]").hidden = false;
-  svg.style.touchAction = "pan-y";
+  root.querySelectorAll("[data-js]").forEach((n) => (n.hidden = false));
+  root.querySelectorAll("[data-nojs]").forEach((n) => (n.hidden = true));
+  q("[data-type]").hidden = true;
 
   const def = () => structureOf(state.kind, state.spreadType);
-  const num = (id) => parseFloat(el(id).value);
+  const handleStart = () => def().handle;
 
-  // Rebuild the structure's own fields; keep the stock price and contracts the reader typed.
-  function build(keepHandle) {
+  function buildTerms(stockNow, contracts) {
     const d = def();
-    const keep = { S0: el("po-S0").value, n: el("po-n").value };
-    q("[data-kinds]").innerHTML = kindsHtml(state.kind);
-    q("[data-desc]").textContent = DESCRIPTIONS[state.kind];
-    const type = q("[data-type]");
-    type.hidden = state.kind !== "vs";
-    type.innerHTML = state.kind === "vs" ? spreadTypeHtml(state.spreadType) : "";
-    q("[data-in]").innerHTML = inputsHtml(d);
-    q("[data-in2]").innerHTML = fieldHtml("S0", "Stock price now, $", keep.S0, 1) + fieldHtml("n", "Contracts", keep.n, 1);
-    if (!keepHandle || !state.handleSet) el("po-h").value = String(d.handle);
+    q("[data-tt]").textContent = d.name;
+    q("[data-type]").hidden = state.kind !== "vs";
+    q("[data-type]").innerHTML = state.kind === "vs" ? typeRowHtml(state.spreadType) : "";
+    q("[data-in]").innerHTML = termsHtml(d, state.kind, stockNow, contracts);
+    q("[data-cards]").innerHTML = cardsHtml(state.kind, state.spreadType ?? "c");
+    q("[data-desc]").textContent = describe(state.kind);
   }
 
   function read() {
     const d = def();
     const values = {};
-    for (const f of d.fields) values[f.id] = num("po-" + f.id);
-    return { kind: state.kind, spreadType: state.spreadType, values, stockNow: num("po-S0"), contracts: num("po-n") };
+    for (const f of d.fields) values[f.id] = readNumber(el("po-" + f.id).value);
+    return { kind: state.kind, spreadType: state.spreadType, values, stockNow: readNumber(el("po-S0").value), contracts: readNumber(el("po-n").value) };
   }
 
   function mark(errors) {
-    const ids = [...def().fields.map((f) => f.id), "S0", "n"];
-    for (const id of ids) {
+    for (const id of [...def().fields.map((f) => f.id), "S0", "n"]) {
       const bad = Boolean(errors[id]);
       el("po-" + id).setAttribute("aria-invalid", String(bad));
       const note = el("po-" + id + "-x");
@@ -64,112 +58,91 @@ export function init(root, opts = {}) {
     const input = read();
     const check = validatePayoffInputs(input);
     mark(check.errors);
-    q("[data-bad]").hidden = check.ok;
-    if (!check.ok) {
-      const inFold = check.errors.S0 || check.errors.n;
-      if (inFold) q("[data-fold]").open = true;
-      return;
-    }
+    q("[data-bad]").textContent = check.ok ? "" : BAD_NUMBER;
+    if (!check.ok) return;
     const d = def();
     const range = evaluate({ ...input, handle: input.stockNow }).range;
-    const h = el("po-h");
-    h.min = String(range.lo);
-    h.max = String(range.hi);
-    h.step = String(range.step);
-    let handle = parseFloat(h.value);
+    slider.min = String(range.lo);
+    slider.max = String(range.hi);
+    slider.step = String(range.step);
+    let handle = parseFloat(slider.value);
     if (!Number.isFinite(handle)) handle = input.stockNow;
     handle = Math.min(range.hi, Math.max(range.lo, handle));
-    h.value = String(handle);
+    slider.value = String(handle);
     const e = evaluate({ ...input, handle });
     if (!e.ok) return;
     last = e;
     const model = { ...input, e };
-    const ht = handleText(e);
-    el("po-hv").textContent = ht.value;
-    const he = el("po-he");
-    he.className = "eff " + ht.tone;
-    he.textContent = ht.effect;
-    q("[data-sum]").innerHTML = summaryHtml(e);
+    el("po-hv").textContent = pp(e.handle);
     q("[data-head]").innerHTML = headHtml(e);
     q("[data-s1]").innerHTML = sentenceHtml(model);
-    q("[data-s2]").innerHTML = breakEvenHtml(e);
     q("[data-why]").innerHTML = whyHtml(model);
     q("[data-stats]").innerHTML = statsHtml(e);
+    const shares = el("po-sh");
+    const cash = el("po-cash");
+    if (shares) shares.textContent = e.multiplier.toLocaleString("en-US");
+    if (cash) cash.textContent = pm(input.values.K * e.multiplier);
     findsMet(e).forEach((hit, i) => hit && (found[i] = true));
     q("[data-finds]").innerHTML = findsHtml(found);
     q("[data-fc]").textContent = `· ${found.filter(Boolean).length} of 3 found`;
-    q("[data-shapes]").innerHTML = shapesHtml({ kind: state.kind, spreadType: state.spreadType }, true);
     const W = Math.max(260, Math.round(svg.clientWidth || (svg.parentNode && svg.parentNode.clientWidth) || 600));
     const chart = chartSvg(e, curvePoints(e.position, input.stockNow, e.range.lo, e.range.hi), W);
     svg.setAttribute("viewBox", `0 0 ${W} ${chart.H}`);
     svg.innerHTML = chart.svg;
+    svg.parentNode.style.setProperty("--axy", chart.axisTop + "px");
     svg.setAttribute("aria-label", chartLabel(d, e));
     q("[data-cap]").textContent = chartCaption(d, e);
     state.geom = chart.geom;
   }
 
-  function pick(kind, spreadType) {
+  /** Pick a structure: its example numbers load, the stock price and contracts stay (reset starts them over). */
+  function pick(kind, spreadType, fresh) {
+    const keep = fresh ? { S0: "100", n: "1" } : { S0: el("po-S0").value, n: el("po-n").value };
     state.kind = kind;
     state.spreadType = kind === "vs" ? spreadType ?? "c" : null;
-    state.handleSet = false;
-    build(false);
+    buildTerms(keep.S0, keep.n);
+    slider.value = String(state.kind === "vs" && state.spreadType === "p" ? 92 : handleStart());
     run();
   }
 
-  root.addEventListener("input", (e) => {
-    if (!e.target.matches || !e.target.matches("input")) return;
-    if (e.target.id === "po-h") state.handleSet = true;
-    run();
-  });
+  root.addEventListener("input", (ev) => ev.target.matches && ev.target.matches("input") && run());
   root.addEventListener("click", (ev) => {
     const t = ev.target.closest ? ev.target : null;
     if (!t) return;
-    const step = t.closest(".stp");
-    if (step && root.contains(step)) {
-      const input = el(step.dataset.for);
-      step.dataset.d === "1" ? input.stepUp() : input.stepDown();
-      if (input.id === "po-h") state.handleSet = true;
-      return run();
-    }
-    const kindBtn = t.closest("[data-kinds] [data-k]");
-    if (kindBtn) return pick(kindBtn.dataset.k, kindBtn.dataset.k === "vs" ? "c" : null);
-    const vt = t.closest("[data-vt]:not(.shape)");
-    if (vt) {
-      state.spreadType = vt.dataset.vt;
-      state.handleSet = false;
-      build(false);
-      return run();
-    }
-    const shape = t.closest(".shape[data-k]");
-    if (shape) return pick(shape.dataset.k, shape.dataset.vt || null);
-    if (t.closest("[data-reset]")) return pick(state.kind, state.spreadType);
+    const card = t.closest(".shapes [data-k]");
+    if (card) return pick(card.dataset.k, state.spreadType ?? "c", false);
+    const vt = t.closest("[data-type] [data-vt]");
+    if (vt) return pick("vs", vt.dataset.vt, false);
+    if (t.closest("[data-reset]")) pick(state.kind, "c", true);
   });
 
-  // The chart handle: a pointer shortcut to the same range field.
+  // The chart is a shortcut to the same slider.
   const setFromPointer = (ev) => {
     const g = state.geom;
     if (!g) return;
     const r = svg.getBoundingClientRect();
     const vx = ((ev.clientX - r.left) / (r.width || g.W)) * g.W;
     const t = Math.min(1, Math.max(0, (vx - g.ml) / (g.W - g.ml - g.mr)));
-    const h = el("po-h");
-    const step = parseFloat(h.step) || 1;
-    h.value = String(Math.round((g.lo + t * (g.hi - g.lo)) / step) * step);
-    state.handleSet = true;
+    const step = parseFloat(slider.step) || 1;
+    slider.value = String(Math.round((g.lo + t * (g.hi - g.lo)) / step) * step);
     run();
   };
+  svg.style.touchAction = "pan-y";
   svg.addEventListener("pointerdown", (ev) => {
-    svg.setPointerCapture && svg.setPointerCapture(ev.pointerId);
+    try {
+      svg.setPointerCapture(ev.pointerId);
+    } catch {
+      /* a pointer already released: the drag still follows moves on the chart */
+    }
     state.drag = true;
     setFromPointer(ev);
   });
   svg.addEventListener("pointermove", (ev) => state.drag && setFromPointer(ev));
   svg.addEventListener("pointerup", () => (state.drag = false));
   svg.addEventListener("pointercancel", () => (state.drag = false));
-  void reduceMotion;
 
   run();
-  return { result: () => last, found: () => found.slice(), kinds: STRUCTURES.length };
+  return { result: () => last, found: () => found.slice() };
 }
 
 if (typeof document !== "undefined") {

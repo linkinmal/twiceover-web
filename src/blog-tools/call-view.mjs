@@ -15,7 +15,7 @@ export const tone = (x) => (x < -0.004 ? "neg" : x > 0.004 ? "pos" : "");
 
 export const FINDS = Object.freeze([
   ["The stock rises and the call still loses.", "Found. That is implied volatility leaving the price.", "Hint: try an earnings night."],
-  ["Nothing moves and the call loses anyway.", "Found. That is time passing.", "Hint: set the stock flat and put implied volatility back where it started."],
+  ["Nothing moves and the call loses anyway.", "Found. That is time passing.", "Hint: pick the quiet night."],
   ["The stock falls and the call gains.", "Found. That takes implied volatility rising.", "Hint: push implied volatility well above where it started."],
 ]);
 
@@ -34,17 +34,16 @@ export function sentenceHtml(r) {
 }
 
 export function breakEvenHtml(r) {
-  const v0 = money(r.values.v0);
   return r.breakEven.kind === "none"
-    ? `No stock move in range brings the call back to ${v0}.`
-    : `Break-even: the stock needs <b>${pct(r.breakEven.pct)}</b> for the call to be worth ${v0} again.`;
+    ? `No stock move in range brings the call back to ${money(r.values.v0)}.`
+    : `The call is worth <b>${money(r.values.v0)}</b> again if the stock moves <b>${pct(r.breakEven.pct)}</b> from its starting price.`;
 }
 
 export function whyHtml(r) {
   const { ivNowPct, ivAfterPct } = r.inputs;
   const { volatility, time } = r.parts;
   const text = {
-    "stock-up-call-down-volatility": `The stock went the call's way. But the call's price already had a big move built in. When implied volatility fell from ${ivNowPct}% to ${ivAfterPct}%, that part of the price left. It was bigger than the gain from the stock.`,
+    "stock-up-call-down-volatility": `The stock went the call's way. But the call's price already had a big move built in. When implied volatility fell from ${ivNowPct}% to ${ivAfterPct}%, that part of the price left. That part was bigger than the gain from the stock.`,
     "stock-down-call-up": "The stock fell. Implied volatility rose enough to lift the call by more than the fall cost.",
     "time-only": `Nothing moved. The call still lost ${money(time)}, because it has less time left to work.`,
     "stock-led-gain": "The stock's move added more than volatility and time took away.",
@@ -59,29 +58,43 @@ export function pricedHtml(r) {
   return `<b>What was priced in.</b> At ${ivNowPct}% implied volatility, this call was priced for a stock move of about <b>±${r.pricedMovePct.toFixed(1)}%</b> in one day. You set ${movePct ? pct(movePct) : "no move"}.`;
 }
 
-export function summaryHtml(r) {
-  const { strike, daysToExpiry, stock, ivNowPct } = r.inputs;
-  return `<b>The call:</b> $${strike} strike, ${daysToExpiry} days out. Stock at $${stock}, IV ${ivNowPct}%.`;
+/** The whole night in one sentence, so no number has to be hunted for (kit v3, step 1). */
+export function nightHtml(r) {
+  const { strike, daysToExpiry, stock, movePct, ivNowPct, ivAfterPct, daysPass } = r.inputs;
+  const ivr = Math.round(ivNowPct);
+  const n = (x) => (Math.abs(x) % 1 ? Math.abs(x).toFixed(1) : Math.abs(x).toFixed(0));
+  const move = movePct > 0 ? `rises ${n(movePct)}%` : movePct < 0 ? `falls ${n(movePct)}%` : "does not move";
+  const iv = ivAfterPct < ivr ? `falls from ${ivNowPct}% to ${ivAfterPct}%` : ivAfterPct > ivr ? `rises from ${ivNowPct}% to ${ivAfterPct}%` : `stays at ${ivNowPct}%`;
+  const days = daysPass === 0 ? "no time passes" : daysPass === 1 ? "1 day passes" : `${daysPass} days pass`;
+  return `The call has a $${strike} strike and ${daysToExpiry} ${daysToExpiry === 1 ? "day" : "days"} to expiration, on a $${stock} stock. ${daysPass === 1 ? "Overnight" : "Then"} the stock ${move}, implied volatility ${iv}, and ${days}.`;
 }
 
-/** What each slider shows beside it: its readout and the dollars it moves the call by. */
+/** What each slider shows: its readout, a plain sentence for volatility and days, and the dollars it moves the call by. */
 export function sliderText(r) {
   const { movePct, ivAfterPct, ivNowPct, daysPass } = r.inputs;
-  const eff = (d) => `moves the call ${Math.abs(d) < 0.005 ? "$0.00" : sign(d) + money(d)}`;
+  const eff = (d, pre = "") => `${pre}moves the call ${Math.abs(d) < 0.005 ? "$0.00" : sign(d) + money(d)}`;
   return {
-    move: { value: movePct ? pct(movePct) : "flat", effect: eff(r.parts.stock), tone: tone(r.parts.stock) },
-    iv: { value: `${Math.round(ivAfterPct)}%`, effect: `from ${Math.round(ivNowPct)}% · ${eff(r.parts.volatility)}`, tone: tone(r.parts.volatility) },
-    days: { value: `${daysPass} ${daysPass === 1 ? "day" : "days"}`, effect: eff(r.parts.time), tone: tone(r.parts.time) },
+    move: { value: movePct ? pct(movePct) : "flat", guide: "", effect: eff(r.parts.stock), tone: tone(r.parts.stock) },
+    iv: { value: `${Math.round(ivAfterPct)}%`, guide: GUIDES.iv, effect: eff(r.parts.volatility, `from ${Math.round(ivNowPct)}% \u00b7 `), tone: tone(r.parts.volatility) },
+    days: { value: `${daysPass} ${daysPass === 1 ? "day" : "days"}`, guide: GUIDES.days, effect: eff(r.parts.time), tone: tone(r.parts.time) },
   };
 }
+export const GUIDES = Object.freeze({
+  iv: "It tends to rise before a known event such as earnings and fall once the news is out. That fall is called IV crush.",
+  days: "Each day closer, the call has less time to work.",
+});
 
-/** Where the break-even marker sits on the stock-move slider, or null when it is off the slider. */
+/** The mark under the stock slider where the call is worth what it was; its label hangs inward near an end. */
 export function breakEvenMarker(r) {
   if (r.breakEven.kind !== "move") return null;
   const { min, max } = SLIDERS.movePct;
   const p = r.breakEven.pct;
   if (p < min || p > max) return null;
-  return { left: `calc(8px + (100% - 16px) * ${((p - min) / (max - min)).toFixed(4)})`, text: `break-even ${pct(Math.round(p * 10) / 10)}` };
+  return {
+    left: `calc(14px + (100% - 28px) * ${((p - min) / (max - min)).toFixed(4)})`,
+    side: p > 6 ? " r" : p < -6 ? " l" : "",
+    text: `call unchanged at ${pct(Math.round(p * 10) / 10)}`,
+  };
 }
 
 export function findsHtml(found) {
@@ -90,8 +103,8 @@ export function findsHtml(found) {
   ).join("");
 }
 
-/** The grid of every case. `interactive` adds the button role and tab stop the script uses; served, cells are plain. */
-export function heatHtml(grid, current, interactive) {
+/** The grid of every case, for reading: no cell is a control. The cell matching the sliders is outlined. */
+export function heatHtml(grid, current) {
   const head = "<thead><tr><th></th>" + grid.moves.map((x) => `<th scope="col">stock ${x ? pct(x) : "flat"}</th>`).join("") + "</tr></thead>";
   const body = grid.rows
     .map((row) => {
@@ -100,8 +113,7 @@ export function heatHtml(grid, current, interactive) {
           const z = c.changePct;
           const k = z ? Math.round(Math.min(1, Math.abs(z) / 160) * 37 + 8) : 0;
           const now = row.iv === current.ivAfterPct && c.movePct === current.movePct;
-          const attrs = interactive ? ` tabindex="0" role="button" data-m="${c.movePct}" data-iv="${row.iv}"` : "";
-          return `<td class="hc${now ? " now" : ""}"${attrs} aria-label="Stock ${c.movePct}%, implied volatility ${row.iv}%: call ${z}%" style="background:color-mix(in srgb,var(--${z < 0 ? "loss" : "gain"}) ${k}%,var(--plate))">${z ? sign(z) + Math.abs(z) + "%" : "0%"}</td>`;
+          return `<td${now ? ' class="now" aria-current="true"' : ""} style="background:color-mix(in srgb,var(--${z < 0 ? "loss" : "gain"}) ${k}%,var(--plate))">${z ? sign(z) + Math.abs(z) + "%" : "0%"}</td>`;
         })
         .join("");
       return `<tr><th scope="row">IV ${row.same ? "stays" : "to"} ${row.iv}%</th>${cells}</tr>`;

@@ -47,10 +47,10 @@ const FIELD_RULES = [
 
 /** The design's four presets; each sets the stock move, volatility after (now × factor) and one day. */
 export const PRESETS = Object.freeze([
-  { id: "beat", label: "Earnings beat, IV drops", movePct: 4, ivFactor: 0.5625 },
-  { id: "miss", label: "Earnings miss, IV drops", movePct: -6, ivFactor: 0.5625 },
-  { id: "gap", label: "Big gap up, IV drops", movePct: 10, ivFactor: 0.5625 },
-  { id: "quiet", label: "Quiet night, nothing moves", movePct: 0, ivFactor: 1 },
+  { id: "beat", label: "Earnings beat", movePct: 4, ivFactor: 0.5625 },
+  { id: "miss", label: "Earnings miss", movePct: -6, ivFactor: 0.5625 },
+  { id: "gap", label: "Big gap up", movePct: 10, ivFactor: 0.5625 },
+  { id: "quiet", label: "Quiet night", movePct: 0, ivFactor: 1 },
 ]);
 
 const HEAT_MOVES = [-8, -4, 0, 4, 8, 12];

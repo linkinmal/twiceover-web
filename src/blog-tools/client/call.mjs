@@ -1,16 +1,18 @@
 /**
  * Block script for "The overnight call calculator" (ADR 1088 Decision 1, ADR 1090 Decision 8). Bundled to
- * public/js/blog-call.js. It reads the page's own number and slider fields, runs the shared engine and writes the
- * same sentences the build printed (call-view.mjs) back into the page. Nothing is sent, stored or read from the
- * address; the three finds are kept in memory for the visit.
+ * public/js/blog-call.js. It reads the page's own sliders and typed boxes, runs the shared engine and writes the same
+ * sentences the build printed (call-view.mjs) back into the page. Nothing is sent, stored or read from the address;
+ * the three finds are kept in memory for the visit.
  */
 import { DEFAULTS, PRESETS, applyPreset, findsMet, heatGrid, presetMatches, runOvernight, validateInputs } from "../overnight-call.mjs";
-import { breakEvenHtml, breakEvenMarker, findsHtml, headlineHtml, heatHtml, pricedHtml, sentenceHtml, sliderText, summaryHtml, waterfallLabel, waterfallSvg, whyHtml } from "../call-view.mjs";
+import { readNumber } from "../number-input.mjs";
+import { BAD_NUMBER } from "../payoff-view.mjs";
+import { breakEvenHtml, breakEvenMarker, findsHtml, headlineHtml, heatHtml, nightHtml, pricedHtml, sentenceHtml, sliderText, waterfallLabel, waterfallSvg, whyHtml } from "../call-view.mjs";
 
 const TYPED = [
-  ["t-s", "stock"],
   ["t-k", "strike"],
   ["t-d", "daysToExpiry"],
+  ["t-s", "stock"],
   ["t-ivb", "ivNowPct"],
 ];
 const SLIDERS = [
@@ -20,21 +22,17 @@ const SLIDERS = [
 ];
 
 /** @param {Element} root the [data-call] element */
-export function init(root, opts = {}) {
+export function init(root) {
   const q = (s) => root.querySelector(s);
   const el = (id) => root.querySelector("#" + id);
-  const controls = q("[data-controls]");
   const svg = q("[data-wf]");
-  if (!controls || !svg || !el("t-m")) return null;
-  const reduceMotion = opts.reduceMotion ?? (typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches);
+  if (!svg || !el("t-m")) return null;
 
   const found = [false, false, false];
   let last = null;
 
-  q("[data-nojs]") && (q("[data-nojs]").hidden = true);
-  controls.hidden = false;
-
-  const num = (id) => parseFloat(el(id).value);
+  root.querySelectorAll("[data-js]").forEach((n) => (n.hidden = false));
+  root.querySelectorAll("[data-nojs]").forEach((n) => (n.hidden = true));
 
   function render(r) {
     const { inputs } = r;
@@ -50,9 +48,10 @@ export function init(root, opts = {}) {
     mk.hidden = !m;
     if (m) {
       mk.style.left = m.left;
+      mk.className = "be" + m.side;
       mk.textContent = m.text;
     }
-    q("[data-sum]").innerHTML = summaryHtml(r);
+    q("[data-night]").innerHTML = nightHtml(r);
     q("[data-head]").innerHTML = headlineHtml(r);
     q("[data-sent]").innerHTML = sentenceHtml(r);
     q("[data-be]").innerHTML = breakEvenHtml(r);
@@ -61,7 +60,7 @@ export function init(root, opts = {}) {
     findsMet(inputs, r).forEach((hit, i) => hit && (found[i] = true));
     q("[data-finds]").innerHTML = findsHtml(found);
     q("[data-fc]").textContent = `· ${found.filter(Boolean).length} of 3 found`;
-    q("[data-heat]").innerHTML = heatHtml(heatGrid(inputs, r), inputs, true);
+    q("[data-heat]").innerHTML = heatHtml(heatGrid(inputs, r), inputs);
     const W = Math.max(260, Math.round(svg.clientWidth || (svg.parentNode && svg.parentNode.clientWidth) || 600));
     svg.setAttribute("viewBox", `0 0 ${W} 270`);
     svg.innerHTML = waterfallSvg(r, W);
@@ -71,7 +70,7 @@ export function init(root, opts = {}) {
 
   function run() {
     const raw = {};
-    for (const [id, key] of TYPED) raw[key] = num(id);
+    for (const [id, key] of TYPED) raw[key] = readNumber(el(id).value);
     const check = validateInputs(raw);
     for (const [id, key] of TYPED) {
       const bad = Boolean(check.errors[key]);
@@ -80,34 +79,25 @@ export function init(root, opts = {}) {
       note.hidden = !bad;
       note.textContent = bad ? check.errors[key] : "";
     }
-    q("[data-bad]").hidden = check.ok;
-    if (!check.ok) {
-      q("[data-fold]").open = true;
-      return;
-    }
+    q("[data-bad]").textContent = check.ok ? "" : BAD_NUMBER;
+    if (!check.ok) return;
     const days = el("t-dd");
     days.max = String(Math.floor(raw.daysToExpiry));
     if (+days.value > raw.daysToExpiry) days.value = String(Math.floor(raw.daysToExpiry));
-    for (const [id, key] of SLIDERS) raw[key] = num(id);
+    for (const [id, key] of SLIDERS) raw[key] = parseFloat(el(id).value);
     const r = runOvernight(raw);
     if (!r.ok) return;
     last = r;
     render(r);
   }
 
-  controls.addEventListener("input", (e) => e.target.matches && e.target.matches("input") && run());
+  root.addEventListener("input", (e) => e.target.matches && e.target.matches("input") && run());
   root.addEventListener("click", (e) => {
     const t = e.target.closest ? e.target : null;
     if (!t) return;
-    const step = t.closest(".stp");
-    if (step && root.contains(step)) {
-      const input = el(step.dataset.for);
-      step.dataset.d === "1" ? input.stepUp() : input.stepDown();
-      return run();
-    }
     const chip = t.closest(".chip[data-p]");
     if (chip) {
-      const ivNow = num("t-ivb");
+      const ivNow = readNumber(el("t-ivb").value);
       const v = applyPreset(PRESETS[+chip.dataset.p], Number.isFinite(ivNow) ? ivNow : DEFAULTS.ivNowPct);
       el("t-m").value = String(v.movePct);
       el("t-iva").value = String(v.ivAfterPct);
@@ -115,30 +105,10 @@ export function init(root, opts = {}) {
       return run();
     }
     if (t.closest("[data-reset]")) {
-      for (const [id, key] of [...TYPED, ...SLIDERS]) el(id).value = String(DEFAULTS[key]);
+      for (const [id, key] of TYPED) el(id).value = String(DEFAULTS[key]);
       return run();
     }
-    pick(t.closest(".hc[data-m]"));
   });
-  root.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      const c = e.target.closest && e.target.closest(".hc[data-m]");
-      if (c) {
-        e.preventDefault();
-        pick(c);
-      }
-    }
-  });
-  function pick(cell) {
-    if (!cell) return;
-    el("t-m").value = cell.dataset.m;
-    el("t-iva").value = cell.dataset.iv;
-    run();
-    // The grid is rebuilt by run(); put the keyboard back on the cell that was picked.
-    const again = root.querySelector(`.hc[data-m="${cell.dataset.m}"][data-iv="${cell.dataset.iv}"]`);
-    again && again.focus({ preventScroll: true });
-    q("[data-head]").scrollIntoView({ block: "center", behavior: reduceMotion ? "auto" : "smooth" });
-  }
 
   run();
   return { result: () => last, found: () => found.slice() };

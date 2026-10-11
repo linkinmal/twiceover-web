@@ -332,14 +332,6 @@
   .sim-st span{font:13px var(--fm);color:var(--ink2)}
   .teach p{max-width:40em}
   .study{margin-top:22px;border-left:4px solid var(--a);padding:2px 0 2px 18px}
-  .prim{margin-top:18px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
-  .prim summary{cursor:pointer;font:600 16px/1.3 "Source Sans 3",system-ui,sans-serif;min-height:48px;display:flex;align-items:center;gap:10px;list-style:none}
-  .prim summary::-webkit-details-marker{display:none}
-  .prim summary::before{content:"+";font:600 20px/1 var(--fm);color:var(--a);width:16px}
-  .prim[open] summary::before{content:"−"}
-  .prim dl{display:grid;grid-template-columns:minmax(120px,max-content) 1fr;gap:10px 22px;margin:4px 0 18px;font-size:16px;line-height:1.45}
-  .prim dt{font-weight:700} .prim dd{margin:0;max-width:38em}
-  @media (max-width:560px){.prim dl{grid-template-columns:1fr;gap:2px}.prim dd{margin-bottom:10px}}
   .why{border-left:4px solid var(--a);padding:2px 0 2px 16px;margin-top:8px}
   .post .why p{font-size:16.5px;line-height:1.45;margin:0 0 8px;max-width:none}
   .finds{list-style:none;margin:16px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
@@ -349,60 +341,98 @@
   .finds b{display:block;font-size:16.5px;line-height:1.3}
   .finds span{display:block;font-size:14.5px;line-height:1.4;color:var(--ink2);margin-top:6px}
   .finds li.on span{color:var(--ink)}
-  .hc{cursor:pointer}
   .post p.cap,p.cap{font:15px/1.45 "Source Sans 3",system-ui,sans-serif;color:var(--ink2);margin:10px 0 0;max-width:46em}
   #app[data-shell="c"] .fh{font:500 clamp(28px,4vw,44px)/1.1 var(--sfd);letter-spacing:-.02em;margin:22px 0 0}
   #app[data-shell="c"] p.nm{margin:0}
   .rel .t-date{display:none}
   /* wide only: on a phone the related rows stack like the index rows */
   @media (min-width:761px){.rel .tile{grid-template-areas:"no main cell" "build main cell"!important;grid-template-rows:auto 1fr!important}}
-  .nf{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:6px;align-items:center}
-  .pin{display:grid;gap:14px}
-  .ptype{margin:0 0 14px}
-  .post p.pdesc{font-size:16.5px;line-height:1.45;margin:10px 0 0;max-width:none}
-  #po-ch{touch-action:pan-y;cursor:ew-resize;user-select:none}
+
+  /* ---------- tool pages, v3: one column of numbered steps, one kind of control in each ---------- */
+  .post h2.lab{font-size:calc(var(--labsz) + 2px);margin:0 0 14px}
+  .post p.pdesc{font-size:17.5px;line-height:1.45;margin:14px 0 0;max-width:none}
+  /* the page's words, defined in the open under the deck (v2 kept them in a closed fold) */
+  .post p.words{font-size:17.5px;line-height:1.5;margin:16px 0 0;max-width:none}
   .hlab{font:700 13px var(--fm);fill:var(--ink)}
-  .shapes{list-style:none;margin:16px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
-  .shape{display:block;width:100%;text-align:left;background:var(--plate);color:var(--ink);border:var(--bw) solid var(--rule);border-radius:var(--rad);padding:14px;cursor:pointer;font:inherit}
-  .shape[aria-pressed="true"]{outline:2.5px solid var(--a);outline-offset:2px}
-  .shape svg{display:block;width:100%;height:auto;margin-bottom:10px}
-  .shape b{display:block;font:700 17px/1.2 "Source Sans 3",system-ui,sans-serif}
-  .shape span{display:block;font:14px/1.4 "Source Sans 3",system-ui,sans-serif;color:var(--ink2);margin-top:6px}
-  @media (min-width:801px){.pay .tl{position:sticky;top:12px}}
-  .pay .stats b{font-size:calc(clamp(28px,3.4vw,40px)*var(--fdsz));white-space:nowrap}
-  @media (max-width:800px){.pay .tpre{order:1}.pay .tans{order:2}.pay .twfp{order:3}.pay .pst{order:4}.pay .tctl{order:5}.pay .tst{order:6}}
-  /* tool */
-  .tool{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:clamp(20px,4vw,40px);align-items:start}
-  .tl,.tr{display:grid;gap:16px;min-width:0}
-  .post p.tstep{font:600 16px/1.3 "Source Sans 3",system-ui,sans-serif;margin:0 0 6px;color:var(--ink)}
-  .tstep span{font-weight:400;color:var(--ink2);margin-left:6px}
-  .sx{padding:12px 0;border-top:1px solid var(--rule)} .sx:first-of-type{border-top:0}
-  .sx-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;font:600 15px "Source Sans 3",system-ui,sans-serif}
-  .sx-h output{font:700 19px var(--fm);margin-left:auto}
-  .sx-h small{font:400 13px "Source Sans 3",system-ui,sans-serif;color:var(--ink2);flex-basis:100%}
-  .eff{font:600 13.5px var(--fm);flex-basis:100%;text-align:right}
-  .sx-r{display:grid;grid-template-columns:44px 1fr 44px;gap:8px;align-items:center;margin-top:4px}
-  .stp{width:44px;height:44px;font:600 22px/1 "Source Sans 3",system-ui,sans-serif;background:transparent;color:var(--ink);border:1.5px solid var(--ink);border-radius:max(var(--rad),2px);cursor:pointer}
-  .sx-t{position:relative;padding-bottom:18px} .sx-t input{margin:0;display:block}
-  .be{position:absolute;top:26px;transform:translateX(-50%);font:11.5px/1 var(--fm);font-style:normal;color:var(--ink2);white-space:nowrap;padding-top:7px}
-  .be::before{content:"";position:absolute;left:50%;top:0;height:6px;border-left:2px solid var(--ink)}
-  .tcall{border-top:1px solid var(--rule);padding-top:12px;margin-top:4px}
-  .tcall summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;font:15px/1.4 "Source Sans 3",system-ui,sans-serif;min-height:44px;align-content:center}
-  .tcall summary::-webkit-details-marker{display:none}
-  .tcall summary i{font-style:normal;font-weight:600;text-decoration:underline;text-underline-offset:3px;color:var(--a)}
-  .tcall[open] summary i::after{content:" · close"}
-  .tform{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
-  .fld{display:grid;gap:5px;font:600 14px "Source Sans 3",system-ui,sans-serif;color:var(--ink)}
-  .fld input{font:600 19px var(--fm);padding:10px 12px;min-height:46px;border:1.5px solid var(--ink);border-radius:max(var(--rad),2px);background:var(--plate);color:var(--ink);width:100%;min-width:0}
-  .fld input[aria-invalid="true"]{border-color:var(--loss);box-shadow:0 0 0 2px var(--loss)}
-  .fld small{font:400 13px "Source Sans 3",system-ui,sans-serif;color:var(--loss)}
+  /* tool sliders: a thumb big enough to grab, so there are no − and + buttons */
+  input.rng{-webkit-appearance:none;appearance:none;display:block;width:100%;height:44px;margin:0;background:transparent;cursor:ew-resize;touch-action:pan-y}
+  input.rng::-webkit-slider-runnable-track{height:2px;background:var(--ink)}
+  input.rng::-moz-range-track{height:2px;background:var(--ink)}
+  input.rng::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;margin-top:-13px;border-radius:50%;background:var(--ink);border:3px solid var(--plate);box-shadow:0 0 0 1.5px var(--ink)}
+  input.rng::-moz-range-thumb{box-sizing:border-box;width:28px;height:28px;border-radius:50%;background:var(--ink);border:3px solid var(--plate);box-shadow:0 0 0 1.5px var(--ink)}
+  input.rng:focus-visible{outline:0}
+  input.rng:focus-visible::-webkit-slider-thumb{outline:3px solid #4D8DFF;outline-offset:3px}
+  input.rng:focus-visible::-moz-range-thumb{outline:3px solid #4D8DFF;outline-offset:3px}
+  /* step 1: the six pictures are the picker */
+  .shapes{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+  .shape{display:flex;flex-direction:column;min-height:44px;text-align:left;background:var(--plate);color:var(--ink);border:1.5px solid var(--ink);border-radius:max(var(--rad),2px);padding:10px 10px 0;overflow:hidden;cursor:pointer;font:inherit}
+  .shape svg{display:block;width:100%;height:auto}
+  .shape b{display:flex;align-items:center;min-height:calc(2.4em + 16px);margin:auto -10px 0;padding:8px 10px;font:700 14.5px/1.2 "Source Sans 3",system-ui,sans-serif}
+  .shape[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink)}
+  .shape[aria-pressed="true"] b{background:var(--ink);color:var(--g)}
+  @media (max-width:640px){.shapes{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.shape{padding:8px 8px 0}.shape b{margin-inline:-8px;padding-inline:8px;font-size:13.5px}}
+  /* step 2: the slider is the chart's own price axis */
+  .tans{margin:0 0 14px}
+  #po-ch{touch-action:pan-y;cursor:ew-resize;user-select:none;-webkit-user-select:none}
+  .axw{position:relative}
+  .axw input.rng{position:absolute;left:4px;top:var(--axy,262px);width:calc(100% - 8px)}
+  .axh{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 12px;font:600 15px "Source Sans 3",system-ui,sans-serif;margin-top:6px}
+  .axh output{font:700 19px var(--fm)}
+  .pay .stats{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px}
+  .pay .stats b{font-size:calc(clamp(24px,3.6vw,34px)*var(--fdsz));line-height:1.08;white-space:nowrap}
+  .pay .stats span{font-size:14px}
+  [data-look="riso"] .pay .stats>div:nth-child(2) b{color:inherit}
+  @media (max-width:560px){
+    .pay .stats{grid-template-columns:1fr;gap:8px}
+    .pay .stats>div{display:flex;flex-direction:row-reverse;align-items:center;justify-content:space-between;gap:14px}
+    .pay .stats b{font-size:calc(24px*var(--fdsz));text-align:right}
+    .pay .stats span{margin-top:0}
+  }
+  /* step 3: the terms, one labelled box for each number */
+  .terms h3{font:700 13.5px var(--fm);letter-spacing:.07em;text-transform:uppercase;margin:0 0 4px;padding-bottom:10px;border-bottom:2px solid var(--ink)}
+  .trow{display:flex;flex-wrap:wrap;align-items:center;gap:0 10px;padding:7px 0;border-bottom:1px dotted var(--rule);font:600 15.5px/1.3 "Source Sans 3",system-ui,sans-serif}
+  .tin .trow:last-child{border-bottom:0;padding-bottom:0}
+  .trow label,.trow .tl0{flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .trow .u{flex:none;font:600 17px var(--fm);color:var(--ink2)}
+  .trow input{flex:none;width:9ch;font:600 18px var(--fm);text-align:right;min-height:44px;padding:0 10px;border:1.5px solid var(--ink);border-radius:max(var(--rad),2px);background:transparent;color:var(--ink)}
+  .trow input[aria-invalid="true"]{border-color:var(--loss);box-shadow:0 0 0 2px var(--loss)}
+  .trow output{flex:none;font:700 18px var(--fm);min-height:44px;display:flex;align-items:center;padding-right:11px}
+  .trow small{flex-basis:100%;text-align:right;font:400 13.5px "Source Sans 3",system-ui,sans-serif;color:var(--loss);padding-top:4px}
+  .trow .chips{flex:none;margin:0}
+  .post p.tnote{margin:12px 0 4px;max-width:none}
+  .post p.twarn{font-size:15px;margin:10px 0 0;color:var(--loss);font-weight:600;max-width:none}
+  .twarn:empty{display:none}
+  .pay .why,.calc .why{margin-top:18px}
+  /* the calculator's chart, then its three sliders under it, each with its own effect */
+  .sxs{margin-top:16px}
+  .sx{padding:12px 0 2px;border-top:1px solid var(--rule)}
+  .sx-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font:600 15px "Source Sans 3",system-ui,sans-serif}
+  .sx-h output{font:700 19px var(--fm);white-space:nowrap}
+  .sx-e{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 14px;margin-top:2px}
+  .sx-e small{flex:1 1 220px;min-width:0;font:400 13.5px/1.4 "Source Sans 3",system-ui,sans-serif;color:var(--ink2)}
+  .eff{font:600 13.5px var(--fm);margin-left:auto;white-space:nowrap}
+  .sx-t{position:relative;padding-bottom:22px}
+  .be{position:absolute;top:40px;transform:translateX(-50%);font:11.5px/1 var(--fm);font-style:normal;color:var(--ink2);white-space:nowrap;padding-top:9px}
+  .be::before{content:"";position:absolute;left:50%;top:0;height:7px;border-left:2px solid var(--ink)}
+  .be.r{transform:translateX(-100%)}
+  .be.r::before{left:100%}
+  .be.l{transform:none}
+  .be.l::before{left:0}
+  /* the three finds as a plain checklist; the lesson as a plain list. Neither is a control. */
+  .finds.plain{grid-template-columns:1fr;gap:0;margin-top:6px}
+  .finds.plain li{background:none;border:0;border-top:1px solid var(--rule);border-radius:0;padding:14px 0}
+  .six{list-style:none;margin:16px 0 0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 28px}
+  .six li{display:grid;grid-template-columns:92px minmax(0,1fr);gap:14px;align-items:center;padding:12px 0;border-top:1px solid var(--rule)}
+  .six svg{display:block;width:100%;height:auto}
+  .six b{display:block;font:700 16.5px/1.2 "Source Sans 3",system-ui,sans-serif}
+  .six span{display:block;font:14.5px/1.4 "Source Sans 3",system-ui,sans-serif;color:var(--ink2);margin-top:3px}
+  @media (max-width:640px){.six{grid-template-columns:1fr}}
+
   .post p.thead{font-family:var(--fd);font-weight:var(--fdw);font-style:var(--fdst);font-size:calc(clamp(34px,5vw,54px)*var(--fdsz));line-height:1.04;letter-spacing:var(--fdls);margin:0 0 12px;max-width:none}
   .post p.tsent{font-size:17.5px;line-height:1.45;margin:0 0 8px;max-width:none}
-  .post p.twarn{font-size:15px;margin:8px 0 0;color:var(--loss);font-weight:600}
   .fine{font:13.5px/1.5 "Source Sans 3",system-ui,sans-serif;color:var(--ink2);max-width:46em}
   .post p.fine{font-size:13.5px;line-height:1.5}
   .fine b{color:var(--ink)}
-  @media (max-width:800px){.tool{grid-template-columns:1fr;gap:16px}.tl,.tr{display:contents}.tpre{order:1}.tans{order:2}.tctl{order:3}.twfp{order:4}.tst{order:5}}
   @media (max-width:560px){.sb{grid-template-columns:44px 1fr}.sb .n{grid-column:1/-1}.cal .d{min-height:54px;padding:4px 5px}.cal .d b{font-size:calc(15px*var(--fdsz))}}
   @media (max-width:560px){.gr{grid-template-columns:1fr}}
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
