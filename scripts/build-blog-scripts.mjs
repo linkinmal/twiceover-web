@@ -7,9 +7,10 @@
  * the reviewed file is the source, and BLOG_SCRIPTS (ci/content-rules.mjs) names exactly what may ship.
  */
 import { build } from "esbuild";
-import { readdirSync } from "node:fs";
+import { readdirSync, rmSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { BLOG_SCRIPTS } from "../ci/content-rules.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const srcDir = join(root, "src/blog-tools/client");
@@ -25,6 +26,15 @@ export function blockNames() {
 
 export async function buildBlogScripts() {
   const names = blockNames();
+  // The built set and the fixed list are one set: a client file nobody listed would ship unscanned, and a listed
+  // name with no source would fail the gate late. Stale output from a renamed source goes first.
+  const built = names.map((n) => `/js/blog-${n}.js`);
+  const strays = built.filter((u) => !BLOG_SCRIPTS.includes(u));
+  const missing = BLOG_SCRIPTS.filter((u) => !built.includes(u));
+  if (strays.length || missing.length) {
+    throw new Error(`block scripts and BLOG_SCRIPTS differ: built but not listed [${strays}], listed but not built [${missing}]`);
+  }
+  for (const f of readdirSync(outDir)) if (/^blog-.*\.js$/.test(f)) rmSync(join(outDir, f));
   await Promise.all(
     names.map((name) =>
       build({
@@ -39,7 +49,7 @@ export async function buildBlogScripts() {
       }),
     ),
   );
-  return names.map((n) => `/js/blog-${n}.js`);
+  return built;
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

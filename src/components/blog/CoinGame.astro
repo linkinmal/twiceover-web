@@ -4,11 +4,15 @@
 // same functions the block script imports (src/blog-tools/coin-game.mjs). The script only shows, hides or moves
 // it: it hides the bars and lesson until the first game ends, and un-hides the controls it can run. With script
 // off or unexecuted the controls stay hidden and the figures show (ADR 1088 Decision 1).
+import { PLAYABLES } from "../../blog/playables.mjs";
+import { formatDay } from "../../blog/format.mjs";
 import { COIN, barsAll, lessonFigures, formatMoney } from "../../blog-tools/coin-game.mjs";
 
 const bars = barsAll();
 const fig = lessonFigures(bars);
 const DEFAULT = 0.2;
+// The figures are fixed by the seed, so they are as old as the page's last content change.
+const asOf = formatDay(PLAYABLES.find((p) => p.slug === "coin")!.updatedAt).replace(/^\w+ /, "");
 const pc = (x: number) => `${Math.round(x * 100)}%`;
 const start = bars.find((b) => b.fraction === DEFAULT)!;
 ---
@@ -22,6 +26,7 @@ const start = bars.find((b) => b.fraction === DEFAULT)!;
     <div class="plate">
       <p class="sim-st"><b data-w>{formatMoney(COIN.start)}</b><span data-n>your stack</span></p>
       <svg class="ch" data-run role="img" aria-label="Your game: your stack after each flip, on a log scale between the $2 bust line and the $250 cap"></svg>
+      <p class="cap">Your game: your stack after each flip.</p>
       <div class="sim-go">
         <button type="button" class="btn" data-one>Flip once</button>
         <button type="button" class="btn alt" data-end>Flip to the end</button>
@@ -55,7 +60,7 @@ const start = bars.find((b) => b.fraction === DEFAULT)!;
         <tbody>{bars.map((b) => <tr><th scope="row">{pc(b.fraction)}</th><td>{b.cap}%</td><td>{b.bust}%</td><td>{b.neither}%</td><td>{formatMoney(b.median)}</td></tr>)}</tbody>
       </table></div>
     </details>
-    <p class="stamp"><span><b>As of</b> 11 Oct 2026</span><span><b>Source</b> computed on this page, a fair 60% coin, 2,000 seeded games per bet size</span></p>
+    <p class="stamp"><span><b>As of</b> {asOf}</span><span><b>Source</b> computed on this page, a fair 60% coin, 2,000 seeded games per bet size</span></p>
     <div class="teach" style="margin-top:28px">
       <p class="lab">What this shows</p>
       <p class="big">The coin favours you at every bet size. The size still decides how it ends.</p>

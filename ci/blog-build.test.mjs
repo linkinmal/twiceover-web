@@ -19,6 +19,8 @@ function build(env) {
   const out = mkdtempSync(join(tmpdir(), "blog-build-"));
   const tokens = spawnSync(process.execPath, ["scripts/build-tokens.mjs"], { cwd: root, encoding: "utf8" });
   if (tokens.status !== 0) throw new Error(tokens.stderr);
+  const scripts = spawnSync(process.execPath, ["scripts/build-blog-scripts.mjs"], { cwd: root, encoding: "utf8" });
+  if (scripts.status !== 0) throw new Error(scripts.stderr);
   const r = spawnSync(process.execPath, [astro, "build", "--outDir", out], { cwd: root, env: { ...process.env, ...env }, encoding: "utf8", timeout: 120000 });
   if (r.status !== 0) throw new Error(`astro build failed:\n${r.stdout}\n${r.stderr}`);
   return out;
@@ -138,6 +140,8 @@ describe("the game page", () => {
     expect.soft(d.querySelectorAll(".heat tbody tr")).toHaveLength(6);
     expect.soft(d.querySelector(".teach").textContent).toContain("went bust");
     expect.soft(d.querySelector(".study").textContent).toContain("Haghani and Dewey, 2016");
+    expect.soft(d.querySelector("[data-controls] p.cap").textContent).toBe("Your game: your stack after each flip.");
+    expect.soft(d.querySelector("[data-all] .stamp").textContent, "the as-of date comes from the page's updatedAt").toContain("As of 11 Oct 2026");
     expect.soft(d.querySelector("[data-controls]").hasAttribute("hidden"), "controls wait for script").toBe(true);
     expect.soft(d.querySelector("[data-all]").hasAttribute("hidden"), "the bars show with script off").toBe(false);
   });
