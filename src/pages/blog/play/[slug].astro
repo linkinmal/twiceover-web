@@ -5,7 +5,8 @@
 import BlogBase from "../../../layouts/BlogBase.astro";
 import CoinGame from "../../../components/blog/CoinGame.astro";
 import { getPublished } from "../../../blog/collection.mjs";
-import { PLAYABLES, otherPlayables } from "../../../blog/playables.mjs";
+import MorePlay from "../../../components/blog/MorePlay.astro";
+import { PLAYABLES } from "../../../blog/playables.mjs";
 import { LOOKS } from "../../../blog/vocabulary.mjs";
 import { TOPIC_LABELS } from "../../../blog/labels.mjs";
 import { formatStamp, toNewYorkIso } from "../../../blog/format.mjs";
@@ -18,7 +19,6 @@ export async function getStaticPaths() {
 }
 const { p } = Astro.props;
 const look = LOOKS[p.look as keyof typeof LOOKS];
-const more = otherPlayables(p.slug);
 ---
 <BlogBase title={`${p.title} — TwiceOver`} description={p.description} preload={[look.display]}>
   <nav slot="meta" class="meta" aria-label="This page">
@@ -44,14 +44,7 @@ const more = otherPlayables(p.slug);
     </div>
   </article>
   <div class="page">
-    {more.length > 0 && (
-      <>
-        <p class="xh">More to play</p>
-        <nav class="pnav" aria-label="More to play">
-          {more.map((m) => <a href={m.path}>{m.kind === "game" ? "Game" : "Tool"}<b>{m.label}</b></a>)}
-        </nav>
-      </>
-    )}
+    <MorePlay slug={p.slug} />
   </div>
   <script is:inline src={`/js/blog-${p.script}.js`} defer></script>
 </BlogBase>

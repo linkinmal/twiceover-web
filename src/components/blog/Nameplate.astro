@@ -1,0 +1,10 @@
+---
+// The blog's masthead name, two links (blog-handoff.md section 2, link map): "TwiceOver" to the site, "Blog" to the
+// blog's front page. It is the h1 on the unfiltered index and a paragraph on every page whose own name is the h1.
+interface Props {
+  heading?: boolean;
+}
+const { heading = false } = Astro.props;
+const Tag = heading ? "h1" : "p";
+---
+<Tag class="nm"><a href="/">TwiceOver</a> <a href="/blog"><em>Blog</em></a></Tag>

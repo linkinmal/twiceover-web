@@ -1,0 +1,32 @@
+---
+// /blog/play: the games-and-tools hub (blog-handoff.md section 5.4; text in blog-site-copy.md section 4). The topic
+// page's template: the nameplate, the h1, a description, then one row per standing game or tool, newest first. It
+// exists only once a post is published (ADR 1090 Decision 2, like the pages it lists) and keeps the full banned-word
+// scan and the disclaimer check (Decision 9: it is a "blog" page to the content gate, not a post or a list).
+import BlogBase from "../../../layouts/BlogBase.astro";
+import Nameplate from "../../../components/blog/Nameplate.astro";
+import PlayTile from "../../../components/blog/PlayTile.astro";
+import { getPublished } from "../../../blog/collection.mjs";
+import { PLAYABLES, playablesNewestFirst } from "../../../blog/playables.mjs";
+
+export async function getStaticPaths() {
+  if ((await getPublished()).length === 0 || PLAYABLES.length === 0) return [];
+  return [{ params: { hub: undefined } }];
+}
+const rows = playablesNewestFirst();
+---
+<BlogBase
+  title="Games and tools — TwiceOver Blog"
+  description="Every game and calculator on the TwiceOver Blog: position sizing, option pricing and payoff at expiration. Informational and educational."
+>
+  <div class="page">
+    <section class="mast">
+      <Nameplate />
+      <h1 class="fh">Games and tools</h1>
+      <p class="ds">Every game and calculator on the blog, in one place.</p>
+    </section>
+    <div class="wall">
+      {rows.map((p) => <PlayTile p={p} />)}
+    </div>
+  </div>
+</BlogBase>
