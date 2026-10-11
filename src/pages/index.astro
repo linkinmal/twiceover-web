@@ -1,7 +1,7 @@
 ---
 // Home (site-prelaunch.md §2, v2.3 — Ledger re-expression: product-proof hero +
 // five new sections, human-approved concept study 2026-07-05, #417). Deep door
-// leads the hero sub; "Or, take any US-listed ticker" demo turn follows above the fold
+// leads the hero sub; "Or, take any US-listed stock" demo turn follows above the fold
 // (demo-retention guardrail). Copy slots pending Growth #63 (site-copy-twiceover.md
 // reconciliation per ADR 0042 pivot) for the hero/how-it-works/what-its-not text —
 // do not reword; layout must not change when #63 lands.
@@ -48,7 +48,7 @@ const websiteJsonLd = {
 ---
 <Base
   title="TwiceOver — a second look at your own book"
-  description="Connect your brokerage read-only and the read runs on the positions you actually hold — your rules, your horizons. Or take any US-listed ticker — no account, no connection needed. Depth, never a verdict."
+  description="Connect your brokerage read-only and the read runs on the positions you actually hold — your rules, your horizons. Or take any US-listed stock — no account, no connection needed. Depth, never a verdict."
 >
   <script type="application/ld+json" set:html={JSON.stringify(organizationJsonLd)} />
   <script type="application/ld+json" set:html={JSON.stringify(websiteJsonLd)} />
@@ -75,7 +75,7 @@ const websiteJsonLd = {
           nothing replaces it; a new supporting line, if this page wants one, is Growth's call under
           stock-analyst-platform#2812. The CTA label above is untouched and stays locked
           (ADR 0042/0074). */}
-      <p class="demo-turn">Or, take any US-listed ticker — no connection needed.</p>
+      <p class="demo-turn">Or, take any US-listed stock — no connection needed.</p>
       {/* The live ticker handoff (#2520, ADR 0383 Amendment 1, consult 0739) — replaces the
           v2.6 fixture-only demo. A plain HTML GET submit: the browser serializes `ticker` and
           navigates same-origin to /go/try, whose Worker bounds the value to /^[A-Z]{1,6}$/ and
@@ -106,13 +106,13 @@ const websiteJsonLd = {
           but NEVER submits (R6). The press below stays the one and only assent act. With the
           script absent or failed, this form is exactly the plain HTML GET it always was. */}
       <form class="entry-box" id="entry-form" action="/go/try" method="get" novalidate>
-        <label class="visually-hidden" for="entry-ticker">A ticker</label>
+        <label class="visually-hidden" for="entry-ticker">A stock</label>
         {/* The wrapper is what the listbox anchors to (position: relative in site.css), and it
             carries the input's flex sizing so the row's geometry is unchanged. */}
         <div class="symbol-combobox entry-box__field-wrap">
-          <input id="entry-ticker" name="ticker" type="text" autocomplete="off" spellcheck="false" placeholder="A ticker — NVDA" />
+          <input id="entry-ticker" name="ticker" type="text" autocomplete="off" spellcheck="false" placeholder="A stock — NVDA" />
         </div>
-        <button type="submit" class="entry-box__submit">Get the read</button>
+        <button type="submit" class="entry-box__submit">Analyze</button>
       </form>
     </div>
     <ProductProofVisual />
@@ -190,16 +190,16 @@ const websiteJsonLd = {
     <div class="door-grid">
       <article class="door">
         <p class="door__tag type-caption">The open door</p>
-        <h3 class="type-heading-2">Any US-listed ticker, no connection needed</h3>
-        <p class="door__body">Type any US-listed ticker — no connection needed — and get the same read, with every figure sourced.</p>
+        <h3 class="type-heading-2">Any US-listed stock, no connection needed</h3>
+        <p class="door__body">Type any US-listed stock — no connection needed — and get the same read, with every figure sourced.</p>
         <ul class="door__checklist">
           <li><span class="chevron" aria-hidden="true">›</span> The key technical levels, the macro backdrop and market regime, peer positioning, and fundamentals — each with its source and timestamp. Curated voices and the news wire are part of Core.</li>
           <li><span class="chevron" aria-hidden="true">›</span> One conditional, multi-horizon outlook, each stated as a condition. Labeled AI synthesis; every figure from the data pipeline, not the model. Never a score, never a "buy" or "sell."</li>
           <li><span class="chevron" aria-hidden="true">›</span> The same engine either way — connecting read-only changes what the read is measured against, not the read itself.</li>
         </ul>
         <div class="door__decor door__decor--entry" role="presentation">
-          <input type="text" value="A ticker — NVDA" disabled aria-hidden="true" />
-          <span class="door__decor-btn" aria-hidden="true">Get the read</span>
+          <input type="text" value="A stock — NVDA" disabled aria-hidden="true" />
+          <span class="door__decor-btn" aria-hidden="true">Analyze</span>
         </div>
         <p class="door__decor-caption type-caption">Illustrative example — not a live control.</p>
       </article>
@@ -233,7 +233,7 @@ const websiteJsonLd = {
       <li>
         <span class="num" aria-hidden="true">1</span>
         <div class="steps__body">
-        <p><span class="step-title">Analyze any US-listed ticker.</span> Type a ticker or ask in plain words. From market and options data, TwiceOver synthesizes the key technical levels, the macro backdrop and market regime, peer positioning, and fundamentals into one read — on any US-listed ticker, no broker connection required. Curated voices and the news wire are part of Core.</p>
+        <p><span class="step-title">Analyze any US-listed stock.</span> Type a symbol or ask in plain words. From market and options data, TwiceOver synthesizes the key technical levels, the macro backdrop and market regime, peer positioning, and fundamentals into one read — on any US-listed stock, no broker connection required. Curated voices and the news wire are part of Core.</p>
         {/* The chart step 1's own copy already promises ("the key technical levels") — this is the one
             place on the page where a sentence named the artifact and the artifact was absent (#2992,
             site-prelaunch.md v2.31 §2). The paragraph above is a PM/Growth copy slot (site-copy-
@@ -329,7 +329,7 @@ const websiteJsonLd = {
       </details>
       <details>
         <summary class="type-heading-2">Do I need to connect my brokerage to use it?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
-        <p>No. Every US-listed ticker gets the full read with no connection at all. Connecting read-only adds your own positions and your own rules to that same read — it's optional, always.</p>
+        <p>No. Every US-listed stock gets the full read with no connection at all. Connecting read-only adds your own positions and your own rules to that same read — it's optional, always.</p>
       </details>
       <details>
         <summary class="type-heading-2">Do I need a card to connect my brokerage?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
@@ -341,7 +341,7 @@ const websiteJsonLd = {
       </details>
       <details>
         <summary class="type-heading-2">Do I need to create an account to use it?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
-        <p>No — that's a separate optional step, not a requirement. Every US-listed ticker gets the full read with no account, same as no connection. An account is only for saving your own rules, connecting your brokerage read-only, or subscribing to a paid plan.</p>
+        <p>No — that's a separate optional step, not a requirement. Every US-listed stock gets the full read with no account, same as no connection. An account is only for saving your own rules, connecting your brokerage read-only, or subscribing to a paid plan.</p>
       </details>
       <details>
         <summary class="type-heading-2">Is my account data shared with anyone?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
@@ -374,7 +374,7 @@ const websiteJsonLd = {
   <section class="not-section section-ground" aria-labelledby="what-its-not">
     <h2 id="what-its-not" class="type-heading-1 section-heading">What TwiceOver is <em>not</em></h2>
     <div class="not-block">
-      <p>Not an investment adviser. No recommendations, no trading signals, no scores, no ratings — and never a one-line verdict or a "buy" or "sell." It never executes trades and never holds your money. TwiceOver is a data-analytics tool that hands you the deepest read on a ticker — the evidence, the math, and the context — and leaves the decision where it belongs: with you.</p>
+      <p>Not an investment adviser. No recommendations, no trading signals, no scores, no ratings — and never a one-line verdict or a "buy" or "sell." It never executes trades and never holds your money. TwiceOver is a data-analytics tool that hands you the deepest read on a stock — the evidence, the math, and the context — and leaves the decision where it belongs: with you.</p>
     </div>
   </section>
 
@@ -395,7 +395,7 @@ const websiteJsonLd = {
   <section class="closing-band">
     <div class="container closing-band__inner">
       <p class="type-heading-1 closing-band__heading">See it on your own book.</p>
-      <p class="closing-band__sub">Any US-listed ticker, no connection needed — or connect read-only for your own read.</p>
+      <p class="closing-band__sub">Any US-listed stock, no connection needed — or connect read-only for your own read.</p>
       <p class="closing-band__body type-body">A connected free account reads your held positions in full: structure, your own rules, scenarios and paths. Free covers 10 analyses a month.</p>
       <p class="closing-band__body type-body">Core raises that to 200 analyses a month. It also weighs two more inputs: the news wire and curated voices, alongside price, structure, levels and fundamentals.</p>
       <div class="closing-band__actions">
