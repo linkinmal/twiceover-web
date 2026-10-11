@@ -29,7 +29,7 @@ describe("the payoff view's wording", () => {
     const by = Object.fromEntries(models.map((m) => [m.def.kind + (m.def.spreadType ?? ""), m]));
     expect(whyHtml(by.lc.model)).toContain("$492 in all");
     expect(whyHtml(by.csp.model)).toContain("set aside $19,000 in cash");
-    expect(whyHtml(by.csp.model)).toContain("you take the shares at $95 and lose $1 for every $1 the stock falls below it");
+    expect(whyHtml(by.csp.model)).toContain("you take the shares at $95 and lose $200 for every $1 the stock falls below it");
     expect(whyHtml(by.cc.model)).toContain("200 shares");
     expect(whyHtml(by.st.model)).toContain("makes money only if the stock ends below $94 or above $106, the two breakevens");
     expect(whyHtml(by.vsc.model)).toContain("call you bought has a $100 strike and the call you sold has a $110 strike. Together they cost a net $2.50");
@@ -78,5 +78,30 @@ describe("a typed value in a box", () => {
     const values = { K: 3, Pc: 2, Pp: 2 };
     const e = evaluate({ kind: "st", spreadType: null, values, stockNow: 3, contracts: 1, handle: 3 });
     expect(whyHtml({ kind: "st", spreadType: null, values, stockNow: 3, e })).toContain("It makes money only if the stock ends above $7, its breakeven.");
+  });
+});
+
+describe("a sentence states a breakeven or a maximum only when the engine has one", () => {
+  const why = (kind, spreadType, values, stockNow = 100, contracts = 1) => {
+    const e = evaluate({ kind, spreadType, values, stockNow, contracts, handle: stockNow });
+    return whyHtml({ kind, spreadType, values, stockNow, e });
+  };
+  it("long put with a premium above its strike has no breakeven and no gain", () => {
+    const t = why("lp", null, { K: 2, P: 3 });
+    expect(t).not.toMatch(/-\$|\u2212\$|breaks even/);
+    expect(t).toContain("makes money at no price");
+  });
+  it("covered call struck below the price has no breakeven and no best case", () => {
+    const t = why("cc", null, { K: 90, P: 1.8 });
+    expect(t).not.toMatch(/breaks even|best case/);
+    expect(t).toContain("loses money at every price");
+  });
+  it("a call spread that is a net credit with no loss does not print a negative loss", () => {
+    const t = why("vs", "c", { Kb: 100, Pb: 1, Ks: 110, Ps: 2 });
+    expect(t).not.toMatch(/most it can lose is [-\u2212]/);
+    expect(t).toContain("it cannot lose at any price");
+  });
+  it("groups the contract multiplier with commas", () => {
+    expect(why("lc", null, { K: 105, P: 2.46 }, 100, 100)).toContain("$10,000 for every $1");
   });
 });
