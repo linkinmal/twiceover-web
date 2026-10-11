@@ -13,7 +13,7 @@ const enc = (s) => new TextEncoder().encode(s);
 
 /** A pull request: `files` as the API lists them, `head` as path -> bytes (the tree and reader derive from it), `base` as path -> text. */
 async function lane({ files, head = {}, base = {}, modes = {}, sizes = {}, types = {}, now = NOW }) {
-  const tree = new Map(Object.entries(head).map(([p, b]) => [p, { type: types[p] ?? "blob", mode: modes[p] ?? "100644", size: sizes[p] ?? b.length, sha: "sha-" + p }]));
+  const tree = new Map(Object.entries(head).map(([p, b]) => [p, { type: types[p] ?? "blob", mode: modes[p] ?? "100644", size: p in sizes ? sizes[p] : b.length, sha: "sha-" + p }]));
   return evaluateLane({
     files,
     tree,
@@ -86,6 +86,13 @@ describe("a post pull request", () => {
     const names = Array.from({ length: 5 }, (_, i) => `public/blog-images/i${i}.png`);
     const total = await lane({ files: names.map(add), head: Object.fromEntries(names.map((n) => [n, PNG])), sizes: Object.fromEntries(names.map((n) => [n, 1_900_000])) });
     expect(total.problems.join("\n")).toContain("images total");
+  });
+  it("fails closed on a tree entry with no size, and on bytes that outgrow the size the tree reported", async () => {
+    const path = "public/blog-share/a.png";
+    const noSize = await lane({ files: [add(path)], head: { [path]: PNG }, sizes: { [path]: undefined } });
+    expect.soft(noSize.problems.join("\n"), "no size").toContain("the cap is");
+    const liar = await lane({ files: [add(path)], head: { [path]: Uint8Array.from([...PNG, ...new Uint8Array(LIMITS.shareBytes + 1)]) }, sizes: { [path]: 100 } });
+    expect.soft(liar.problems.join("\n"), "reported 100 bytes, read more than the cap").toContain("the cap is");
   });
   it("fails a post with no readable publishAt", async () => {
     const r = await lane({ files: [add("src/content/blog/a.md")], head: { "src/content/blog/a.md": enc("---\ntitle: x\n---\n") } });

@@ -119,6 +119,10 @@ export async function evaluateLane({ files, tree, readHead, readBase, now }) {
     if (entry.type !== "blob" || entry.mode !== "100644") continue;
 
     const bytes = await readHead(path, entry.sha);
+    if (!(bytes.length <= cap)) {
+      problems.push(`${show(path)} reads as ${bytes.length} bytes; the cap is ${cap}`);
+      continue;
+    }
     if (kind === "post") {
       const head = frontMatterTimes(Buffer.from(bytes).toString("utf8"));
       if (parsePublishTime(head.publishAt) === null) {

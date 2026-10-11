@@ -57,7 +57,7 @@ export async function check({ repo, pr, base, head }, api, now = Date.now()) {
 
   const t = await json([`repos/${repo}/git/trees/${head}?recursive=1`]);
   if (t.truncated) throw new Error("the head commit's tree was truncated");
-  const tree = new Map(t.tree.filter((e) => inLaneDir(e.path)).map((e) => [e.path, { type: e.type, mode: e.mode, size: e.size ?? 0, sha: e.sha }]));
+  const tree = new Map(t.tree.filter((e) => inLaneDir(e.path)).map((e) => [e.path, { type: e.type, mode: e.mode, size: e.size, sha: e.sha }]));
 
   return evaluateLane({
     files,
