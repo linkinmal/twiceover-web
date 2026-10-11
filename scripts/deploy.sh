@@ -35,6 +35,8 @@ echo "▸ A11y-decor gate (Two-doors static decorations stay non-focusable, #734
 node ci/check-a11y-decor.mjs
 echo "▸ Entry-box security gate (name=\"ticker\", method=get, action=/go/try, bounded URLSearchParams forwarding, no network/.value calls — #2520/consult 0739)…"
 node ci/check-entry-box.mjs
+echo "▸ Blog font gate (files exist, no orphans, OFL licence per family, per-theme size ceiling — #4233/ADR 1088)…"
+node ci/blog-fonts.mjs
 
 # ── 2 · Consultation-0008 log gate ──────────────────────────────────────────
 # Security's "no operator-accessible access/edge logs" posture (consultation 0008,
