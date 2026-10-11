@@ -109,7 +109,7 @@ export function init(root, opts = {}) {
       if (!b.classList.contains("hd")) b.setAttribute("aria-pressed", String(on));
     }
     q("[data-w]").textContent = formatMoney(w);
-    q("[data-n]").textContent = n ? `after ${n} of ${COIN.maxFlips} flips` : "your stack";
+    q("[data-n]").textContent = n ? `after ${n} of ${COIN.maxFlips} flips` : "your balance";
     q("[data-one]").hidden = q("[data-end]").hidden = over;
     q("[data-again]").hidden = !over;
     wait.hidden = shown;

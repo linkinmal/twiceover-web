@@ -139,8 +139,8 @@ describe("the game page", () => {
     expect.soft(d.querySelector("[data-line]").textContent).toMatch(/^Betting 20% on every flip hit the cap in \d+% of games and went bust in \d+%\. The middle game ended at \$\d+(\.\d\d)?\.$/);
     expect.soft(d.querySelectorAll(".heat tbody tr")).toHaveLength(6);
     expect.soft(d.querySelector(".teach").textContent).toContain("went bust");
-    expect.soft(d.querySelector(".study").textContent).toContain("Haghani and Dewey, 2016");
-    expect.soft(d.querySelector("[data-controls] p.cap").textContent).toBe("Your game: your stack after each flip.");
+    expect.soft(d.querySelector(".study").textContent).toContain("Haghani and Dewey, arXiv 1701.01427");
+    expect.soft(d.querySelector("[data-controls] p.cap").textContent).toBe("Your game: your balance after each flip.");
     expect.soft(d.querySelector("[data-all] .stamp").textContent, "the as-of date comes from the page's updatedAt").toContain("As of 11 Oct 2026");
     expect.soft(d.querySelector("[data-controls]").hasAttribute("hidden"), "controls wait for script").toBe(true);
     expect.soft(d.querySelector("[data-all]").hasAttribute("hidden"), "the bars show with script off").toBe(false);
@@ -148,6 +148,37 @@ describe("the game page", () => {
   it("is linked from the bar of every blog page and is in the sitemap", () => {
     expect.soft(dom(dist, "blog/first-fixture-post/index.html").querySelector('.nav a[href="/blog/play/coin"]')).not.toBeNull();
     expect.soft(read(dist, "sitemap-0.xml")).toContain("https://twiceover.io/blog/play/coin");
+  });
+});
+
+describe("Growth's page copy (blog-site-copy.md)", () => {
+  it("opens the door with Analyze a stock: bar button, end-block heading, label and button", () => {
+    const d = dom(dist, "blog/first-fixture-post/index.html");
+    expect.soft(d.querySelector(".bar .door").textContent).toBe("Analyze a stock \u2192");
+    expect.soft(d.querySelector(".e-h").textContent).toBe("Analyze a stock you follow.");
+    expect.soft(d.querySelector(".e-form label").textContent).toBe("Analyze a stock in TwiceOver");
+    expect.soft(d.querySelector(".e-form button").textContent).toBe("Analyze");
+    expect.soft(d.querySelector(".e-p").textContent).toContain("three projected prices");
+  });
+  it("names the nav Posts, Games and tools, Topics, and the index carries Growth's line", () => {
+    const d = dom(dist, "blog/index.html");
+    expect.soft([...d.querySelectorAll(".bar .nav a")].map((a) => a.textContent)).toEqual(["Posts", "Games and tools", "Topics"]);
+    expect.soft(d.querySelector(".mast .ds").textContent).toBe("What moved in the markets, why it moved, and the math under it. Some posts are games and tools you can try.");
+    expect.soft(d.querySelector('meta[name="description"]').content).toBe("What moved in the markets, why it moved, and the math under it. Some posts are games and tools you can try. Informational and educational.");
+    expect.soft(d.querySelector("#topics"), "the filter row is the Topics anchor").not.toBeNull();
+  });
+  it("gives a topic page its own description and a feed with Growth's blurb", () => {
+    const d = dom(dist, "blog/topic/option-math/index.html");
+    expect.soft(d.querySelector(".mast .ds").textContent).toMatch(/^Why a call option can lose money when the stock rises\./);
+    expect.soft(read(dist, "blog/feed.xml")).toContain("What moved in the markets, why it moved, and the math under it. Informational and educational.");
+  });
+  it("words the coin game for a reader who does not trade: balance, play money, the paper's own figures", () => {
+    const d = dom(dist, "blog/play/coin/index.html");
+    expect.soft(d.querySelector(".deck").textContent).toContain("$25 in play money");
+    expect.soft(d.querySelector(".sim-q").textContent).toBe("How much of your balance do you bet on the next flip?");
+    expect.soft(d.querySelector(".teach .big").textContent).toBe("Every bet size faces the same 60% coin. The bars show how 2,000 simulated games ended at each size.");
+    expect.soft(d.querySelector(".study").textContent).toContain("28% went bust and were paid nothing");
+    expect.soft(d.body.textContent).not.toMatch(/\bstack\b/);
   });
 });
 
@@ -215,9 +246,9 @@ describe("the index and a subject page", () => {
     const idx = dom(dist, "blog/index.html");
     expect.soft([...idx.querySelectorAll("h1")].map((h) => h.textContent.replace(/\s+/g, " "))).toEqual(["TwiceOver Blog"]);
     const sub = dom(dist, "blog/topic/option-math/index.html");
-    expect.soft([...sub.querySelectorAll("h1")].map((h) => h.textContent)).toEqual(["Option math that surprises"]);
+    expect.soft([...sub.querySelectorAll("h1")].map((h) => h.textContent)).toEqual(["How options are priced"]);
     expect.soft(sub.querySelector("p.nm")).not.toBeNull();
-    expect.soft(sub.title).toBe("Option math that surprises — TwiceOver Blog");
+    expect.soft(sub.title).toBe("How options are priced — TwiceOver Blog");
   });
   it("lists published posts newest first with their dates, marks the pressed filter, and prints no form", () => {
     const idx = dom(dist, "blog/index.html");
@@ -225,7 +256,7 @@ describe("the index and a subject page", () => {
     expect.soft(hrefs).toEqual(["/blog/first-fixture-post", "/blog/second-fixture-post", "/blog/third-fixture-post", "/blog/fourth-fixture-post"]);
     expect.soft(idx.querySelector(".tile .t-date").textContent).toBe("Fri 9 Oct 2026");
     expect.soft(idx.querySelector(".filt a[aria-current]").textContent).toBe("All");
-    expect.soft(dom(dist, "blog/topic/option-math/index.html").querySelector(".filt a[aria-current]").textContent).toBe("Option math that surprises");
+    expect.soft(dom(dist, "blog/topic/option-math/index.html").querySelector(".filt a[aria-current]").textContent).toBe("How options are priced");
     expect.soft(idx.querySelectorAll("form").length).toBe(0);
     expect.soft(idx.querySelector(".tile.lead")).not.toBeNull();
   });

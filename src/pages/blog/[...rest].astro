@@ -5,6 +5,7 @@ import BlogList from "../../components/blog/BlogList.astro";
 import { getPublished } from "../../blog/collection.mjs";
 import { issueNumbers, paginate, topicsWithPosts } from "../../blog/list.mjs";
 import { TOPICS } from "../../blog/vocabulary.mjs";
+import { INDEX_BLURB, INDEX_DESCRIPTION } from "../../blog/labels.mjs";
 import { PAGE_SIZE } from "../../blog/config.mjs";
 
 export async function getStaticPaths() {
@@ -23,7 +24,7 @@ const base = "TwiceOver Blog — markets, options and the math behind them";
 ---
 <BlogList
   title={pageNo === 1 ? base : `${base} — page ${pageNo}`}
-  description={pageNo === 1 ? "Markets, options and the math behind them, one post at a time. Informational and educational." : `Older posts, page ${pageNo} of ${pageCount}. Markets, options and the math behind them.`}
+  description={pageNo === 1 ? `${INDEX_DESCRIPTION} Informational and educational.` : `Older posts, page ${pageNo} of ${pageCount}. ${INDEX_BLURB}`}
   topics={topics}
   items={items}
   numbers={numbers}
