@@ -27,7 +27,7 @@ import { BASE_FACES, THEME_FACES, parseFontFaces } from "./blog-fonts.mjs";
 export const THEMES = [
   { token: "house", kit: "house", accent: "accent" },
   { token: "night-desk", kit: "nightdesk", accent: "accent", a2: "muted", ink2: "muted" },
-  { token: "paper-marker", kit: "marker", accent: "marker", a2: "highlighter" },
+  { token: "paper-marker", kit: "marker", accent: "marker", a2: "highlighter", ink2: "muted" },
   { token: "blueprint", kit: "blueprint", accent: "callout", a2: "line", ink2: "line" },
   { token: "newsprint", kit: "newsprint", accent: "spot", a2: "spot" },
   { token: "neon", kit: "neon", accent: "tube-a", a2: "tube-b" },
@@ -48,12 +48,11 @@ export const END_BLOCK_PINS = [
   [".e-d", "color", "themes.light.text.muted"],
 ];
 
-/** Contrast the design as signed off does not meet, pinned at the value measured so it cannot get worse and
- * so the entry is removed the day the design fixes it (the gate fails on a stale entry). Each is the
- * Designer's to resolve (stock-analyst-platform#4233). Key: "<theme>:<ink|muted>:<ground|plate>". */
-export const CONTRAST_EXCEPTIONS = {
-  "paper-marker:muted:ground": 4.3,
-};
+/** Contrast the design as signed off does not meet, pinned at the measured value so it cannot get worse and
+ * so the entry is removed the day the design fixes it (the gate fails on a stale entry). Each is the Designer's
+ * to resolve (stock-analyst-platform#4233). Key: "<theme>:<ink|muted>:<ground|plate>". Empty since the Designer
+ * darkened Paper Marker's muted ink to #656059 (2026-10-11). */
+export const CONTRAST_EXCEPTIONS = {};
 
 const FORBIDDEN_VARS = /--(?:color-signal|color-health|elevation|motion|path-card)-/;
 

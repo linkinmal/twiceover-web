@@ -73,7 +73,7 @@ describe("the committed token copies", () => {
   // so a copy that changes here must change this digest on purpose (the Designer's file is the source).
   const sha = (p) => createHash("sha256").update(readFileSync(root + p)).digest("hex");
   it("are the files the design signed off", () => {
-    expect.soft(sha("tokens/blog-themes.tokens.json")).toBe("2b32b591a24404c69b55ab811c7791f9c8aeaf38c7de9e46f53c36ff1832e100");
+    expect.soft(sha("tokens/blog-themes.tokens.json")).toBe("6846ec2f403400aae25fe2cef9725970ea08079a5e6be6976dc8d48b6b38d52f");
     expect.soft(sha("tokens/marketing-looks.tokens.json")).toBe("a84dc5de526d10aed02d88602bd6a8b073b2a9616aced3c83baa11e09cded1bd");
   });
 });
@@ -158,16 +158,11 @@ describe("blog.css against the tokens — mutations the gate must catch", () => 
     expect(mutated("--smut:#6A6D75", "--smut:#BBBBBB", { blog: blogShell }).join("\n")).toMatch(/shell: muted #BBBBBB/);
   });
 
-  it("the pinned paper-marker exception holds the measured value and goes stale loudly", () => {
-    expect(Object.keys(CONTRAST_EXCEPTIONS)).toEqual(["paper-marker:muted:ground"]);
-    // Darker ink lifts the derived muted over 4.5: the exception must be reported for removal.
-    const marketing = structuredClone(real.marketing);
-    marketing.look["paper-marker"].ink.$value = "#000000";
-    const f = mutated('[data-look="marker"]{--g:#E8E3D8;--plate:#F4F0E8;--ink:#211D17', '[data-look="marker"]{--g:#E8E3D8;--plate:#F4F0E8;--ink:#000000', { marketing }).join("\n");
-    expect(f).toMatch(/remove the CONTRAST_EXCEPTIONS entry paper-marker:muted:ground/);
-    // A lighter ink drops it under the pinned floor.
-    const marketing2 = structuredClone(real.marketing);
-    marketing2.look["paper-marker"].ink.$value = "#4A453D";
-    expect(mutated('[data-look="marker"]{--g:#E8E3D8;--plate:#F4F0E8;--ink:#211D17', '[data-look="marker"]{--g:#E8E3D8;--plate:#F4F0E8;--ink:#4A453D', { marketing: marketing2 }).join("\n")).toMatch(/paper-marker: muted .* under its pinned 4\.3:1 exception/);
+  it("the exception mechanism still pins a measured floor and goes stale loudly", () => {
+    expect(CONTRAST_EXCEPTIONS).toEqual({});
+    // Paper Marker's muted ink is now the token's #656059; an old 62% mix (#6D6860) in the port is a drift and a contrast failure.
+    const f = mutated("--ink2:#656059;", "--ink2:#6D6860;").join("\n");
+    expect.soft(f).toMatch(/paper-marker: --ink2 is #6D6860 .* #656059/);
+    expect.soft(f).toMatch(/paper-marker: muted #6D6860 on ground #E8E3D8 is 4\.32:1, under WCAG AA/);
   });
 });

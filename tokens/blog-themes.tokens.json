@@ -58,10 +58,13 @@
   },
 
   "blog-overrides": {
-    "$description": "Where the signed-off blog kit differs from the marketing look of the same name, the blog wears the kit. These four values replace the marketing look's on /blog only; marketing-looks.tokens.json is untouched, so cards, video and thumbnails render as signed off in ADR 1005. Every other value of the seven marketing looks matches the kit.",
+    "$description": "Where the signed-off blog kit differs from the marketing look of the same name, the blog wears the kit. These five values replace the marketing look's on /blog only; marketing-looks.tokens.json is untouched, so cards, video and thumbnails render as signed off in ADR 1005. Every other value of the seven marketing looks matches the kit.",
     "house": {
       "ground": { "$type": "color", "$value": "#F4F0E8" },
       "plate":  { "$type": "color", "$value": "#FFFFFF" }
+    },
+    "paper-marker": {
+      "muted": { "$type": "color", "$value": "#656059", "$description": "The kit derived muted ink as 62% ink over ground, 4.32:1 on the ground #E8E3D8, under AA 4.5:1 for 11.5-12px stamps and axis labels. 66% gives #656059, 4.87:1 on the ground and 5.48:1 on the plate (#4233, 2026-10-11)." }
     },
     "blueprint": {
       "plate": { "$type": "color", "$value": "#0B2A50" },
