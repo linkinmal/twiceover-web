@@ -40,6 +40,9 @@ jobs:
       # Blog font gate (#4233, ADR 1088 Decision 2): files exist, no orphans, an OFL licence per family,
       # and each blog theme's faces within the size ceiling.
       - run: npm run check:fonts
+      # Blog style gate (#4233, ADR 1088 Decision 3): the ported kit CSS matches the token files, the end
+      # block is the product's own tokens, contrast and containment hold.
+      - run: npm run check:style
       - run: npm test
 
   # Deploy-on-merge to production (ADR 0056, #305). Here deploy ≈ release, and that is intentional:

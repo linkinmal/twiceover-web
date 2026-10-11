@@ -37,6 +37,8 @@ echo "▸ Entry-box security gate (name=\"ticker\", method=get, action=/go/try, 
 node ci/check-entry-box.mjs
 echo "▸ Blog font gate (files exist, no orphans, OFL licence per family, per-theme size ceiling — #4233/ADR 1088)…"
 node ci/blog-fonts.mjs
+echo "▸ Blog style gate (ported kit CSS vs the token files, end block = product tokens, contrast, containment — #4233/ADR 1088)…"
+node ci/blog-style.mjs
 
 # ── 2 · Consultation-0008 log gate ──────────────────────────────────────────
 # Security's "no operator-accessible access/edge logs" posture (consultation 0008,

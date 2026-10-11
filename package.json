@@ -14,6 +14,7 @@
     "check:entry-box": "node ci/check-entry-box.mjs",
     "check:worker": "node ci/check-worker-source.mjs",
     "check:fonts": "node ci/blog-fonts.mjs",
+    "check:style": "node ci/blog-style.mjs",
     "test": "vitest run",
     "gen:favicons": "node scripts/gen-favicons.mjs",
     "gen:og-cards": "node scripts/gen-og-cards.mjs",
