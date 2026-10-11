@@ -19,6 +19,8 @@ function build(env) {
   const out = mkdtempSync(join(tmpdir(), "blog-build-"));
   const tokens = spawnSync(process.execPath, ["scripts/build-tokens.mjs"], { cwd: root, encoding: "utf8" });
   if (tokens.status !== 0) throw new Error(tokens.stderr);
+  const scripts = spawnSync(process.execPath, ["scripts/build-blog-scripts.mjs"], { cwd: root, encoding: "utf8" });
+  if (scripts.status !== 0) throw new Error(scripts.stderr);
   const r = spawnSync(process.execPath, [astro, "build", "--outDir", out], { cwd: root, env: { ...process.env, ...env }, encoding: "utf8", timeout: 120000 });
   if (r.status !== 0) throw new Error(`astro build failed:\n${r.stdout}\n${r.stderr}`);
   return out;
@@ -121,6 +123,34 @@ describe("a post page", () => {
   });
 });
 
+describe("the game page", () => {
+  const game = () => dom(dist, "blog/play/coin/index.html");
+  it("is built when a post is published, and carries the one reviewed block script and no inline script", () => {
+    const d = game();
+    expect.soft([...d.querySelectorAll("script")].map((s) => s.getAttribute("src"))).toEqual(["/js/blog-coin.js"]);
+    expect.soft(d.querySelector("h1").textContent).toBe("The 60% coin");
+    expect.soft(d.querySelector("article").getAttribute("data-look")).toBe("neon");
+    expect.soft(d.querySelector(".meta").textContent).toContain("Updated");
+    expect.soft(d.querySelector('link[rel="canonical"]').href).toBe("https://twiceover.io/blog/play/coin");
+  });
+  it("serves everything the script reveals: the six bars, legend, lesson, study panel and the middle-game line, as text", () => {
+    const d = game();
+    expect.soft(d.querySelectorAll("[data-bars] .sb[data-f]")).toHaveLength(6);
+    expect.soft(d.querySelector("[data-line]").textContent).toMatch(/^Betting 20% on every flip hit the cap in \d+% of games and went bust in \d+%\. The middle game ended at \$\d+(\.\d\d)?\.$/);
+    expect.soft(d.querySelectorAll(".heat tbody tr")).toHaveLength(6);
+    expect.soft(d.querySelector(".teach").textContent).toContain("went bust");
+    expect.soft(d.querySelector(".study").textContent).toContain("Haghani and Dewey, 2016");
+    expect.soft(d.querySelector("[data-controls] p.cap").textContent).toBe("Your game: your stack after each flip.");
+    expect.soft(d.querySelector("[data-all] .stamp").textContent, "the as-of date comes from the page's updatedAt").toContain("As of 11 Oct 2026");
+    expect.soft(d.querySelector("[data-controls]").hasAttribute("hidden"), "controls wait for script").toBe(true);
+    expect.soft(d.querySelector("[data-all]").hasAttribute("hidden"), "the bars show with script off").toBe(false);
+  });
+  it("is linked from the bar of every blog page and is in the sitemap", () => {
+    expect.soft(dom(dist, "blog/first-fixture-post/index.html").querySelector('.nav a[href="/blog/play/coin"]')).not.toBeNull();
+    expect.soft(read(dist, "sitemap-0.xml")).toContain("https://twiceover.io/blog/play/coin");
+  });
+});
+
 describe("the index and a subject page", () => {
   it("makes the nameplate the h1 on the index and the filter's name the h1 on a subject page", () => {
     const idx = dom(dist, "blog/index.html");
@@ -177,7 +207,7 @@ describe("the gates over the built fixture site", () => {
   });
   it("passes the isolation gate, with blog pages present so its blindness controls run", () => {
     const r = node("ci/blog-isolation.mjs", "--dist", dist);
-    expect(r.stdout).toMatch(/Blog isolation check passed: \d+ site page\(s\) carry no blog styles; 9 blog page\(s\)/);
+    expect(r.stdout).toMatch(/Blog isolation check passed: \d+ site page\(s\) carry no blog styles; 10 blog page\(s\)/);
     expect(r.status).toBe(0);
   });
   it("fails the isolation gate when a site page is made to load the blog's stylesheet (known positive)", () => {

@@ -10,6 +10,7 @@ import BlogMark from "../components/blog/BlogMark.astro";
 import Disclaimer from "../components/Disclaimer.astro";
 import { assertShareImage } from "../blog/url.mjs";
 import { YEAR } from "../config.mjs";
+import { FIRST_PLAYABLE } from "../blog/playables.mjs";
 
 interface Props {
   title: string;
@@ -68,7 +69,7 @@ const preloads = [...new Set([...shellFaces, ...preload])];
       <div class="page">
         <header class="bar">
           <span class="brand"><a class="b-p" href="/"><BlogMark />TwiceOver</a><a class="b-b" href="/blog">Blog</a></span>
-          <nav class="nav" aria-label="Blog"><a href="/blog">Posts</a><a href="/blog#subjects">Subjects</a></nav>
+          <nav class="nav" aria-label="Blog"><a href="/blog">Posts</a><a href={FIRST_PLAYABLE.path}>Playable</a><a href="/blog#subjects">Subjects</a></nav>
           <a class="door" href="/">Read a ticker →</a>
         </header>
         <slot name="meta" />
