@@ -1,0 +1,71 @@
+---
+// "The 60% coin" as served (blog-handoff.md sections 4 and 5.1). Everything a block can show is in this HTML:
+// the 2,000-game bars, their legend, the lesson and the study panel, with every figure computed here by the
+// same functions the block script imports (src/blog-tools/coin-game.mjs). The script only shows, hides or moves
+// it: it hides the bars and lesson until the first game ends, and un-hides the controls it can run. With script
+// off or unexecuted the controls stay hidden and the figures show (ADR 1088 Decision 1).
+import { COIN, barsAll, lessonFigures, formatMoney } from "../../blog-tools/coin-game.mjs";
+
+const bars = barsAll();
+const fig = lessonFigures(bars);
+const DEFAULT = 0.2;
+const pc = (x: number) => `${Math.round(x * 100)}%`;
+const start = bars.find((b) => b.fraction === DEFAULT)!;
+---
+<div class="sim" data-coin>
+  <p class="sim-nojs" data-nojs>The game needs script to flip. The results of 2,000 games at each bet size are below.</p>
+  <div data-controls hidden>
+    <p class="sim-q">How much of your stack do you bet on the next flip?</p>
+    <div class="chips" role="group" aria-label="Bet size, as a share of your stack">
+      {COIN.fractions.map((x) => <button type="button" class="chip" data-f={x} aria-pressed={x === DEFAULT ? "true" : "false"}>{pc(x)}</button>)}
+    </div>
+    <div class="plate">
+      <p class="sim-st"><b data-w>{formatMoney(COIN.start)}</b><span data-n>your stack</span></p>
+      <svg class="ch" data-run role="img" aria-label="Your game: your stack after each flip, on a log scale between the $2 bust line and the $250 cap"></svg>
+      <div class="sim-go">
+        <button type="button" class="btn" data-one>Flip once</button>
+        <button type="button" class="btn alt" data-end>Flip to the end</button>
+        <button type="button" class="btn" data-again hidden>New game</button>
+        <p data-cap aria-live="polite">A {pc(DEFAULT)} bet is {formatMoney(COIN.start * DEFAULT)} right now. Change it between flips if you like.</p>
+      </div>
+    </div>
+    <p class="sim-wait" data-wait>Finish one game. Then see how each bet size does over 2,000 games.</p>
+  </div>
+  <div data-all>
+    <p class="lab" style="margin-top:28px">The same bet, 2,000 times</p>
+    <p class="ro" data-line aria-live="polite">Betting <b>{pc(DEFAULT)}</b> on every flip hit the cap in <b>{start.cap}%</b> of games and went bust in <b>{start.bust}%</b>. The middle game ended at <b>{formatMoney(start.median)}</b>.</p>
+    <div class="sim-bars" data-bars>
+      <div class="sb hd"><span>Bet</span><span>Share of 2,000 games</span><span></span></div>
+      {bars.map((b) => (
+        <div class={`sb${b.fraction === DEFAULT ? " on" : ""}`} data-f={b.fraction} data-cap-pct={b.cap} data-bust-pct={b.bust} data-median={formatMoney(b.median)}>
+          <span>{pc(b.fraction)}</span>
+          <span class="tr"><i class="cp" style={`width:${b.cap}%`}></i><i class="bu" style={`width:${b.bust}%`}></i></span>
+          <span class="n">{b.cap}% cap · {b.bust}% bust</span>
+        </div>
+      ))}
+    </div>
+    <div class="lg" style="margin-top:12px">
+      <span><svg width="14" height="14" aria-hidden="true"><rect width="14" height="14" fill="var(--gain)"/></svg>hit the $250 cap</span>
+      <span><svg width="14" height="14" aria-hidden="true"><rect width="14" height="14" fill="var(--loss)"/></svg>went bust, under $2</span>
+      <span><svg width="14" height="14" aria-hidden="true"><rect width="14" height="14" fill="color-mix(in srgb,var(--ink) 14%,var(--plate))"/></svg>neither after 300 flips</span>
+    </div>
+    <details class="prim" style="margin-top:14px"><summary>The same figures as a table</summary>
+      <div class="tw"><table class="heat" style="min-width:0">
+        <thead><tr><th scope="col">Bet</th><th scope="col">Hit the cap</th><th scope="col">Went bust</th><th scope="col">Neither</th><th scope="col">Middle game ended at</th></tr></thead>
+        <tbody>{bars.map((b) => <tr><th scope="row">{pc(b.fraction)}</th><td>{b.cap}%</td><td>{b.bust}%</td><td>{b.neither}%</td><td>{formatMoney(b.median)}</td></tr>)}</tbody>
+      </table></div>
+    </details>
+    <p class="stamp"><span><b>As of</b> 11 Oct 2026</span><span><b>Source</b> computed on this page, a fair 60% coin, 2,000 seeded games per bet size</span></p>
+    <div class="teach" style="margin-top:28px">
+      <p class="lab">What this shows</p>
+      <p class="big">The coin favours you at every bet size. The size still decides how it ends.</p>
+      <p>At 10% a flip, {fig.at10.cap}% of games hit the cap and {fig.at10.bust}% went bust. At 20% the stack grows fastest, and {fig.at20.bust}% went bust. At 40% the losses bite harder than the wins help: {fig.at40.bust}% went bust. At 100% one tails ends the game, and {fig.at100.bust}% went bust.</p>
+      <p>The 20% is not a guess. For an even-money bet, the size that grows a stack fastest is the chance of winning minus the chance of losing. Here that is 60% minus 40%. Traders call the question position sizing.</p>
+    </div>
+    <div class="study">
+      <p class="lab">People played this for real money</p>
+      <p>In a 2016 study, 61 finance students and young professionals got this game with $25 of real money and 30 minutes. 28% went bust. 21% reached the cap.</p>
+      <p class="stamp"><span><b>Source</b> Haghani and Dewey, 2016. Sample figures, unchecked.</span></p>
+    </div>
+  </div>
+</div>
