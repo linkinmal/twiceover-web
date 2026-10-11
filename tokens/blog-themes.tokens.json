@@ -1,0 +1,81 @@
+{
+  "$description": "TwiceOver BLOG themes, the three that are not marketing looks · v1.1.0 (adds `blog-chart-line` and `blog-overrides`, #4233). v1.0.0 (#4231, ADR 1005 Amendment 4). The other seven themes a blog post can wear are the marketing looks in marketing-looks.tokens.json (House, Night desk, Paper & marker, Blueprint, Newsprint, Neon, Risograph); the blog imports both files. A post wears exactly one theme. The theme sets the post's ground, ink, accent, faces, chart line weight and photo treatment. It never sets the gain and loss colours (the product's own, outside the reserved hue bands), the dated stamp, the end block or the disclaimer. Values drawn in ai-team/design/assets/blog-kit-2026-10-10-v2.html. The kit's `[data-look]` blocks are the build reference for every other per-theme value (letter-spacing, line height, size factor, radius, border width, dash, pattern, photo filter and blend, and the per-theme CSS rules); blog-handoff.md §3 says how the two sit together.",
+
+  "look": {
+    "exhibit": {
+      "$description": "A white wall and one blue. Suits chart-led posts. Ground and plate are neutral by the lightness rule; the blue sits at ~231 degrees, outside both reserved bands.",
+      "ground": { "$type": "color", "$value": "#FFFFFF" },
+      "plate":  { "$type": "color", "$value": "#F2F2EF" },
+      "ink":    { "$type": "color", "$value": "#0B0B0C" },
+      "muted":  { "$type": "color", "$value": "#5B5F66" },
+      "accent": { "$type": "color", "$value": "#1F3BFF" },
+      "grid":   { "$type": "color", "$value": "#E3E3DF" },
+      "display": { "$type": "fontFamily", "$value": ["Archivo", "Helvetica Neue", "Arial", "sans-serif"] },
+      "text":    { "$type": "fontFamily", "$value": ["Archivo", "Helvetica Neue", "Arial", "sans-serif"] },
+      "display-weight": { "$type": "number", "$value": 800 },
+      "display-width":  { "$type": "number", "$value": 90 },
+      "chart-line": { "$type": "number", "$value": 5 }
+    },
+    "ticket": {
+      "$description": "Coloured stock and a time stamp. Suits market plumbing and how-to-read posts. Blocks sit on a plate with punched edges; the label is a rotated stamp.",
+      "ground": { "$type": "color", "$value": "#D7C6FF" },
+      "plate":  { "$type": "color", "$value": "#FFFFFF" },
+      "ink":    { "$type": "color", "$value": "#17131F" },
+      "muted":  { "$type": "color", "$value": "#4A3F66" },
+      "accent": { "$type": "color", "$value": "#4B1FD1" },
+      "display": { "$type": "fontFamily", "$value": ["Besley", "Georgia", "serif"] },
+      "text":    { "$type": "fontFamily", "$value": ["Source Sans 3", "system-ui", "sans-serif"] },
+      "display-weight": { "$type": "number", "$value": 900 },
+      "chart-line": { "$type": "number", "$value": 3 },
+      "photo": { "$value": "grayscale, contrast 1.35, multiplied onto the ground, 55% dot screen" }
+    },
+    "printout": {
+      "$description": "Continuous paper off the line printer. Suits documents and data digs. The green band is a neutral by the lightness rule; the sprocket holes are drawn, not images.",
+      "ground": { "$type": "color", "$value": "#FBFBF8" },
+      "plate":  { "$type": "color", "$value": "#FFFFFF" },
+      "ink":    { "$type": "color", "$value": "#15171A" },
+      "muted":  { "$type": "color", "$value": "#5E646B" },
+      "accent": { "$type": "color", "$value": "#1E46C8" },
+      "band":   { "$type": "color", "$value": "#E6F0E4" },
+      "hole":   { "$type": "color", "$value": "#CDD1CB" },
+      "display": { "$type": "fontFamily", "$value": ["IBM Plex Mono", "ui-monospace", "Menlo", "monospace"] },
+      "text":    { "$type": "fontFamily", "$value": ["Source Sans 3", "system-ui", "sans-serif"] },
+      "display-weight": { "$type": "number", "$value": 700 },
+      "chart-line": { "$type": "number", "$value": 1.8 },
+      "photo": { "$value": "grayscale, contrast 1.7, scan lines" }
+    }
+  },
+
+  "blog-chart-line": {
+    "$description": "Chart line width (the kit's --cw) for the seven themes whose marketing look carries none. Exhibit, Ticket and Printout keep theirs under look.<name>.chart-line.",
+    "house":       { "$type": "number", "$value": 2.6 },
+    "night-desk":  { "$type": "number", "$value": 4 },
+    "paper-marker":{ "$type": "number", "$value": 3.6 },
+    "blueprint":   { "$type": "number", "$value": 2.4 },
+    "newsprint":   { "$type": "number", "$value": 1.7 },
+    "neon":        { "$type": "number", "$value": 3 },
+    "risograph":   { "$type": "number", "$value": 4.5 }
+  },
+
+  "blog-overrides": {
+    "$description": "Where the signed-off blog kit differs from the marketing look of the same name, the blog wears the kit. These four values replace the marketing look's on /blog only; marketing-looks.tokens.json is untouched, so cards, video and thumbnails render as signed off in ADR 1005. Every other value of the seven marketing looks matches the kit.",
+    "house": {
+      "ground": { "$type": "color", "$value": "#F4F0E8" },
+      "plate":  { "$type": "color", "$value": "#FFFFFF" }
+    },
+    "blueprint": {
+      "plate": { "$type": "color", "$value": "#0B2A50" },
+      "text":  { "$type": "fontFamily", "$value": ["Source Sans 3", "system-ui", "sans-serif"] }
+    }
+  },
+
+  "shell": {
+    "$description": "Shell C, Quarterly: the constant frame around every post (bar, nameplate, filing line, tiles, end block, Before this, Keep reading). It does not change with the post's theme.",
+    "ground": { "$type": "color", "$value": "#FFFFFF" },
+    "ink":    { "$type": "color", "$value": "#16161A" },
+    "muted":  { "$type": "color", "$value": "#6A6D75" },
+    "rule":   { "$type": "color", "$value": "#DADAD5" },
+    "display": { "$type": "fontFamily", "$value": ["Newsreader", "Source Serif 4", "Georgia", "serif"] },
+    "text":    { "$type": "fontFamily", "$value": ["Source Sans 3", "system-ui", "sans-serif"] }
+  }
+}
