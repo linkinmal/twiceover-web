@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { STRUCTURES, curvePoints, evaluate } from "./payoff-builder.mjs";
-import { DESCRIPTIONS, FINDS, BAD_NUMBER, cardsHtml, chartSvg, describe as describeKind, headHtml, rowHtml, sentenceHtml, sixHtml, statsHtml, structureOf, termsHtml, typeRowHtml, whyHtml } from "./payoff-view.mjs";
+import { BAD_NUMBER, rowHtml } from "./number-input.mjs";
+import { DESCRIPTIONS, FINDS, cardsHtml, chartSvg, describe as describeKind, headHtml, sentenceHtml, sixHtml, statsHtml, structureOf, termsHtml, typeRowHtml, whyHtml } from "./payoff-view.mjs";
 
 const models = STRUCTURES.map((def) => {
   const values = Object.fromEntries(def.fields.map((f) => [f.id, f.default]));
@@ -28,10 +29,10 @@ describe("the payoff view's wording", () => {
     const by = Object.fromEntries(models.map((m) => [m.def.kind + (m.def.spreadType ?? ""), m]));
     expect(whyHtml(by.lc.model)).toContain("$492 in all");
     expect(whyHtml(by.csp.model)).toContain("set aside $19,000 in cash");
-    expect(whyHtml(by.csp.model)).toContain("you take the shares at $95.00");
+    expect(whyHtml(by.csp.model)).toContain("you take the shares at $95 and lose $1 for every $1 the stock falls below it");
     expect(whyHtml(by.cc.model)).toContain("200 shares");
-    expect(whyHtml(by.st.model)).toContain("breaks even below $94.00 or above $106.00");
-    expect(whyHtml(by.vsc.model)).toContain("call you bought and the $110.00 call you sold cost a net $2.50");
+    expect(whyHtml(by.st.model)).toContain("makes money only if the stock ends below $94 or above $106, the two breakevens");
+    expect(whyHtml(by.vsc.model)).toContain("call you bought has a $100 strike and the call you sold has a $110 strike. Together they cost a net $2.50");
     expect(statsHtml(by.lc.model.e)).toContain("No limit");
     expect(statsHtml(by.lp.model.e)).toContain("if the stock went to zero");
   });
@@ -59,5 +60,23 @@ describe("the payoff view's wording", () => {
     expect(row).toContain('<span class="u">$</span>');
     expect(structureOf("vs", "p").fields[0].label).toBe("Strike of the option you bought");
     expect(termsHtml(structureOf("csp", null), "csp")).toContain('id="po-cash"');
+  });
+});
+
+describe("a typed value in a box", () => {
+  it("is escaped, so text with a quote or a tag cannot leave the attribute", () => {
+    const html = rowHtml("po-S0", "Stock price now", '1"><img src=x onerror=alert(1)>', "$");
+    expect(html).not.toMatch(/<img/);
+    expect(html).toContain('value="1&quot;&gt;&lt;img src=x onerror=alert(1)&gt;"');
+  });
+  it("is escaped on the way through termsHtml as well", () => {
+    const def = structureOf("lc", null);
+    expect(termsHtml(def, "lc", '1"><img src=x>', "1")).not.toMatch(/<img/);
+  });
+  it("gives the whole-dollar strike and no-strike straddle wording the engine's numbers allow", () => {
+    const def = structureOf("st", null);
+    const values = { K: 3, Pc: 2, Pp: 2 };
+    const e = evaluate({ kind: "st", spreadType: null, values, stockNow: 3, contracts: 1, handle: 3 });
+    expect(whyHtml({ kind: "st", spreadType: null, values, stockNow: 3, e })).toContain("It makes money only if the stock ends above $7, its breakeven.");
   });
 });

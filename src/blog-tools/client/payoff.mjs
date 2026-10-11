@@ -5,8 +5,8 @@
  * chart's price axis; dragging the chart moves the same slider. Nothing is sent, stored or read from the address.
  */
 import { curvePoints, evaluate, findsMet, validatePayoffInputs } from "../payoff-builder.mjs";
-import { readNumber } from "../number-input.mjs";
-import { BAD_NUMBER, cardsHtml, chartCaption, chartLabel, chartSvg, describe, findsHtml, headHtml, pm, pp, sentenceHtml, statsHtml, structureOf, termsHtml, typeRowHtml, whyHtml } from "../payoff-view.mjs";
+import { BAD_NUMBER, readNumber, showNumber } from "../number-input.mjs";
+import { cardsHtml, chartCaption, chartLabel, chartSvg, describe, findsHtml, headHtml, pm, pp, sentenceHtml, statsHtml, structureOf, termsHtml, typeRowHtml, whyHtml } from "../payoff-view.mjs";
 
 /** @param {Element} root the [data-payoff] element */
 export function init(root) {
@@ -97,7 +97,9 @@ export function init(root) {
 
   /** Pick a structure: its example numbers load, the stock price and contracts stay (reset starts them over). */
   function pick(kind, spreadType, fresh) {
-    const keep = fresh ? { S0: "100", n: "1" } : { S0: el("po-S0").value, n: el("po-n").value };
+    // Typed text never goes back into the page raw: it is read as a number and shown from that number, else the default.
+    const kept = (id, d) => { const x = readNumber(el(id).value); return Number.isNaN(x) ? d : showNumber(x); };
+    const keep = fresh ? { S0: "100", n: "1" } : { S0: kept("po-S0", "100"), n: kept("po-n", "1") };
     state.kind = kind;
     state.spreadType = kind === "vs" ? spreadType ?? "c" : null;
     buildTerms(keep.S0, keep.n);

@@ -15,3 +15,12 @@ export function readNumber(text) {
 export function showNumber(x) {
   return Number.isInteger(x) ? String(x) : x.toFixed(2);
 }
+
+export const BAD_NUMBER = "One of these numbers is out of range. The page still shows the last numbers that worked.";
+
+const esc = (x) => String(x).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+/** One labelled box. The unit sits at the box, so a reader does not type 246 for $2.46. The value is escaped. */
+export function rowHtml(id, label, value, u) {
+  return `<div class="trow"><label for="${id}">${label}${u ? ` <span class="u">${u}</span>` : ""}</label><input id="${id}" type="text" inputmode="decimal" autocomplete="off" value="${esc(value)}" aria-describedby="${id}-x"><small id="${id}-x" hidden></small></div>`;
+}

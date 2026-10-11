@@ -7,7 +7,7 @@
  * keep the full banned-word scan (ADR 1090 Decision 9), so an option is "bought" or "sold", never the bare verb.
  */
 import { STRUCTURES, shapeCards } from "./payoff-builder.mjs";
-import { showNumber } from "./number-input.mjs";
+import { rowHtml, showNumber } from "./number-input.mjs";
 
 const grp = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 /** Whole dollars, signed only when negative: $1,234 or −$57. */
@@ -29,7 +29,7 @@ export const DESCRIPTIONS = Object.freeze({
   cc: { s: "100 shares you own, with a call sold against them.", d: "You keep the premium. You give up any gain in the shares above the strike. If the shares fall, you lose on them, less the premium." },
   csp: { s: "A put you sold, with the cash set aside to pay for the shares at the strike.", d: "You keep the premium. If the stock ends below the strike, you pay the strike price for shares that are worth less." },
   vs: { s: "Two options of the same kind and expiration: one you bought at one strike, one you sold at another.", d: "The premium you collect offsets the premium you pay. Both the gain and the loss are capped." },
-  st: { s: "A bought call and a bought put at the same strike.", d: "It gains when the stock ends far from the strike, in either direction." },
+  st: { s: "A call and a put you bought, both at the same strike.", d: "It makes money when the stock ends far enough from the strike, in either direction, to cover both premiums." },
 });
 export const describe = (kind) => `${DESCRIPTIONS[kind].s} ${DESCRIPTIONS[kind].d}`;
 
@@ -39,15 +39,8 @@ export const FINDS = Object.freeze([
   ["The position loses the most it can lose.", "Found. For a bought option the loss stops at a number you can read first.", "Hint: pick the long call and drag the price down."],
 ]);
 
-export const BAD_NUMBER = "One of these numbers is out of range. The page still shows the last numbers that worked.";
-
 export const structureOf = (kind, spreadType) => STRUCTURES.find((s) => s.kind === kind && s.spreadType === (kind === "vs" ? spreadType : null));
 const unit = (f) => (f.id === "n" ? "" : "$");
-
-/** One labelled box. The unit sits at the box, so a reader does not type 246 for $2.46. */
-export function rowHtml(id, label, value, u) {
-  return `<div class="trow"><label for="${id}">${label}${u ? ` <span class="u">${u}</span>` : ""}</label><input id="${id}" type="text" inputmode="decimal" autocomplete="off" value="${value}" aria-describedby="${id}-x"><small id="${id}-x" hidden></small></div>`;
-}
 
 /** Step 3's rows for a structure: its strikes and premiums, then the stock price now and the contracts. */
 export function termsHtml(def, kind, stockNow = 100, contracts = 1, values = null) {
@@ -66,24 +59,24 @@ export function whyHtml({ kind, spreadType, values: v, stockNow, e }) {
   const tt = (x) => pm(x * m);
   const st = e.stats;
   let why;
-  if (kind === "lc") why = `You pay ${f2(v.P)} a share, ${tt(v.P)} in all. Below the ${f2(v.K)} strike the call expires worthless, so the most you can lose is that ${tt(v.P)}. Above the strike it gains $${m} for every $1 the stock rises, so it breaks even at ${f2(v.K + v.P)}.`;
-  else if (kind === "lp") why = `You pay ${f2(v.P)} a share, ${tt(v.P)} in all. Above the ${f2(v.K)} strike the put expires worthless, so the most you can lose is that ${tt(v.P)}. Below the strike it gains $${m} for every $1 the stock falls, so it breaks even at ${f2(v.K - v.P)}. The most it can make, ${tt(v.K - v.P)}, is if the stock went to zero.`;
-  else if (kind === "cc") why = `You hold ${grp(m)} shares bought at ${f2(stockNow)} and sold a call at ${f2(v.K)} for ${f2(v.P)} a share. The premium cushions a fall by that much, so it breaks even at ${f2(stockNow - v.P)}. Above ${f2(v.K)} the call takes back every extra dollar the shares gain, so the best case is ${ps(st.maxGain * m)}, however high the stock goes.`;
-  else if (kind === "csp") why = `You collect ${f2(v.P)} a share, ${tt(v.P)} in all, and set aside ${pm(v.K * m)} in cash. If the stock ends above ${f2(v.K)} the put expires and you keep the ${tt(v.P)}, the most it can make. Below ${f2(v.K)} you take the shares at ${f2(v.K)} and lose dollar for dollar with the stock, less the premium, so it breaks even at ${f2(v.K - v.P)}.`;
+  if (kind === "lc") why = `You pay ${f2(v.P)} a share, ${tt(v.P)} in all. Below the ${pp(v.K)} strike the call expires worthless, so the most you can lose is that ${tt(v.P)}. Above the strike the call's value rises $${m} for every $1 the stock rises, so it breaks even at ${pp(v.K + v.P)}.`;
+  else if (kind === "lp") why = `You pay ${f2(v.P)} a share, ${tt(v.P)} in all. Above the ${pp(v.K)} strike the put expires worthless, so the most you can lose is that ${tt(v.P)}. Below the strike it gains $${m} for every $1 the stock falls, so it breaks even at ${pp(v.K - v.P)}. The most it can make, ${tt(v.K - v.P)}, comes only if the stock goes to zero.`;
+  else if (kind === "cc") why = `You hold ${grp(m)} shares you bought at ${pp(stockNow)}, and you sold a call at ${pp(v.K)} for ${f2(v.P)} a share. The premium cushions a fall by that much, so it breaks even at ${pp(stockNow - v.P)}. Above ${pp(v.K)} the call takes back every extra dollar the shares gain, so the best case is ${ps(st.maxGain * m)}, however high the stock goes.`;
+  else if (kind === "csp") why = `You collect ${f2(v.P)} a share, ${tt(v.P)} in all, and set aside ${pm(v.K * m)} in cash. If the stock ends above ${pp(v.K)} the put expires and you keep the ${tt(v.P)}, the most it can make. Below ${pp(v.K)} you take the shares at ${pp(v.K)} and lose $1 for every $1 the stock falls below it, less the premium you kept, so it breaks even at ${pp(v.K - v.P)}.`;
   else if (kind === "vs") {
     const net = v.Pb - v.Ps;
     const ty = spreadType === "c" ? "call" : "put";
-    why = `The ${f2(v.Kb)} ${ty} you bought and the ${f2(v.Ks)} ${ty} you sold ${net >= 0 ? "cost" : "collect"} a net ${f2(Math.abs(net))} a share, ${tt(Math.abs(net))} in all. Both ends are capped: the most it can make is ${pm(st.maxGain * m)} and the most it can lose is ${pm(-st.maxLoss * m)}. Between the two strikes it moves $${m} for every $1 the stock moves.`;
+    why = `The ${ty} you bought has a ${pp(v.Kb)} strike and the ${ty} you sold has a ${pp(v.Ks)} strike. Together they ${net >= 0 ? "cost" : "bring in"} a net ${f2(Math.abs(net))} a share, ${tt(Math.abs(net))} in all. Both ends are capped: the most it can make is ${pm(st.maxGain * m)} and the most it can lose is ${pm(-st.maxLoss * m)}. Between the two strikes its value moves $${m} for every $1 the stock moves.`;
   } else {
     const c = v.Pc + v.Pp;
-    why = `The call and the put you bought at ${f2(v.K)} cost ${f2(c)} a share, ${tt(c)} in all. It loses the most, that whole ${tt(c)}, if the stock ends exactly at the strike. It gains on a move either way: it breaks even ${v.K - c > 0 ? "below " + f2(v.K - c) + " or " : ""}above ${f2(v.K + c)}.`;
+    why = `The call and the put you bought both have a ${pp(v.K)} strike. Together they cost ${f2(c)} a share, ${tt(c)} in all. It loses the most, that whole ${tt(c)}, if the stock ends exactly at the strike. ${v.K - c > 0 ? "It makes money only if the stock ends below " + pp(v.K - c) + " or above " + pp(v.K + c) + ", the two breakevens." : "It makes money only if the stock ends above " + pp(v.K + c) + ", its breakeven."}`;
   }
   return `<b>What it does.</b> ${why}`;
 }
 
 export function headHtml(e) {
   const t = e.handleTotal;
-  return `Stock at ${pp(e.handle)}. Position <b class="${tone(t)}">${Math.abs(t) < 0.5 ? "flat" : ps(t)}</b>.`;
+  return `Stock at ${pp(e.handle)}. Profit or loss <b class="${tone(t)}">${Math.abs(t) < 0.5 ? "flat" : ps(t)}</b>.`;
 }
 function unitsText({ kind, values, e }) {
   const n = e.multiplier / 100;

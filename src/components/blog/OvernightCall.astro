@@ -6,7 +6,7 @@
 // hidden until the script runs them; with script off the opening night reads as a page of its own.
 import { DEFAULTS, PRESETS, SLIDERS, presetMatches, runOvernight, findsMet, heatGrid } from "../../blog-tools/overnight-call.mjs";
 import { headlineHtml, sentenceHtml, breakEvenHtml, whyHtml, pricedHtml, nightHtml, sliderText, breakEvenMarker, findsHtml, heatHtml, waterfallSvg, waterfallLabel } from "../../blog-tools/call-view.mjs";
-import { rowHtml } from "../../blog-tools/payoff-view.mjs";
+import { rowHtml } from "../../blog-tools/number-input.mjs";
 
 const r = runOvernight(DEFAULTS);
 if (!r.ok) throw new Error("the design's opening night must be valid");
@@ -30,7 +30,7 @@ const SL = [
   </section>
   <section class="blk calc">
     <h2 class="lab" data-js hidden>Step 2 · Change the night</h2>
-    <p class="lab" data-nojs>The opening night</p>
+    <p class="lab" data-nojs>The example: an earnings beat</p>
     <p class="pdesc" data-nojs set:html={nightHtml(r)}></p>
     <div class="tans" aria-live="polite"><p class="thead" data-head set:html={headlineHtml(r)}></p><p class="tsent" data-sent set:html={sentenceHtml(r)}></p></div>
     <div class="plate">
@@ -57,7 +57,7 @@ const SL = [
     <div class="plate terms">
       <h3>The call</h3>
       <div class="tin" data-in>
-        <Fragment set:html={rowHtml("t-k", "Strike", DEFAULTS.strike, "$") + rowHtml("t-d", "Days to expiration", DEFAULTS.daysToExpiry, "") + rowHtml("t-s", "Stock price", DEFAULTS.stock, "$") + rowHtml("t-ivb", "Implied volatility now, %", DEFAULTS.ivNowPct, "")} />
+        <Fragment set:html={rowHtml("t-k", "Strike", DEFAULTS.strike, "$") + rowHtml("t-d", "Days to expiration", DEFAULTS.daysToExpiry, "") + rowHtml("t-s", "Stock price", DEFAULTS.stock, "$") + rowHtml("t-ivb", "Implied volatility now", DEFAULTS.ivNowPct, "%")} />
       </div>
     </div>
     <p class="twarn" data-bad aria-live="polite"></p>

@@ -264,6 +264,13 @@ describe("the overnight call page", () => {
   });
 });
 
+describe("a control the script shows is hidden by the stylesheet while it has not run", () => {
+  it("has a rule that lets [hidden] beat the layout's own display on every data-js element", () => {
+    const css = read(".", "src/styles/blog.css");
+    expect(css, "[data-js][hidden] must win over class display rules such as input.rng and .axh").toMatch(/\[data-js\]\[hidden\]\{display:none!important\}/);
+  });
+});
+
 describe("the option payoff calculator page", () => {
   const PAGE = "blog/tools/option-payoff-calculator/index.html";
   const live = () => liveTool(PAGE, "js/blog-payoff.js");
@@ -275,7 +282,7 @@ describe("the option payoff calculator page", () => {
     expect.soft(d.querySelector("article").getAttribute("data-look")).toBe("blueprint");
     expect.soft(d.querySelectorAll("details"), "nothing is folded").toHaveLength(0);
     expect.soft([...d.querySelectorAll("h2.lab")].map((h) => h.textContent)).toEqual(["Step 1 · Pick a structure", "Step 2 · Drag the price", "Step 3 · Change its numbers"]);
-    expect.soft(d.querySelector("[data-head]").textContent).toBe("Stock at $110. Position +$254.");
+    expect.soft(d.querySelector("[data-head]").textContent).toBe("Stock at $110. Profit or loss +$254.");
     expect.soft(d.querySelectorAll("[data-stats] > div"), "three figures").toHaveLength(3);
     expect.soft(d.querySelector("[data-stats]").textContent).toContain("breakeven, where it neither gains nor loses");
     expect.soft(d.querySelectorAll(".six li")).toHaveLength(6);
@@ -323,6 +330,16 @@ describe("the option payoff calculator page", () => {
     w.document.querySelector('[data-type] [data-vt="p"]').click();
     expect.soft(norm(w, "[data-why]")).toContain("put you bought");
     expect.soft(norm(w, "[data-why]")).not.toBe(calls);
+  });
+  it("never puts typed text back into the page raw when a structure is picked", () => {
+    const w = live();
+    type(w, "po-S0", '1"><img src=x onerror=alert(1)>');
+    w.document.querySelector('[data-cards] [data-k="lp"]').click();
+    expect.soft(w.document.querySelector("[data-in] img"), "no element came from the typed text").toBeNull();
+    expect.soft(w.document.getElementById("po-S0").value, "an unreadable box falls back to its default").toBe("100");
+    type(w, "po-S0", "120");
+    w.document.querySelector('[data-cards] [data-k="lc"]').click();
+    expect.soft(w.document.getElementById("po-S0").value, "a readable box is kept").toBe("120");
   });
   it("starts the structure over with its example numbers", () => {
     const w = live();

@@ -5,8 +5,7 @@
  * the three finds are kept in memory for the visit.
  */
 import { DEFAULTS, PRESETS, applyPreset, findsMet, heatGrid, presetMatches, runOvernight, validateInputs } from "../overnight-call.mjs";
-import { readNumber } from "../number-input.mjs";
-import { BAD_NUMBER } from "../payoff-view.mjs";
+import { BAD_NUMBER, readNumber } from "../number-input.mjs";
 import { breakEvenHtml, breakEvenMarker, findsHtml, headlineHtml, heatHtml, nightHtml, pricedHtml, sentenceHtml, sliderText, waterfallLabel, waterfallSvg, whyHtml } from "../call-view.mjs";
 
 const TYPED = [
