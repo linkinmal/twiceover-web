@@ -472,10 +472,22 @@
   .meta a{border:0;margin:0;padding:0 10px}
   .fh{font:500 clamp(28px,4vw,44px)/1.1 var(--sfd);letter-spacing:-.02em;margin:22px 0 0}
   p.nm{margin:0}
+  /* link map (blog-handoff.md v1.2, section 2): the nameplate is two links; the footer carries the follow row */
+  .nm a{text-decoration:none}
+  .nm a:hover{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:.12em}
+  .follow{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 18px;align-items:baseline;margin:0 0 12px;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--sink)}
+  .follow span{color:var(--smut)}
+  .follow a{text-decoration:none;border-bottom:1px solid currentColor;padding-block:6px 2px}
+  /* the hub's row (section 5.4): the index row, with the topic in the date's place and a picture drawn in SVG */
+  .t-topic{grid-area:date;color:var(--smut)}
+  .t-deck{margin:10px 0 0;font-size:15.5px;line-height:1.45;color:var(--smut);max-width:36em}
+  .tile:hover .t-title{text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:.14em}
+  .pa{display:block;width:100%;height:100%}
 }
 @media (max-width:760px){
   #blog .tile,#blog .tile.lead{grid-template-columns:auto 1fr;grid-template-areas:"no date" "main main" "cell cell" "build build";grid-template-rows:auto}
   #blog .t-cell{aspect-ratio:auto;min-height:110px}
+  #blog .t-cell.pc{height:110px}
 }
 
 /* ===== Additions the Markdown template needs (not in the kit) ===== */

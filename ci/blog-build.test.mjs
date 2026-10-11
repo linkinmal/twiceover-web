@@ -145,8 +145,9 @@ describe("the game page", () => {
     expect.soft(d.querySelector("[data-controls]").hasAttribute("hidden"), "controls wait for script").toBe(true);
     expect.soft(d.querySelector("[data-all]").hasAttribute("hidden"), "the bars show with script off").toBe(false);
   });
-  it("is linked from the bar of every blog page and is in the sitemap", () => {
-    expect.soft(dom(dist, "blog/first-fixture-post/index.html").querySelector('.nav a[href="/blog/play/coin"]')).not.toBeNull();
+  it("is in the sitemap, and the bar's Games and tools opens the hub, not this page", () => {
+    expect.soft(dom(dist, "blog/first-fixture-post/index.html").querySelector('.nav a[href="/blog/play"]').textContent).toBe("Games and tools");
+    expect.soft(dom(dist, "blog/first-fixture-post/index.html").querySelector('.nav a[href="/blog/play/coin"]')).toBeNull();
     expect.soft(read(dist, "sitemap-0.xml")).toContain("https://twiceover.io/blog/play/coin");
   });
 });
@@ -179,6 +180,13 @@ describe("Growth's page copy (blog-site-copy.md)", () => {
     expect.soft(d.querySelector(".teach .big").textContent).toBe("Every bet size faces the same 60% coin. The bars show how 2,000 simulated games ended at each size.");
     expect.soft(d.querySelector(".study").textContent).toContain("28% went bust and were paid nothing");
     expect.soft(d.body.textContent).not.toMatch(/\bstack\b/);
+    expect.soft(d.body.textContent, "a cold read took 'what you hold' as stock holdings").toContain("Each flip bets a share of your balance. Heads adds the bet.");
+    expect.soft(d.body.textContent).not.toContain("what you hold");
+  });
+  it("names the post page's All posts link Back to the blog, not the front page", () => {
+    const d = dom(dist, "blog/first-fixture-post/index.html");
+    expect.soft(d.querySelector('.pnav a[href="/blog"] b').textContent).toBe("Back to the blog");
+    expect.soft(d.querySelector(".pnav").textContent).not.toContain("front page");
   });
 });
 
@@ -375,6 +383,75 @@ describe("the index and a subject page", () => {
   });
 });
 
+describe("the games-and-tools hub and the link map (blog-handoff.md v1.2 section 5.4; blog-site-copy.md v1.3)", () => {
+  const hub = () => dom(dist, "blog/play/index.html");
+  it("is a list page: the nameplate is a paragraph, then the h1, Growth's description, and no end block, filters or dates", () => {
+    const d = hub();
+    expect.soft([...d.querySelectorAll("h1")].map((h) => h.textContent)).toEqual(["Games and tools"]);
+    expect.soft(d.querySelector("p.nm")).not.toBeNull();
+    expect.soft(d.querySelector(".mast .ds").textContent).toBe("Every game and calculator on the blog, in one place.");
+    expect.soft(d.title).toBe("Games and tools — TwiceOver Blog");
+    expect.soft(d.querySelector('meta[name="description"]').content).toBe("Every game and calculator on the TwiceOver Blog: position sizing, option pricing and payoff at expiration. Informational and educational.");
+    expect.soft(d.querySelector(".endblk"), "no end block").toBeNull();
+    expect.soft(d.querySelector(".filt"), "no filters").toBeNull();
+    expect.soft(d.querySelector(".t-date"), "no dates").toBeNull();
+    expect.soft(d.querySelectorAll("script"), "no script at all").toHaveLength(0);
+    expect.soft(d.querySelectorAll("footer.foot .disclaimer"), "the full disclaimer, once").toHaveLength(1);
+  });
+  it("has one whole-row link per game or tool, newest first, each with its label, topic, title, deck and picture", () => {
+    const rows = [...hub().querySelectorAll(".wall a.tile")];
+    expect.soft(rows.map((a) => a.getAttribute("href"))).toEqual(["/blog/play/coin", "/blog/tools/overnight-call", "/blog/tools/option-payoff-calculator"]);
+    expect.soft(rows.map((a) => a.querySelector(".t-no").textContent)).toEqual(["Game", "Tool", "Tool"]);
+    expect.soft(rows.map((a) => a.querySelector(".t-topic").textContent)).toEqual(["Risk and position sizing", "How options are priced", "How options are priced"]);
+    expect.soft(rows.map((a) => a.querySelector("h2.t-title").textContent)).toEqual(["The 60% coin", "The overnight call calculator", "The option payoff calculator"]);
+    expect.soft(rows[0].querySelector(".t-deck").textContent).toBe("A coin lands heads 60% of the time. You start with $25 in play money and bet on heads every flip. You pick only how much to bet.");
+    expect.soft(rows.map((a) => a.querySelector(".t-cell").getAttribute("data-look"))).toEqual(["neon", "exhibit", "blueprint"]);
+    for (const a of rows) expect.soft(a.querySelectorAll(".t-cell svg").length, a.getAttribute("href")).toBe(1);
+  });
+  it("is in the sitemap and is marked as the current page in the bar", () => {
+    expect.soft(read(dist, "sitemap-0.xml")).toContain("https://twiceover.io/blog/play</loc>");
+    expect.soft(hub().querySelector('.nav a[aria-current="page"]').textContent).toBe("Games and tools");
+    expect.soft(dom(dist, "blog/index.html").querySelector(".nav a[aria-current]")).toBeNull();
+  });
+  it("keeps the full banned-word scan: the content gate classifies it as a blog page, not a post or a list", async () => {
+    const { pageKind } = await import("./content-rules.mjs");
+    expect.soft(pageKind("blog/play/index.html", ["first-fixture-post"])).toBe("blog");
+  });
+  it("ends each playable page's More to play strip with a cell that opens the hub, after two other pages", () => {
+    for (const [file, others] of [
+      ["blog/play/coin/index.html", ["/blog/tools/overnight-call", "/blog/tools/option-payoff-calculator"]],
+      ["blog/tools/overnight-call/index.html", ["/blog/play/coin", "/blog/tools/option-payoff-calculator"]],
+      ["blog/tools/option-payoff-calculator/index.html", ["/blog/play/coin", "/blog/tools/overnight-call"]],
+    ]) {
+      const cells = [...dom(dist, file).querySelectorAll('.pnav[aria-label="More to play"] a')];
+      expect.soft(cells.map((a) => a.getAttribute("href")), file).toEqual([...others, "/blog/play"]);
+      expect.soft(cells[2].firstChild.textContent, file).toBe("All");
+      expect.soft(cells[2].querySelector("b").textContent, file).toBe("Games and tools");
+    }
+  });
+  it("makes the nameplate two links, TwiceOver to the site and Blog to the blog, on the index, a topic page and the hub", () => {
+    for (const [file, sel] of [["blog/index.html", "h1.nm"], ["blog/topic/option-math/index.html", "p.nm"], ["blog/play/index.html", "p.nm"]]) {
+      const links = [...dom(dist, file).querySelectorAll(`${sel} a`)];
+      expect.soft(links.map((a) => [a.textContent, a.getAttribute("href")]), file).toEqual([["TwiceOver", "/"], ["Blog", "/blog"]]);
+    }
+  });
+  it("puts Follow TwiceOver, X and YouTube above the disclaimer in the footer of every kind of blog page, with no tag on the links", () => {
+    for (const file of ["blog/index.html", "blog/first-fixture-post/index.html", "blog/topic/option-math/index.html", "blog/play/index.html", "blog/play/coin/index.html", "blog/tools/overnight-call/index.html"]) {
+      const f = dom(dist, file).querySelector("footer.foot");
+      expect.soft(f.firstElementChild.className, file).toBe("follow");
+      expect.soft(f.firstElementChild.querySelector("span").textContent, file).toBe("Follow TwiceOver");
+      const links = [...f.querySelectorAll(".follow a")];
+      expect.soft(links.map((a) => [a.textContent, a.getAttribute("href")]), file).toEqual([["X", "https://x.com/twiceover_io"], ["YouTube", "https://www.youtube.com/@twiceover-io"]]);
+      expect.soft(links.map((a) => a.getAttribute("aria-label")), file).toEqual(["TwiceOver on X (opens in a new tab)", "TwiceOver on YouTube (opens in a new tab)"]);
+      expect.soft(links.map((a) => [a.getAttribute("target"), a.getAttribute("rel")]), file).toEqual([["_blank", "noopener noreferrer"], ["_blank", "noopener noreferrer"]]);
+    }
+  });
+  it("puts no product link in a post body", () => {
+    const body = dom(dist, "blog/first-fixture-post/index.html").querySelector(".body");
+    expect.soft([...body.querySelectorAll("a")].filter((a) => /twiceover\.io|^\/(?!blog)/.test(a.getAttribute("href") ?? ""))).toHaveLength(0);
+  });
+});
+
 describe("the feed and the sitemap", () => {
   it("lists the four published posts newest first, with the one description", () => {
     const feed = read(dist, "blog/feed.xml");
@@ -405,7 +482,7 @@ describe("the gates over the built fixture site", () => {
   });
   it("passes the isolation gate, with blog pages present so its blindness controls run", () => {
     const r = node("ci/blog-isolation.mjs", "--dist", dist);
-    expect(r.stdout).toMatch(/Blog isolation check passed: \d+ site page\(s\) carry no blog styles; 12 blog page\(s\)/);
+    expect(r.stdout).toMatch(/Blog isolation check passed: \d+ site page\(s\) carry no blog styles; 13 blog page\(s\)/);
     expect(r.status).toBe(0);
   });
   it("fails the isolation gate when a site page is made to load the blog's stylesheet (known positive)", () => {

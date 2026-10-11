@@ -3,6 +3,7 @@
 // own address, so it works with script off (handoff 6; ADR 1090 Decision 7). On the unfiltered index the
 // nameplate is the h1; on a filter page it becomes a paragraph and the filter's name is the h1 (handoff 4a).
 import BlogBase from "../../layouts/BlogBase.astro";
+import Nameplate from "./Nameplate.astro";
 import Tile from "./Tile.astro";
 import { TOPIC_LABELS, TOPIC_DESCRIPTIONS, INDEX_DESCRIPTION } from "../../blog/labels.mjs";
 
@@ -27,11 +28,11 @@ const ds = topic ? TOPIC_DESCRIPTIONS[topic as keyof typeof TOPIC_DESCRIPTIONS] 
     <section class="mast">
       {topic ? (
         <>
-          <p class="nm">TwiceOver <em>Blog</em></p>
+          <Nameplate />
           <h1 class="fh">{label}</h1>
         </>
       ) : (
-        <h1 class="nm">TwiceOver <em>Blog</em></h1>
+        <Nameplate heading />
       )}
       <p class="ds">{ds}</p>
     </section>

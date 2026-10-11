@@ -1,0 +1,15 @@
+---
+// The "More to play" strip under a game or tool page (blog-handoff.md section 5.4): two other playable pages, then
+// one cell that opens the hub. The kit's third cell was a post; it is replaced.
+import { HUB_PATH, otherPlayables } from "../../blog/playables.mjs";
+
+interface Props {
+  slug: string;
+}
+const more = otherPlayables(Astro.props.slug);
+---
+<p class="xh">More to play</p>
+<nav class="pnav" aria-label="More to play">
+  {more.map((m) => <a href={m.path}>{m.kind === "game" ? "Game" : "Tool"}<b>{m.label}</b></a>)}
+  <a href={HUB_PATH}>All<b>Games and tools</b></a>
+</nav>
