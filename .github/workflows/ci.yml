@@ -2,10 +2,25 @@ name: ci
 
 # Build + content gate (#39 AC3/AC4): fails on banned terms or a missing/altered
 # shared disclaimer in the built HTML — the same output-contract line as product output.
+#
+# Triggers (ADR 1090 Decision 3, Security consult 1091). Three of them can reach the deploy job, and only
+# these three: `push` to main (a merge), `schedule` (the daily build that publishes a post whose time has
+# come), and `workflow_dispatch` (a hand re-run when a scheduled run was missed). A pull request never
+# deploys. The schedule runs on the default branch by GitHub's own rule, and the deploy job additionally
+# requires `refs/heads/main` for all three and that this run's commit is the head of main (below).
+#
+# The two crons are an hour apart so one of them lands just after 07:00 New York in both clock states:
+# 11:07 UTC is 07:07 in summer (EDT), 12:07 UTC is 07:07 in winter (EST). The other is a harmless second
+# deploy of the same content. GitHub may delay or drop a scheduled run under load, and disables a
+# schedule after 60 days of no repository activity; a missed run is re-run with workflow_dispatch.
 on:
   push:
     branches: [main]
   pull_request:
+  schedule:
+    - cron: "7 11 * * *"
+    - cron: "7 12 * * *"
+  workflow_dispatch:
 
 jobs:
   build-and-check:
@@ -23,6 +38,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      # Stable addresses (#4233, ADR 1090 Decision 1): every blog address the live sitemap lists is still in
+      # this build. Reads the live sitemap from its fixed address; fails if it cannot, and on a removed,
+      # renamed or re-dated post. Pull requests build with the clock far ahead, so a post pushed back to a
+      # later date is caught on the push build, before the deploy job.
+      - run: npm run check:addresses
       - run: npm run check
       # Static-decoration a11y gate (site-prelaunch.md §6 v2.4 redeploy build note, #734):
       # the Two-doors illustrations must never surface as a focusable, non-functional control.
@@ -56,7 +76,7 @@ jobs:
   # because the deploy job runs the same guarded `npm run deploy` → scripts/deploy.sh, which re-asserts
   # every gate before it uploads.
   #
-  # Runs ONLY on push to `main`, after build-and-check is green — NEVER on pull_request, so the deploy
+  # Runs ONLY on push, schedule or workflow_dispatch, on `main`, after build-and-check is green — NEVER on pull_request, so the deploy
   # token is out of scope for PR-triggered runs (ADR 0056 sub-decision 1, Security 0098). The real
   # control against malicious code reaching this token is branch protection on `main` (required check
   # `build-and-check` + PR review), confirmed enabled live 2026-07-02 (runbooks/github-branch-
@@ -67,7 +87,7 @@ jobs:
   # (its documented `:=` CI seam), falling back to the Keychain only for a local operator run.
   deploy:
     needs: build-and-check
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     # Serialize production deploys so two quick merges to `main` never overlap a `wrangler deploy`;
     # never cancel one in flight (a cancelled deploy can leave the site half-updated). Job-scoped so
@@ -85,6 +105,9 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # The run's commit must be the head of main right now. An old run re-run by hand, or one a newer merge
+      # overtook, would otherwise put old content over the new (Security consult 1091). Fails, never skips.
+      - run: bash scripts/assert-head-of-main.sh
       # Guarded deploy: re-runs build + AC3/AC4 content gate + ADR 0008 observability-off gate, then
       # `wrangler deploy`. The token is supplied via the env var above (deploy.sh's CI override seam).
       - run: npm run deploy

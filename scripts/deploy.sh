@@ -48,6 +48,8 @@ echo "▸ Blog style gate (ported kit CSS vs the token files, end block = produc
 node ci/blog-style.mjs
 echo "▸ Blog isolation gate (no non-blog page loads the blog's styles — #4233/ADR 1088)…"
 node ci/blog-isolation.mjs
+echo "▸ Stable-address gate (every live blog address is still in this build — #4233/ADR 1090)…"
+node ci/check-stable-addresses.mjs
 
 # ── 2 · Consultation-0008 log gate ──────────────────────────────────────────
 # Security's "no operator-accessible access/edge logs" posture (consultation 0008,
