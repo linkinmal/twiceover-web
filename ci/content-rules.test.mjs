@@ -20,7 +20,7 @@ import {
 const disclaimer = readFileSync(new URL("../src/content/disclaimer.txt", import.meta.url), "utf8").trim();
 const SLUGS = ["why-a-call-loses"];
 
-const door = (slug, { source = "blog", medium = "post", extra = "", action = "/go/try", method = "get", button = '<button type="submit">Read a ticker</button>' } = {}) =>
+const door = (slug, { source = "blog", medium = "post", extra = "", action = "/go/try", method = "get", button = '<button type="submit">Analyze a ticker</button>' } = {}) =>
   `<form method="${method}" action="${action}"><input type="text" name="ticker" maxlength="8" autocomplete="off">` +
   `<input type="hidden" name="utm_source" value="${source}"><input type="hidden" name="utm_medium" value="${medium}">` +
   `<input type="hidden" name="utm_campaign" value="${slug}">${extra}${button}</form>`;

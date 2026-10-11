@@ -18,7 +18,7 @@ const { slug } = Astro.props;
     <h2 class="e-h" id="endh">A second look at your own book.</h2>
     <p class="e-p">TwiceOver reads your positions against live market data. Your broker connection is read-only.</p>
     <form class="e-form" method="get" action="/go/try">
-      <label for="door-ticker">Read a ticker in TwiceOver</label>
+      <label for="door-ticker">Analyze a ticker in TwiceOver</label>
       <div class="e-row">
         <input id="door-ticker" type="text" name="ticker" placeholder="AAPL" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="8" />
         <input type="hidden" name="utm_source" value={DOOR_UTM.source} />

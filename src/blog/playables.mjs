@@ -19,6 +19,18 @@ export const PLAYABLES = Object.freeze([
     topic: "risk-sizing-behaviour",
     updatedAt: "2026-10-11T09:00:00-04:00",
   },
+  {
+    slug: "overnight-call",
+    kind: "tool",
+    path: "/blog/tools/overnight-call",
+    title: "The overnight call calculator",
+    label: "The overnight call calculator",
+    deck: "You hold a call overnight. The stock moves and implied volatility changes. See what the call is worth the next morning and where the change came from.",
+    description: "A tool: set the stock move, the volatility and the days that pass, and see what a call is worth the next morning and where the change came from.",
+    look: "exhibit",
+    topic: "option-math",
+    updatedAt: "2026-10-11T09:00:00-04:00",
+  },
 ]);
 
 export const playablePath = (p) => p.path;
