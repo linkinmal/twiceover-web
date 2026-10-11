@@ -4,6 +4,7 @@
 // carries never points at an empty file.
 import rss from "@astrojs/rss";
 import { getPublished } from "../../blog/collection.mjs";
+import { INDEX_BLURB } from "../../blog/labels.mjs";
 import { parsePublishTime } from "../../blog/publish.mjs";
 
 export async function getStaticPaths() {
@@ -15,7 +16,7 @@ export async function GET(context) {
   const posts = await getPublished();
   return rss({
     title: "TwiceOver Blog",
-    description: "Markets, options and the math behind them. Informational and educational.",
+    description: `${INDEX_BLURB} Informational and educational.`,
     site: context.site,
     trailingSlash: false,
     items: posts.map((p) => ({

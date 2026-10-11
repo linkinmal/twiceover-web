@@ -15,16 +15,16 @@ const { slug } = Astro.props;
 <section class="endblk" aria-labelledby="endh">
   <div class="col">
     <div class="e-mark"><BlogMark />TwiceOver</div>
-    <h2 class="e-h" id="endh">A second look at your own book.</h2>
-    <p class="e-p">TwiceOver reads your positions against live market data. Your broker connection is read-only.</p>
+    <h2 class="e-h" id="endh">Analyze a stock you follow.</h2>
+    <p class="e-p">Type a ticker, the short code a stock trades under. A TwiceOver analysis ends in three projected prices, about two weeks, three months and six months out. Each comes with its reason and what would prove it wrong.</p>
     <form class="e-form" method="get" action="/go/try">
-      <label for="door-ticker">Analyze a ticker in TwiceOver</label>
+      <label for="door-ticker">Analyze a stock in TwiceOver</label>
       <div class="e-row">
         <input id="door-ticker" type="text" name="ticker" placeholder="AAPL" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="8" />
         <input type="hidden" name="utm_source" value={DOOR_UTM.source} />
         <input type="hidden" name="utm_medium" value={DOOR_UTM.medium} />
         <input type="hidden" name="utm_campaign" value={slug} />
-        <button type="submit">See the read</button>
+        <button type="submit">Analyze</button>
         <a href="/">or go to twiceover.io</a>
       </div>
     </form>

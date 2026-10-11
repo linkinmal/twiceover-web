@@ -19,14 +19,14 @@ const start = bars.find((b) => b.fraction === DEFAULT)!;
 <div class="sim" data-coin>
   <p class="sim-nojs" data-nojs>The game needs script to flip. The results of 2,000 games at each bet size are below.</p>
   <div data-controls hidden>
-    <p class="sim-q">How much of your stack do you bet on the next flip?</p>
-    <div class="chips" role="group" aria-label="Bet size, as a share of your stack">
+    <p class="sim-q">How much of your balance do you bet on the next flip?</p>
+    <div class="chips" role="group" aria-label="Bet size, as a share of your balance">
       {COIN.fractions.map((x) => <button type="button" class="chip" data-f={x} aria-pressed={x === DEFAULT ? "true" : "false"}>{pc(x)}</button>)}
     </div>
     <div class="plate">
-      <p class="sim-st"><b data-w>{formatMoney(COIN.start)}</b><span data-n>your stack</span></p>
-      <svg class="ch" data-run role="img" aria-label="Your game: your stack after each flip, on a log scale between the $2 bust line and the $250 cap"></svg>
-      <p class="cap">Your game: your stack after each flip.</p>
+      <p class="sim-st"><b data-w>{formatMoney(COIN.start)}</b><span data-n>your balance</span></p>
+      <svg class="ch" data-run role="img" aria-label="Your game: your balance after each flip, on a log scale between the $2 bust line and the $250 cap"></svg>
+      <p class="cap">Your game: your balance after each flip.</p>
       <div class="sim-go">
         <button type="button" class="btn" data-one>Flip once</button>
         <button type="button" class="btn alt" data-end>Flip to the end</button>
@@ -63,14 +63,14 @@ const start = bars.find((b) => b.fraction === DEFAULT)!;
     <p class="stamp"><span><b>As of</b> {asOf}</span><span><b>Source</b> computed on this page, a fair 60% coin, 2,000 seeded games per bet size</span></p>
     <div class="teach" style="margin-top:28px">
       <p class="lab">What this shows</p>
-      <p class="big">The coin favours you at every bet size. The size still decides how it ends.</p>
-      <p>At 10% a flip, {fig.at10.cap}% of games hit the cap and {fig.at10.bust}% went bust. At 20% the stack grows fastest, and {fig.at20.bust}% went bust. At 40% the losses bite harder than the wins help: {fig.at40.bust}% went bust. At 100% one tails ends the game, and {fig.at100.bust}% went bust.</p>
-      <p>The 20% is not a guess. For an even-money bet, the size that grows a stack fastest is the chance of winning minus the chance of losing. Here that is 60% minus 40%. Traders call the question position sizing.</p>
+      <p class="big">Every bet size faces the same 60% coin. The bars show how 2,000 simulated games ended at each size.</p>
+      <p>At 10% a flip, {fig.at10.cap}% of games hit the cap and {fig.at10.bust}% went bust. At 20% the balance grows fastest, and {fig.at20.bust}% went bust. At 40% the losses bite harder than the wins help: {fig.at40.bust}% went bust. At 100% one tails ends the game, and {fig.at100.bust}% went bust.</p>
+      <p>The 20% is not a guess. For an even-money bet, the size that grows a balance fastest is the chance of winning minus the chance of losing. Here that is 60% minus 40%. Traders call the question position sizing.</p>
     </div>
     <div class="study">
       <p class="lab">People played this for real money</p>
-      <p>In a 2016 study, 61 finance students and young professionals got this game with $25 of real money and 30 minutes. 28% went bust. 21% reached the cap.</p>
-      <p class="stamp"><span><b>Source</b> Haghani and Dewey, 2016. Sample figures, unchecked.</span></p>
+      <p>In a study by Haghani and Dewey, 61 people played this game for real money. Most were finance and economics students or young finance professionals. They had $25 and 30 minutes. 28% went bust and were paid nothing. 21% reached the $250 cap.</p>
+      <p class="stamp"><span><b>Source</b> Haghani and Dewey, arXiv 1701.01427. Figures checked against the paper.</span></p>
     </div>
   </div>
 </div>

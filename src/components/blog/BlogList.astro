@@ -1,16 +1,16 @@
 ---
-// A list page: the index, a subject page, and either's later pages. A subject filter is a plain page at its
+// A list page: the index, a topic page, and either's later pages. A subject filter is a plain page at its
 // own address, so it works with script off (handoff 6; ADR 1090 Decision 7). On the unfiltered index the
 // nameplate is the h1; on a filter page it becomes a paragraph and the filter's name is the h1 (handoff 4a).
 import BlogBase from "../../layouts/BlogBase.astro";
 import Tile from "./Tile.astro";
-import { TOPIC_LABELS } from "../../blog/labels.mjs";
+import { TOPIC_LABELS, TOPIC_DESCRIPTIONS, INDEX_DESCRIPTION } from "../../blog/labels.mjs";
 
 interface Props {
   title: string;
   description: string;
-  topic?: string; // the filtered subject, when this is a subject page
-  topics: string[]; // subjects that have a published post, in order
+  topic?: string; // the filtered topic, when this is a topic page
+  topics: string[]; // topics that have a published post, in order
   items: any[]; // this page's posts
   numbers: Map<string, string>;
   basePath: string; // "/blog" or "/blog/topic/<topic>"
@@ -20,7 +20,7 @@ interface Props {
 const { title, description, topic, topics, items, numbers, basePath, pageNo, pageCount } = Astro.props;
 const href = (n: number) => (n === 1 ? basePath : `${basePath}/page/${n}`);
 const label = topic ? TOPIC_LABELS[topic as keyof typeof TOPIC_LABELS] : "";
-const ds = topic ? `Posts about ${label.toLowerCase()}.` : "Markets, options and the math behind them.";
+const ds = topic ? TOPIC_DESCRIPTIONS[topic as keyof typeof TOPIC_DESCRIPTIONS] : INDEX_DESCRIPTION;
 ---
 <BlogBase title={title} description={description}>
   <div class="page">
@@ -35,7 +35,7 @@ const ds = topic ? `Posts about ${label.toLowerCase()}.` : "Markets, options and
       )}
       <p class="ds">{ds}</p>
     </section>
-    <div class="filt" id="subjects" role="group" aria-label="Filter posts by subject">
+    <div class="filt" id="topics" role="group" aria-label="Filter posts by topic">
       <a href="/blog" aria-current={!topic ? "page" : undefined}>All</a>
       <i aria-hidden="true"></i>
       {topics.map((t) => <a href={`/blog/topic/${t}`} aria-current={t === topic ? "page" : undefined}>{TOPIC_LABELS[t as keyof typeof TOPIC_LABELS]}</a>)}
