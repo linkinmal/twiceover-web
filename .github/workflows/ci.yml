@@ -37,6 +37,9 @@ jobs:
       # SITE_METRICS Worker gates (ADR 0136 / consult 0163, #557): the six-field source
       # assertion and the pure-helper unit tests. Fail fast on PRs, before the deploy job.
       - run: npm run check:worker
+      # Blog font gate (#4233, ADR 1088 Decision 2): files exist, no orphans, an OFL licence per family,
+      # and each blog theme's faces within the size ceiling.
+      - run: npm run check:fonts
       - run: npm test
 
   # Deploy-on-merge to production (ADR 0056, #305). Here deploy ≈ release, and that is intentional:
