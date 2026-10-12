@@ -4,6 +4,7 @@
 // script is a reviewed file on the fixed list (ADR 1088 Decision 1; BLOG_SCRIPTS in ci/content-rules.mjs).
 import BlogBase from "../../../layouts/BlogBase.astro";
 import CoinGame from "../../../components/blog/CoinGame.astro";
+import GuessGap from "../../../components/blog/GuessGap.astro";
 import { getPublished } from "../../../blog/collection.mjs";
 import MorePlay from "../../../components/blog/MorePlay.astro";
 import { PLAYABLES } from "../../../blog/playables.mjs";
@@ -32,15 +33,30 @@ const look = LOOKS[p.look as keyof typeof LOOKS];
       <p class="lab">Game</p>
       <h1 class="h1">{p.title}</h1>
       <p class="deck">{p.deck}</p>
-      <section class="blk"><CoinGame /></section>
-      <section class="blk">
-        <p class="lab">How it is played</p>
-        <p>Each flip bets a share of your balance. Heads adds the bet. Tails takes it. You can change the share between flips.</p>
-        <p>A game is up to 300 flips. It stops early at the $250 cap. Under $2 counts as bust.</p>
-        <p>Your own game is new every time. The bars come from 2,000 games per bet size with a fixed seed, so every visit shows the same bars.</p>
-        <p>Nothing you do here is sent anywhere or stored. The tally of your games lasts until you leave the page.</p>
-        <p class="stamp"><span><b>Source</b> computed on this page, a fair 60% coin</span></p>
-      </section>
+      {p.slug === "coin" && (
+        <>
+        <section class="blk"><CoinGame /></section>
+        <section class="blk">
+          <p class="lab">How it is played</p>
+          <p>Each flip bets a share of your balance. Heads adds the bet. Tails takes it. You can change the share between flips.</p>
+          <p>A game is up to 300 flips. It stops early at the $250 cap. Under $2 counts as bust.</p>
+          <p>Your own game is new every time. The bars come from 2,000 games per bet size with a fixed seed, so every visit shows the same bars.</p>
+          <p>Nothing you do here is sent anywhere or stored. The tally of your games lasts until you leave the page.</p>
+          <p class="stamp"><span><b>Source</b> computed on this page, a fair 60% coin</span></p>
+        </section>
+        </>
+      )}
+      {p.slug === "guess-the-gap" && (
+        <>
+          <p class="words">A company reports its <b>earnings</b> four times a year, and the stock often jumps or drops the next morning. Before the report, option prices show how big a move traders are paying for, up or down. That size is the <b>priced move</b>. It says nothing about direction.</p>
+          <GuessGap />
+          <section class="blk">
+            <p class="lab">How it is played</p>
+            <p>Each report shows the priced move. You guess the size of the next day's move, close to close. Direction is not part of the guess.</p>
+            <p>A guess within 2 points counts as a hit. Your score is for this visit only. Nothing is saved.</p>
+          </section>
+        </>
+      )}
     </div>
   </article>
   <div class="page">

@@ -382,6 +382,61 @@ describe("the option payoff calculator page", () => {
   });
 });
 
+describe("the Guess the gap page", () => {
+  const PAGE = "blog/play/guess-the-gap/index.html";
+  const live = () => liveTool(PAGE, "js/blog-guess.js");
+
+  it("carries the one reviewed script, the first question, all five answers and the lesson in the served HTML", () => {
+    const d = dom(dist, PAGE);
+    expect.soft([...d.querySelectorAll("script")].map((x) => x.getAttribute("src"))).toEqual(["/js/blog-guess.js"]);
+    expect.soft(d.querySelector("h1").textContent).toBe("Guess the gap");
+    expect.soft(d.querySelector("article").getAttribute("data-look")).toBe("ticket");
+    expect.soft(d.querySelectorAll("details"), "nothing is folded").toHaveLength(0);
+    expect.soft(d.querySelector("[data-q]").textContent).toBe("How far did the stock move the next day, up or down?");
+    expect.soft(d.querySelector("[data-given]").textContent).toMatch(/reported on .*Options had priced a move of \d+\.\d%\.$/);
+    expect.soft(d.querySelectorAll("[data-tally] tr"), "a header and five reports").toHaveLength(6);
+    expect.soft(d.querySelector("[data-eq]").textContent).toBe("All five answers");
+    expect.soft(d.querySelector("[data-lbig]").textContent).toMatch(/^In \d of these 5 reports, the stock moved less than options had priced\.$/);
+    expect.soft(d.querySelectorAll("button.stp"), "no minus and plus buttons").toHaveLength(0);
+    expect.soft(d.querySelector("#gg-guess").getAttribute("type")).toBe("range");
+    expect.soft(d.body.textContent).toContain("Your score is for this visit only. Nothing is saved.");
+  });
+  it("hides every control until the script runs, offers no copy button or share card, and without script shows the answers", () => {
+    const d = dom(dist, PAGE);
+    const controls = [...d.querySelectorAll("[data-guess] input, [data-guess] button")];
+    expect.soft(controls.length, "the slider, lock, skip, next and play five more").toBe(5);
+    expect.soft(controls.filter((c) => !c.closest("[data-js]") && !c.closest("[data-rev]")), "only the reveal's Next is outside a script-only wrapper").toHaveLength(0);
+    expect.soft(d.querySelector("[data-rev]").hasAttribute("hidden")).toBe(true);
+    expect.soft([...d.querySelectorAll("[data-nojs]")].some((n) => n.hasAttribute("hidden"))).toBe(false);
+    expect.soft(d.body.textContent).not.toMatch(/copy|share card/i);
+    const w = live();
+    expect.soft([...w.document.querySelectorAll("[data-nojs]")].every((n) => n.hasAttribute("hidden"))).toBe(true);
+    expect.soft(w.document.querySelector("[data-round]").hasAttribute("hidden")).toBe(false);
+  });
+  it("prints, on first run, the question the build served", () => {
+    const served = dom(dist, PAGE);
+    const w = live();
+    for (const s of ["[data-q]", "[data-given]", "[data-rno]", "[data-rsc]"]) expect.soft(norm(w, s), s).toBe(served.querySelector(s).textContent.replace(/\s+/g, " ").trim());
+  });
+  it("plays a guess: the answer, the why sentence and a hit or a miss, then the score and the lesson after the fifth", () => {
+    const w = live();
+    const click = (sel) => w.document.querySelector(sel).click();
+    for (let k = 0; k < 5; k++) {
+      type(w, "gg-guess", 5);
+      click("[data-lock]");
+      expect.soft(norm(w, "[data-ans]")).toMatch(/^It moved (up|down) \d+\.\d%\.$/);
+      expect.soft(norm(w, "[data-why]")).toMatch(/^That is (\d+\.\d times|more than|close to|inside) the \d+\.\d% options had priced\. Your guess was \d+\.\d points away(, a hit)?\.$/);
+      click("[data-next]");
+    }
+    expect.soft(norm(w, "[data-rno]")).toBe("Game over");
+    expect.soft(norm(w, "[data-eq]")).toBe("Your five guesses");
+    expect.soft(w.document.querySelector("[data-end]").hasAttribute("hidden")).toBe(false);
+    expect.soft(w.document.querySelector("[data-lesson]").hasAttribute("hidden")).toBe(false);
+    click("[data-again]");
+    expect.soft(norm(w, "[data-rno]")).toBe("Report 1 of 5");
+  });
+});
+
 describe("the index and a subject page", () => {
   it("makes the nameplate the h1 on the index and the filter's name the h1 on a subject page", () => {
     const idx = dom(dist, "blog/index.html");
@@ -425,12 +480,12 @@ describe("the games-and-tools hub and the link map (blog-handoff.md v1.2 section
   });
   it("has one whole-row link per game or tool, newest first, each with its label, topic, title, deck and picture", () => {
     const rows = [...hub().querySelectorAll(".wall a.tile")];
-    expect.soft(rows.map((a) => a.getAttribute("href"))).toEqual(["/blog/play/coin", "/blog/tools/overnight-call", "/blog/tools/option-payoff-calculator"]);
-    expect.soft(rows.map((a) => a.querySelector(".t-no").textContent)).toEqual(["Game", "Tool", "Tool"]);
-    expect.soft(rows.map((a) => a.querySelector(".t-topic").textContent)).toEqual(["Risk and position sizing", "How options are priced", "How options are priced"]);
-    expect.soft(rows.map((a) => a.querySelector("h2.t-title").textContent)).toEqual(["The 60% coin", "The overnight call calculator", "The option payoff calculator"]);
-    expect.soft(rows[0].querySelector(".t-deck").textContent).toBe("A coin lands heads 60% of the time. You start with $25 in play money and bet on heads every flip. You pick only how much to bet.");
-    expect.soft(rows.map((a) => a.querySelector(".t-cell").getAttribute("data-look"))).toEqual(["neon", "exhibit", "blueprint"]);
+    expect.soft(rows.map((a) => a.getAttribute("href"))).toEqual(["/blog/play/guess-the-gap", "/blog/play/coin", "/blog/tools/overnight-call", "/blog/tools/option-payoff-calculator"]);
+    expect.soft(rows.map((a) => a.querySelector(".t-no").textContent)).toEqual(["Game", "Game", "Tool", "Tool"]);
+    expect.soft(rows.map((a) => a.querySelector(".t-topic").textContent)).toEqual(["Earnings", "Risk and position sizing", "How options are priced", "How options are priced"]);
+    expect.soft(rows.map((a) => a.querySelector("h2.t-title").textContent)).toEqual(["Guess the gap", "The 60% coin", "The overnight call calculator", "The option payoff calculator"]);
+    expect.soft(rows[1].querySelector(".t-deck").textContent).toBe("A coin lands heads 60% of the time. You start with $25 in play money and bet on heads every flip. You pick only how much to bet.");
+    expect.soft(rows.map((a) => a.querySelector(".t-cell").getAttribute("data-look"))).toEqual(["ticket", "neon", "exhibit", "blueprint"]);
     for (const a of rows) expect.soft(a.querySelectorAll(".t-cell svg").length, a.getAttribute("href")).toBe(1);
   });
   it("is in the sitemap and is marked as the current page in the bar", () => {
@@ -444,9 +499,10 @@ describe("the games-and-tools hub and the link map (blog-handoff.md v1.2 section
   });
   it("ends each playable page's More to play strip with a cell that opens the hub, after two other pages", () => {
     for (const [file, others] of [
-      ["blog/play/coin/index.html", ["/blog/tools/overnight-call", "/blog/tools/option-payoff-calculator"]],
-      ["blog/tools/overnight-call/index.html", ["/blog/play/coin", "/blog/tools/option-payoff-calculator"]],
-      ["blog/tools/option-payoff-calculator/index.html", ["/blog/play/coin", "/blog/tools/overnight-call"]],
+      ["blog/play/guess-the-gap/index.html", ["/blog/play/coin", "/blog/tools/overnight-call"]],
+      ["blog/play/coin/index.html", ["/blog/play/guess-the-gap", "/blog/tools/overnight-call"]],
+      ["blog/tools/overnight-call/index.html", ["/blog/play/guess-the-gap", "/blog/play/coin"]],
+      ["blog/tools/option-payoff-calculator/index.html", ["/blog/play/guess-the-gap", "/blog/play/coin"]],
     ]) {
       const cells = [...dom(dist, file).querySelectorAll('.pnav[aria-label="More to play"] a')];
       expect.soft(cells.map((a) => a.getAttribute("href")), file).toEqual([...others, "/blog/play"]);
@@ -521,7 +577,7 @@ describe("the gates over the built fixture site", () => {
   });
   it("passes the isolation gate, with blog pages present so its blindness controls run", () => {
     const r = node("ci/blog-isolation.mjs", "--dist", dist);
-    expect(r.stdout).toMatch(/Blog isolation check passed: \d+ site page\(s\) carry no blog styles; 13 blog page\(s\)/);
+    expect(r.stdout).toMatch(/Blog isolation check passed: \d+ site page\(s\) carry no blog styles; 14 blog page\(s\)/);
     expect(r.status).toBe(0);
   });
   it("fails the isolation gate when a site page is made to load the blog's stylesheet (known positive)", () => {

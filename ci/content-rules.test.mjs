@@ -212,13 +212,13 @@ describe("markup rules on every blog page (Decision 11)", () => {
   });
 
   it("allows a script only from the fixed list, root-relative and same-origin", () => {
-    const pageWith = (src) => scanPage({ ...withBody(`<script src="${src}" defer></script>`), disclaimer, postSlugs: SLUGS, allowedScripts: ["/js/blog-guess.js"] });
-    expect.soft(pageWith("/js/blog-guess.js")).toEqual([]);
-    for (const src of ["/js/other.js", "https://evil.test/a.js", "//evil.test/a.js", "/js/blog-guess.js?x=1", "js/blog-guess.js"]) {
+    const pageWith = (src) => scanPage({ ...withBody(`<script src="${src}" defer></script>`), disclaimer, postSlugs: SLUGS, allowedScripts: ["/js/blog-example.js"] });
+    expect.soft(pageWith("/js/blog-example.js")).toEqual([]);
+    for (const src of ["/js/other.js", "https://evil.test/a.js", "//evil.test/a.js", "/js/blog-example.js?x=1", "js/blog-example.js"]) {
       expect.soft(pageWith(src).some((f) => f.includes("[BLOG-MARKUP]")), src).toBe(true);
     }
-    // With the real, empty list, any script is off it.
-    expect.soft(fails(withBody('<script src="/js/blog-guess.js"></script>'))).toBe(true);
+    // With the real list, a script that is not one of the reviewed block files is off it.
+    expect.soft(fails(withBody('<script src="/js/blog-example.js"></script>'))).toBe(true);
   });
 
   it("requires every image source to be root-relative", () => {

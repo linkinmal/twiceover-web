@@ -26,4 +26,9 @@ export const PLAY_ART = Object.freeze({
     '<line x1="0" y1="60" x2="200" y2="60" stroke="#7FA3D1" stroke-width="1" stroke-dasharray="3 4"/>' +
     '<polyline points="0,82 104,82 196,10" fill="none" stroke="#FFB347" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>' +
     '<circle cx="132" cy="60" r="5" fill="#0F3563" stroke="#F4F7FB" stroke-width="2"/></svg>',
+  "guess-the-gap":
+    '<svg class="pa" viewBox="0 0 200 100" role="img" aria-label="A scale with a shaded priced band and a marker beyond it">' +
+    '<line x1="8" y1="50" x2="192" y2="50" stroke="#17131F" stroke-width="2"/>' +
+    '<rect x="8" y="36" width="52" height="28" fill="#4B1FD1" opacity=".3"/><line x1="60" y1="36" x2="60" y2="64" stroke="#4B1FD1" stroke-width="2" stroke-dasharray="4 3"/>' +
+    '<rect x="128" y="22" width="4" height="56" fill="#17131F"/></svg>',
 });
