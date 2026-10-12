@@ -7,6 +7,7 @@ import { render } from "astro:content";
 import BlogBase from "../../layouts/BlogBase.astro";
 import BlogMark from "../../components/blog/BlogMark.astro";
 import EndBlock from "../../components/blog/EndBlock.astro";
+import Sources from "../../components/blog/Sources.astro";
 import Tile from "../../components/blog/Tile.astro";
 import { getPublished } from "../../blog/collection.mjs";
 import { issueNumbers, keepReading } from "../../blog/list.mjs";
@@ -56,6 +57,7 @@ const jsonLd = serializeJsonLd(blogPostingJsonLd(data, { slug, imagePath: shareI
         </figure>
       )}
       <div class="body blk"><Content /></div>
+      <Sources sources={data.sources} />
     </div>
   </article>
   <EndBlock slug={slug} />

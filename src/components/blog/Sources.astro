@@ -1,0 +1,17 @@
+---
+// The Sources line: the last block of a post, above the end block (blog-handoff.md section 4b, #4286).
+// One paragraph, not a fold: the label, then the names, each a link when it has one. The schema already holds
+// the list to two to five; `renderable` is the page's own guard. The names are text, never markup, and a link
+// carries rel="noopener noreferrer" because the content gate refuses an external link without it. No script.
+import { renderable } from "../../blog/sources.mjs";
+
+interface Props {
+  sources: { name: string; url?: string }[];
+}
+const { sources } = Astro.props;
+---
+{renderable(sources) && (
+  <p class="srcs"><span class="srcs-l">Sources</span>{" "}{sources.map((s, i) => (
+    <>{i > 0 && ", "}{s.url ? <a href={s.url} rel="noopener noreferrer">{s.name}</a> : s.name}</>
+  ))}</p>
+)}

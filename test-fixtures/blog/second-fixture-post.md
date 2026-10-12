@@ -13,6 +13,7 @@ image:
   alt: "A tanker at a loading dock at dusk"
   source: "TwiceOver"
   licence: "Own work"
+sources: "Brady Report 1988; NYSE"
 ---
 
 ## The day

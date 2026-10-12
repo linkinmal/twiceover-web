@@ -7,6 +7,7 @@ lens: "concept"
 build: "playable"
 look: "neon"
 hit: "20%"
+sources: "Brady Report 1988; NYSE"
 ---
 
 Two thousand games, one bet size each.

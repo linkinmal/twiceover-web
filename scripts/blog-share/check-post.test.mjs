@@ -15,7 +15,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const fixture = (n) => join(root, "test-fixtures", n);
 
 const POST = (extra = "", replace = {}) => {
-  let md = `---\ntitle: "The stock jumped 4% and this call lost 21% of its value"\ndescription: "A call bought before earnings already carries the price of the jump."\npublishAt: "2026-10-09T07:00:00-04:00"\ntopic: "option-math"\nlens: "concept"\nbuild: "playable"\nlook: "blueprint"\nhit: "21%"\n${extra}---\n\nBody.\n`;
+  let md = `---\ntitle: "The stock jumped 4% and this call lost 21% of its value"\ndescription: "A call bought before earnings already carries the price of the jump."\npublishAt: "2026-10-09T07:00:00-04:00"\ntopic: "option-math"\nlens: "concept"\nbuild: "playable"\nlook: "blueprint"\nhit: "21%"\nsources: "Brady Report 1988; NYSE"\n${extra}---\n\nBody.\n`;
   for (const [a, b] of Object.entries(replace)) md = md.replace(a, b);
   return md;
 };

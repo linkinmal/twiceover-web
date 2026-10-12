@@ -15,6 +15,7 @@ image:
   alt: "The top four sellers against all the stock sold in New York on 19 October 1987"
   source: "Report of the Presidential Task Force on Market Mechanisms, January 1988"
   licence: "Own chart"
+sources: "Brady Report 1988 | https://archive.org/details/reportofpresiden01unit; NYSE | https://www.nyse.com/markets/nyse/trading-info"
 ---
 
 "In the stock market, the top four sellers alone accounted for $2.85 billion, or 14 percent of total sales." That is about $710 million each, in one day. The same report says "an investor transacting $10 million on a normal day would be considered an active trader."
@@ -82,5 +83,3 @@ The fourth proposal is easy to find today. The New York Stock Exchange lists thr
 A halt gives buyers time to arrive, and the formula sellers are still there when trading starts again.
 
 A short list of institutions set the pace of the 1987 crash, and the report had the numbers to say so. Its method fits any sharp fall. It counts who is selling by rule, and how much they have left to do.
-
-Sources: Brady Report 1988, NYSE
