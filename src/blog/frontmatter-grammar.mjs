@@ -15,7 +15,7 @@
  *   key: "value"            at column 0, key in TOP_KEYS (not figure or image)
  *   figure:  /  image:      at column 0, nothing after the colon
  *   ··key: "value"          exactly two spaces, directly under figure or image, key in that object's list
- * A value has no `"`, no backslash and no control character, DEL, U+0085, U+2028 or U+2029, so it is one line of
+ * A value has no `"`, no backslash and no control character (C0 or C1, which takes in U+0085), DEL, U+2028 or U+2029, so it is one line of
  * plain characters that YAML reads as itself. No quoted keys, flow style, anchors, tags, block scalars, comments,
  * blank lines, tabs, trailing space or carriage returns. A key may appear once.
  *
@@ -29,7 +29,7 @@ export const OBJECT_KEYS = Object.freeze({
   image: Object.freeze(["src", "alt", "source", "licence"]),
 });
 
-const VALUE = "[^\"\\\\\\u0000-\\u001f\\u007f\\u0085\\u2028\\u2029]*";
+const VALUE = "[^\"\\\\\\u0000-\\u001f\\u007f-\\u009f\\u2028\\u2029]*";
 const TOP_LINE = new RegExp(`^([A-Za-z][A-Za-z0-9]*): "(${VALUE})"$`);
 const OBJECT_LINE = /^(figure|image):$/;
 const NESTED_LINE = new RegExp(`^  ([A-Za-z][A-Za-z0-9]*): "(${VALUE})"$`);
