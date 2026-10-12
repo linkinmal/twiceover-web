@@ -132,11 +132,14 @@ function breakEvenMove(inputs, target) {
   return { kind: "move", pct: Math.round((lo / stock - 1) * 1000) / 10 };
 }
 
-/** Which sentence the page shows under the answer: the first rule that matches. */
+/**
+ * Which sentence the page shows under the answer: the first rule that matches. The volatility sentence says
+ * that part was bigger than the stock's gain, so it needs the volatility loss to be the larger of the two.
+ */
 function whyKeyFor(inputs, parts, total) {
   const { movePct } = inputs;
   const volatilityFlat = Math.abs(parts.volatility) < 0.005;
-  if (movePct > 0 && total < 0 && parts.volatility < 0) return "stock-up-call-down-volatility";
+  if (movePct > 0 && total < 0 && -parts.volatility > parts.stock) return "stock-up-call-down-volatility";
   if (movePct < 0 && total > 0) return "stock-down-call-up";
   if (movePct === 0 && volatilityFlat && parts.time < 0) return "time-only";
   if (total > 0 && parts.stock > 0) return "stock-led-gain";
