@@ -35,7 +35,7 @@ const ogImageURL = image ? new URL(assertShareImage(image), Astro.site).href : c
 // The hub exists once there is a playable (and a post, which every page using this frame already implies).
 const hasHub = PLAYABLES.length > 0;
 const onHub = Astro.url.pathname.replace(/\/$/, "") === HUB_PATH;
-// The footer's follow links are the Organization record's two accounts (blog-site-copy.md section 3), untagged until Security rules (#4234).
+// The footer's follow links are the Organization record's two accounts (blog-site-copy.md section 3), untagged: no query string, no utm_*, no ref (Security ruling, https://github.com/linkinmal/stock-analyst-platform/issues/4235#issuecomment-6128787811; ci/blog-build.test.mjs holds it).
 const follow = [
   { name: "X", href: ORGANIZATION.sameAs.find((u) => u.startsWith("https://x.com/"))! },
   { name: "YouTube", href: ORGANIZATION.sameAs.find((u) => u.startsWith("https://www.youtube.com/"))! },

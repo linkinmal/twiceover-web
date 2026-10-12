@@ -308,6 +308,28 @@ describe("wording keys the page chooses copy from", () => {
     expect.soft(r.whyKey).toBe("neutral");
   });
 
+  it("does not blame volatility when time decay caused the loss: a small volatility fall is the neutral line", () => {
+    // Worked (stock $100, strike $100, 2 days to expiry, volatility 80% -> 79%, stock +0.5%, 1 day passes):
+    // $2.36 before; stock part +0.27, volatility part -0.03, time part -0.68; total -0.44. The volatility part is
+    // a tenth of the stock part, so "that part was bigger than the gain from the stock" would be false.
+    const a = runOvernight({ stock: 100, strike: 100, daysToExpiry: 2, ivNowPct: 80, movePct: 0.5, ivAfterPct: 79, daysPass: 1 });
+    expect.soft(a.parts).toEqual({ stock: 0.27, volatility: -0.03, time: -0.68 });
+    expect.soft(a.total).toBe(-0.44);
+    expect.soft(a.whyKey).toBe("neutral");
+    // Same shape, longer: 7 days to expiry, stock +1%, volatility 80% -> 78%, 6 days pass; the time part (-2.66) dwarfs the rest.
+    const b = runOvernight({ stock: 100, strike: 100, daysToExpiry: 7, ivNowPct: 80, movePct: 1, ivAfterPct: 78, daysPass: 6 });
+    expect.soft(b.parts).toEqual({ stock: 0.54, volatility: -0.11, time: -2.66 });
+    expect.soft(b.whyKey).toBe("neutral");
+  });
+
+  it("blames volatility only when its fall is larger than the stock's gain", () => {
+    // Worked (stock $100, strike $100, 7 days, volatility 80% -> 40%, stock +0.5%, 1 day passes):
+    // stock part +0.26, volatility part -2.21 (larger than 0.26), time part -0.16; total -2.11.
+    const bigger = runOvernight({ stock: 100, strike: 100, daysToExpiry: 7, ivNowPct: 80, movePct: 0.5, ivAfterPct: 40, daysPass: 1 });
+    expect.soft(bigger.parts).toEqual({ stock: 0.26, volatility: -2.21, time: -0.16 });
+    expect.soft(bigger.whyKey).toBe("stock-up-call-down-volatility");
+  });
+
   it("falls to the neutral line when no rule matches, and cents round half up without ever printing -0", () => {
     // stock flat, volatility unchanged, no time passing: nothing changed, so no rule applies
     const r = withInputs({ movePct: 0, ivAfterPct: 80, daysPass: 0 });
@@ -316,5 +338,16 @@ describe("wording keys the page chooses copy from", () => {
     expect.soft(roundCents(0.125)).toBe(0.13); // 12.5 cents exactly: half rounds up
     expect.soft(roundCents(-0.004)).toBe(0);
     expect.soft(Object.is(roundCents(-0.004), -0)).toBe(false);
+  });
+});
+
+describe("break-even search range", () => {
+  it("finds a break-even above +50%: $100 call, 730 days, volatility 500% -> 5%, no days pass is worth $99.96 and needs about +100%", () => {
+    // Worked: at volatility 5% and 730 days the call is worth ~ stock - strike (Python math.erf: $100.00 at a
+    // $200 stock), so $99.96 is restored at a stock ~ $199.96, +100.0% -- beyond 1.5x the stock, so a search
+    // that stopped at +50% would print "none".
+    const r = runOvernight({ stock: 100, strike: 100, daysToExpiry: 730, ivNowPct: 500, movePct: 0, ivAfterPct: 5, daysPass: 0 });
+    expect.soft(r.values.v0).toBe(99.96);
+    expect.soft(r.breakEven).toEqual({ kind: "move", pct: 100 });
   });
 });

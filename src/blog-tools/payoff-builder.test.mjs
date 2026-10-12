@@ -188,6 +188,12 @@ describe("what the page shows for a typed position", () => {
     near(cr.netPremium, -2.5); // a credit
   });
 
+  it("rounds a dollar total to the nearest cent rather than cutting it off: handle $110.00567 on the long call is $254.57", () => {
+    // Worked: 110.00567 - 105 - 2.46 = 2.54567 a share; x 100 shares = $254.567, which rounds to $254.57 (a cut-off gives $254.56).
+    const e = evaluate({ kind: "lc", values: { K: 105, P: 2.46 }, stockNow: 100, contracts: 1, handle: 110.00567 });
+    expect.soft(e.handleTotal).toBe(254.57);
+  });
+
   it("holds the handle inside the chart range", () => {
     const e = evaluate({ kind: "lc", values: { K: 105, P: 2.46 }, stockNow: 100, contracts: 1, handle: 5000 });
     expect.soft(e.handle).toBe(e.range.hi);

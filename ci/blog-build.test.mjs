@@ -477,6 +477,20 @@ describe("the games-and-tools hub and the link map (blog-handoff.md v1.2 section
   });
 });
 
+describe("outbound links from the blog shell (Security ruling, stock-analyst-platform#4235)", () => {
+  it("carry no query string and no fragment on any external anchor, and the two follow links are present to prove the scan sees them", () => {
+    for (const page of ["blog/index.html", "blog/first-fixture-post/index.html", "blog/topic/option-math/index.html"]) {
+      const external = [...dom(dist, page).querySelectorAll("a[href]")].map((a) => a.getAttribute("href")).filter((h) => /^https?:\/\//.test(h) && new URL(h).host !== "twiceover.io");
+      expect.soft(external.some((h) => h.startsWith("https://x.com/")), `${page} X follow link`).toBe(true);
+      expect.soft(external.some((h) => h.startsWith("https://www.youtube.com/")), `${page} YouTube follow link`).toBe(true);
+      for (const h of external) {
+        const u = new URL(h);
+        expect.soft([u.search, u.hash], `${page} ${h}`).toEqual(["", ""]);
+      }
+    }
+  });
+});
+
 describe("the feed and the sitemap", () => {
   it("lists the four published posts newest first, with the one description", () => {
     const feed = read(dist, "blog/feed.xml");
