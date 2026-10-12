@@ -79,6 +79,25 @@ change that has not been regenerated fails CI. **Look at the three cards before 
 their type is scaled to sit right on a 6px-as-rendered legibility floor at phone size (consult
 0752), which no test can see for you.
 
+### A blog post's own card
+
+A post is not shared with those three: it names its own, `public/blog-share/<slug>.png`, 1200 × 630,
+committed with the post (ADR 1088 Decision 4 and Amendment 2). It shows the headline in its theme's
+face, the date, and one of the post's picture (only if its licence is `Own chart`), its `figure`, or
+nothing. No issue number, nothing else.
+
+```sh
+npm run gen:blog-share -- <slug>    # write the card for one post (or --all)
+npm run check:share                 # CI: every post has a card, none is orphaned or stale
+```
+
+A card is stale the moment anything it is drawn from changes: the post, `scripts/blog-share/`, the
+theme styles in `src/styles/blog.css`, a face in `scripts/og-fonts/`, the paper texture, or the
+picture file. CI redraws every card and compares bytes, so one generator or theme change makes every
+card stale and its fix is one pull request regenerating them all — not a post-only change. The faces
+are static TTFs instanced from the site's own woff2 (`python3 scripts/og-fonts/instance-faces.py`,
+needs `fonttools` and `brotli`); they never ship to a reader. Look at the card before committing it.
+
 ## Deploy
 
 Token lives in macOS Keychain — pulled at deploy time, never in the repo:

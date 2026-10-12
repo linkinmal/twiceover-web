@@ -69,6 +69,17 @@ describe("a post page", () => {
     expect.soft(d.querySelector('link[rel="alternate"][type="application/rss+xml"]').getAttribute("href")).toBe("/blog/feed.xml");
     expect.soft(d.documentElement.lang).toBe("en-US");
   });
+  it("names its own share card as the page image, in og:image, twitter:image and the structured data (ADR 1088 Decision 4)", () => {
+    for (const slug of ["first-fixture-post", "second-fixture-post", "third-fixture-post", "fourth-fixture-post"]) {
+      const d = dom(dist, `blog/${slug}/index.html`);
+      const card = `https://twiceover.io/blog-share/${slug}.png`;
+      expect.soft(d.querySelector('meta[property="og:image"]').content, `${slug} og:image`).toBe(card);
+      expect.soft(d.querySelector('meta[name="twitter:image"]').content, `${slug} twitter:image`).toBe(card);
+      expect.soft(JSON.parse(d.querySelector('script[type="application/ld+json"]').textContent).image, `${slug} JSON-LD`).toBe(card);
+    }
+    // the index and the other list pages keep the site's rotating card
+    expect.soft(dom(dist, "blog/index.html").querySelector('meta[property="og:image"]').content).toBe("https://twiceover.io/og-card-path.png");
+  });
   it("carries one BlogPosting block whose dates are the visible dates, as the same New York instants", () => {
     const d = doc();
     const blocks = [...d.querySelectorAll('script[type="application/ld+json"]')];

@@ -69,6 +69,10 @@ jobs:
       # Blog isolation (#4233, ADR 1088 Decision 3): no page outside /blog loads the blog's styles or fonts, and no
       # blog page loads the site's. The fixture build in `npm test` runs it with blog pages present.
       - run: npm run check:isolation
+      # Share-card gate (#4233, ADR 1088 Decision 4 and Amendment 1): every post under src/content/blog has its
+      # card in public/blog-share, no card lacks a post, and each card is byte-for-byte what the generator draws
+      # from its post today. The fixture folder's cards are checked the same way inside `npm test`.
+      - run: npm run check:share
       - run: npm test
 
   # Deploy-on-merge to production (ADR 0056, #305). Here deploy ≈ release, and that is intentional:
