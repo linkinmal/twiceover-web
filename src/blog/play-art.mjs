@@ -26,4 +26,9 @@ export const PLAY_ART = Object.freeze({
     '<line x1="0" y1="60" x2="200" y2="60" stroke="#7FA3D1" stroke-width="1" stroke-dasharray="3 4"/>' +
     '<polyline points="0,82 104,82 196,10" fill="none" stroke="#FFB347" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>' +
     '<circle cx="132" cy="60" r="5" fill="#0F3563" stroke="#F4F7FB" stroke-width="2"/></svg>',
+  "implied-move-from-a-straddle":
+    '<svg class="pa" viewBox="0 0 200 100" role="img" aria-label="A V-shaped payoff line inside a shaded band">' +
+    '<rect x="48" y="0" width="104" height="100" fill="#FFB511" opacity=".45"/>' +
+    '<line x1="0" y1="50" x2="200" y2="50" stroke="#1A1814" stroke-width="1" stroke-dasharray="3 4"/>' +
+    '<polyline points="0,8 100,92 200,8" fill="none" stroke="#0078BF" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/></svg>',
 });
