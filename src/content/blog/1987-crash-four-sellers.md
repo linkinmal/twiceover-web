@@ -85,5 +85,5 @@ A short list of institutions set the pace of the 1987 crash, and the report had 
 
 ## Sources
 
-- Report of the Presidential Task Force on Market Mechanisms (the Brady Report), January 1988. Executive Summary and chapters one and four: every figure and quote. The Internet Archive holds a scan.
-- New York Stock Exchange, trading information page: the 7%, 13% and 20% circuit-breaker levels.
+- Report of the Presidential Task Force on Market Mechanisms (the Brady Report), January 1988
+- New York Stock Exchange, trading information page
