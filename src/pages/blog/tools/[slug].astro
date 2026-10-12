@@ -5,6 +5,7 @@
 import BlogBase from "../../../layouts/BlogBase.astro";
 import PayoffBuilder from "../../../components/blog/PayoffBuilder.astro";
 import OvernightCall from "../../../components/blog/OvernightCall.astro";
+import Straddle from "../../../components/blog/Straddle.astro";
 import { getPublished } from "../../../blog/collection.mjs";
 import MorePlay from "../../../components/blog/MorePlay.astro";
 import { PLAYABLES } from "../../../blog/playables.mjs";
@@ -49,6 +50,17 @@ const look = LOOKS[p.look as keyof typeof LOOKS];
             <p class="lab">How it is computed</p>
             <p class="fine"><b>Method.</b> Each option's value on its last day is its intrinsic value: a call is the stock price minus the strike, a put is the strike minus the stock price, never below zero. Subtract the premium for an option you bought, add it for one you sold. The line is the sum, times 100 shares a contract and the number of contracts. A covered call also holds the shares, bought at the stock price now.</p>
             <p class="fine"><b>Limits.</b> The line is the last day only. Before then an option is worth more or less than this because of time left and implied volatility, and an option you sold can be assigned early. Commissions, taxes, dividends and margin are left out. The numbers are invented examples and are not a quote. This is a hypothetical illustration of option math. It does not predict any stock or option.</p>
+          </section>
+        </>
+      )}
+      {p.slug === "implied-move-from-a-straddle" && (
+        <>
+          <p class="words">A <b>straddle</b> is a call and a put with the same strike and expiration, bought together. It makes money when the stock moves far enough in either direction. Its price, per share, is what traders pay for that move. Divide it by the stock price and you get the <b>implied move</b>: the size of move the price has built in, as a percent. It has no direction.</p>
+          <Straddle />
+          <section class="blk plate">
+            <p class="lab">How it is computed</p>
+            <p class="fine"><b>Method.</b> The implied move is the straddle's price divided by the stock price. The two breakevens are the stock price plus and minus the straddle's price. The page takes the strike to be the stock price. On its last day the straddle gains how far the stock ended from that strike, less the straddle's price, per share. One contract covers 100 shares.</p>
+            <p class="fine"><b>Limits.</b> The implied move is a shorthand. A straddle's price also holds the cost of time and other things, so the figure is a rough size, not a forecast. The same straddle can be priced for any expiration, and the move it shows covers all the time until then. The examples are not quotes. Commissions, taxes and early assignment are left out. This page does not use your accounts or positions. This is a hypothetical illustration of option math. It does not predict any stock or option.</p>
           </section>
         </>
       )}

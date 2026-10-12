@@ -368,6 +368,81 @@ describe("the option payoff calculator page", () => {
   });
 });
 
+describe("the implied move from a straddle page", () => {
+  const PAGE = "blog/tools/implied-move-from-a-straddle/index.html";
+  const live = () => liveTool(PAGE, "js/blog-straddle.js");
+
+  it("is one column of two open steps with the one reviewed script and the opening example worked out in the served HTML", () => {
+    const d = dom(dist, PAGE);
+    expect.soft([...d.querySelectorAll("script")].map((x) => x.getAttribute("src"))).toEqual(["/js/blog-straddle.js"]);
+    expect.soft(d.querySelector("h1").textContent).toBe("Implied move from a straddle");
+    expect.soft(d.querySelector("article").getAttribute("data-look")).toBe("riso");
+    expect.soft(d.querySelectorAll("details"), "nothing is folded").toHaveLength(0);
+    expect.soft([...d.querySelectorAll("h2.lab")].map((h) => h.textContent.replace(/\s+/g, " ").trim()).filter((t) => t.startsWith("Step"))).toEqual(["Step 1 · Drag the stock price", "Step 2 · Type your own numbers"]);
+    expect.soft(d.querySelector("[data-say]").textContent).toBe("The straddle costs $9.00 for a $100.00 stock, so the market is pricing a move of about 9.0%. The stock has to end below $91.00 or above $109.00 for the straddle to make money.");
+    expect.soft([...d.querySelectorAll("[data-ans] b")].map((b) => b.textContent)).toEqual(["9.0%", "$91.00 to $109.00", "$9.00"]);
+    expect.soft(d.querySelector("[data-res]").textContent).toBe("Stock ends at $100.00: loss $9.00 a share, $900 a contract.");
+    expect.soft(d.querySelector("[data-chart]").getAttribute("aria-label")).toContain("The shaded band runs from $91.00 to $109.00");
+    expect.soft(d.querySelector("#sd-end").getAttribute("type")).toBe("range");
+    expect.soft(d.querySelectorAll("button.stp"), "no minus and plus buttons").toHaveLength(0);
+    expect.soft(d.querySelectorAll("input, button").length, "four controls: the slider, the button and two boxes").toBe(4);
+    expect.soft(d.body.textContent).toContain("The page takes the strike to be the stock price.");
+    expect.soft(d.body.textContent).toContain("This is a hypothetical illustration of option math. It does not predict any stock or option.");
+  });
+  it("hides every control until the script runs, and shows the example as a page of its own without it", () => {
+    const d = dom(dist, PAGE);
+    const controls = [...d.querySelectorAll("input, button")];
+    expect.soft(controls.every((c) => c.closest("[data-js]")?.hasAttribute("hidden"))).toBe(true);
+    expect.soft([...d.querySelectorAll("[data-nojs]")].some((n) => n.hasAttribute("hidden"))).toBe(false);
+    const w = live();
+    expect.soft([...w.document.querySelectorAll("[data-js]")].some((n) => n.hasAttribute("hidden"))).toBe(false);
+    expect.soft([...w.document.querySelectorAll("[data-nojs]")].every((n) => n.hasAttribute("hidden"))).toBe(true);
+  });
+  it("prints, on first run, exactly what the build served", () => {
+    const served = dom(dist, PAGE);
+    const w = live();
+    for (const s of ["[data-say]", "[data-ans]", "[data-res]", "[data-chart]", "#sd-strad-n"]) {
+      expect.soft(norm(w, s).replace(/\s/g, ""), s).toBe(served.querySelector(s).textContent.replace(/\s/g, ""));
+    }
+    expect.soft(w.document.querySelector("[data-chart]").getAttribute("aria-label")).toBe(served.querySelector("[data-chart]").getAttribute("aria-label"));
+  });
+  it("moves the result and the handle with the slider, and nothing else", () => {
+    const w = live();
+    const answer = norm(w, "[data-ans]");
+    type(w, "sd-end", 115);
+    expect.soft(norm(w, "[data-res]")).toBe("Stock ends at $115.00: gain $6.00 a share, $600 a contract.");
+    expect.soft(norm(w, "[data-ans]")).toBe(answer);
+    type(w, "sd-end", 109);
+    expect.soft(norm(w, "[data-res]")).toBe("Stock ends at $109.00: $0.00 (breakeven).");
+  });
+  it("takes a dot or a comma, marks a bad box and keeps the last good result", () => {
+    const w = live();
+    type(w, "sd-stock", "250");
+    type(w, "sd-strad", "11,25");
+    expect.soft(norm(w, "[data-ans]")).toContain("4.5%");
+    expect.soft(norm(w, "[data-ans]")).toContain("$238.75 to $261.25");
+    const before = norm(w, "[data-say]");
+    type(w, "sd-strad", "250");
+    expect.soft(w.document.getElementById("sd-strad").getAttribute("aria-invalid")).toBe("true");
+    expect.soft(w.document.querySelector('[data-field="straddle"]').classList.contains("bad")).toBe(true);
+    expect.soft(norm(w, "#sd-strad-n")).toBe("Type a price above zero and below the stock price. Showing the last good result.");
+    expect.soft(norm(w, "[data-say]"), "the last good result stays").toBe(before);
+    type(w, "sd-strad", "1e2");
+    expect.soft(w.document.getElementById("sd-strad").getAttribute("aria-invalid"), "an exponent is not a plain number").toBe("true");
+    type(w, "sd-stock", "0");
+    expect.soft(w.document.getElementById("sd-stock").getAttribute("aria-invalid")).toBe("true");
+  });
+  it("deals another example from the six, and the typed boxes follow it", () => {
+    const w = live();
+    w.document.querySelector("[data-another]").click();
+    const stock = w.document.getElementById("sd-stock").value;
+    const strad = w.document.getElementById("sd-strad").value;
+    expect.soft(`${stock}/${strad}`).not.toBe("100.00/9.00");
+    expect.soft(["100.00/3.50", "50.00/3.00", "250.00/11.25", "40.00/4.40", "180.00/6.30"]).toContain(`${stock}/${strad}`);
+    expect.soft(norm(w, "[data-say]")).toContain(`for a $${stock} stock`);
+  });
+});
+
 describe("the index and a subject page", () => {
   it("makes the nameplate the h1 on the index and the filter's name the h1 on a subject page", () => {
     const idx = dom(dist, "blog/index.html");
@@ -411,12 +486,12 @@ describe("the games-and-tools hub and the link map (blog-handoff.md v1.2 section
   });
   it("has one whole-row link per game or tool, newest first, each with its label, topic, title, deck and picture", () => {
     const rows = [...hub().querySelectorAll(".wall a.tile")];
-    expect.soft(rows.map((a) => a.getAttribute("href"))).toEqual(["/blog/play/coin", "/blog/tools/overnight-call", "/blog/tools/option-payoff-calculator"]);
-    expect.soft(rows.map((a) => a.querySelector(".t-no").textContent)).toEqual(["Game", "Tool", "Tool"]);
-    expect.soft(rows.map((a) => a.querySelector(".t-topic").textContent)).toEqual(["Risk and position sizing", "How options are priced", "How options are priced"]);
-    expect.soft(rows.map((a) => a.querySelector("h2.t-title").textContent)).toEqual(["The 60% coin", "The overnight call calculator", "The option payoff calculator"]);
-    expect.soft(rows[0].querySelector(".t-deck").textContent).toBe("A coin lands heads 60% of the time. You start with $25 in play money and bet on heads every flip. You pick only how much to bet.");
-    expect.soft(rows.map((a) => a.querySelector(".t-cell").getAttribute("data-look"))).toEqual(["neon", "exhibit", "blueprint"]);
+    expect.soft(rows.map((a) => a.getAttribute("href"))).toEqual(["/blog/tools/implied-move-from-a-straddle", "/blog/play/coin", "/blog/tools/overnight-call", "/blog/tools/option-payoff-calculator"]);
+    expect.soft(rows.map((a) => a.querySelector(".t-no").textContent)).toEqual(["Tool", "Game", "Tool", "Tool"]);
+    expect.soft(rows.map((a) => a.querySelector(".t-topic").textContent)).toEqual(["Earnings", "Risk and position sizing", "How options are priced", "How options are priced"]);
+    expect.soft(rows.map((a) => a.querySelector("h2.t-title").textContent)).toEqual(["Implied move from a straddle", "The 60% coin", "The overnight call calculator", "The option payoff calculator"]);
+    expect.soft(rows[1].querySelector(".t-deck").textContent).toBe("A coin lands heads 60% of the time. You start with $25 in play money and bet on heads every flip. You pick only how much to bet.");
+    expect.soft(rows.map((a) => a.querySelector(".t-cell").getAttribute("data-look"))).toEqual(["riso", "neon", "exhibit", "blueprint"]);
     for (const a of rows) expect.soft(a.querySelectorAll(".t-cell svg").length, a.getAttribute("href")).toBe(1);
   });
   it("is in the sitemap and is marked as the current page in the bar", () => {
@@ -430,9 +505,10 @@ describe("the games-and-tools hub and the link map (blog-handoff.md v1.2 section
   });
   it("ends each playable page's More to play strip with a cell that opens the hub, after two other pages", () => {
     for (const [file, others] of [
-      ["blog/play/coin/index.html", ["/blog/tools/overnight-call", "/blog/tools/option-payoff-calculator"]],
-      ["blog/tools/overnight-call/index.html", ["/blog/play/coin", "/blog/tools/option-payoff-calculator"]],
-      ["blog/tools/option-payoff-calculator/index.html", ["/blog/play/coin", "/blog/tools/overnight-call"]],
+      ["blog/tools/implied-move-from-a-straddle/index.html", ["/blog/play/coin", "/blog/tools/overnight-call"]],
+      ["blog/play/coin/index.html", ["/blog/tools/implied-move-from-a-straddle", "/blog/tools/overnight-call"]],
+      ["blog/tools/overnight-call/index.html", ["/blog/tools/implied-move-from-a-straddle", "/blog/play/coin"]],
+      ["blog/tools/option-payoff-calculator/index.html", ["/blog/tools/implied-move-from-a-straddle", "/blog/play/coin"]],
     ]) {
       const cells = [...dom(dist, file).querySelectorAll('.pnav[aria-label="More to play"] a')];
       expect.soft(cells.map((a) => a.getAttribute("href")), file).toEqual([...others, "/blog/play"]);
@@ -507,7 +583,7 @@ describe("the gates over the built fixture site", () => {
   });
   it("passes the isolation gate, with blog pages present so its blindness controls run", () => {
     const r = node("ci/blog-isolation.mjs", "--dist", dist);
-    expect(r.stdout).toMatch(/Blog isolation check passed: \d+ site page\(s\) carry no blog styles; 13 blog page\(s\)/);
+    expect(r.stdout).toMatch(/Blog isolation check passed: \d+ site page\(s\) carry no blog styles; 14 blog page\(s\)/);
     expect(r.status).toBe(0);
   });
   it("fails the isolation gate when a site page is made to load the blog's stylesheet (known positive)", () => {
