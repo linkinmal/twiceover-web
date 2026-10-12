@@ -31,4 +31,9 @@ export const PLAY_ART = Object.freeze({
     '<rect x="48" y="0" width="104" height="100" fill="#FFB511" opacity=".45"/>' +
     '<line x1="0" y1="50" x2="200" y2="50" stroke="#1A1814" stroke-width="1" stroke-dasharray="3 4"/>' +
     '<polyline points="0,8 100,92 200,8" fill="none" stroke="#0078BF" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/></svg>',
+  "guess-the-gap":
+    '<svg class="pa" viewBox="0 0 200 100" role="img" aria-label="A scale with a shaded priced band and a marker beyond it">' +
+    '<line x1="8" y1="50" x2="192" y2="50" stroke="#17131F" stroke-width="2"/>' +
+    '<rect x="8" y="36" width="52" height="28" fill="#4B1FD1" opacity=".3"/><line x1="60" y1="36" x2="60" y2="64" stroke="#4B1FD1" stroke-width="2" stroke-dasharray="4 3"/>' +
+    '<rect x="128" y="22" width="4" height="56" fill="#17131F"/></svg>',
 });

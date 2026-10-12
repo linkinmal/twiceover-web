@@ -105,7 +105,7 @@ export function textOf(html) {
  * Scripts a blog page may load, root-relative and exact: the reviewed block files (ADR 1088 Decision 1), each built
  * from src/blog-tools/client/<name>.mjs by scripts/build-blog-scripts.mjs. A post cannot add one.
  */
-export const BLOG_SCRIPTS = Object.freeze(["/js/blog-call.js", "/js/blog-coin.js", "/js/blog-payoff.js", "/js/blog-straddle.js"]);
+export const BLOG_SCRIPTS = Object.freeze(["/js/blog-call.js", "/js/blog-coin.js", "/js/blog-guess.js", "/js/blog-payoff.js", "/js/blog-straddle.js"]);
 
 /** The phrases a post may not contain: a floor, not the check (ADR 1090 Decision 9, 11). */
 export const PHRASE_FLOOR = Object.freeze([

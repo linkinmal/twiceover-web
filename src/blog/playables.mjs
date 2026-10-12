@@ -11,6 +11,19 @@
  */
 export const PLAYABLES = Object.freeze([
   {
+    slug: "guess-the-gap",
+    script: "guess",
+    kind: "game",
+    path: "/blog/play/guess-the-gap",
+    title: "Guess the gap",
+    label: "Guess the gap",
+    deck: "A company reports earnings. You see the move options had priced. Guess how far the stock moved the next day.",
+    description: "A game: five company earnings reports, the move options had priced for each, and one guess, how far the stock moved the next day.",
+    look: "ticket",
+    topic: "earnings",
+    updatedAt: "2026-10-12T12:00:00-04:00",
+  },
+  {
     slug: "implied-move-from-a-straddle",
     script: "straddle",
     kind: "tool",

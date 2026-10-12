@@ -455,6 +455,51 @@
   .sd-field small{display:block;font-size:13.5px;line-height:1.35;color:var(--ink2);margin-top:5px}
   .sd-field.bad .in{border-color:var(--loss)}
   .sd-field.bad small{color:var(--loss)}
+  /* "Guess the gap": the report line, the slider's readout, the one-scale meter, the answers table, the score and the lesson's bars */
+  .gg-rd{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font:600 12px/1.3 var(--fm);letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);margin:0 0 14px}
+  .post p.gg-given{font-size:17px;line-height:1.45;margin:0 0 16px;max-width:36em}
+  .gg-gr{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 20px;align-items:center;margin:0 0 6px}
+  .gg-gv{font-family:var(--fd);font-weight:var(--fdw);font-style:var(--fdst);font-size:calc(46px*var(--fdsz));line-height:1;min-width:3.2em;font-variant-numeric:tabular-nums}
+  .gg-gsc{grid-column:2;display:flex;justify-content:space-between;font:12px var(--fm);color:var(--ink2);margin-top:-8px}
+  .gg-gsc i{font-style:normal}
+  .gg-skip{font:15px "Source Sans 3",system-ui,sans-serif;background:none;border:0;padding:12px 0;color:var(--ink2);text-decoration:underline;text-underline-offset:.18em;cursor:pointer;min-height:44px}
+  .post p.gg-ans{font-family:var(--fd);font-weight:var(--fdw);font-style:var(--fdst);font-size:calc(clamp(24px,3.6vw,34px)*var(--fdsz));line-height:1.12;letter-spacing:var(--fdls);margin:18px 0 6px;max-width:none}
+  .post p.gg-why{font-size:17px;line-height:1.45;margin:0 0 4px;max-width:36em}
+  .gg-meter{position:relative;height:96px;margin:14px 0 2px}
+  .gg-ax{position:absolute;left:0;right:0;top:48px;border-top:2px solid var(--ink)}
+  .gg-bd{position:absolute;left:0;top:34px;height:28px;background:color-mix(in srgb,var(--a) 22%,transparent);border-right:2px dashed var(--a)}
+  .gg-bl{position:absolute;top:66px;font:600 11.5px/1.2 var(--fm);color:var(--a);white-space:nowrap}
+  .gg-mk{position:absolute;top:14px;transform:translateX(-50%);font:12px/1.2 var(--fm);text-align:center;white-space:nowrap}
+  .gg-mk i{display:block;width:3px;height:14px;background:currentColor;margin:2px auto}
+  .gg-mk.act{font-weight:700}
+  .gg-mk.edge-l{transform:none}
+  .gg-mk.edge-l i{margin-left:0}
+  .gg-mk.edge-r{transform:translateX(-100%)}
+  .gg-mk.edge-r i{margin-right:0}
+  .gg-tw{overflow-x:auto}
+  .gg-tally{width:100%;border-collapse:collapse;font-size:15px;margin-top:6px;font-variant-numeric:tabular-nums}
+  .gg-tally th{font:600 11.5px/1.3 var(--fm);letter-spacing:.05em;text-transform:uppercase;color:var(--ink2);text-align:right;padding:6px 0 6px 10px;border-bottom:1.5px solid var(--ink)}
+  .gg-tally td{text-align:right;padding:8px 0 8px 10px;border-bottom:1px dashed var(--ink2)}
+  .gg-tally th:first-child,.gg-tally td:first-child{text-align:left;padding-left:0}
+  .gg-score{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:16px 0 0}
+  .gg-score:empty{display:none}
+  .gg-score div{background:var(--g);padding:14px 16px}
+  .gg-score b{display:block;font-family:var(--fd);font-weight:var(--fdw);font-style:var(--fdst);font-size:calc(clamp(30px,4.6vw,44px)*var(--fdsz));line-height:1}
+  .gg-score span{display:block;font-size:14.5px;line-height:1.35;margin-top:6px;color:var(--ink2)}
+  .gg-bars{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 12px;align-items:center;font:12.5px/1.2 var(--fm);margin-top:6px}
+  .gg-nm{grid-row:span 2;font-weight:600}
+  .gg-tr{height:12px;background:color-mix(in srgb,currentColor 16%,transparent)}
+  .gg-tr i{display:block;height:100%}
+  .gg-tr.p i{background:var(--teachfg)}
+  .gg-tr.m i{background:#fff}
+  .gg-v{text-align:right;font-variant-numeric:tabular-nums}
+  .gg-sp{grid-column:1/-1;height:8px}
+  .gg-key{display:flex;flex-wrap:wrap;gap:6px 18px;font:12px var(--fm);margin:14px 0 0}
+  .gg-sw{display:inline-block;width:12px;height:12px;margin-right:6px;vertical-align:-1px}
+  .gg-sw.p{background:var(--teachfg)}
+  .gg-sw.m{background:#fff}
+  /* the stamp on a dark lesson block takes the lesson's light ink: the shared .stamp rule's --ink2 is 1.9:1 on it (Designer gate, PR 121) */
+  .teach .stamp{color:var(--teachfg);opacity:.85}
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 }
 @keyframes drawin{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
