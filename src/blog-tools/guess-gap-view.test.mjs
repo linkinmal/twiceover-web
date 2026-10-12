@@ -1,8 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { REPORT_SETS } from "./guess-gap-reports.mjs";
 import { answerHtml, barsHtml, dateLabel, endTitle, givenHtml, lessonBig, meterHtml, percent, reportLine, scoreHtml, scoreLine, tallyHtml, whyText } from "./guess-gap-view.mjs";
 
-const set = REPORT_SETS[0];
+// Invented figures for the wording's own tests; the baked-in set is checked in guess-gap-reports.test.mjs.
+const set = [
+  { company: "Sample Co. A", date: "2025-07-24", pricedTenths: 51, movedTenths: 112 },
+  { company: "Sample Co. B", date: "2025-07-30", pricedTenths: 74, movedTenths: -30 },
+  { company: "Sample Co. C", date: "2025-08-05", pricedTenths: 42, movedTenths: 11 },
+  { company: "Sample Co. D", date: "2025-08-21", pricedTenths: 90, movedTenths: -146 },
+  { company: "Sample Co. E", date: "2025-09-04", pricedTenths: 63, movedTenths: 58 },
+];
 const R = (priced, moved, company = "Sample Co.") => ({ company, date: "2025-07-24", pricedTenths: priced, movedTenths: moved });
 
 describe("Guess the gap's words", () => {

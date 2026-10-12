@@ -1,10 +1,17 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from "vitest";
 import { init } from "./guess.mjs";
-import { REPORT_SETS } from "../guess-gap-reports.mjs";
 import { QUESTION, answerHtml, endTitle, givenHtml, lessonBig, meterHtml, tallyHtml, whyText } from "../guess-gap-view.mjs";
 
-const SETS = [REPORT_SETS[0], REPORT_SETS[0].map((r, k) => ({ ...r, company: `Second ${k}`, movedTenths: -r.movedTenths }))];
+// Invented figures; the baked-in set is checked in guess-gap-reports.test.mjs.
+const FIRST = [
+  { company: "Sample Co. A", date: "2025-07-24", pricedTenths: 51, movedTenths: 112 },
+  { company: "Sample Co. B", date: "2025-07-30", pricedTenths: 74, movedTenths: -30 },
+  { company: "Sample Co. C", date: "2025-08-05", pricedTenths: 42, movedTenths: 11 },
+  { company: "Sample Co. D", date: "2025-08-21", pricedTenths: 90, movedTenths: -146 },
+  { company: "Sample Co. E", date: "2025-09-04", pricedTenths: 63, movedTenths: 58 },
+];
+const SETS = [FIRST, FIRST.map((r, k) => ({ ...r, company: `Second ${k}`, movedTenths: -r.movedTenths }))];
 
 // The served markup the page carries, reduced to what the script touches: the first question, the answers and the lesson.
 function served() {
