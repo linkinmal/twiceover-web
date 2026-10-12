@@ -83,4 +83,4 @@ A halt gives buyers time to arrive, and the formula sellers are still there when
 
 A short list of institutions set the pace of the 1987 crash, and the report had the numbers to say so. Its method fits any sharp fall. It counts who is selling by rule, and how much they have left to do.
 
-Sources: [Brady Report, 1988](https://archive.org/details/reportofpresiden01unit), [NYSE](https://www.nyse.com/markets/nyse/trading-info)
+Sources: Brady Report 1988, NYSE
