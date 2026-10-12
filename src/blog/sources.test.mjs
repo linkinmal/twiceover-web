@@ -28,6 +28,8 @@ describe("readSources: the one-line `sources` field (#4286)", () => {
     ["a link with a query string", "A; B | https://example.com/x?utm_source=y"],
     ["a link with a fragment", "A; B | https://example.com/x#y"],
     ["a link with a space", "A; B | https://example.com/x y"],
+    ["a link with a control character", "A; B | https://example.com/x\u0001y"],
+    ["a link with a C1 control character", "A; B | https://example.com/x\u0085y"],
     ["a javascript link", "A; B | javascript:alert(1)"],
     ["a protocol-relative link", "A; B | //example.com/x"],
     ["a second link on one entry", "A; B | https://a.test/x | https://b.test/y"],

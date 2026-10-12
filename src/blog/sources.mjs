@@ -11,7 +11,7 @@
 export const MIN_SOURCES = 2;
 export const MAX_SOURCES = 5;
 const NAME_MAX = 60;
-const LINK = /^https:\/\/[^\s?#\\"<>|;]+$/;
+const LINK = /^https:\/\/[^\s?#\\"<>|;\u0000-\u001f\u007f-\u009f\u2028\u2029]+$/;
 
 const no = (reason) => ({ ok: false, reason });
 
