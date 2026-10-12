@@ -57,7 +57,7 @@ export const postSchema = z
     hit: z.string().min(1).max(60).refine(noMarkup, "no markup").optional(),
     figure: figure.optional(),
     image: image.optional(),
-    sources,
+    sources: sources.optional(),
   })
   .strict()
   .refine((p) => p.hit === undefined || p.title.includes(p.hit), { path: ["hit"], message: "must be words that appear in the title" });

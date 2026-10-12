@@ -38,7 +38,7 @@ describe("a closed schema", () => {
   });
 
   it("fails a missing required field, one by one", () => {
-    for (const key of ["title", "description", "publishAt", "topic", "lens", "build", "look", "sources"]) {
+    for (const key of ["title", "description", "publishAt", "topic", "lens", "build", "look"]) {
       const p = good();
       delete p[key];
       expect.soft(postSchema.safeParse(p).success, key).toBe(false);

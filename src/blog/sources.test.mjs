@@ -53,7 +53,7 @@ describe("renderable: the page draws the line only for two to five entries", () 
   });
 });
 
-describe("the post schema requires `sources` and returns entries", () => {
+describe("the post schema takes an optional `sources` and returns entries", () => {
   const base = {
     title: "Why a call can lose money on the day the stock jumps",
     description: "A call's price holds a guess about how far the stock will move. When the guess is spent, the price falls.",
@@ -63,11 +63,11 @@ describe("the post schema requires `sources` and returns entries", () => {
     build: "playable",
     look: "blueprint",
   };
-  it("parses to [{name, url?}] and fails when absent or malformed", () => {
+  it("parses to [{name, url?}]; a post without it still parses (required again in a later PR, #4286); a malformed one fails", () => {
     const r = postSchema.safeParse({ ...base, sources: `Brady Report 1988 | ${ARCHIVE}; NYSE` });
     expect.soft(r.success).toBe(true);
     expect.soft(r.data?.sources).toEqual([{ name: "Brady Report 1988", url: ARCHIVE }, { name: "NYSE" }]);
-    expect.soft(postSchema.safeParse(base).success, "absent").toBe(false);
+    expect.soft(postSchema.safeParse(base).success, "absent").toBe(true);
     expect.soft(postSchema.safeParse({ ...base, sources: "only one" }).success, "one entry").toBe(false);
   });
 });
