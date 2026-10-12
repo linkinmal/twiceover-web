@@ -506,6 +506,9 @@
   .photo .ph{aspect-ratio:5/3}
   .photo .ph img{height:100%;object-fit:cover;border:1px solid var(--rule);border-radius:var(--rad);font:14.5px/1.45 "Source Sans 3",system-ui,sans-serif;color:var(--ink2);text-indent:14px}
   .photo figcaption .credit{display:block;margin-top:4px}
+  .post p.srcs{margin:32px 0 0;padding-top:6px;border-top:1px solid var(--ink2);font-size:15px;line-height:1.5;color:var(--ink2);max-width:none}
+  .srcs-l{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+  .srcs a{color:var(--ink);text-decoration:underline;text-underline-offset:.16em}
   /* the deck clears the title (kit v3): `.post p` zeroes the margin, so a title's last line with descenders ran into it */
   .post p.deck{margin-top:clamp(10px,1.4vw,16px)}
   .post p.sig{margin:18px 0 0}

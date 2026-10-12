@@ -7,6 +7,7 @@ lens: "history"
 build: "text-led"
 look: "newsprint"
 hit: "22.6%"
+sources: "Brady Report 1988; NYSE"
 ---
 
 ## The count

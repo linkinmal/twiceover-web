@@ -10,6 +10,7 @@ hit: "21%"
 figure:
   value: "−21%"
   note: "on a call, with the stock up 4%"
+sources: "Brady Report 1988 | https://archive.org/details/reportofpresiden01unit; NYSE"
 ---
 
 ## What the price held

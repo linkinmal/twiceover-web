@@ -215,7 +215,7 @@ describe("golden cards: the same bytes on every machine", () => {
 
 describe("the staleness gate (Amendment 1)", () => {
   const fixture = (name) => join(root, "test-fixtures", name);
-  const POST = (extra = "") => `---\ntitle: "The stock jumped 4% and this call lost 21% of its value"\ndescription: "A call bought before earnings already carries the price of the jump."\npublishAt: "2026-10-09T07:00:00-04:00"\ntopic: "option-math"\nlens: "concept"\nbuild: "playable"\nlook: "blueprint"\nhit: "21%"\n${extra}---\n\nBody.\n`;
+  const POST = (extra = "") => `---\ntitle: "The stock jumped 4% and this call lost 21% of its value"\ndescription: "A call bought before earnings already carries the price of the jump."\npublishAt: "2026-10-09T07:00:00-04:00"\ntopic: "option-math"\nlens: "concept"\nbuild: "playable"\nlook: "blueprint"\nhit: "21%"\nsources: "Brady Report 1988; NYSE"\n${extra}---\n\nBody.\n`;
   /** A scratch copy of the fixture posts and their committed cards, and an empty picture folder. */
   const scratch = () => {
     const d = mkdtempSync(join(tmpdir(), "share-"));

@@ -14,6 +14,7 @@ const good = () => ({
   lens: LENSES[0],
   build: BUILDS[0],
   look: LOOK_NAMES[0],
+  sources: "Brady Report 1988; NYSE",
 });
 const fails = (over) => !postSchema.safeParse({ ...good(), ...over }).success;
 

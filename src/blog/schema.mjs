@@ -8,6 +8,7 @@
  */
 import { z } from "astro/zod";
 import { parsePublishTime } from "./publish.mjs";
+import { readSources } from "./sources.mjs";
 import { BUILDS, LENSES, LOOK_NAMES, TOPICS } from "./vocabulary.mjs";
 
 const noMarkup = (s) => !/[<>]/.test(s);
@@ -33,6 +34,16 @@ const figure = z
   })
   .strict();
 
+// One line of short names, each with an optional https link; the page draws it as the Sources line.
+const sources = z.string({ invalid_type_error: "sources must be a quoted line of names" }).transform((s, ctx) => {
+  const r = readSources(s);
+  if (!r.ok) {
+    ctx.addIssue({ code: "custom", message: r.reason });
+    return z.NEVER;
+  }
+  return r.entries;
+});
+
 export const postSchema = z
   .object({
     title: z.string().min(1).max(140).refine(noMarkup, "no markup"),
@@ -46,6 +57,7 @@ export const postSchema = z
     hit: z.string().min(1).max(60).refine(noMarkup, "no markup").optional(),
     figure: figure.optional(),
     image: image.optional(),
+    sources: sources.optional(),
   })
   .strict()
   .refine((p) => p.hit === undefined || p.title.includes(p.hit), { path: ["hit"], message: "must be words that appear in the title" });
