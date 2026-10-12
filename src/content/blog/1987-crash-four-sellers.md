@@ -83,4 +83,4 @@ A halt gives buyers time to arrive, and the formula sellers are still there when
 
 A short list of institutions set the pace of the 1987 crash, and the report had the numbers to say so. Its method fits any sharp fall. It counts who is selling by rule, and how much they have left to do.
 
-Figures and quotes are from the Report of the Presidential Task Force on Market Mechanisms, January 1988, in its Executive Summary and its chapters one and four. The Internet Archive holds a scan. The circuit-breaker levels are from the New York Stock Exchange's trading information page.
+Sources: Brady Report 1988, NYSE
