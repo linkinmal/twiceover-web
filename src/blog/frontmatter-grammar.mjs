@@ -23,7 +23,7 @@
  */
 
 /** The closed schema's keys (src/blog/schema.mjs); a test pins these to it. */
-export const TOP_KEYS = Object.freeze(["title", "description", "publishAt", "updatedAt", "topic", "lens", "build", "look", "hit", "figure", "image"]);
+export const TOP_KEYS = Object.freeze(["title", "description", "publishAt", "updatedAt", "topic", "lens", "build", "look", "hit", "figure", "image", "sources"]);
 export const OBJECT_KEYS = Object.freeze({
   figure: Object.freeze(["value", "note"]),
   image: Object.freeze(["src", "alt", "source", "licence"]),

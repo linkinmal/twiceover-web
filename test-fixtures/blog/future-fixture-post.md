@@ -6,6 +6,7 @@ topic: "earnings"
 lens: "concept"
 build: "text-led"
 look: "printout"
+sources: "Brady Report 1988; NYSE"
 ---
 
 Not yet.

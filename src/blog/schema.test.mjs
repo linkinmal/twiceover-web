@@ -14,6 +14,7 @@ const good = () => ({
   lens: LENSES[0],
   build: BUILDS[0],
   look: LOOK_NAMES[0],
+  sources: "Brady Report 1988; NYSE",
 });
 const fails = (over) => !postSchema.safeParse({ ...good(), ...over }).success;
 
@@ -37,7 +38,7 @@ describe("a closed schema", () => {
   });
 
   it("fails a missing required field, one by one", () => {
-    for (const key of ["title", "description", "publishAt", "topic", "lens", "build", "look"]) {
+    for (const key of ["title", "description", "publishAt", "topic", "lens", "build", "look", "sources"]) {
       const p = good();
       delete p[key];
       expect.soft(postSchema.safeParse(p).success, key).toBe(false);

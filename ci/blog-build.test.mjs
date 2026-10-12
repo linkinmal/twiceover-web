@@ -54,6 +54,20 @@ describe("the routes the date gate leaves", () => {
 describe("a post page", () => {
   const doc = () => dom(dist, "blog/first-fixture-post/index.html");
 
+  it("ends with the Sources line above the end block: a plain paragraph, the names comma-separated, a link only where the post gave one, no fold and no script (#4286)", () => {
+    const d = doc();
+    const line = d.querySelector("p.srcs");
+    expect.soft(line?.textContent?.replace(/\s+/g, " ").trim()).toBe("Sources Brady Report 1988, NYSE");
+    expect.soft(line?.querySelector(".srcs-l")?.textContent).toBe("Sources");
+    expect.soft([...(line?.querySelectorAll("a") ?? [])].map((a) => [a.textContent, a.getAttribute("href"), a.getAttribute("rel")])).toEqual([["Brady Report 1988", "https://archive.org/details/reportofpresiden01unit", "noopener noreferrer"]]);
+    expect.soft(line?.closest("details"), "not a fold").toBeNull();
+    expect.soft(line?.querySelector("script")).toBeNull();
+    expect.soft(d.querySelectorAll("p.srcs").length, "one line").toBe(1);
+    const end = d.querySelector("section.endblk");
+    expect.soft(line && end && (line.compareDocumentPosition(end) & 4) !== 0, "the line comes before the end block").toBe(true);
+    expect.soft(line?.closest("article.post"), "inside the post").not.toBeNull();
+  });
+
   it("has one h1, the headline, and real h2 sections; the nameplate is not a heading", () => {
     const d = doc();
     expect.soft([...d.querySelectorAll("h1")].map((h) => h.textContent)).toEqual(["The stock jumped 4% and this call lost 21% of its value"]);
