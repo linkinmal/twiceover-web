@@ -89,7 +89,12 @@ nothing. No issue number, nothing else.
 ```sh
 npm run gen:blog-share -- <slug>    # write the card for one post (or --all)
 npm run check:share                 # CI: every post has a card, none is orphaned or stale
+npm run check:post -- src/content/blog/<slug>.md   # a writer's one-post check, before the pull request
 ```
+
+`check:post` says what the review lane and CI would say about one post: the file is in the shape the
+lane reads, its fields pass the site's schema, its picture is in `public/blog-images`, and its card is
+present and current.
 
 A card is stale the moment anything it is drawn from changes: the post, `scripts/blog-share/`, the
 theme styles in `src/styles/blog.css`, a face in `scripts/og-fonts/`, the paper texture, or the

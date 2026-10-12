@@ -11,6 +11,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 
 import { basename, join } from "node:path";
 import { readStrictFrontMatter } from "../../src/blog/frontmatter-grammar.mjs";
 import { isValidSlug } from "../../src/blog/publish.mjs";
+import { postSchema } from "../../src/blog/schema.mjs";
 import { LOOKS } from "../../src/blog/vocabulary.mjs";
 import { chooseBody, loadContext, renderCard } from "./card.mjs";
 
@@ -92,4 +93,36 @@ export function generate({ postsDir, shareDir, imagesDir, slugs, ctx = loadConte
   }
   if (slugs) for (const s of slugs) if (!files.some((f) => basename(f, ".md") === s)) throw new Error(`no post "${s}" in ${postsDir}`);
   return wrote;
+}
+
+/**
+ * Everything a writer can know about one post before opening a pull request, in one call: the file is in the
+ * shape the review lane accepts, its fields pass the site's closed schema, its picture is there, and its card is
+ * present and current. Returns failure messages; empty means the post will pass `lane` and `check:share`.
+ * The lane's other checks (allowed paths, size caps, the publish date of a live post) look at the pull request,
+ * not the file, so they are not repeated here.
+ */
+export function checkPost({ file, imagesDir, shareDir, ctx = loadContext() }) {
+  const slug = basename(file, ".md");
+  if (!file.endsWith(".md") || !isValidSlug(slug)) return [`${file}: not a post file (src/content/blog/<slug>.md, a lowercase address of letters, digits and dashes)`];
+  if (!existsSync(file)) return [`${file}: no such file`];
+  const r = readStrictFrontMatter(readFileSync(file, "utf8"));
+  if (!r.ok) return [`${file}: line ${r.line}: ${r.reason}; the review lane reads only this shape (ai-team/growth/blog-writers.md rule 11)`];
+  const data = { ...r.top, ...r.objects };
+  const parsed = postSchema.safeParse(data);
+  if (!parsed.success) return parsed.error.issues.map((i) => `${file}: ${i.path.join(".") || "front matter"}: ${i.message}`);
+  const failures = [];
+  const image = parsed.data.image;
+  if (image && !existsSync(join(imagesDir, basename(image.src)))) failures.push(`${file}: the picture ${image.src} is not in ${imagesDir}`);
+  if (failures.length) return failures;
+  let fresh;
+  try {
+    fresh = cardFor(file, imagesDir, ctx);
+  } catch (e) {
+    return [e.message];
+  }
+  const cardPath = join(shareDir, `${slug}.png`);
+  if (!existsSync(cardPath)) failures.push(`${slug}: no card; run \`npm run gen:blog-share -- ${slug}\` and commit ${cardPath}`);
+  else if (!readFileSync(cardPath).equals(fresh.png)) failures.push(`${slug}: the card is stale; run \`npm run gen:blog-share -- ${slug}\` and commit it`);
+  return failures;
 }
