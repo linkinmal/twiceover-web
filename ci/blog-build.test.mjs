@@ -386,7 +386,9 @@ describe("a stamp on a dark lesson block", () => {
   it("is set by a rule that outranks the shared .post p.stamp, which is 1.9:1 on the lesson's dark ground (Guess the gap, Designer gate)", () => {
     // Specificity, not order: `.post p.stamp` is (0,2,1), so `.teach .stamp` (0,2,0) lost. Observed live at computed-style level.
     const css = read(".", "src/styles/blog.css");
-    expect(css).toMatch(/\.post \.teach p\.stamp\{color:var\(--teachfg\)/);
+    expect.soft(css).toMatch(/\.post \.teach p\.stamp\{color:var\(--teachfg\)/);
+    // the bold label inside it: .stamp b sets --ink, which in the ticket look is the lesson's own ground (1.00:1)
+    expect.soft(css).toMatch(/\.post \.teach p\.stamp b\{color:inherit\}/);
   });
 });
 
