@@ -499,7 +499,7 @@
   .gg-sw.p{background:var(--teachfg)}
   .gg-sw.m{background:#fff}
   /* the stamp on a dark lesson block takes the lesson's light ink: the shared .stamp rule's --ink2 is 1.9:1 on it (Designer gate, PR 121) */
-  .teach .stamp{color:var(--teachfg);opacity:.85}
+  .post .teach p.stamp{color:var(--teachfg);opacity:.85}
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 }
 @keyframes drawin{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}

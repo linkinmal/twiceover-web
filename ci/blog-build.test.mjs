@@ -382,6 +382,14 @@ describe("the option payoff calculator page", () => {
   });
 });
 
+describe("a stamp on a dark lesson block", () => {
+  it("is set by a rule that outranks the shared .post p.stamp, which is 1.9:1 on the lesson's dark ground (Guess the gap, Designer gate)", () => {
+    // Specificity, not order: `.post p.stamp` is (0,2,1), so `.teach .stamp` (0,2,0) lost. Observed live at computed-style level.
+    const css = read(".", "src/styles/blog.css");
+    expect(css).toMatch(/\.post \.teach p\.stamp\{color:var\(--teachfg\)/);
+  });
+});
+
 describe("the implied move from a straddle page", () => {
   const PAGE = "blog/tools/implied-move-from-a-straddle/index.html";
   const live = () => liveTool(PAGE, "js/blog-straddle.js");
