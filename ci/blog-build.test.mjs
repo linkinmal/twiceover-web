@@ -162,7 +162,9 @@ describe("the game page", () => {
     const d = game();
     expect.soft(d.querySelectorAll("[data-bars] .sb[data-f]")).toHaveLength(6);
     expect.soft(d.querySelector("[data-line]").textContent).toMatch(/^Betting 20% on every flip hit the cap in \d+% of games and went bust in \d+%\. The middle game ended at \$\d+(\.\d\d)?\.$/);
-    expect.soft(d.querySelectorAll(".heat tbody tr")).toHaveLength(6);
+    expect.soft([...d.querySelectorAll("[data-bars] .sb[data-f] .n")].map((n) => /^\d+% cap · \d+% bust$/.test(n.textContent)), "each bar's figures are text").toEqual(Array(6).fill(true));
+    expect.soft(d.querySelectorAll("details"), "nothing is folded").toHaveLength(0);
+    expect.soft(d.querySelectorAll("table"), "the kit has no table of the bars").toHaveLength(0);
     expect.soft(d.querySelector(".teach").textContent).toContain("went bust");
     expect.soft(d.querySelector(".study").textContent).toContain("Haghani and Dewey, arXiv 1701.01427");
     expect.soft(d.querySelector("[data-controls] p.cap").textContent).toBe("Your game: your balance after each flip.");
