@@ -12,6 +12,7 @@ import {
   crossPageFailures,
   markedTitleCount,
   pageKind,
+  postHeading,
   postStrings,
   removedAddresses,
   scanPage,
@@ -395,6 +396,20 @@ describe("the home page's From the blog strip: post titles leave the banned-term
     const f = scanHome(home(strip(card("Buy now or wait: the CPI date"))));
     expect.soft(f.some((x) => x.includes("[BLOG-PHRASE]") && x.includes('"buy now"'))).toBe(true);
     expect.soft(scanHome(home(`${strip(card("Sell-off 101"))}<p>You must act.</p>`)).some((x) => x.includes('"you must"'))).toBe(true);
+  });
+
+  it("the phrase floor sees through an entity and an invisible character on the home page, as it does on a post", () => {
+    for (const hidden of ["you&#32;must act.", "you&#8203; must act.", "you&nbsp;must act."]) {
+      const f = scanHome(home(`${strip(card("Sell-off 101"))}<p>${hidden}</p>`));
+      expect.soft(f.some((x) => x.includes("[BLOG-PHRASE]") && x.includes('"you must"')), hidden).toBe(true);
+    }
+  });
+
+  it("a post's title is its h1 and nothing else: a post with no h1 contributes none, not its description", () => {
+    const withH1 = '<html><head><meta name="description" content="A description here"></head><body><h1> A headline </h1></body></html>';
+    const noH1 = '<html><head><meta name="description" content="A description here"></head><body><p>x</p></body></html>';
+    expect.soft(postHeading(withH1)).toBe("A headline");
+    expect.soft(postHeading(noH1)).toBe("");
   });
 
   it("the disclaimer check stays on the home page", () => {

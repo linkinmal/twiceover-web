@@ -339,6 +339,11 @@ export function crossPageFailures(pages, postSlugs) {
 // One page
 // ---------------------------------------------------------------------------------------------
 
+/** A built post's own title: its h1, read directly, never by position among the strings postStrings returns. */
+export function postHeading(html) {
+  return parse(html).querySelector("h1")?.textContent.trim() ?? "";
+}
+
 // ---------------------------------------------------------------------------------------------
 // The home page's "From the blog" strip (ADR 1090 Amendment 3)
 // ---------------------------------------------------------------------------------------------
@@ -394,7 +399,9 @@ export function scanPage({ rel, html, disclaimer, postSlugs = [], listStrings = 
 
   // The home page's strip titles leave the bare-word scan below, not the phrase floor above (Amendment 3).
   let scrubbed = (rel === HOME ? homeTextWithoutTitles(html, postTitles) : text).replaceAll(disc, " ");
-  const phraseText = text.replaceAll(disc, " ");
+  // The phrase floor reads what a reader, a screen reader and a search result see, with the same normalization a post
+  // gets: on the home page too, so an entity or an invisible character cannot hide a phrase (Amendment 3, consult 1126).
+  const phraseText = rel === HOME ? blogText(parse(html)).replaceAll(normalizeBlog(disclaimer), " ") : text.replaceAll(disc, " ");
 
   if (kind === "post" || kind === "list" || rel === HOME) {
     for (const p of PHRASE_FLOOR) {

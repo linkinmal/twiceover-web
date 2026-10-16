@@ -36,6 +36,7 @@ import {
   markedTitleCount,
   normalize,
   pageKind,
+  postHeading,
   postStrings,
   scanPage,
 } from "./content-rules.mjs";
@@ -112,7 +113,7 @@ const listStrings = built.filter((b) => pageKind(b.rel, postSlugs) === "post").f
 
 // The home page's "From the blog" strip marks each title; the gate honors a mark only for a title that is a post's own
 // heading (ADR 1090 Amendment 3). The built post's h1 is the post file's title as rendered.
-const postTitles = built.filter((b) => pageKind(b.rel, postSlugs) === "post").map((b) => postStrings(b.html)[0]).filter(Boolean);
+const postTitles = built.filter((b) => pageKind(b.rel, postSlugs) === "post").map((b) => postHeading(b.html)).filter(Boolean);
 
 for (const page of built) failures.push(...scanPage({ ...page, disclaimer, postSlugs, listStrings, postTitles }));
 
