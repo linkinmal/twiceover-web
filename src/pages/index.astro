@@ -98,11 +98,11 @@ const blogStrip = (await getPublished()).slice(0, 3);
           but NEVER submits (R6). The press below stays the one and only assent act. With the
           script absent or failed, this form is exactly the plain HTML GET it always was. */}
       <form class="entry-box" id="entry-form" action="/go/try" method="get" novalidate>
-        <label class="visually-hidden" for="entry-ticker">A ticker</label>
+        <label class="visually-hidden" for="entry-ticker">A stock</label>
         {/* The wrapper is what the listbox anchors to (position: relative in site.css), and it
             carries the input's flex sizing so the row's geometry is unchanged. */}
         <div class="symbol-combobox entry-box__field-wrap">
-          <input id="entry-ticker" name="ticker" type="text" autocomplete="off" spellcheck="false" placeholder="Type a ticker — NVDA" />
+          <input id="entry-ticker" name="ticker" type="text" autocomplete="off" spellcheck="false" placeholder="A stock — NVDA" />
         </div>
         <button type="submit" class="entry-box__submit">Analyze</button>
       </form>

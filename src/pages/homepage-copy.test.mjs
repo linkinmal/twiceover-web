@@ -113,7 +113,7 @@ describe("the homepage states the signed-off copy", () => {
   });
 
   it("keeps the ticker box's placeholder and its pinned form attributes", () => {
-    expect.soft(index).toContain('placeholder="Type a ticker — NVDA"');
+    expect.soft(index).toContain('placeholder="A stock — NVDA"');
     expect.soft(index).toMatch(/<form class="entry-box" id="entry-form" action="\/go\/try" method="get"/);
   });
 
