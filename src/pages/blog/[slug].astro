@@ -12,7 +12,7 @@ import Tile from "../../components/blog/Tile.astro";
 import { getPublished } from "../../blog/collection.mjs";
 import { issueNumbers, keepReading } from "../../blog/list.mjs";
 import { LOOKS } from "../../blog/vocabulary.mjs";
-import { BUILD_LABELS, LENS_LABELS, TOPIC_LABELS } from "../../blog/labels.mjs";
+import { LENS_LABELS, TOPIC_LABELS } from "../../blog/labels.mjs";
 import { formatStamp, hasUpdate, splitHit, toNewYorkIso } from "../../blog/format.mjs";
 import { blogPostingJsonLd, serializeJsonLd } from "../../blog/jsonld.mjs";
 
@@ -43,7 +43,6 @@ const jsonLd = serializeJsonLd(blogPostingJsonLd(data, { slug, imagePath: shareI
     {updated && <span>Updated <time datetime={toNewYorkIso(data.updatedAt)}>{formatStamp(data.updatedAt)}</time></span>}
     <a href={`/blog/topic/${data.topic}`}>{TOPIC_LABELS[data.topic as keyof typeof TOPIC_LABELS]}</a>
     <span>{LENS_LABELS[data.lens as keyof typeof LENS_LABELS]}</span>
-    <span>{BUILD_LABELS[data.build as keyof typeof BUILD_LABELS]}</span>
   </nav>
   <article class="post skin" data-look={look.kit}>
     <div class="col">
