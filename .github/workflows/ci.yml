@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     # Pull requests build the blog with its clock far ahead, so every post, future ones included, is
     # built and checked and a broken post fails its own pull request (ADR 1090 Decision 4). A push
-    # builds on the real clock, and scripts/deploy.sh refuses a deploy with BLOG_NOW set.
+    # builds on the real clock; this expression is the control. scripts/deploy.sh also refuses BLOG_NOW, as a backstop.
     env:
       BLOG_NOW: ${{ github.event_name == 'pull_request' && '2100-01-01T00:00:00Z' || '' }}
     steps:
@@ -128,16 +128,18 @@ jobs:
   # 0098). The real control against malicious code reaching this token is branch protection on `main`: the required
   # check `build-and-check` is enforced; the pull-request review is a convention (the live rule asks for 0
   # approving reviews, Security consult 1091, read 2026-10-11). This workflow depends on the required check
-  # staying enforced. Within the run, this job builds nothing and runs no install script, so no code admitted
-  # through a pull request runs while the token is in scope.
+  # staying enforced, and since every gate runs in verify, on `verify` being required beside it (ADR 1127; an
+  # Operations action item). Within the run, this job builds nothing and runs no install script: with the token in
+  # scope it runs only deploy.sh and wrangler from this checkout of main, on the dist/ verify passed.
   #
   # If `main` goes red after a merge (the stable-address check, a gate), nothing deploys, scheduled runs
   # included, until it is green again: revert first. If the live site cannot be read, the stable-address
   # check cannot pass either, so the way back is `wrangler rollback`, not a skip flag.
   #
   # Token: `CLOUDFLARE_API_TOKEN` — the `twiceover-web-ci-deploy` repo secret (HA-33/#303), scoped
-  # `Account Settings:Read` + `Workers Scripts:Edit` + `Zone Workers Routes:Edit` on twiceover.io. It is set in the
-  # env of the deploy step only.
+  # `Account Settings:Read` + `Workers Scripts:Edit` + `Zone Workers Routes:Edit` on twiceover.io (as recorded in
+  # stock-analyst-platform ai-team/operations/operational-registry-credentials.md, read 2026-10-16). It is set in
+  # the env of the deploy step only.
   deploy:
     needs: [build-and-check, verify]
     if: (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'

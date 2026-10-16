@@ -10,9 +10,9 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 // deploy.sh is a REAL deploy (a test of this once shipped a branch to production). So it runs here only
-// with a refusal's trigger set (BLOG_NOW, BLOG_CONTENT_DIR, or no token), with no HOME, and with a PATH whose first entry holds fake `npm`,
-// `npx`, `node`, `wrangler` and `security` that record themselves and exit 99: if the guard were ever
-// removed, the script would hit a fake and the test would say which one ran.
+// with a refusal's trigger set (BLOG_NOW, BLOG_CONTENT_DIR, or no token), and with a PATH whose first entry holds
+// fake `npm`, `npx`, `node`, `wrangler` and `security` that record themselves and exit 99: if a refusal were ever
+// removed, the script would hit a fake and the test would say one ran.
 function runGuarded(extraEnv = { BLOG_NOW: "2100-01-01T00:00:00Z" }) {
   const bin = mkdtempSync(join(tmpdir(), "deploy-guard-"));
   const ran = join(bin, "ran.log");
@@ -41,7 +41,7 @@ describe("scripts/deploy.sh", () => {
     expect.soft(r.stderr).toContain("CLOUDFLARE_API_TOKEN is not set");
     expect.soft(r.ran, "no npm, npx, node, wrangler or security was started").toBe(false);
   });
-  it("refuses to run with BLOG_NOW set, before it builds, runs any gate or reads a credential", () => {
+  it("refuses to run with BLOG_NOW set, before it starts anything", () => {
     const r = runGuarded();
     expect.soft(r.status).toBe(1);
     expect.soft(r.stderr).toContain("BLOG_NOW is set");
@@ -50,7 +50,7 @@ describe("scripts/deploy.sh", () => {
 });
 
 describe("scripts/deploy.sh and the post folder", () => {
-  it("refuses to run with BLOG_CONTENT_DIR set, before it builds, runs any gate or reads a credential", () => {
+  it("refuses to run with BLOG_CONTENT_DIR set, before it starts anything", () => {
     const r = runGuarded({ BLOG_CONTENT_DIR: "test-fixtures/blog" });
     expect.soft(r.status).toBe(1);
     expect.soft(r.stderr).toContain("BLOG_CONTENT_DIR is set");

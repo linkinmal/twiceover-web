@@ -109,4 +109,4 @@ Production deploys from CI only, on `main` (`.github/workflows/ci.yml`; ADR 1127
 daily schedule or a manual `workflow_dispatch` runs three jobs: `build-and-check` builds and tests and
 uploads `dist/`; `verify` runs every gate on that `dist/` and prints its digest; `deploy` checks the
 digest and runs `npm run deploy` (`wrangler deploy`) with the token in that one step's environment.
-There is no local deploy. The way back from a bad deploy is `npx wrangler rollback` or a re-run of the workflow.
+Deploys are made from CI, not from a laptop. The way back from a bad deploy is `npx wrangler rollback`.

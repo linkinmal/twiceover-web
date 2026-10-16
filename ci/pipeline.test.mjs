@@ -1,7 +1,7 @@
 /**
  * The build/deploy split (ADR 1127 Decision 3, Security consult 1125 condition 5).
  *
- * `build-and-check` builds and is treated as untrusted: admitted code runs there. `verify` re-runs every gate on the
+ * `build-and-check` builds and is treated as untrusted: admitted code runs there. `verify` runs every gate on the
  * built `dist/` from a fresh checkout, and `deploy` ships that same artifact. Neither of those two may run the build's
  * toolchain, and only the deploy step may hold the token. These tests pin that shape and that import graph.
  */
@@ -49,7 +49,10 @@ describe("ci.yml has three jobs, and only the deploy step holds the token", () =
   });
 
   it("reads the token once, in the env of the one step that runs the deploy", () => {
-    expect.soft(ci.match(/secrets\./g)).toHaveLength(1);
+    expect.soft(ci.match(/\bsecrets\b/g), "every form: secrets.X, secrets['X'], toJSON(secrets), secrets: inherit").toHaveLength(1);
+    expect.soft(ci).not.toMatch(/github\.token|GITHUB_TOKEN/);
+    expect.soft(ci.match(/permissions:/g), "one workflow-level grant, no job widens it").toHaveLength(1);
+    expect.soft(ci).toMatch(/\npermissions:\n  contents: read\n\njobs:/);
     const holders = stepsOf(jobs.deploy).filter((s) => s.includes("secrets.CLOUDFLARE_API_TOKEN"));
     expect.soft(holders).toHaveLength(1);
     expect.soft(holders[0]).toMatch(/^run: npm run deploy\n\s+env:\n\s+CLOUDFLARE_API_TOKEN: \$\{\{ secrets\.CLOUDFLARE_API_TOKEN \}\}/);
@@ -75,11 +78,31 @@ describe("ci.yml has three jobs, and only the deploy step holds the token", () =
     }
   });
 
+  it("lets nothing in verify or deploy fail quietly or be skipped, and runs verify on every event", () => {
+    expect.soft(jobs.verify).not.toMatch(/continue-on-error|^\s+if:/m);
+    expect.soft(jobs.deploy).not.toMatch(/continue-on-error/);
+    expect.soft(jobs.deploy.match(/^\s+if:/gm), "only the job's own main-only condition").toHaveLength(1);
+    expect.soft(jobs.deploy).toMatch(/^    if: /m);
+  });
+
+  it("uses only checkout, setup-node and the artifact download in verify and deploy, and runs only known command forms", () => {
+    const ALLOWED = /^(npm ci --ignore-scripts|node (ci|scripts)\/[\w.-]+\.mjs( [^;&|`$]*| dist --expect "\$VERIFIED_DIGEST")?|bash scripts\/[\w-]+\.sh|npm run deploy|d=\$\(node ci\/dist-digest\.mjs dist\)|echo "[^`]*")$/;
+    for (const name of ["verify", "deploy"]) {
+      const uses = stepsOf(jobs[name]).map((s) => /^uses: (\S+)/.exec(s)?.[1]).filter(Boolean);
+      expect.soft(uses.filter((u) => !/^actions\/(checkout|setup-node|download-artifact)@v4$/.test(u)), name).toEqual([]);
+      expect.soft(commandsOf(jobs[name]).filter((c) => !ALLOWED.test(c)), name).toEqual([]);
+    }
+  });
+
+  it("gives wrangler no build command of its own, which would run in the deploy step", () => {
+    expect(read("wrangler.jsonc").replace(/\/\/[^\n]*/g, "")).not.toMatch(/"build"\s*:/);
+  });
+
   it("builds, tests and uploads dist/ in build-and-check, which runs no gate", () => {
     const cmds = commandsOf(jobs["build-and-check"]);
     expect.soft(cmds).toContain("npm run build");
     expect.soft(cmds).toContain("npm test");
-    expect.soft(jobs["build-and-check"]).toMatch(/uses: actions\/upload-artifact@v4\n\s+with:\n\s+name: dist\n\s+path: dist/);
+    expect.soft(jobs["build-and-check"]).toMatch(/uses: actions\/upload-artifact@v4\n\s+with:\n\s+name: dist\n\s+path: dist\n\s+if-no-files-found: error\n\s+include-hidden-files: true\n/);
     expect.soft(cmds.filter((c) => GATES.includes(c) || /npm run check/.test(c)), "the one gate list is verify's").toEqual([]);
   });
 
@@ -145,12 +168,16 @@ const packageName = (spec) => (spec.startsWith("@") ? spec.split("/").slice(0, 2
 export async function reach({ files, packages }) {
   const js = files.filter((f) => /\.m?js$/.test(f)).map((f) => join(root, f));
   const inputs = new Set();
+  const spawns = new Set();
   const pkgs = new Set(packages);
   if (js.length) {
     const r = await build({ entryPoints: js, bundle: true, platform: "node", format: "esm", packages: "external", metafile: true, write: false, logLevel: "silent", outdir: "out" });
     for (const [path, info] of Object.entries(r.metafile.inputs)) {
       inputs.add(path);
-      for (const imp of info.imports) if (imp.external && !imp.path.startsWith("node:")) pkgs.add(packageName(imp.path));
+      for (const imp of info.imports) {
+        if (imp.path === "node:child_process" || imp.path === "child_process") spawns.add(path);
+        else if (imp.external && !imp.path.startsWith("node:")) pkgs.add(packageName(imp.path));
+      }
       // createRequire's require("x") is not followed by the bundler; read it from the source.
       for (const m of readFileSync(join(root, path), "utf8").matchAll(/\brequire\(\s*["']([^"'.][^"']*)["']\s*\)/g)) pkgs.add(packageName(m[1]));
     }
@@ -172,7 +199,7 @@ export async function reach({ files, packages }) {
     for (const dep of Object.keys({ ...meta.dependencies, ...meta.optionalDependencies })) visit(dep, dirname(found));
   };
   for (const p of pkgs) visit(p, root);
-  return { files: [...inputs], direct: [...pkgs], packages: [...all] };
+  return { files: [...inputs], direct: [...pkgs], packages: [...all], spawns: [...spawns] };
 }
 
 const violations = ({ files, packages }) => [...files.filter((f) => FORBIDDEN_FILES.test(f)), ...packages.filter(FORBIDDEN_PACKAGES)];
@@ -193,6 +220,7 @@ describe("what verify and deploy run never reaches the build's toolchain or the 
     expect.soft(r.direct, "the walk sees createRequire's resvg").toContain("@resvg/resvg-js");
     expect.soft(r.packages, "the walk follows dependencies").toContain("zod");
     expect.soft(violations(r)).toEqual([]);
+    expect.soft(r.spawns, "no script starts a process the walk cannot follow").toEqual([]);
   }, 30000);
 
   it("fails on a script that reaches astro, a playable, or a package that depends on vite", async () => {
