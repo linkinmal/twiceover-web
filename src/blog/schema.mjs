@@ -6,7 +6,9 @@
  * post-only review lane (PR 5) can allow exact paths and nothing else. The post's address is its
  * file name (checked by `isValidSlug`), never a front-matter field.
  */
-import { z } from "astro/zod";
+// `zod` itself, pinned to the version the lockfile resolves for astro, not `astro/zod`: the verify job's share-card gate validates posts
+// with this schema and must not load astro (ADR 1127 Decision 3; ci/pipeline.test.mjs).
+import { z } from "zod";
 import { parsePublishTime } from "./publish.mjs";
 import { readSources } from "./sources.mjs";
 import { BUILDS, LENSES, LOOK_NAMES, TOPICS } from "./vocabulary.mjs";

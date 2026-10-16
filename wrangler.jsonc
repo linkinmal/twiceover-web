@@ -7,15 +7,15 @@
   // The custom_domain route binds twiceover.io; SSL provisions automatically (zone is
   // in this Cloudflare account).
   //
-  // Deploy with `npm run deploy` (scripts/deploy.sh, #69): it gates on build +
-  // content check + the consultation-0008 no-operator-log posture + the consult-0163
-  // Worker-source field gate, injects the token (macOS Keychain
-  // 'cloudflare-api-token-twiceover', or a CLOUDFLARE_API_TOKEN env override) for that
-  // one run, and never echoes it. The token is never stored in repo.
+  // Deployed from CI only (.github/workflows/ci.yml, ADR 1127 Decision 3): the verify job runs
+  // every gate (content, the consultation-0008 no-operator-log posture, the consult-0163
+  // Worker-source field gate, …) on the built dist/, and the deploy job ships that same
+  // dist/ with `npm run deploy` (scripts/deploy.sh), the token in that one step's env.
+  // The token is never stored in repo.
   //
   // NOTE: observability stays OFF here — turning it on collects Workers Logs and would
   // break the /privacy "collects no personal information" posture (consultation 0008);
-  // scripts/deploy.sh asserts this before every deploy. SITE_METRICS is a distinct
+  // ci/check-observability-off.mjs asserts this in the verify job every deploy needs. SITE_METRICS is a distinct
   // Cloudflare feature (Analytics Engine, not Workers Logs) and does NOT enable
   // observability — consult 0163 confirmed the six-field set clean against 0008.
   "name": "twiceover-web",

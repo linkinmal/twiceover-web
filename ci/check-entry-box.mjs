@@ -594,7 +594,7 @@ function collectHtml(dir, root, out = []) {
 function main() {
   const root = join(dirname(fileURLToPath(import.meta.url)), "..");
   // `--dist <dir>` checks another build (the fixture build in ci/blog-build.test.mjs). An argument, not the
-  // environment: scripts/deploy.sh passes none, so a deploy always checks dist/.
+  // environment: the verify job passes none, so the gate on a deploy's artifact always checks dist/.
   const di = process.argv.indexOf("--dist");
   const distDir = di > -1 ? resolve(process.argv[di + 1]) : join(root, "dist");
   const workerPath = join(root, "worker", "index.js");

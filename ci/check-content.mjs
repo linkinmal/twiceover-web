@@ -42,8 +42,8 @@ import {
 } from "./content-rules.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-// `--dist <dir> --content <dir>` check another build and its posts (the fixture build, test/blog-build.test.mjs).
-// Arguments, not environment: scripts/deploy.sh passes none, so a deploy always checks dist/ and src/content/blog.
+// `--dist <dir> --content <dir>` check another build and its posts (the fixture build, ci/blog-build.test.mjs).
+// Arguments, not environment: the verify job passes none, so the gate on a deploy's artifact always checks dist/ and src/content/blog.
 const arg = (name) => {
   const i = process.argv.indexOf(name);
   return i > -1 ? process.argv[i + 1] : undefined;
