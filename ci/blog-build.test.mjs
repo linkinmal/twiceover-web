@@ -6,7 +6,7 @@
  * The build writes to a temp folder (`--outDir`), never to dist/, and only ever reads the fixture folder.
  */
 import { spawnSync } from "node:child_process";
-import { cpSync, existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { JSDOM } from "jsdom";
@@ -663,6 +663,23 @@ describe("the gates over the built fixture site", () => {
     expect(r.stdout + r.stderr).toMatch(/Entry box security check passed: \d+ built page/);
     expect(r.status).toBe(0);
   });
+  it("fails the entry-box gate on a bundle the client files do not derive, and on a page that loads another page's bundle (known positives)", () => {
+    const copy = mkdtempSync(join(tmpdir(), "blog-bundles-"));
+    cpSync(dist, copy, { recursive: true });
+    writeFileSync(join(copy, "js/blog-stray.js"), "void 0;");
+    const stray = node("ci/check-entry-box.mjs", "--dist", copy);
+    expect.soft(stray.status).toBe(1);
+    expect.soft(stray.stderr).toContain("/js/blog-stray.js: built but not derived");
+    rmSync(join(copy, "js/blog-stray.js"));
+    writeFileSync(join(copy, "js/blog-stray.js.map"), "{}");
+    expect.soft(node("ci/check-entry-box.mjs", "--dist", copy).stderr, "any blog-* file in dist/js is held to the list").toContain("/js/blog-stray.js.map: built but not derived");
+    rmSync(join(copy, "js/blog-stray.js.map"));
+    const p = "blog/play/coin/index.html";
+    writeFileSync(join(copy, p), read(copy, p).replace("/js/blog-coin.js", "/js/blog-overnight-call.js"));
+    const wrong = node("ci/check-entry-box.mjs", "--dist", copy);
+    expect.soft(wrong.status).toBe(1);
+    expect.soft(wrong.stderr).toContain("loads /js/blog-overnight-call.js, which is not this page's own bundle");
+  });
   it("passes the isolation gate, with blog pages present so its blindness controls run", () => {
     const r = node("ci/blog-isolation.mjs", "--dist", dist);
     expect(r.stdout).toMatch(/Blog isolation check passed: \d+ site page\(s\) carry no blog styles; 15 blog page\(s\)/);
@@ -696,5 +713,8 @@ describe("a build with no published post", () => {
     expect.soft(read(empty, "sitemap-0.xml")).not.toContain("/blog");
     expect.soft(node("ci/check-content.mjs", "--dist", empty, "--content", join(root, "test-fixtures/blog")).status).toBe(0);
     expect.soft(node("ci/blog-isolation.mjs", "--dist", empty).status).toBe(0);
+    const entry = node("ci/check-entry-box.mjs", "--dist", empty);
+    expect.soft(entry.stderr + entry.stdout, "the bundles ship, no playable page does").toMatch(/Entry box security check passed/);
+    expect.soft(entry.status).toBe(0);
   }, 150000);
 });

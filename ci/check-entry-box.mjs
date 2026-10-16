@@ -342,7 +342,8 @@ export function scanPages(pages, expected = EXPECTED_SCRIPTS, readAsset = () => 
  * The blog's bundles are one set seen three ways (ADR 1127 Decision 4; Security's set-equality condition): the list
  * derived from the client files in the checkout, the bundles the build left in dist/js, and the scripts the built
  * pages load. Each page loads its own bundle and no other: /blog/{play,tools}/<slug> loads /js/blog-<slug>.js when a
- * client file derives it, and every other page loads no blog script.
+ * client file derives it, and every other page, on or off /blog, loads no blog bundle. A build that holds no playable
+ * page at all (no post is published yet, ADR 1090 Decision 2) loads none, so "no page loads it" waits for the first.
  *
  * @param pages    [{ rel, html }] as for scanPages
  * @param bundles  the file names of dist/js/blog-*.js
@@ -355,8 +356,12 @@ export function scanBlogScripts({ pages, bundles, derived }) {
   for (const u of derived) if (!built.includes(u)) failures.push(`[scripts] ${u}: derived from a client file but not built into dist/js`);
 
   const loaded = new Set();
+  const playablePage = (rel) => /^blog\/(?:play|tools)\/[^/]+\/index\.html$/.test(rel);
   for (const { rel, html } of pages) {
-    if (!rel.startsWith("blog/")) continue;
+    if (!rel.startsWith("blog/")) {
+      for (const { src } of parseScripts(html).external) if (/^\/js\/blog-/.test(src)) failures.push(`[scripts] ${rel}: loads ${src}, a blog bundle, from a page outside /blog`);
+      continue;
+    }
     const own = rel.match(/^blog\/(?:play|tools)\/([^/]+)\/index\.html$/)?.[1];
     const ownUrl = own === undefined ? null : `/js/blog-${own}.js`;
     const srcs = parseScripts(html).external.map((e) => e.src);
@@ -372,7 +377,7 @@ export function scanBlogScripts({ pages, bundles, derived }) {
     if (ownUrl && srcs.includes(ownUrl) && !derived.includes(ownUrl)) failures.push(`[scripts] ${rel}: loads ${ownUrl}, which no src/playables/${own}/client.mjs derives`);
     if (ownUrl && derived.includes(ownUrl) && !srcs.includes(ownUrl)) failures.push(`[scripts] ${rel}: does not load ${ownUrl}, the bundle its client file builds`);
   }
-  for (const u of derived) if (!loaded.has(u)) failures.push(`[scripts] ${u}: no page loads it — a client file must belong to a built playable page`);
+  if (pages.some((p) => playablePage(p.rel))) for (const u of derived) if (!loaded.has(u)) failures.push(`[scripts] ${u}: no page loads it — a client file must belong to a built playable page`);
   return failures;
 }
 
@@ -661,7 +666,7 @@ function main() {
 
   let bundles = [];
   try {
-    bundles = readdirSync(join(distDir, "js")).filter((f) => /^blog-.*\.js$/.test(f)).sort();
+    bundles = readdirSync(join(distDir, "js")).filter((f) => f.startsWith("blog-")).sort();
   } catch {
     failures.push(`[structure] ${join(distDir, "js")} not readable — the blog bundles cannot be compared with the client files`);
   }

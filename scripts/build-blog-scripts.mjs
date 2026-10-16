@@ -11,25 +11,30 @@ import { build } from "esbuild";
 import { readdirSync, rmSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { BLOG_SCRIPTS, deriveBlogScripts } from "../ci/content-rules.mjs";
+import { deriveBlogScripts } from "../ci/content-rules.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const srcDir = join(root, "src/playables");
-const outDir = join(root, "public/js");
+const defaultOutDir = join(root, "public/js");
 
 /** The bundle name for each client file: `blog-<slug>`, the slug being the folder's name. */
 export function blockNames(playablesDir = srcDir) {
   return deriveBlogScripts(playablesDir).map((u) => u.slice("/js/blog-".length, -".js".length));
 }
 
-export async function buildBlogScripts() {
-  const names = blockNames();
+/**
+ * Builds one bundle per client file. A folder whose name is not a slug throws before anything is written. That the
+ * bundles in dist/js are the derived list and nothing else is checked on the built site by ci/check-entry-box.mjs,
+ * from the checkout and not from this script.
+ */
+export async function buildBlogScripts({ playablesDir = srcDir, outDir = defaultOutDir } = {}) {
+  const names = blockNames(playablesDir);
   // Stale output from a renamed or removed client file goes first.
   for (const f of readdirSync(outDir)) if (/^blog-.*\.js$/.test(f)) rmSync(join(outDir, f));
   await Promise.all(
     names.map((name) =>
       build({
-        entryPoints: [join(srcDir, name, "client.mjs")],
+        entryPoints: [join(playablesDir, name, "client.mjs")],
         outfile: join(outDir, `blog-${name}.js`),
         bundle: true,
         format: "iife",
@@ -40,12 +45,7 @@ export async function buildBlogScripts() {
       }),
     ),
   );
-  // What was built is the derived list and nothing else.
-  const built = readdirSync(outDir).filter((f) => /^blog-.*\.js$/.test(f)).map((f) => `/js/${f}`).sort();
-  if (JSON.stringify(built) !== JSON.stringify([...BLOG_SCRIPTS])) {
-    throw new Error(`block scripts and BLOG_SCRIPTS differ: built [${built}], derived [${BLOG_SCRIPTS}]`);
-  }
-  return built;
+  return names.map((n) => `/js/blog-${n}.js`);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

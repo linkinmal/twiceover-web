@@ -1,7 +1,7 @@
 import { existsSync, readdirSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { BLOG_SCRIPTS } from "../../ci/content-rules.mjs";
-import { HUB_PATH, PLAYABLES, moreToPlay, otherPlayables, playablesNewestFirst } from "./playables.mjs";
+import { HUB_PATH, PLAYABLES, loadPlayable, moreToPlay, orderPlayables, otherPlayables, playablesNewestFirst } from "./playables.mjs";
 
 describe("the playables loader", () => {
   it("is one directory per playable: its folder is its slug and holds entry.mjs, page.astro and client.mjs", () => {
@@ -22,7 +22,7 @@ describe("the playables loader", () => {
     for (const p of PLAYABLES) {
       for (const k of ["title", "label", "deck", "description", "look", "topic", "updatedAt"]) expect.soft(typeof p[k], `${p.slug}.${k}`).toBe("string");
       expect.soft(p.art, `${p.slug}.art`).toMatch(/^<svg class="pa" [^]*<\/svg>$/);
-      expect.soft(p.art, `${p.slug}.art has no script or handler`).not.toMatch(/<script|\son[a-z]+=/i);
+      expect.soft(p.art, `${p.slug}.art has no script, handler, link or embedded markup`).not.toMatch(/<script|\son[a-z]+=|href|foreignObject|javascript:|<iframe|<image/i);
     }
   });
   it("lists every playable on the hub, newest update first, the order of PLAYABLES breaking a tie", () => {
@@ -54,5 +54,34 @@ describe("the playables loader", () => {
   });
   it("feeds the strip from PLAYABLES", () => {
     for (const p of PLAYABLES) expect.soft(otherPlayables(p.slug).map((m) => m.slug), p.slug).toEqual(moreToPlay(PLAYABLES, p.slug).map((m) => m.slug));
+  });
+  it("orders by instant, not by text: the same moment in two offsets is a tie that the slug breaks", () => {
+    const mk = (slug, updatedAt) => ({ slug, topic: "t", updatedAt });
+    const list = [mk("b", "2026-10-11T09:00:00-04:00"), mk("a", "2026-10-11T13:00:00Z"), mk("c", "2026-10-11T14:00:00Z")];
+    expect.soft(moreToPlay(list, "zzz").map((p) => p.slug), "newest instant first, then slug").toEqual(["c", "a"]);
+    expect.soft(moreToPlay(list.slice(0, 2), "zzz").map((p) => p.slug), "a tie in two offsets goes to the slug").toEqual(["a", "b"]);
+  });
+  it("orders an unknown page's strip by newest, then slug", () => {
+    const mk = (slug, updatedAt) => ({ slug, topic: "t", updatedAt });
+    expect(moreToPlay([mk("x", "2026-10-01T00:00:00Z"), mk("y", "2026-10-03T00:00:00Z"), mk("z", "2026-10-02T00:00:00Z")], "absent").map((p) => p.slug)).toEqual(["y", "z"]);
+  });
+  it("keeps the five written first in their order and puts any other page after them, by slug", () => {
+    const slugs = ["zeta", "option-payoff-calculator", "alpha", "coin", "guess-the-gap", "overnight-call", "implied-move-from-a-straddle"];
+    expect(orderPlayables(slugs.map((slug) => ({ slug }))).map((p) => p.slug)).toEqual(["guess-the-gap", "implied-move-from-a-straddle", "coin", "overnight-call", "option-payoff-calculator", "alpha", "zeta"]);
+  });
+});
+
+describe("loadPlayable: an entry is checked against the folder it came from", () => {
+  const ok = { slug: "coin", kind: "game" };
+  const file = "/src/playables/coin/entry.mjs";
+  const pages = ["/src/playables/coin/page.astro"];
+  it("adds the address from the kind and the slug", () => {
+    expect.soft(loadPlayable(file, ok, pages).path).toBe("/blog/play/coin");
+    expect.soft(loadPlayable("/src/playables/x/entry.mjs", { slug: "x", kind: "tool" }, ["/src/playables/x/page.astro"]).path).toBe("/blog/tools/x");
+  });
+  it("refuses a slug that is not its folder's name, a missing page, and a kind that is not game or tool", () => {
+    expect.soft(() => loadPlayable(file, { ...ok, slug: "other" }, pages)).toThrow(/must equal its directory name "coin"/);
+    expect.soft(() => loadPlayable(file, ok, [])).toThrow(/page\.astro is missing/);
+    for (const kind of ["post", "", undefined, "constructor", "toString", "__proto__"]) expect.soft(() => loadPlayable(file, { ...ok, kind }, pages), String(kind)).toThrow(/must be "game" or "tool"/);
   });
 });

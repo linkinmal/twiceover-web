@@ -19,18 +19,21 @@ const bodies = import.meta.glob("/src/playables/*/page.astro");
 // edit here; retire the list when that order is ruled on data.
 const WRITTEN_FIRST = ["guess-the-gap", "implied-move-from-a-straddle", "coin", "overnight-call", "option-payoff-calculator"];
 const written = (slug) => (WRITTEN_FIRST.includes(slug) ? WRITTEN_FIRST.indexOf(slug) : Infinity);
+/** The order of PLAYABLES: the five written first in their order, then any other by slug. */
+export const orderPlayables = (list) => [...list].sort((a, b) => (written(a.slug) === written(b.slug) ? compare(a.slug, b.slug) : written(a.slug) < written(b.slug) ? -1 : 1));
 const compare = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
 const SECTION = { game: "play", tool: "tools" };
 
-function load([file, entry]) {
+/** One entry, checked against the folder it was found in; `pageKeys` are the page.astro paths that exist. */
+export function loadPlayable(file, entry, pageKeys) {
   const dir = file.split("/").at(-2);
   if (entry.slug !== dir) throw new Error(`${file}: slug "${entry.slug}" must equal its directory name "${dir}"`);
-  if (!(entry.kind in SECTION)) throw new Error(`${file}: kind "${entry.kind}" must be "game" or "tool"`);
-  if (!(`/src/playables/${dir}/page.astro` in bodies)) throw new Error(`${file}: src/playables/${dir}/page.astro is missing`);
+  if (!Object.hasOwn(SECTION, entry.kind)) throw new Error(`${file}: kind "${entry.kind}" must be "game" or "tool"`);
+  if (!pageKeys.includes(`/src/playables/${dir}/page.astro`)) throw new Error(`${file}: src/playables/${dir}/page.astro is missing`);
   return Object.freeze({ ...entry, path: `/blog/${SECTION[entry.kind]}/${entry.slug}` });
 }
 
-export const PLAYABLES = Object.freeze(Object.entries(entries).map(load).sort((a, b) => (written(a.slug) === written(b.slug) ? compare(a.slug, b.slug) : written(a.slug) < written(b.slug) ? -1 : 1)));
+export const PLAYABLES = Object.freeze(orderPlayables(Object.entries(entries).map(([file, entry]) => loadPlayable(file, entry, Object.keys(bodies)))));
 
 /** A playable's page body (its page.astro component), loaded when a route renders it. */
 export const pageOf = async (slug) => (await bodies[`/src/playables/${slug}/page.astro`]()).default;

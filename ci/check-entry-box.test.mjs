@@ -443,8 +443,24 @@ describe("scanBlogScripts: the derived list, the built bundles and the scripts t
   it("fails a playable page that does not load its own bundle", () => {
     expect(scan({ pages: [PAGE("coin", "play", []), PAGE("overnight-call", "tools")] }).join("\n")).toMatch(/blog\/play\/coin.*does not load \/js\/blog-coin\.js/);
   });
-  it("fails a script that is outside the bundle pattern, and any blog script on a page that is not a playable", () => {
-    expect.soft(scan({ pages: [...PAGES, PAGE("x", "play", ["/js/other.js"])] }).join("\n")).toMatch(/\/js\/other\.js/);
+  it("fails a script outside the bundle pattern with the pattern named, and any other script as not a blog bundle", () => {
+    for (const src of ["/js/blog-Coin.js", "/js/blog-a--b.js", "/js/blog-coin.js?x=1", "/js/blog-.js", "/js/blog-a_b.js", "/js/blog-coin.mjs"]) {
+      expect.soft(scan({ pages: [...PAGES, PAGE("x", "play", [src])] }).join("\n"), src).toMatch(/outside the bundle pattern/);
+    }
+    for (const src of ["/js/other.js", "https://evil.test/js/blog-x.js", "//evil.test/js/blog-coin.js", "js/blog-coin.js"]) {
+      expect.soft(scan({ pages: [...PAGES, PAGE("x", "play", [src])] }).join("\n"), src).toMatch(/not a blog bundle/);
+    }
+  });
+  it("fails a blog bundle on a page outside /blog, so index.html cannot swap a script for one", () => {
+    expect.soft(scan({ pages: [...PAGES, { rel: "index.html", html: '<script src="/js/blog-coin.js"></script>' }] }).join("\n")).toMatch(/index\.html: loads \/js\/blog-coin\.js, a blog bundle, from a page outside \/blog/);
+    expect.soft(scan({ pages: [...PAGES, { rel: "index.html", html: '<script src="/js/hero-deck.js"></script>' }] })).toEqual([]);
+  });
+  it("waits for the first playable page before asking who loads a bundle: a build with no published post holds none", () => {
+    const none = [{ rel: "index.html", html: "<html></html>" }];
+    expect.soft(scan({ pages: none })).toEqual([]);
+    expect.soft(scan({ pages: none, bundles: [...BUNDLES, "blog-extra.js"] }).join("\n"), "the set check still runs").toMatch(/blog-extra\.js.*built but not derived/);
+  });
+  it("fails any script that is not the page's own on a page that is not a playable", () => {
     expect.soft(scan({ pages: [...PAGES, { rel: "blog/a-post/index.html", html: '<script src="/js/blog-coin.js"></script>' }] }).join("\n")).toMatch(/blog\/a-post.*loads \/js\/blog-coin\.js/);
     expect.soft(scan({ pages: [...PAGES, { rel: "blog/play/index.html", html: '<script src="/js/blog-coin.js"></script>' }] }).join("\n")).toMatch(/blog\/play\/index\.html.*loads \/js\/blog-coin\.js/);
   });

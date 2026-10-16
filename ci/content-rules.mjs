@@ -131,6 +131,7 @@ export const BLOG_SCRIPT_PATTERN = /^\/js\/blog-[a-z0-9]+(?:-[a-z0-9]+)*\.js$/;
 export function deriveBlogScripts(playablesDir = fileURLToPath(new URL("../src/playables", import.meta.url))) {
   const urls = [];
   for (const entry of readdirSync(playablesDir, { withFileTypes: true })) {
+    if (entry.name.startsWith(".")) continue; // .DS_Store and the like: never a playable, never shipped
     if (entry.isDirectory() && entry.name === "_kit") continue;
     if (!entry.isDirectory() || !PLAYABLE_SLUG.test(entry.name)) {
       throw new Error(`src/playables/${entry.name}: a playable is a directory named by its slug (lowercase words joined by hyphens) — this name is outside the slug pattern`);
