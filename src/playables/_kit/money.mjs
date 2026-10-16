@@ -15,3 +15,6 @@ export const dollarsFromCents = (cents) => "$" + groupThousands((cents / 100).to
 
 /** A whole number of dollars, no decimals: a per-contract amount (price × 100) such as "$450,000". */
 export const wholeDollars = (n) => "$" + groupThousands(Math.round(n));
+
+/** A price as text: whole dollars bare, else cents ("$5,100" or "$1,074.60"). */
+export const price = (x) => "$" + groupThousands(Number.isInteger(x) ? x : x.toFixed(2));

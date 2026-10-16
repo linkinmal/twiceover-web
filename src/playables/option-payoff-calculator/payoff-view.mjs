@@ -8,7 +8,7 @@
  */
 import { STRUCTURES, shapeCards } from "./payoff-builder.mjs";
 import { rowHtml, showNumber } from "../_kit/number-input.mjs";
-import { groupThousands as grp } from "../_kit/money.mjs";
+import { groupThousands as grp, price as pp } from "../_kit/money.mjs";
 
 /** Whole dollars, signed only when negative: $1,234 or −$57. */
 export const pm = (x) => {
@@ -18,7 +18,7 @@ export const pm = (x) => {
 /** Whole dollars with a plus when positive. */
 export const ps = (x) => (Math.round(x) > 0 ? "+" : "") + pm(x);
 /** A price: whole dollars bare, else cents. */
-export const pp = (x) => "$" + grp(Number.isInteger(x) ? x : x.toFixed(2));
+export { pp };
 export const f2 = (x) => "$" + grp(x.toFixed(2));
 const tone = (x) => (x > 0.5 ? "pos" : x < -0.5 ? "neg" : "");
 

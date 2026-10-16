@@ -278,7 +278,7 @@ describe("the overnight call page", () => {
     const w = live();
     type(w, "t-k", "104,5");
     expect.soft(w.document.getElementById("t-k").getAttribute("aria-invalid")).toBe("false");
-    expect.soft(norm(w, "[data-night]")).toContain("a $104.5 strike");
+    expect.soft(norm(w, "[data-night]")).toContain("a $104.50 strike");
     const before = norm(w, "[data-sent]");
     type(w, "t-s", "0");
     expect.soft(w.document.getElementById("t-s").getAttribute("aria-invalid")).toBe("true");

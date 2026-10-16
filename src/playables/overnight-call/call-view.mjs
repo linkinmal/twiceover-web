@@ -5,7 +5,7 @@
  * built from numbers the engine computed and fixed wording; no text from the page, the URL or storage goes in.
  */
 import { SLIDERS } from "./overnight-call.mjs";
-import { groupThousands } from "../_kit/money.mjs";
+import { groupThousands, price } from "../_kit/money.mjs";
 
 export const money = (x) => "$" + groupThousands(Math.abs(x).toFixed(2));
 export const sign = (x) => (x < 0 ? "−" : x > 0 ? "+" : "");
@@ -67,7 +67,7 @@ export function nightHtml(r) {
   const move = movePct > 0 ? `rises ${n(movePct)}%` : movePct < 0 ? `falls ${n(movePct)}%` : "does not move";
   const iv = ivAfterPct < ivr ? `falls from ${ivNowPct}% to ${ivAfterPct}%` : ivAfterPct > ivr ? `rises from ${ivNowPct}% to ${ivAfterPct}%` : `stays at ${ivNowPct}%`;
   const days = daysPass === 0 ? "no time passes" : daysPass === 1 ? "1 day passes" : `${daysPass} days pass`;
-  return `The call has a $${strike} strike and ${daysToExpiry} ${daysToExpiry === 1 ? "day" : "days"} to expiration, on a $${stock} stock. ${daysPass === 1 ? "Overnight" : "Then"} the stock ${move}, implied volatility ${iv}, and ${days}.`;
+  return `The call has a ${price(strike)} strike and ${daysToExpiry} ${daysToExpiry === 1 ? "day" : "days"} to expiration, on a ${price(stock)} stock. ${daysPass === 1 ? "Overnight" : "Then"} the stock ${move}, implied volatility ${iv}, and ${days}.`;
 }
 
 /** What each slider shows: its readout, a plain sentence for volatility and days, and the dollars it moves the call by. */

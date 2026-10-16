@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dollarsFromCents, groupThousands, wholeDollars } from "./money.mjs";
+import { dollarsFromCents, groupThousands, price, wholeDollars } from "./money.mjs";
 
 describe("the shared money formatter", () => {
   it("puts the separator in from $1,000 and not before", () => {
@@ -14,6 +14,13 @@ describe("the shared money formatter", () => {
     expect.soft(wholeDollars(450000)).toBe("$450,000");
     expect.soft(wholeDollars(900)).toBe("$900");
     expect.soft(wholeDollars(1000)).toBe("$1,000");
+  });
+
+  it("prints a price whole when whole and in cents otherwise", () => {
+    expect.soft(price(5100)).toBe("$5,100");
+    expect.soft(price(100000)).toBe("$100,000");
+    expect.soft(price(1074.6)).toBe("$1,074.60");
+    expect.soft(price(99.5)).toBe("$99.50");
   });
 
   it("groups only the whole-number part of a plain number string", () => {
