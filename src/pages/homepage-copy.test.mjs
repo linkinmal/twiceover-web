@@ -41,7 +41,7 @@ const PINNED = [
       "A second look at your own book.",
       "Every position in your brokerage account, checked against the rules you set.",
       "Connect read-only →",
-      "Or analyze any US-listed ticker, down to a projected price for each horizon. No account needed.",
+      "Or analyze any US-listed stock, down to a projected price for each horizon. No account needed.",
       "Analyze",
       "Illustrative example with made-up figures and positions.",
     ]],
@@ -90,7 +90,7 @@ const PINNED = [
     ]],
     ["closing band", [
       "See it on your own book.",
-      "Connect read-only to see your own positions, or analyze any US-listed ticker.",
+      "Connect read-only to see your own positions, or analyze any US-listed stock.",
       "Your Portfolio comes with every plan. Free includes 10 analyses a month.",
       "Core and Premium give the Outlook more to weigh. Core adds the news, market voices, earnings and the options market. Premium adds the largest options trades, earnings history and insider activity.",
     ]],

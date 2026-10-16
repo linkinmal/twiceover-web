@@ -56,7 +56,7 @@ const blogStrip = (await getPublished()).slice(0, 3);
 ---
 <Base
   title="TwiceOver — a second look at your own book"
-  description="See your positions against your own rules, read-only from your broker. Run an analysis on any US-listed ticker, no account needed. Depth, never a verdict."
+  description="See your positions against your own rules, read-only from your broker. Run an analysis on any US-listed stock, no account needed. Depth, never a verdict."
 >
   <script type="application/ld+json" set:html={JSON.stringify(organizationJsonLd)} />
   <script type="application/ld+json" set:html={JSON.stringify(websiteJsonLd)} />
@@ -67,7 +67,7 @@ const blogStrip = (await getPublished()).slice(0, 3);
       <h1 class="type-display">A second look at your own book.</h1>
       <p class="sub">Every position in your brokerage account, checked against the rules you set.</p>
       <a class="btn-filled hero__cta" href="/go/connect">Connect read-only →</a>
-      <p class="demo-turn">Or analyze any US-listed ticker, down to a projected price for each horizon. No account needed.</p>
+      <p class="demo-turn">Or analyze any US-listed stock, down to a projected price for each horizon. No account needed.</p>
       {/* The live ticker handoff (#2520, ADR 0383 Amendment 1, consult 0739) — replaces the
           v2.6 fixture-only demo. A plain HTML GET submit: the browser serializes `ticker` and
           navigates same-origin to /go/try, whose Worker bounds the value to /^[A-Z]{1,6}$/ and
@@ -270,7 +270,7 @@ const blogStrip = (await getPublished()).slice(0, 3);
       <h3 class="type-caption faq__group-label">Before you sign up</h3>
       <details open>
         <summary class="type-heading-2">What is TwiceOver, exactly?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
-        <p>TwiceOver has two parts. Your Portfolio shows the positions you hold, read-only from your broker, with their math and your own rules checked on current prices. Our analysis is our view of any US-listed ticker, the same for every reader on the same plan. TwiceOver is a decision-support tool. It is not a registered investment adviser or broker-dealer, and it never tells you to buy or sell.</p>
+        <p>TwiceOver has two parts. Your Portfolio shows the positions you hold, read-only from your broker, with their math and your own rules checked on current prices. Our analysis is our view of any US-listed stock, the same for every reader on the same plan. TwiceOver is a decision-support tool. It is not a registered investment adviser or broker-dealer, and it never tells you to buy or sell.</p>
       </details>
       <details>
         <summary class="type-heading-2">How is the Outlook different from a price target?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
@@ -278,7 +278,7 @@ const blogStrip = (await getPublished()).slice(0, 3);
       </details>
       <details>
         <summary class="type-heading-2">Does every plan get the same Outlook?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
-        <p>Each plan's Outlook weighs only the sections that plan shows, so every price rests on evidence you can read. Core and Premium give the Outlook more to weigh, so their projections for the same ticker can differ from Free's. Every plan's Outlook also sees how the stock has moved before, and how it moves with its sector and the market.</p>
+        <p>Each plan's Outlook weighs only the sections that plan shows, so every price rests on evidence you can read. Core and Premium give the Outlook more to weigh, so their projections for the same stock can differ from Free's. Every plan's Outlook also sees how the stock has moved before, and how it moves with its sector and the market.</p>
       </details>
       <details>
         <summary class="type-heading-2">Can TwiceOver trade on my behalf?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
@@ -290,7 +290,7 @@ const blogStrip = (await getPublished()).slice(0, 3);
       </details>
       <details>
         <summary class="type-heading-2">Do I need to connect my brokerage to use it?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
-        <p>No. Anyone can analyze a US-listed ticker without connecting. Connecting adds Your Portfolio: your positions, their math and your own rules.</p>
+        <p>No. Anyone can analyze a US-listed stock without connecting. Connecting adds Your Portfolio: your positions, their math and your own rules.</p>
       </details>
       <details>
         <summary class="type-heading-2">Do I need a card to connect my brokerage?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
@@ -301,7 +301,7 @@ const blogStrip = (await getPublished()).slice(0, 3);
       </details>
       <details>
         <summary class="type-heading-2">Do I need to create an account to use it?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
-        <p>No. Anyone can analyze a US-listed ticker without an account and see the Free plan's sections. An account is for saving your rules, connecting your brokerage read-only, or starting a paid plan.</p>
+        <p>No. Anyone can analyze a US-listed stock without an account and see the Free plan's sections. An account is for saving your rules, connecting your brokerage read-only, or starting a paid plan.</p>
       </details>
       <details>
         <summary class="type-heading-2">Is my account data shared with anyone?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
@@ -345,7 +345,7 @@ const blogStrip = (await getPublished()).slice(0, 3);
   <section class="closing-band">
     <div class="container closing-band__inner">
       <p class="type-heading-1 closing-band__heading">See it on your own book.</p>
-      <p class="closing-band__sub">Connect read-only to see your own positions, or analyze any US-listed ticker.</p>
+      <p class="closing-band__sub">Connect read-only to see your own positions, or analyze any US-listed stock.</p>
       <p class="closing-band__body type-body">Your Portfolio comes with every plan. Free includes 10 analyses a month.</p>
       <p class="closing-band__body type-body">Core and Premium give the Outlook more to weigh. Core adds the news, market voices, earnings and the options market. Premium adds the largest options trades, earnings history and insider activity.</p>      <div class="closing-band__actions">
         <a class="btn-filled" href="/go/connect">Connect read-only →</a>

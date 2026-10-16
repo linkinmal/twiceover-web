@@ -21,7 +21,7 @@ describe("the public pages make no 'licensed' sourcing claim (#3649, ADR 0927)",
 
   it("states the sourcing lines Growth signed off", () => {
     expect.soft(index).toContain("Quotes, options and news data come from data vendors. Insider trades come from SEC filings, and short interest from FINRA. Nothing is scraped");
-    expect.soft(explainer).toContain("We pull market data and public filings for the ticker.");
+    expect.soft(explainer).toContain("We pull market data and public filings for the stock.");
     expect.soft(explainer).toContain("comes from vendor data or public filings");
   });
 });
@@ -82,7 +82,7 @@ describe("the explainer's News entry says what the headline filter does, without
 
 describe("the homepage's meta description and the no-positions rule (#3842, ADR 0959 Decisions 4-5)", () => {
   it("uses Growth's meta description", () => {
-    expect(index).toContain('description="See your positions against your own rules, read-only from your broker. Run an analysis on any US-listed ticker, no account needed. Depth, never a verdict."');
+    expect(index).toContain('description="See your positions against your own rules, read-only from your broker. Run an analysis on any US-listed stock, no account needed. Depth, never a verdict."');
   });
 
   it("has no sentence saying the analysis runs on, or is built from, the positions you hold", () => {
