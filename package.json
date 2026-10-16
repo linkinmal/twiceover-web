@@ -6,7 +6,7 @@
   "description": "TwiceOver pre-launch compliance site — twiceover.io (ADR 0002, #39)",
   "scripts": {
     "prebuild": "node scripts/build-tokens.mjs && node scripts/build-blog-scripts.mjs",
-    "build": "astro build",
+    "build": "astro build && node scripts/tamper-demo.mjs",
     "predev": "node scripts/build-tokens.mjs && node scripts/build-blog-scripts.mjs",
     "dev": "astro dev",
     "check": "node ci/check-content.mjs",
