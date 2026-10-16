@@ -10,7 +10,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 // deploy.sh is a REAL deploy (a test of this once shipped a branch to production). So it runs here only
-// with BLOG_NOW set, with no HOME (no Keychain), and with a PATH whose first entry holds fake `npm`,
+// with a refusal's trigger set (BLOG_NOW, BLOG_CONTENT_DIR, or no token), with no HOME, and with a PATH whose first entry holds fake `npm`,
 // `npx`, `node`, `wrangler` and `security` that record themselves and exit 99: if the guard were ever
 // removed, the script would hit a fake and the test would say which one ran.
 function runGuarded(extraEnv = { BLOG_NOW: "2100-01-01T00:00:00Z" }) {
@@ -26,8 +26,20 @@ function runGuarded(extraEnv = { BLOG_NOW: "2100-01-01T00:00:00Z" }) {
 }
 
 describe("scripts/deploy.sh", () => {
-  it("runs the stable-address gate among its gates", () => {
-    expect.soft(readFileSync(new URL("./deploy.sh", import.meta.url), "utf8")).toContain("node ci/check-stable-addresses.mjs");
+  // ADR 1127 Decision 3: the deploy job ships the artifact verify checked. It builds nothing, runs no gate (verify
+  // is the one gate list), and reads the token only from the env of its own step: no Keychain fallback.
+  it("builds nothing, runs no gate and has no Keychain fallback", () => {
+    const src = readFileSync(new URL("./deploy.sh", import.meta.url), "utf8").replace(/^\s*#.*$/gm, "");
+    expect.soft(src).not.toMatch(/npm run build|astro/);
+    expect.soft(src).not.toMatch(/\bnode\b/);
+    expect.soft(src).not.toMatch(/\bsecurity\b|find-generic-password/);
+    expect.soft(src).toContain("npx wrangler deploy");
+  });
+  it("refuses to run with no token in its environment, before it starts anything", () => {
+    const r = runGuarded({});
+    expect.soft(r.status).toBe(1);
+    expect.soft(r.stderr).toContain("CLOUDFLARE_API_TOKEN is not set");
+    expect.soft(r.ran, "no npm, npx, node, wrangler or security was started").toBe(false);
   });
   it("refuses to run with BLOG_NOW set, before it builds, runs any gate or reads a credential", () => {
     const r = runGuarded();
@@ -74,8 +86,4 @@ describe(".github/workflows/ci.yml", () => {
     expect.soft(steps.filter((l) => /deploy|wrangler/.test(l))).toHaveLength(1);
   });
 
-  it("runs the stable-address check in the checking job, after the build", () => {
-    const steps = buildJob.split("\n").filter((l) => /^      - run:/.test(l));
-    expect.soft(steps.findIndex((l) => l.includes("check:addresses"))).toBeGreaterThan(steps.findIndex((l) => l.includes("npm run build")));
-  });
 });

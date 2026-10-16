@@ -11,8 +11,8 @@
 // Emitted fields are EXACTLY six, exhaustively (ADR 0136 / consult 0163):
 //   path, referrer (origin only), utm_source, utm_medium, utm_campaign, country.
 // No IP, cookie, user-agent, or hash/identifier of any kind is read, retained, or
-// written anywhere. scripts/deploy.sh + ci/check-worker-source.mjs assert this at the
-// source level (denylist + writeDataPoint allowlist + console.* coverage) on every deploy.
+// written anywhere. ci/check-worker-source.mjs asserts this at the source level
+// (denylist + writeDataPoint allowlist + console.* coverage) in the verify job every deploy needs.
 //
 // run_worker_first:true (wrangler.jsonc) lets this Worker see page navigations before
 // falling through to env.ASSETS.fetch(request); assets otherwise serve without it. That

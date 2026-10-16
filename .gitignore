@@ -11,7 +11,7 @@ public/js/blog-*.js
 # Dependencies
 node_modules/
 
-# Never commit secrets — the Cloudflare token comes from macOS Keychain at deploy time
+# Never commit secrets — the Cloudflare token is a CI secret, set only on the deploy step
 .dev.vars
 .env
 .env.*

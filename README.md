@@ -105,9 +105,8 @@ needs `fonttools` and `brotli`); they never ship to a reader. Look at the card b
 
 ## Deploy
 
-Token lives in macOS Keychain — pulled at deploy time, never in the repo:
-
-```sh
-export CLOUDFLARE_API_TOKEN=$(security find-generic-password -s cloudflare-api-token-twiceover -w)
-npm run build && npm run deploy
-```
+Production deploys from CI only, on `main` (`.github/workflows/ci.yml`; ADR 1127 Decision 3). A merge, the
+daily schedule or a manual `workflow_dispatch` runs three jobs: `build-and-check` builds and tests and
+uploads `dist/`; `verify` runs every gate on that `dist/` and prints its digest; `deploy` checks the
+digest and runs `npm run deploy` (`wrangler deploy`) with the token in that one step's environment.
+There is no local deploy. The way back from a bad deploy is `npx wrangler rollback` or a re-run of the workflow.
