@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { readNumber, showNumber } from "../_kit/number-input.mjs";
+import { readNumber, showNumber } from "./number-input.mjs";
 
 describe("number-input", () => {
   it("reads a plain number with a dot or a comma as the decimal mark", () => {
