@@ -15,6 +15,14 @@ describe("number-input", () => {
       expect(readNumber(bad), JSON.stringify(bad)).toBeNaN();
     }
   });
+  it("refuses a comma followed by exactly three digits: a thousands separator, never cents (#4366)", () => {
+    for (const bad of ["1,000", "1,250", "5,000", " 1,250 ", "0,125", "12,345"]) {
+      expect(readNumber(bad), JSON.stringify(bad)).toBeNaN();
+    }
+    expect(readNumber("1,25")).toBe(1.25);
+    expect(readNumber("1,5")).toBe(1.5);
+    expect(readNumber("1.250")).toBe(1.25);
+  });
   it("shows whole numbers bare and the rest with two decimals", () => {
     expect(showNumber(105)).toBe("105");
     expect(showNumber(2.1)).toBe("2.10");

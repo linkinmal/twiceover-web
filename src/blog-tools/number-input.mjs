@@ -2,12 +2,17 @@
  * number-input — read a typed number the way the tool pages accept it (blog-handoff.md section 5): digits with an
  * optional decimal mark, a dot or a comma. Anything else (a sign, an exponent, a space inside, a thousands
  * separator, text) is not a number. Returns NaN for those, so the caller's range check marks the box invalid.
+ * A comma followed by exactly three digits is a thousands separator ("1,250"): three digits cannot be cents, and
+ * reading it as a decimal would turn 1,250 into 1.25 with nothing marking the box.
  */
 const PLAIN = /^(\d+\.?\d*|\.\d+)$/;
+const THOUSANDS = /,\d{3}$/;
 
 /** @param {string} text what the reader typed */
 export function readNumber(text) {
-  const s = String(text).trim().replace(",", ".");
+  const t = String(text).trim();
+  if (THOUSANDS.test(t)) return NaN;
+  const s = t.replace(",", ".");
   return PLAIN.test(s) ? parseFloat(s) : NaN;
 }
 
