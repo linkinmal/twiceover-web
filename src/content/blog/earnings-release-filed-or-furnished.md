@@ -1,15 +1,15 @@
 ---
-title: "Citigroup counts its whole earnings release as filed, except the CEO’s quote"
+title: "Citigroup took extra legal risk on its whole earnings release, except the CEO’s words"
 description: "Citigroup put its whole third-quarter earnings release under an extra legal rule that lets investors sue, except the three paragraphs quoting Citigroup’s CEO. Of 14 large companies we checked, six banks chose the “filed” label and eight kept the default."
 publishAt: "2026-10-23T07:00:00-04:00"
 topic: "reading-the-document"
 lens: "concept"
 build: "text-led"
 look: "exhibit"
-hit: "except the CEO’s quote"
+hit: "except the CEO’s words"
 figure:
   value: "6 of 14"
-  note: "earnings releases counted as filed"
+  note: "earnings releases put under the extra rule"
 sources: "Citigroup 8-K | https://www.sec.gov/Archives/edgar/data/831001/000110465926115323/c-20261013x8k.htm; SEC Form 8-K | https://www.sec.gov/files/form8-k.pdf; Exchange Act Section 18 | https://www.law.cornell.edu/uscode/text/15/78r; SEC EDGAR"
 ---
 
