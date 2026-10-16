@@ -1,0 +1,14 @@
+---
+// A tool page's "How it is computed" block (blog-handoff-playables.md section 0): the page writes its method and its
+// limits, and the block closes the limits with the hypothetical-illustration sentence (#4242), so no page can
+// leave it off or reword it. `noun` is what the illustration is of ("option math", "option pricing math").
+interface Props {
+  noun: string;
+}
+const { noun } = Astro.props;
+---
+<section class="blk plate">
+  <p class="lab">How it is computed</p>
+  <p class="fine"><b>Method.</b> <slot name="method" /></p>
+  <p class="fine"><b>Limits.</b> <slot name="limits" /> This is a hypothetical illustration of {noun}. It does not predict any stock or option.</p>
+</section>

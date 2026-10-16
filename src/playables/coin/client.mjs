@@ -6,7 +6,7 @@
  * engine, draws it, reveals the bars after the first finished game and keeps the visit's tally in memory.
  * No network call of any kind, no storage, no read of any form field.
  */
-import { COIN, createRng, flip, playToEnd, formatMoney } from "../coin-game.mjs";
+import { COIN, createRng, flip, playToEnd, formatMoney } from "./coin-game.mjs";
 
 const pc = (x) => Math.round(x * 100) + "%";
 const NS = "http://www.w3.org/2000/svg";

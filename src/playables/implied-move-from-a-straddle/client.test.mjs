@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from "vitest";
-import { init } from "./straddle.mjs";
-import { EXAMPLES, runStraddle } from "../straddle.mjs";
-import { answerHtml, chartSvg, resultHtml, sayText, straddleNote } from "../straddle-view.mjs";
+import { init } from "./client.mjs";
+import { EXAMPLES, runStraddle } from "./straddle.mjs";
+import { answerHtml, chartSvg, resultHtml, sayText, straddleNote } from "./straddle-view.mjs";
 
 // The served markup the page carries, reduced to what the script touches: the opening example printed by the build.
 function served() {

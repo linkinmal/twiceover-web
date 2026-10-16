@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, expect, it, beforeEach } from "vitest";
-import { init } from "./coin.mjs";
-import { barsAll, formatMoney } from "../coin-game.mjs";
+import { init } from "./client.mjs";
+import { barsAll, formatMoney } from "./coin-game.mjs";
 
 // The served markup the page carries, reduced to what the script touches.
 function served() {

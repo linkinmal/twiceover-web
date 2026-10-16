@@ -1,12 +1,12 @@
 /**
  * Block script for "The option payoff calculator" (ADR 1088 Decision 1, ADR 1090 Decision 8). Bundled to
- * public/js/blog-payoff.js. It reads the page's own typed boxes and range slider, runs the shared engine and writes
+ * public/js/blog-option-payoff-calculator.js. It reads the page's own typed boxes and range slider, runs the shared engine and writes
  * the same sentences and drawing the build printed (payoff-view.mjs) back into the page. The slider sits on the
  * chart's price axis; dragging the chart moves the same slider. Nothing is sent, stored or read from the address.
  */
-import { curvePoints, evaluate, findsMet, validatePayoffInputs } from "../payoff-builder.mjs";
-import { BAD_NUMBER, readNumber, showNumber } from "../number-input.mjs";
-import { cardsHtml, chartCaption, chartLabel, chartSvg, describe, findsHtml, headHtml, pm, pp, sentenceHtml, statsHtml, structureOf, termsHtml, typeRowHtml, whyHtml } from "../payoff-view.mjs";
+import { curvePoints, evaluate, findsMet, validatePayoffInputs } from "./payoff-builder.mjs";
+import { BAD_NUMBER, readNumber, showNumber } from "../_kit/number-input.mjs";
+import { cardsHtml, chartCaption, chartLabel, chartSvg, describe, findsHtml, headHtml, pm, pp, sentenceHtml, statsHtml, structureOf, termsHtml, typeRowHtml, whyHtml } from "./payoff-view.mjs";
 
 /** @param {Element} root the [data-payoff] element */
 export function init(root) {

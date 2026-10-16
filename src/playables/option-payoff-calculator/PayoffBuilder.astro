@@ -2,10 +2,10 @@
 // "The option payoff calculator" as served (blog-handoff.md section 5.3, kit v3): three open numbered steps in one
 // column. The opening structure (a long call at the design's invented numbers, the handle at $110) is printed in
 // full: the answer, the chart, three figures, the finds and the six shapes. The functions the block script
-// imports (src/blog-tools/payoff-view.mjs) write it, so the script only moves what is already here. The steps'
+// imports (payoff-view.mjs beside this file) write it, so the script only moves what is already here. The steps'
 // controls are hidden until the script runs them; with script off the example reads as a page of its own.
-import { curvePoints, evaluate, findsMet } from "../../blog-tools/payoff-builder.mjs";
-import { structureOf, describe, termsHtml, typeRowHtml, whyHtml, headHtml, sentenceHtml, statsHtml, findsHtml, chartSvg, chartLabel, chartCaption, cardsHtml, sixHtml, pp } from "../../blog-tools/payoff-view.mjs";
+import { curvePoints, evaluate, findsMet } from "./payoff-builder.mjs";
+import { structureOf, describe, termsHtml, typeRowHtml, whyHtml, headHtml, sentenceHtml, statsHtml, findsHtml, chartSvg, chartLabel, chartCaption, cardsHtml, sixHtml, pp } from "./payoff-view.mjs";
 
 const kind = "lc";
 const def = structureOf(kind, null)!;

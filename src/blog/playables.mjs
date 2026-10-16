@@ -1,89 +1,61 @@
 /**
- * The blog's standing pages: games and tools (blog-handoff.md section 1 and 5; ADR 1090 Decision 8). A playable
- * is code, not a post: no front matter, no punchline headline, no date of its own beyond "Updated". It wears a
- * theme like a post. The registry is the one place a page's address, title, theme and update time are written;
- * the routes, the bar link, the sitemap and the "More to play" strip all read it.
+ * The blog's standing pages: games and tools (blog-handoff.md section 1 and 5; ADR 1090 Decision 8, as amended by
+ * ADR 1127 Decision 2). A playable is code, not a post: no front matter, no punchline headline, no date of its own
+ * beyond "Updated". It wears a theme like a post. A playable is a directory, src/playables/<slug>/, and this loader
+ * is the only place that knows the layout: `entry.mjs` is its address, title, theme and update time, `page.astro` its
+ * body and `client.mjs` its one block script. The routes, the bar link, the sitemap and the "More to play" strip read
+ * what comes out of here and never name a page.
  *
- * `script` names the block script built from src/blog-tools/client/<script>.mjs to /js/blog-<script>.js, the one
- * file the page loads (BLOG_SCRIPTS in ci/content-rules.mjs lists it).
+ * The block script is built from `client.mjs` to /js/blog-<slug>.js, the one file the page loads (BLOG_SCRIPTS in
+ * ci/content-rules.mjs is derived from the same directories).
  *
- * `updatedAt` moves only on a real change to the page's content (the post rule, applied here by hand).
+ * Every importer runs under Vite (Astro, Vitest), never plain Node: `import.meta.glob` is Vite's.
  */
-export const PLAYABLES = Object.freeze([
-  {
-    slug: "guess-the-gap",
-    script: "guess",
-    kind: "game",
-    path: "/blog/play/guess-the-gap",
-    title: "Guess the gap",
-    label: "Guess the gap",
-    deck: "A company reports earnings. You see the move options had priced. Guess how far the stock moved the next day.",
-    description: "A game: five company earnings reports, the move options had priced for each, and one guess, how far the stock moved the next day.",
-    look: "ticket",
-    topic: "earnings",
-    updatedAt: "2026-10-12T12:00:00-04:00",
-  },
-  {
-    slug: "implied-move-from-a-straddle",
-    script: "straddle",
-    kind: "tool",
-    path: "/blog/tools/implied-move-from-a-straddle",
-    title: "Implied move from a straddle",
-    label: "Implied move from a straddle",
-    deck: "A straddle's price tells you how big a move the options market is pricing. Type the two numbers and see the range.",
-    description: "A tool: drag the stock price on a straddle's last day, or type your own stock price and straddle price, and see the implied move, the two breakevens and the profit or loss.",
-    look: "risograph",
-    topic: "earnings",
-    updatedAt: "2026-10-12T12:00:00-04:00",
-  },
-  {
-    slug: "coin",
-    script: "coin",
-    kind: "game",
-    path: "/blog/play/coin",
-    title: "The 60% coin",
-    label: "The 60% coin",
-    deck: "A coin lands heads 60% of the time. You start with $25 in play money and bet on heads every flip. You pick only how much to bet.",
-    description: "A game: a coin that lands heads 60% of the time, $25 in play money to start, and one choice, how much to bet on each flip.",
-    look: "neon",
-    topic: "risk-sizing-behaviour",
-    updatedAt: "2026-10-11T09:00:00-04:00",
-  },
-  {
-    slug: "overnight-call",
-    script: "call",
-    kind: "tool",
-    path: "/blog/tools/overnight-call",
-    title: "The overnight call calculator",
-    label: "The overnight call calculator",
-    deck: "You hold a call overnight. The stock moves and implied volatility changes. See what the call is worth the next morning and where the change came from.",
-    description: "A tool: set the stock move, the volatility and the days that pass, and see what a call is worth the next morning and where the change came from.",
-    look: "exhibit",
-    topic: "option-math",
-    updatedAt: "2026-10-11T09:00:00-04:00",
-  },
-  {
-    slug: "option-payoff-calculator",
-    script: "payoff",
-    kind: "tool",
-    path: "/blog/tools/option-payoff-calculator",
-    title: "The option payoff calculator",
-    label: "The option payoff calculator",
-    deck: "Pick an option structure. See what it is worth on its last day at every stock price, and where it breaks even. Then change its strikes and premiums.",
-    description: "A tool: pick one of six option structures, type its strikes and premiums, and see its profit or loss on the last day at every stock price.",
-    look: "blueprint",
-    topic: "option-math",
-    updatedAt: "2026-10-11T09:00:00-04:00",
-  },
-]);
+const entries = import.meta.glob("/src/playables/*/entry.mjs", { eager: true, import: "default" });
+const bodies = import.meta.glob("/src/playables/*/page.astro");
+
+// The hub's pinned order among pages updated at the same moment is the order the first five were written (the hub
+// test pins it, blog-handoff.md section 5.4). A page not named here follows them, by slug, so a new folder needs no
+// edit here; retire the list when that order is ruled on data.
+const WRITTEN_FIRST = ["guess-the-gap", "implied-move-from-a-straddle", "coin", "overnight-call", "option-payoff-calculator"];
+const written = (slug) => (WRITTEN_FIRST.includes(slug) ? WRITTEN_FIRST.indexOf(slug) : Infinity);
+/** The order of PLAYABLES: the five written first in their order, then any other by slug. */
+export const orderPlayables = (list) => [...list].sort((a, b) => (written(a.slug) === written(b.slug) ? compare(a.slug, b.slug) : written(a.slug) < written(b.slug) ? -1 : 1));
+const compare = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
+const SECTION = { game: "play", tool: "tools" };
+
+/** One entry, checked against the folder it was found in; `pageKeys` are the page.astro paths that exist. */
+export function loadPlayable(file, entry, pageKeys) {
+  const dir = file.split("/").at(-2);
+  if (entry.slug !== dir) throw new Error(`${file}: slug "${entry.slug}" must equal its directory name "${dir}"`);
+  if (!Object.hasOwn(SECTION, entry.kind)) throw new Error(`${file}: kind "${entry.kind}" must be "game" or "tool"`);
+  if (!pageKeys.includes(`/src/playables/${dir}/page.astro`)) throw new Error(`${file}: src/playables/${dir}/page.astro is missing`);
+  return Object.freeze({ ...entry, path: `/blog/${SECTION[entry.kind]}/${entry.slug}` });
+}
+
+export const PLAYABLES = Object.freeze(orderPlayables(Object.entries(entries).map(([file, entry]) => loadPlayable(file, entry, Object.keys(bodies)))));
+
+/** A playable's page body (its page.astro component), loaded when a route renders it. */
+export const pageOf = async (slug) => (await bodies[`/src/playables/${slug}/page.astro`]()).default;
 
 export const playablePath = (p) => p.path;
 
 /** The games-and-tools hub (blog-handoff.md section 5.4): where the bar's "Games and tools" link and each strip's last cell go. */
 export const HUB_PATH = "/blog/play";
 
-/** The other playables, for the "More to play" strip: two, then the strip's own last cell opens the hub. */
-export const otherPlayables = (slug) => PLAYABLES.filter((p) => p.slug !== slug).slice(0, 2);
+/**
+ * The "More to play" strip (Designer, consult 1125 ask 5): the strip is the next thing to play, so a page on the
+ * same topic comes first, then the newest update, then the slug. Two, then the strip's own last cell opens the hub.
+ */
+export const moreToPlay = (playables, slug) => {
+  const topic = playables.find((p) => p.slug === slug)?.topic;
+  const rank = (p) => (p.topic === topic ? 0 : 1);
+  return playables
+    .filter((p) => p.slug !== slug)
+    .sort((a, b) => rank(a) - rank(b) || Date.parse(b.updatedAt) - Date.parse(a.updatedAt) || compare(a.slug, b.slug))
+    .slice(0, 2);
+};
+export const otherPlayables = (slug) => moreToPlay(PLAYABLES, slug);
 
-/** Every playable, newest update first; the registry's order breaks a tie (the sort is stable). */
+/** Every playable, newest update first; the order of PLAYABLES breaks a tie (the sort is stable). */
 export const playablesNewestFirst = () => [...PLAYABLES].sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));

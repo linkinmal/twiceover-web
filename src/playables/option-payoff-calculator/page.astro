@@ -1,0 +1,10 @@
+---
+import PayoffBuilder from "./PayoffBuilder.astro";
+import MethodLimits from "../../components/blog/MethodLimits.astro";
+---
+<p class="words">A <b>call</b> is a contract that lets you pay a set price per share for 100 shares, any time until a set date. A <b>put</b> is the reverse: a contract that lets you hand over 100 shares and be paid a set price per share for them, any time until a set date. The set price is the <b>strike</b>. The set date is the <b>expiration</b>, the contract's last day. The contract itself has a price, called the <b>premium</b>, quoted per share. One contract covers 100 shares, so a $2.46 premium is $246 a contract.</p>
+<PayoffBuilder />
+<MethodLimits noun="option math">
+  <Fragment slot="method">Each option's value on its last day is its intrinsic value: a call is the stock price minus the strike, a put is the strike minus the stock price, never below zero. Subtract the premium for an option you bought, add it for one you sold. The line is the sum, times 100 shares a contract and the number of contracts. A covered call also holds the shares, bought at the stock price now.</Fragment>
+  <Fragment slot="limits">The line is the last day only. Before then an option is worth more or less than this because of time left and implied volatility, and an option you sold can be assigned early. Commissions, taxes, dividends and margin are left out. The numbers are invented examples and are not a quote.</Fragment>
+</MethodLimits>

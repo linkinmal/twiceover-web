@@ -231,9 +231,9 @@ describe("what verify and deploy run never reaches the build's toolchain or the 
     };
     try {
       const viaAstro = write("a.mjs", 'import { z } from "astro/zod"; export default z;');
-      const viaTool = write("b.mjs", `import "${relative(dir, join(root, "src/blog-tools/coin-game.mjs"))}";`);
+      const viaTool = write("b.mjs", `import "${relative(dir, join(root, "src/playables/coin/coin-game.mjs"))}";`);
       expect.soft(violations(await reach({ files: [viaAstro], packages: [] }))).toContain("astro");
-      expect.soft(violations(await reach({ files: [viaTool], packages: [] })).some((f) => f.endsWith("src/blog-tools/coin-game.mjs"))).toBe(true);
+      expect.soft(violations(await reach({ files: [viaTool], packages: [] })).some((f) => f.endsWith("src/playables/coin/coin-game.mjs"))).toBe(true);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

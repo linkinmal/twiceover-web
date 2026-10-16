@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from "vitest";
-import { init } from "./guess.mjs";
-import { QUESTION, answerHtml, endTitle, givenHtml, lessonBig, meterHtml, tallyHtml, whyText } from "../guess-gap-view.mjs";
+import { init } from "./client.mjs";
+import { QUESTION, answerHtml, endTitle, givenHtml, lessonBig, meterHtml, tallyHtml, whyText } from "./guess-gap-view.mjs";
 
 // Invented figures; the baked-in set is checked in guess-gap-reports.test.mjs.
 const FIRST = [

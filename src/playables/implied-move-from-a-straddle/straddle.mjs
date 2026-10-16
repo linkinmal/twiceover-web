@@ -11,7 +11,7 @@
  * with the one compared. A profit in cents a share is also the profit in dollars a contract (100 shares).
  *
  * Pure functions, no DOM and no clock: the build imports this to print the page's opening state and the block script
- * in `public/js/` imports it to recompute on input, so both print the same numbers. Wording is in straddle-view.mjs.
+ * (client.mjs) imports it to recompute on input, so both print the same numbers. Wording is in straddle-view.mjs.
  */
 
 /** The page opens on the first; "Try another example" deals one of the other five (blog-handoff-playables.md section 2). */

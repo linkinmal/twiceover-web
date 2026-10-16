@@ -8,7 +8,7 @@
  * the waterfall always add to the change with no stray cent.
  *
  * Pure functions, no DOM and no clock: the build imports this to render a page's opening state and the
- * block script in `public/js/` imports it to recompute on input, so both print the same numbers.
+ * block script (client.mjs) imports it to recompute on input, so both print the same numbers.
  * Every figure here is computed from what the reader typed; nothing is fetched. Wording is not here —
  * `whyKey` names the rule and the page chooses the sentence.
  *
@@ -18,7 +18,7 @@
  * 0% volatility row (the kit divides by zero for an implied volatility of 1%); a preset stays pressed
  * after the slider clamped it.
  */
-import { normalCdf } from "./normal-cdf.mjs";
+import { normalCdf } from "../_kit/normal-cdf.mjs";
 
 /** The design's opening case (§5.2 defaults). */
 export const DEFAULTS = Object.freeze({

@@ -1,12 +1,12 @@
 ---
 // "The 60% coin" as served (blog-handoff.md sections 4 and 5.1). Everything a block can show is in this HTML:
 // the 2,000-game bars, their legend, the lesson and the study panel, with every figure computed here by the
-// same functions the block script imports (src/blog-tools/coin-game.mjs). The script only shows, hides or moves
+// same functions the block script imports (coin-game.mjs beside this file). The script only shows, hides or moves
 // it: it hides the bars and lesson until the first game ends, and un-hides the controls it can run. With script
 // off or unexecuted the controls stay hidden and the figures show (ADR 1088 Decision 1).
 import { PLAYABLES } from "../../blog/playables.mjs";
 import { formatDay } from "../../blog/format.mjs";
-import { COIN, barsAll, lessonFigures, formatMoney } from "../../blog-tools/coin-game.mjs";
+import { COIN, barsAll, lessonFigures, formatMoney } from "./coin-game.mjs";
 
 const bars = barsAll();
 const fig = lessonFigures(bars);

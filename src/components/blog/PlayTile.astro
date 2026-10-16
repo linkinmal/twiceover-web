@@ -4,13 +4,12 @@
 // own theme. The whole row is one link; no date, since a playable has none of its own.
 import { LOOKS } from "../../blog/vocabulary.mjs";
 import { TOPIC_LABELS } from "../../blog/labels.mjs";
-import { PLAY_ART } from "../../blog/play-art.mjs";
 
 interface Props {
   p: any;
 }
 const { p } = Astro.props;
-const art = PLAY_ART[p.slug as keyof typeof PLAY_ART];
+const art = p.art;
 ---
 <a class="tile" href={p.path}>
   <div class="t-top">

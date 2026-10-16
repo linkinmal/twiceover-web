@@ -8,7 +8,7 @@
  * hit (4.1 − 2.1 is 2.0000000000000004 in floating point) and a ratio of exactly 1.8 reads as 1.8.
  *
  * Pure functions, no DOM and no clock: the build imports this to print the page's first question and its answers and
- * the block script in `public/js/` imports it to play. Wording is in guess-gap-view.mjs.
+ * the block script (client.mjs) imports it to play. Wording is in guess-gap-view.mjs.
  */
 
 export const MAX_TENTHS = 300; // the slider and the meter run 0 to 30%

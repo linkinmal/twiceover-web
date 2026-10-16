@@ -1,12 +1,12 @@
 /**
  * Block script for "Implied move from a straddle" (ADR 1088 Decision 1, ADR 1090 Decision 8). Bundled to
- * public/js/blog-straddle.js. It reads the page's own slider and two typed boxes, runs the shared math and writes the
+ * public/js/blog-implied-move-from-a-straddle.js. It reads the page's own slider and two typed boxes, runs the shared math and writes the
  * same sentences, answers and chart the build printed (straddle-view.mjs) back into the page. A bad entry marks its own
  * box and the page keeps the last good result. Nothing is sent, stored or read from the address.
  */
-import { DEFAULT_EXAMPLE, EXAMPLES, fitEnd, runStraddle, validateStraddle } from "../straddle.mjs";
-import { readNumber } from "../number-input.mjs";
-import { STOCK_NOTE, answerHtml, chartLabel, chartSvg, resultHtml, sayText, sliderText, straddleNote } from "../straddle-view.mjs";
+import { DEFAULT_EXAMPLE, EXAMPLES, fitEnd, runStraddle, validateStraddle } from "./straddle.mjs";
+import { readNumber } from "../_kit/number-input.mjs";
+import { STOCK_NOTE, answerHtml, chartLabel, chartSvg, resultHtml, sayText, sliderText, straddleNote } from "./straddle-view.mjs";
 
 /**
  * @param {Element} root the [data-straddle] element
