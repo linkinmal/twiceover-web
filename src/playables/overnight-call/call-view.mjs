@@ -5,8 +5,9 @@
  * built from numbers the engine computed and fixed wording; no text from the page, the URL or storage goes in.
  */
 import { SLIDERS } from "./overnight-call.mjs";
+import { groupThousands } from "../_kit/money.mjs";
 
-export const money = (x) => "$" + Math.abs(x).toFixed(2);
+export const money = (x) => "$" + groupThousands(Math.abs(x).toFixed(2));
 export const sign = (x) => (x < 0 ? "−" : x > 0 ? "+" : "");
 /** A percent with one decimal only when it has one: +4%, −6.5%. */
 export const pct = (x) => sign(x) + (Math.abs(x) % 1 ? Math.abs(x).toFixed(1) : Math.abs(x).toFixed(0)) + "%";
@@ -30,7 +31,7 @@ export function sentenceHtml(r) {
   const { daysPass } = r.inputs;
   const when = r.when === "next-morning" ? "the next morning" : r.when === "straight-after" ? "straight after" : `${daysPass} days later`;
   const pc = r.perContract;
-  return `Worth <b>${money(v0)}</b> before and <b>${money(v3)}</b> ${when}. That is <b class="${tone(pc)}">${sign(pc)}$${Math.abs(pc).toFixed(0)}</b> on one contract of 100 shares.`;
+  return `Worth <b>${money(v0)}</b> before and <b>${money(v3)}</b> ${when}. That is <b class="${tone(pc)}">${sign(pc)}$${groupThousands(Math.abs(pc).toFixed(0))}</b> on one contract of 100 shares.`;
 }
 
 export function breakEvenHtml(r) {
@@ -147,7 +148,7 @@ export function waterfallSvg(r, W = 600) {
       const top = y(Math.max(a, z));
       const hh = Math.max(3, Math.abs(y(a) - y(z)));
       const d = Math.round((z - a) * 100) / 100;
-      const lab = c === "tot" ? "$" + z.toFixed(2) : (d >= 0 ? "+" : "−") + "$" + Math.abs(d).toFixed(2);
+      const lab = c === "tot" ? "$" + groupThousands(z.toFixed(2)) : (d >= 0 ? "+" : "−") + "$" + groupThousands(Math.abs(d).toFixed(2));
       const cls = c === "tot" ? (i ? "wn1" : "wn0") : d >= 0 ? "wg" : "wl";
       return `<rect class="${cls}" x="${x0.toFixed(1)}" y="${top.toFixed(1)}" width="${w.toFixed(1)}" height="${hh.toFixed(1)}"/><text class="wt" x="${(x0 + w / 2).toFixed(1)}" y="${(top - 9).toFixed(1)}">${lab}</text><text class="wn" x="${(x0 + w / 2).toFixed(1)}" y="${H - b + 24}">${n}</text>`;
     })

@@ -2,7 +2,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { init } from "./client.mjs";
 import { EXAMPLES, runStraddle } from "./straddle.mjs";
-import { answerHtml, chartSvg, resultHtml, sayText, straddleNote } from "./straddle-view.mjs";
+import { answerHtml, chartSvg, chartSvgNarrow, resultHtml, sayText, straddleNote } from "./straddle-view.mjs";
 
 // The served markup the page carries, reduced to what the script touches: the opening example printed by the build.
 function served() {
@@ -16,6 +16,7 @@ function served() {
     <p data-say>${sayText(r)}</p>
     <div data-ans>${answerHtml(r)}</div>
     <svg data-chart viewBox="0 0 640 250">${chartSvg(r, r.stockC)}</svg>
+    <svg data-chart-narrow viewBox="0 0 320 224">${chartSvgNarrow(r, r.stockC)}</svg>
     <p data-res>${resultHtml(r, r.stockC)}</p>
     <section data-js hidden>
       <div data-field="stock"><input id="sd-stock" value="100.00" aria-describedby="sd-stock-n"><small id="sd-stock-n">What one share costs.</small></div>
@@ -53,6 +54,7 @@ describe("the straddle block script", () => {
     expect.soft(q("[data-say]").textContent).toBe(sayText(r));
     expect.soft(q("[data-res]").innerHTML).toBe(resultHtml(r, 10000));
     expect.soft(q("[data-chart]").innerHTML).toBe(parsed(chartSvg(r, 10000)));
+    expect.soft(q("[data-chart-narrow]").innerHTML).toBe(parsed(chartSvgNarrow(r, 10000)));
     expect.soft(api.state().endC).toBe(10000);
   });
 
@@ -61,6 +63,7 @@ describe("the straddle block script", () => {
     type(q("#sd-end"), "115.00");
     expect.soft(q("[data-res]").innerHTML).toBe(resultHtml(r, 11500));
     expect.soft(q("[data-chart]").innerHTML).toBe(parsed(chartSvg(r, 11500)));
+    expect.soft(q("[data-chart-narrow]").innerHTML).toBe(parsed(chartSvgNarrow(r, 11500)));
     expect.soft(q("[data-ans]").innerHTML).toBe(answerHtml(r));
     expect.soft(q("#sd-end").getAttribute("aria-valuetext")).toBe("$115.00");
   });

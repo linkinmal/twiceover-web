@@ -8,8 +8,8 @@
  */
 import { STRUCTURES, shapeCards } from "./payoff-builder.mjs";
 import { rowHtml, showNumber } from "../_kit/number-input.mjs";
+import { groupThousands as grp } from "../_kit/money.mjs";
 
-const grp = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 /** Whole dollars, signed only when negative: $1,234 or −$57. */
 export const pm = (x) => {
   const a = Math.abs(Math.round(x));
@@ -18,8 +18,8 @@ export const pm = (x) => {
 /** Whole dollars with a plus when positive. */
 export const ps = (x) => (Math.round(x) > 0 ? "+" : "") + pm(x);
 /** A price: whole dollars bare, else cents. */
-export const pp = (x) => "$" + (Number.isInteger(x) ? x : x.toFixed(2));
-export const f2 = (x) => "$" + x.toFixed(2);
+export const pp = (x) => "$" + grp(Number.isInteger(x) ? x : x.toFixed(2));
+export const f2 = (x) => "$" + grp(x.toFixed(2));
 const tone = (x) => (x > 0.5 ? "pos" : x < -0.5 ? "neg" : "");
 
 /** What each structure is (one line) and what it does (the rest), as the picker shows them under the six pictures. */

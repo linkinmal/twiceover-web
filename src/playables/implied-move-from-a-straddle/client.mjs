@@ -6,7 +6,7 @@
  */
 import { DEFAULT_EXAMPLE, EXAMPLES, fitEnd, runStraddle, validateStraddle } from "./straddle.mjs";
 import { readNumber } from "../_kit/number-input.mjs";
-import { STOCK_NOTE, answerHtml, chartLabel, chartSvg, resultHtml, sayText, sliderText, straddleNote } from "./straddle-view.mjs";
+import { STOCK_NOTE, answerHtml, chartLabel, chartSvg, chartSvgNarrow, resultHtml, sayText, sliderText, straddleNote } from "./straddle-view.mjs";
 
 /**
  * @param {Element} root the [data-straddle] element
@@ -19,7 +19,8 @@ export function init(root, opts = {}) {
   const stockBox = q("#sd-stock");
   const straddleBox = q("#sd-strad");
   const chart = q("[data-chart]");
-  if (!slider || !stockBox || !straddleBox || !chart) return null;
+  const narrow = q("[data-chart-narrow]");
+  if (!slider || !stockBox || !straddleBox || !chart || !narrow) return null;
 
   let example = DEFAULT_EXAMPLE;
   let r = runStraddle(EXAMPLES[example].stock, EXAMPLES[example].straddle);
@@ -31,6 +32,7 @@ export function init(root, opts = {}) {
   function drawResult() {
     q("[data-res]").innerHTML = resultHtml(r, endC);
     chart.innerHTML = chartSvg(r, endC);
+    narrow.innerHTML = chartSvgNarrow(r, endC);
     slider.setAttribute("aria-valuetext", sliderText(r, endC).valuetext);
   }
 
@@ -39,6 +41,7 @@ export function init(root, opts = {}) {
     q("[data-ans]").innerHTML = answerHtml(r);
     q("[data-say]").textContent = sayText(r);
     chart.setAttribute("aria-label", chartLabel(r));
+    narrow.setAttribute("aria-label", chartLabel(r));
     slider.min = s.min;
     slider.max = s.max;
     slider.step = s.step;

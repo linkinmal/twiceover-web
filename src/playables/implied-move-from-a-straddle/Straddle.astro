@@ -5,7 +5,7 @@
 // the script only moves what is already here. The slider, the "Try another example" button and the two typed boxes
 // are hidden until the script runs them; with script off the opening example reads as a page of its own.
 import { DEFAULT_EXAMPLE, EXAMPLES, runStraddle } from "./straddle.mjs";
-import { STOCK_NOTE, answerHtml, chartLabel, chartSvg, money, resultHtml, sayText, sliderText, straddleNote } from "./straddle-view.mjs";
+import { STOCK_NOTE, answerHtml, chartLabel, chartSvg, chartSvgNarrow, money, resultHtml, sayText, sliderText, straddleNote } from "./straddle-view.mjs";
 
 const ex = EXAMPLES[DEFAULT_EXAMPLE];
 const r = runStraddle(ex.stock, ex.straddle);
@@ -19,7 +19,8 @@ const sl = sliderText(r, end);
     <p class="lab" data-nojs>The example: a {money(r.straddleC)} straddle on a {money(r.stockC)} stock</p>
     <p class="tsent" data-say aria-live="polite">{sayText(r)}</p>
     <div class="sd-ans" data-ans aria-live="polite" set:html={answerHtml(r)}></div>
-    <svg class="ch" data-chart viewBox="0 0 640 250" role="img" aria-label={chartLabel(r)} set:html={chartSvg(r, end)}></svg>
+    <svg class="ch sd-wide" data-chart viewBox="0 0 640 250" role="img" aria-label={chartLabel(r)} set:html={chartSvg(r, end)}></svg>
+    <svg class="ch sd-narrow" data-chart-narrow viewBox="0 0 320 224" role="img" aria-label={chartLabel(r)} set:html={chartSvgNarrow(r, end)}></svg>
     <div data-js hidden>
       <input type="range" class="rng" id="sd-end" aria-label="Stock price on the straddle's last day" min={sl.min} max={sl.max} step={sl.step} value={sl.value} aria-valuetext={sl.valuetext} />
     </div>
