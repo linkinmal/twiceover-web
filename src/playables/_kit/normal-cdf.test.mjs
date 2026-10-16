@@ -6,7 +6,7 @@
  * these tests pin it to published values and to an independent series.
  */
 import { describe, expect, it } from "vitest";
-import { normalCdf } from "./normal-cdf.mjs";
+import { normalCdf } from "../_kit/normal-cdf.mjs";
 
 /** Independent oracle: the Maclaurin series of erf. Exact to ~1e-12 for |x| <= 3 (terms stay small). */
 function seriesCdf(x) {

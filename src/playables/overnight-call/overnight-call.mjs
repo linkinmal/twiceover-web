@@ -18,7 +18,7 @@
  * 0% volatility row (the kit divides by zero for an implied volatility of 1%); a preset stays pressed
  * after the slider clamped it.
  */
-import { normalCdf } from "./normal-cdf.mjs";
+import { normalCdf } from "../_kit/normal-cdf.mjs";
 
 /** The design's opening case (§5.2 defaults). */
 export const DEFAULTS = Object.freeze({

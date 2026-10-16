@@ -7,7 +7,7 @@
  * volatility 80% — and from the textbook at-the-money value 100 × (2·N(0.1) − 1) = 7.9655674554…
  */
 import { describe, expect, it } from "vitest";
-import { normalCdf } from "./normal-cdf.mjs";
+import { normalCdf } from "../_kit/normal-cdf.mjs";
 import {
   DEFAULTS,
   PRESETS,

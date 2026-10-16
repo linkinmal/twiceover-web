@@ -1,11 +1,11 @@
 ---
 // "Implied move from a straddle" as served (blog-handoff-playables.md section 2): two open numbered steps in one column.
 // The page opens on one fixed example (the first of six), printed in full: the sentence, the three answers, the chart
-// and the result at the strike. The functions the block script imports (src/blog-tools/straddle-view.mjs) write it, so
+// and the result at the strike. The functions the block script imports (straddle-view.mjs beside this file) write it, so
 // the script only moves what is already here. The slider, the "Try another example" button and the two typed boxes
 // are hidden until the script runs them; with script off the opening example reads as a page of its own.
-import { DEFAULT_EXAMPLE, EXAMPLES, runStraddle } from "../../blog-tools/straddle.mjs";
-import { STOCK_NOTE, answerHtml, chartLabel, chartSvg, money, resultHtml, sayText, sliderText, straddleNote } from "../../blog-tools/straddle-view.mjs";
+import { DEFAULT_EXAMPLE, EXAMPLES, runStraddle } from "./straddle.mjs";
+import { STOCK_NOTE, answerHtml, chartLabel, chartSvg, money, resultHtml, sayText, sliderText, straddleNote } from "./straddle-view.mjs";
 
 const ex = EXAMPLES[DEFAULT_EXAMPLE];
 const r = runStraddle(ex.stock, ex.straddle);

@@ -5,7 +5,7 @@ dist/
 # Generated from tokens/twiceover.tokens.json at build (ADR 0004 / consultation 0005)
 src/styles/tokens.css
 
-# Generated from src/blog-tools/client/ at build (ADR 1090 Decision 8)
+# Generated from src/playables/<slug>/client.mjs at build (ADR 1090 Decision 8, ADR 1127 Decision 4)
 public/js/blog-*.js
 
 # Dependencies

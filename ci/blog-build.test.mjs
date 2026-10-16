@@ -234,11 +234,11 @@ const type = (w, id, v) => {
 
 describe("the overnight call page", () => {
   const PAGE = "blog/tools/overnight-call/index.html";
-  const live = () => liveTool(PAGE, "js/blog-call.js");
+  const live = () => liveTool(PAGE, "js/blog-overnight-call.js");
 
   it("is one column of three open steps with the one reviewed script, and works out the opening night in the served HTML", () => {
     const d = dom(dist, PAGE);
-    expect.soft([...d.querySelectorAll("script")].map((x) => x.getAttribute("src"))).toEqual(["/js/blog-call.js"]);
+    expect.soft([...d.querySelectorAll("script")].map((x) => x.getAttribute("src"))).toEqual(["/js/blog-overnight-call.js"]);
     expect.soft(d.querySelector("article").getAttribute("data-look")).toBe("exhibit");
     expect.soft(d.querySelectorAll("details"), "nothing is folded").toHaveLength(0);
     expect.soft(d.querySelector(".words").textContent).toContain("quoted as a yearly percentage");
@@ -308,11 +308,11 @@ describe("a control the script shows is hidden by the stylesheet while it has no
 
 describe("the option payoff calculator page", () => {
   const PAGE = "blog/tools/option-payoff-calculator/index.html";
-  const live = () => liveTool(PAGE, "js/blog-payoff.js");
+  const live = () => liveTool(PAGE, "js/blog-option-payoff-calculator.js");
 
   it("is one column of three open steps with the one reviewed script and the opening long call in the served HTML", () => {
     const d = dom(dist, PAGE);
-    expect.soft([...d.querySelectorAll("script")].map((x) => x.getAttribute("src"))).toEqual(["/js/blog-payoff.js"]);
+    expect.soft([...d.querySelectorAll("script")].map((x) => x.getAttribute("src"))).toEqual(["/js/blog-option-payoff-calculator.js"]);
     expect.soft(d.querySelector("h1").textContent).toBe("The option payoff calculator");
     expect.soft(d.querySelector("article").getAttribute("data-look")).toBe("blueprint");
     expect.soft(d.querySelectorAll("details"), "nothing is folded").toHaveLength(0);
@@ -396,11 +396,11 @@ describe("a stamp on a dark lesson block", () => {
 
 describe("the implied move from a straddle page", () => {
   const PAGE = "blog/tools/implied-move-from-a-straddle/index.html";
-  const live = () => liveTool(PAGE, "js/blog-straddle.js");
+  const live = () => liveTool(PAGE, "js/blog-implied-move-from-a-straddle.js");
 
   it("is one column of two open steps with the one reviewed script and the opening example worked out in the served HTML", () => {
     const d = dom(dist, PAGE);
-    expect.soft([...d.querySelectorAll("script")].map((x) => x.getAttribute("src"))).toEqual(["/js/blog-straddle.js"]);
+    expect.soft([...d.querySelectorAll("script")].map((x) => x.getAttribute("src"))).toEqual(["/js/blog-implied-move-from-a-straddle.js"]);
     expect.soft(d.querySelector("h1").textContent).toBe("Implied move from a straddle");
     expect.soft(d.querySelector("article").getAttribute("data-look")).toBe("riso");
     expect.soft(d.querySelectorAll("details"), "nothing is folded").toHaveLength(0);
@@ -471,11 +471,11 @@ describe("the implied move from a straddle page", () => {
 
 describe("the Guess the gap page", () => {
   const PAGE = "blog/play/guess-the-gap/index.html";
-  const live = () => liveTool(PAGE, "js/blog-guess.js");
+  const live = () => liveTool(PAGE, "js/blog-guess-the-gap.js");
 
   it("carries the one reviewed script, the first question, all five answers and the lesson in the served HTML", () => {
     const d = dom(dist, PAGE);
-    expect.soft([...d.querySelectorAll("script")].map((x) => x.getAttribute("src"))).toEqual(["/js/blog-guess.js"]);
+    expect.soft([...d.querySelectorAll("script")].map((x) => x.getAttribute("src"))).toEqual(["/js/blog-guess-the-gap.js"]);
     expect.soft(d.querySelector("h1").textContent).toBe("Guess the gap");
     expect.soft(d.querySelector("article").getAttribute("data-look")).toBe("ticket");
     expect.soft(d.querySelectorAll("details"), "nothing is folded").toHaveLength(0);

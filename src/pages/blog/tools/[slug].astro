@@ -1,73 +1,16 @@
 ---
-// A tool page: /blog/tools/<slug> (blog-handoff.md section 1). Built like a game page: a standing page in a theme,
-// with its primer folded, the answer beside the inputs, and the method and limits stated. It exists only once a
-// post is published (ADR 1090 Decision 2), and its one block script is on the fixed list (BLOG_SCRIPTS).
-import BlogBase from "../../../layouts/BlogBase.astro";
-import PayoffBuilder from "../../../components/blog/PayoffBuilder.astro";
-import OvernightCall from "../../../components/blog/OvernightCall.astro";
-import Straddle from "../../../components/blog/Straddle.astro";
+// A tool page: /blog/tools/<slug> (blog-handoff.md section 1). Built like a game page, and like it knows no page:
+// it exists only once a post is published (ADR 1090 Decision 2), and renders whichever src/playables/<slug>/page.astro
+// the registry names inside the shared frame (ADR 1127 Decision 2).
+import PlayableShell from "../../../components/blog/PlayableShell.astro";
 import { getPublished } from "../../../blog/collection.mjs";
-import MorePlay from "../../../components/blog/MorePlay.astro";
-import { PLAYABLES } from "../../../blog/playables.mjs";
-import { LOOKS } from "../../../blog/vocabulary.mjs";
-import { TOPIC_LABELS } from "../../../blog/labels.mjs";
-import { formatStamp, toNewYorkIso } from "../../../blog/format.mjs";
+import { PLAYABLES, pageOf } from "../../../blog/playables.mjs";
 
 export async function getStaticPaths() {
   if ((await getPublished()).length === 0) return [];
   return PLAYABLES.filter((p) => p.kind === "tool").map((p) => ({ params: { slug: p.slug }, props: { p } }));
 }
 const { p } = Astro.props;
-const look = LOOKS[p.look as keyof typeof LOOKS];
+const Page = await pageOf(p.slug);
 ---
-<BlogBase title={`${p.title} — TwiceOver`} description={p.description} preload={[look.display]}>
-  <nav slot="meta" class="meta" aria-label="This page">
-    <a href={p.path}>Tool</a>
-    <a href={`/blog/topic/${p.topic}`}>{TOPIC_LABELS[p.topic as keyof typeof TOPIC_LABELS]}</a>
-    <span>Updated <time datetime={toNewYorkIso(p.updatedAt)}>{formatStamp(p.updatedAt)}</time></span>
-  </nav>
-  <article class="post skin" data-look={look.kit}>
-    <div class="col">
-      <p class="lab">Tool</p>
-      <h1 class="h1">{p.title}</h1>
-      <p class="deck">{p.deck}</p>
-      {p.slug === "overnight-call" && (
-        <>
-          <p class="words">A <b>call</b> is a contract that lets you pay a set price per share for 100 shares, any time until a set date. The contract itself has a price, called the premium. It is worth more when the stock is higher. The set price is the <b>strike</b>. The set date is the <b>expiration</b>. <b>Implied volatility</b> is how big a stock move the call's price has built in, quoted as a yearly percentage.</p>
-          <OvernightCall />
-          <section class="blk plate">
-            <p class="lab">How it is computed</p>
-            <p class="fine"><b>Method.</b> Black-Scholes price of a European call, with no interest rate and no dividend. Volatility is annualized and days are calendar days over 365. The change is split in order: the stock moves first, then volatility changes, then the days pass. The one-day priced move is implied volatility divided by the square root of 365.</p>
-            <p class="fine"><b>Limits.</b> Real options are American style, carry bid and ask spreads and rarely change volatility by one number. Results change with every input and with the market. This is a hypothetical illustration of option pricing math. It does not predict any stock or option.</p>
-          </section>
-        </>
-      )}
-      {p.slug === "option-payoff-calculator" && (
-        <>
-          <p class="words">A <b>call</b> is a contract that lets you pay a set price per share for 100 shares, any time until a set date. A <b>put</b> is the reverse: a contract that lets you hand over 100 shares and be paid a set price per share for them, any time until a set date. The set price is the <b>strike</b>. The set date is the <b>expiration</b>, the contract's last day. The contract itself has a price, called the <b>premium</b>, quoted per share. One contract covers 100 shares, so a $2.46 premium is $246 a contract.</p>
-          <PayoffBuilder />
-          <section class="blk plate">
-            <p class="lab">How it is computed</p>
-            <p class="fine"><b>Method.</b> Each option's value on its last day is its intrinsic value: a call is the stock price minus the strike, a put is the strike minus the stock price, never below zero. Subtract the premium for an option you bought, add it for one you sold. The line is the sum, times 100 shares a contract and the number of contracts. A covered call also holds the shares, bought at the stock price now.</p>
-            <p class="fine"><b>Limits.</b> The line is the last day only. Before then an option is worth more or less than this because of time left and implied volatility, and an option you sold can be assigned early. Commissions, taxes, dividends and margin are left out. The numbers are invented examples and are not a quote. This is a hypothetical illustration of option math. It does not predict any stock or option.</p>
-          </section>
-        </>
-      )}
-      {p.slug === "implied-move-from-a-straddle" && (
-        <>
-          <p class="words">A <b>straddle</b> is a call and a put with the same strike and expiration, bought together. It makes money when the stock moves far enough in either direction. Its price, per share, is what traders pay for that move. Divide it by the stock price and you get the <b>implied move</b>: the size of move the price has built in, as a percent. It has no direction.</p>
-          <Straddle />
-          <section class="blk plate">
-            <p class="lab">How it is computed</p>
-            <p class="fine"><b>Method.</b> The implied move is the straddle's price divided by the stock price. The two breakevens are the stock price plus and minus the straddle's price. The page takes the strike to be the stock price. On its last day the straddle gains how far the stock ended from that strike, less the straddle's price, per share. One contract covers 100 shares.</p>
-            <p class="fine"><b>Limits.</b> The implied move is a shorthand. A straddle's price also holds the cost of time and other things, so the figure is a rough size, not a forecast. The same straddle can be priced for any expiration, and the move it shows covers all the time until then. The examples are not quotes. Commissions, taxes and early assignment are left out. This page does not use your accounts or positions. This is a hypothetical illustration of option math. It does not predict any stock or option.</p>
-          </section>
-        </>
-      )}
-    </div>
-  </article>
-  <div class="page">
-    <MorePlay slug={p.slug} />
-  </div>
-  <script is:inline src={`/js/blog-${p.script}.js`} defer></script>
-</BlogBase>
+<PlayableShell p={p}><Page /></PlayableShell>

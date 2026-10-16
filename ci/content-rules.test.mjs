@@ -4,12 +4,16 @@
  * refusal is not simply "everything fails": a gate whose only proof is "the current build passes" is
  * unfalsifiable by the gate itself (consult 0811).
  */
-import { readFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  BLOG_SCRIPTS,
   PHRASE_FLOOR,
   contentSlugFailures,
   crossPageFailures,
+  deriveBlogScripts,
   markedTitleCount,
   pageKind,
   postHeading,
@@ -420,5 +424,38 @@ describe("the home page's From the blog strip: post titles leave the banned-term
   it("control: counts the marked elements, so a build that lost the strip is not read as a clean one", () => {
     expect.soft(markedTitleCount(home(strip(card("Sell-off 101"), card("Why a sell-off hits stocks twice"))).html)).toBe(2);
     expect.soft(markedTitleCount(home("<p>No strip.</p>").html)).toBe(0);
+  });
+});
+
+describe("deriveBlogScripts: the fixed list is read from src/playables/*/client.mjs (ADR 1127 Decision 4)", () => {
+  /** A playables folder: `{ slug: ["client.mjs", ...] }`, and loose files by name. */
+  const tree = (dirs, files = []) => {
+    const root = mkdtempSync(join(tmpdir(), "playables-"));
+    for (const [slug, names] of Object.entries(dirs)) {
+      mkdirSync(join(root, slug));
+      for (const n of names) writeFileSync(join(root, slug, n), "");
+    }
+    for (const f of files) writeFileSync(join(root, f), "");
+    return root;
+  };
+
+  it("lists /js/blog-<slug>.js for each directory that holds a client.mjs, sorted, and nothing else", () => {
+    const root = tree({ "b-two": ["client.mjs", "entry.mjs"], a: ["client.mjs", "client.test.mjs"], "no-client": ["entry.mjs"], _kit: ["number-input.mjs"] });
+    expect(deriveBlogScripts(root)).toEqual(["/js/blog-a.js", "/js/blog-b-two.js"]);
+  });
+  it("fails on a directory whose name is outside the slug pattern, with or without a client", () => {
+    for (const bad of ["Coin", "two words", "-lead", "trail-", "a--b", "a_b", "a.b", "über"]) {
+      expect.soft(() => deriveBlogScripts(tree({ [bad]: ["client.mjs"] })), bad).toThrow(/outside the slug pattern/);
+      expect.soft(() => deriveBlogScripts(tree({ [bad]: [] })), `${bad} (no client)`).toThrow(/outside the slug pattern/);
+    }
+  });
+  it("fails on a loose file or a second underscore directory, which are not playables", () => {
+    expect.soft(() => deriveBlogScripts(tree({}, ["notes.md"]))).toThrow(/notes\.md/);
+    expect.soft(() => deriveBlogScripts(tree({ _other: [] }))).toThrow(/_other/);
+  });
+  it("is the list the real src/playables yields, frozen, and every entry matches the bundle pattern", () => {
+    expect.soft(Object.isFrozen(BLOG_SCRIPTS)).toBe(true);
+    expect.soft(BLOG_SCRIPTS.length).toBeGreaterThan(0);
+    for (const u of BLOG_SCRIPTS) expect.soft(u).toMatch(/^\/js\/blog-[a-z0-9]+(-[a-z0-9]+)*\.js$/);
   });
 });

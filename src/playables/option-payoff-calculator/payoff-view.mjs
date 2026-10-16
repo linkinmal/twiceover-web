@@ -7,7 +7,7 @@
  * keep the full banned-word scan (ADR 1090 Decision 9), so an option is "bought" or "sold", never the bare verb.
  */
 import { STRUCTURES, shapeCards } from "./payoff-builder.mjs";
-import { rowHtml, showNumber } from "./number-input.mjs";
+import { rowHtml, showNumber } from "../_kit/number-input.mjs";
 
 const grp = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 /** Whole dollars, signed only when negative: $1,234 or −$57. */

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { STRUCTURES, curvePoints, evaluate } from "./payoff-builder.mjs";
-import { BAD_NUMBER, rowHtml } from "./number-input.mjs";
+import { BAD_NUMBER, rowHtml } from "../_kit/number-input.mjs";
 import { DESCRIPTIONS, FINDS, cardsHtml, chartSvg, describe as describeKind, headHtml, sentenceHtml, sixHtml, statsHtml, structureOf, termsHtml, typeRowHtml, whyHtml } from "./payoff-view.mjs";
 
 const models = STRUCTURES.map((def) => {

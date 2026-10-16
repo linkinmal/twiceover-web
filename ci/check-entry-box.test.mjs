@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { scanPages, scanEntryForm, scanWorkerSource } from "./check-entry-box.mjs";
+import { scanPages, scanBlogScripts, scanEntryForm, scanWorkerSource } from "./check-entry-box.mjs";
 
 // The gate's own mutation tests (Security consult 0811: "a gate whose only proof is 'the
 // current build passes' is unfalsifiable by the gate itself"). Every negative case below
@@ -411,5 +411,47 @@ describe("scanWorkerSource", () => {
   it("fails readUtm reading the ticker — the typed value may never reach analytics", () => {
     const leaky = OK.replace('return { utm_source: "" };', 'return { ticker: searchParams.get("ticker") };');
     expect(scanWorkerSource(leaky)).toEqual([expect.stringMatching(/readUtm\(\) must never read the ticker/)]);
+  });
+});
+
+describe("scanBlogScripts: the derived list, the built bundles and the scripts the pages load are one set (ADR 1127 Decision 4)", () => {
+  const PAGE = (slug, kind = "play", srcs = [`/js/blog-${slug}.js`]) => ({
+    rel: `blog/${kind}/${slug}/index.html`,
+    html: `<html><body>${srcs.map((s) => `<script src="${s}" defer></script>`).join("")}</body></html>`,
+  });
+  const DERIVED = ["/js/blog-coin.js", "/js/blog-overnight-call.js"];
+  const BUNDLES = ["blog-coin.js", "blog-overnight-call.js"];
+  const PAGES = [PAGE("coin"), PAGE("overnight-call", "tools"), { rel: "blog/play/index.html", html: "<html></html>" }, { rel: "blog/a-post/index.html", html: "<html></html>" }];
+  const scan = (over = {}) => scanBlogScripts({ pages: PAGES, bundles: BUNDLES, derived: DERIVED, ...over });
+
+  it("passes when the three agree and each page loads its own bundle", () => {
+    expect(scan()).toEqual([]);
+  });
+  it("fails a bundle in dist that the client files do not derive", () => {
+    expect(scan({ bundles: [...BUNDLES, "blog-extra.js"] }).join("\n")).toMatch(/blog-extra\.js.*built but not derived/);
+  });
+  it("fails a derived script with no built bundle", () => {
+    expect(scan({ bundles: ["blog-coin.js"] }).join("\n")).toMatch(/blog-overnight-call\.js.*not built into dist/);
+  });
+  it("fails a derived bundle that no page loads", () => {
+    expect(scan({ pages: [PAGE("coin")] }).join("\n")).toMatch(/blog-overnight-call\.js.*no page loads/);
+  });
+  it("fails a page that loads another playable's bundle, or two", () => {
+    expect.soft(scan({ pages: [PAGE("coin", "play", ["/js/blog-overnight-call.js"]), PAGE("overnight-call", "tools")] }).join("\n")).toMatch(/blog\/play\/coin.*loads \/js\/blog-overnight-call\.js/);
+    expect.soft(scan({ pages: [PAGE("coin", "play", ["/js/blog-coin.js", "/js/blog-overnight-call.js"]), PAGE("overnight-call", "tools")] }).join("\n")).toMatch(/blog\/play\/coin.*loads \/js\/blog-overnight-call\.js/);
+  });
+  it("fails a playable page that does not load its own bundle", () => {
+    expect(scan({ pages: [PAGE("coin", "play", []), PAGE("overnight-call", "tools")] }).join("\n")).toMatch(/blog\/play\/coin.*does not load \/js\/blog-coin\.js/);
+  });
+  it("fails a script that is outside the bundle pattern, and any blog script on a page that is not a playable", () => {
+    expect.soft(scan({ pages: [...PAGES, PAGE("x", "play", ["/js/other.js"])] }).join("\n")).toMatch(/\/js\/other\.js/);
+    expect.soft(scan({ pages: [...PAGES, { rel: "blog/a-post/index.html", html: '<script src="/js/blog-coin.js"></script>' }] }).join("\n")).toMatch(/blog\/a-post.*loads \/js\/blog-coin\.js/);
+    expect.soft(scan({ pages: [...PAGES, { rel: "blog/play/index.html", html: '<script src="/js/blog-coin.js"></script>' }] }).join("\n")).toMatch(/blog\/play\/index\.html.*loads \/js\/blog-coin\.js/);
+  });
+  it("fails a playable page whose own bundle the client files do not derive, even when nothing was built for it", () => {
+    expect(scan({ pages: [...PAGES, PAGE("ghost")] }).join("\n")).toMatch(/blog\/play\/ghost.*no src\/playables\/ghost\/client\.mjs derives/);
+  });
+  it("lets a derived playable with no page of its own fail as 'no page loads', so a client file cannot ship unreachable", () => {
+    expect(scan({ derived: [...DERIVED, "/js/blog-ghost.js"], bundles: [...BUNDLES, "blog-ghost.js"] }).join("\n")).toMatch(/blog-ghost\.js.*no page loads/);
   });
 });

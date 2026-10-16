@@ -1,11 +1,11 @@
 ---
 // "Guess the gap" as served (blog-handoff-playables.md section 1): one report at a time in a Ticket-theme slip. The first
 // question, all five answers and the lesson are printed in full from the baked-in report set; the functions the block
-// script imports (src/blog-tools/guess-gap-view.mjs) write them, so the script only moves what is already here. The
+// script imports (guess-gap-view.mjs beside this file) write them, so the script only moves what is already here. The
 // slider, the lock and skip buttons and "Play five more" are hidden until the script runs them; with script off the
 // page reads as the first question, then the five answers and the lesson.
-import { REPORT_SETS, SOURCE_LINE } from "../../blog-tools/guess-gap-reports.mjs";
-import { QUESTION, barsHtml, endTitle, givenHtml, lessonBig, reportLine, scoreLine, tallyHtml } from "../../blog-tools/guess-gap-view.mjs";
+import { REPORT_SETS, SOURCE_LINE } from "./guess-gap-reports.mjs";
+import { QUESTION, barsHtml, endTitle, givenHtml, lessonBig, reportLine, scoreLine, tallyHtml } from "./guess-gap-view.mjs";
 
 const set = REPORT_SETS[0];
 ---

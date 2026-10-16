@@ -18,6 +18,9 @@
  *
  * The phrase floor is a floor, not the check: Growth's rails read is the check (ADR 1090 Decision 9).
  */
+import { readdirSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { JSDOM } from "jsdom";
 import { isValidSlug } from "../src/blog/publish.mjs";
 import { isRootRelative } from "../src/blog/url.mjs";
@@ -112,11 +115,32 @@ export function textOf(html) {
 // Blog: which page is which
 // ---------------------------------------------------------------------------------------------
 
+/** A playable's slug, and so its directory name and its bundle's name: lowercase words joined by single hyphens. */
+export const PLAYABLE_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+/** The one shape a blog bundle's address may take (ADR 1127 Decision 4). */
+export const BLOG_SCRIPT_PATTERN = /^\/js\/blog-[a-z0-9]+(?:-[a-z0-9]+)*\.js$/;
+
 /**
- * Scripts a blog page may load, root-relative and exact: the reviewed block files (ADR 1088 Decision 1), each built
- * from src/blog-tools/client/<name>.mjs by scripts/build-blog-scripts.mjs. A post cannot add one.
+ * Scripts a blog page may load, derived from the client files: `src/playables/<slug>/client.mjs` is built to
+ * `/js/blog-<slug>.js` by scripts/build-blog-scripts.mjs (ADR 1127 Decision 4). Only a directory listing is read, no
+ * file under src/playables is imported, so the verify job (which must not reach it, ci/pipeline.test.mjs) can call
+ * this on its fresh checkout. Fails on anything in the folder that is not a slug directory or the shared `_kit`.
+ * A post cannot add a script.
  */
-export const BLOG_SCRIPTS = Object.freeze(["/js/blog-call.js", "/js/blog-coin.js", "/js/blog-guess.js", "/js/blog-payoff.js", "/js/blog-straddle.js"]);
+export function deriveBlogScripts(playablesDir = fileURLToPath(new URL("../src/playables", import.meta.url))) {
+  const urls = [];
+  for (const entry of readdirSync(playablesDir, { withFileTypes: true })) {
+    if (entry.isDirectory() && entry.name === "_kit") continue;
+    if (!entry.isDirectory() || !PLAYABLE_SLUG.test(entry.name)) {
+      throw new Error(`src/playables/${entry.name}: a playable is a directory named by its slug (lowercase words joined by hyphens) — this name is outside the slug pattern`);
+    }
+    if (readdirSync(join(playablesDir, entry.name)).includes("client.mjs")) urls.push(`/js/blog-${entry.name}.js`);
+  }
+  return Object.freeze(urls.sort());
+}
+
+export const BLOG_SCRIPTS = deriveBlogScripts();
 
 /** The phrases a post may not contain: a floor, not the check (ADR 1090 Decision 9, 11). */
 export const PHRASE_FLOOR = Object.freeze([

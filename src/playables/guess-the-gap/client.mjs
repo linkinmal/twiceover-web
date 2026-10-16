@@ -5,9 +5,9 @@
  * the score and the lesson. The reports are the set baked into the bundle. Nothing is sent, stored or read from the
  * address; the score lasts until the reader leaves the page.
  */
-import { MAX_TENTHS, SET_SIZE, STEP_TENTHS } from "../guess-gap.mjs";
-import { REPORT_SETS } from "../guess-gap-reports.mjs";
-import { QUESTION, answerHtml, barsHtml, endTitle, givenHtml, lessonBig, meterHtml, percent, reportLine, scoreHtml, scoreLine, scoreResultLine, tallyHtml, whyText } from "../guess-gap-view.mjs";
+import { MAX_TENTHS, SET_SIZE, STEP_TENTHS } from "./guess-gap.mjs";
+import { REPORT_SETS } from "./guess-gap-reports.mjs";
+import { QUESTION, answerHtml, barsHtml, endTitle, givenHtml, lessonBig, meterHtml, percent, reportLine, scoreHtml, scoreLine, scoreResultLine, tallyHtml, whyText } from "./guess-gap-view.mjs";
 
 const START_TENTHS = 50;
 

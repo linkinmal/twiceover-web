@@ -70,7 +70,7 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { BLOG_SCRIPTS } from "./content-rules.mjs";
+import { BLOG_SCRIPTS, BLOG_SCRIPT_PATTERN } from "./content-rules.mjs";
 
 // ── The declared script expectation ─────────────────────────────────────────
 // One row per built page. `inline` counts executable inline <script> blocks (data blocks
@@ -335,6 +335,44 @@ export function scanPages(pages, expected = EXPECTED_SCRIPTS, readAsset = () => 
     }
   }
 
+  return failures;
+}
+
+/**
+ * The blog's bundles are one set seen three ways (ADR 1127 Decision 4; Security's set-equality condition): the list
+ * derived from the client files in the checkout, the bundles the build left in dist/js, and the scripts the built
+ * pages load. Each page loads its own bundle and no other: /blog/{play,tools}/<slug> loads /js/blog-<slug>.js when a
+ * client file derives it, and every other page loads no blog script.
+ *
+ * @param pages    [{ rel, html }] as for scanPages
+ * @param bundles  the file names of dist/js/blog-*.js
+ * @param derived  the list deriveBlogScripts() read from the checkout
+ */
+export function scanBlogScripts({ pages, bundles, derived }) {
+  const failures = [];
+  const built = bundles.map((b) => `/js/${b}`);
+  for (const u of built) if (!derived.includes(u)) failures.push(`[scripts] ${u}: built but not derived from a src/playables/<slug>/client.mjs — a bundle with no client file cannot ship`);
+  for (const u of derived) if (!built.includes(u)) failures.push(`[scripts] ${u}: derived from a client file but not built into dist/js`);
+
+  const loaded = new Set();
+  for (const { rel, html } of pages) {
+    if (!rel.startsWith("blog/")) continue;
+    const own = rel.match(/^blog\/(?:play|tools)\/([^/]+)\/index\.html$/)?.[1];
+    const ownUrl = own === undefined ? null : `/js/blog-${own}.js`;
+    const srcs = parseScripts(html).external.map((e) => e.src);
+    for (const src of srcs) {
+      if (!BLOG_SCRIPT_PATTERN.test(src)) {
+        if (/^\/js\/blog-/.test(src)) failures.push(`[scripts] ${rel}: script ${src} is outside the bundle pattern /js/blog-<slug>.js`);
+        else failures.push(`[scripts] ${rel}: script ${src} is not a blog bundle (/js/blog-<slug>.js) — a blog page loads its own bundle and nothing else`);
+        continue;
+      }
+      loaded.add(src);
+      if (src !== ownUrl) failures.push(`[scripts] ${rel}: loads ${src}, which is not this page's own bundle${ownUrl ? ` (${ownUrl})` : " — only a playable page loads one"}`);
+    }
+    if (ownUrl && srcs.includes(ownUrl) && !derived.includes(ownUrl)) failures.push(`[scripts] ${rel}: loads ${ownUrl}, which no src/playables/${own}/client.mjs derives`);
+    if (ownUrl && derived.includes(ownUrl) && !srcs.includes(ownUrl)) failures.push(`[scripts] ${rel}: does not load ${ownUrl}, the bundle its client file builds`);
+  }
+  for (const u of derived) if (!loaded.has(u)) failures.push(`[scripts] ${u}: no page loads it — a client file must belong to a built playable page`);
   return failures;
 }
 
@@ -620,6 +658,14 @@ function main() {
   };
 
   const failures = [...scanPages(pages, EXPECTED_SCRIPTS, readAsset)];
+
+  let bundles = [];
+  try {
+    bundles = readdirSync(join(distDir, "js")).filter((f) => /^blog-.*\.js$/.test(f)).sort();
+  } catch {
+    failures.push(`[structure] ${join(distDir, "js")} not readable — the blog bundles cannot be compared with the client files`);
+  }
+  failures.push(...scanBlogScripts({ pages, bundles, derived: BLOG_SCRIPTS }));
 
   const indexPage = pages.find((p) => p.rel === "index.html");
   if (!indexPage) failures.push(`[structure] dist/index.html not found — the entry-form check cannot run`);

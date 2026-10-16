@@ -2,11 +2,11 @@
 // "The overnight call calculator" as served (blog-handoff.md section 5.2, kit v3): three open numbered steps in one
 // column. The opening night (the design's defaults) is printed in full: the night in a sentence, the answer, the
 // waterfall, the three finds and the grid of every case. The functions the block script imports
-// (src/blog-tools/call-view.mjs) write it, so the script only moves what is already here. The steps' controls are
+// (call-view.mjs beside this file) write it, so the script only moves what is already here. The steps' controls are
 // hidden until the script runs them; with script off the opening night reads as a page of its own.
-import { DEFAULTS, PRESETS, SLIDERS, presetMatches, runOvernight, findsMet, heatGrid } from "../../blog-tools/overnight-call.mjs";
-import { headlineHtml, sentenceHtml, breakEvenHtml, whyHtml, pricedHtml, nightHtml, sliderText, breakEvenMarker, findsHtml, heatHtml, waterfallSvg, waterfallLabel } from "../../blog-tools/call-view.mjs";
-import { rowHtml } from "../../blog-tools/number-input.mjs";
+import { DEFAULTS, PRESETS, SLIDERS, presetMatches, runOvernight, findsMet, heatGrid } from "./overnight-call.mjs";
+import { headlineHtml, sentenceHtml, breakEvenHtml, whyHtml, pricedHtml, nightHtml, sliderText, breakEvenMarker, findsHtml, heatHtml, waterfallSvg, waterfallLabel } from "./call-view.mjs";
+import { rowHtml } from "../_kit/number-input.mjs";
 
 const r = runOvernight(DEFAULTS);
 if (!r.ok) throw new Error("the design's opening night must be valid");

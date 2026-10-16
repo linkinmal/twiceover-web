@@ -4,9 +4,9 @@
  * sentences the build printed (call-view.mjs) back into the page. Nothing is sent, stored or read from the address;
  * the three finds are kept in memory for the visit.
  */
-import { DEFAULTS, PRESETS, applyPreset, findsMet, heatGrid, presetMatches, runOvernight, validateInputs } from "../overnight-call.mjs";
-import { BAD_NUMBER, readNumber } from "../number-input.mjs";
-import { breakEvenHtml, breakEvenMarker, findsHtml, headlineHtml, heatHtml, nightHtml, pricedHtml, sentenceHtml, sliderText, waterfallLabel, waterfallSvg, whyHtml } from "../call-view.mjs";
+import { DEFAULTS, PRESETS, applyPreset, findsMet, heatGrid, presetMatches, runOvernight, validateInputs } from "./overnight-call.mjs";
+import { BAD_NUMBER, readNumber } from "../_kit/number-input.mjs";
+import { breakEvenHtml, breakEvenMarker, findsHtml, headlineHtml, heatHtml, nightHtml, pricedHtml, sentenceHtml, sliderText, waterfallLabel, waterfallSvg, whyHtml } from "./call-view.mjs";
 
 const TYPED = [
   ["t-k", "strike"],
