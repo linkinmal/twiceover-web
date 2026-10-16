@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { BLOG_SCRIPTS } from "../../ci/content-rules.mjs";
 import { HUB_PATH, PLAYABLES, moreToPlay, otherPlayables, playablesNewestFirst } from "./playables.mjs";
 
-describe("the playables registry", () => {
+describe("the playables loader", () => {
   it("is one directory per playable: its folder is its slug and holds entry.mjs, page.astro and client.mjs", () => {
     const dirs = readdirSync(new URL("../playables", import.meta.url), { withFileTypes: true }).filter((d) => d.isDirectory() && d.name !== "_kit").map((d) => d.name).sort();
     expect.soft(PLAYABLES.map((p) => p.slug).sort(), "every folder is loaded, and nothing else").toEqual(dirs);
@@ -25,7 +25,7 @@ describe("the playables registry", () => {
       expect.soft(p.art, `${p.slug}.art has no script or handler`).not.toMatch(/<script|\son[a-z]+=/i);
     }
   });
-  it("lists every playable on the hub, newest update first, the registry's order breaking a tie", () => {
+  it("lists every playable on the hub, newest update first, the order of PLAYABLES breaking a tie", () => {
     expect.soft(HUB_PATH).toBe("/blog/play");
     expect.soft(playablesNewestFirst().map((p) => p.updatedAt)).toEqual([...PLAYABLES.map((p) => p.updatedAt)].sort().reverse());
     expect.soft(playablesNewestFirst().map((p) => p.slug), "the five written first keep their order").toEqual(["guess-the-gap", "implied-move-from-a-straddle", "coin", "overnight-call", "option-payoff-calculator"]);
@@ -52,7 +52,7 @@ describe("the playables registry", () => {
     expect.soft(moreToPlay(list.slice(0, 2), "self").map((p) => p.slug), "fewer than two others").toEqual(["old-same"]);
     expect.soft(moreToPlay(list, "absent"), "an unknown page gets the newest, not a crash").toHaveLength(2);
   });
-  it("feeds the strip from the registry", () => {
+  it("feeds the strip from PLAYABLES", () => {
     for (const p of PLAYABLES) expect.soft(otherPlayables(p.slug).map((m) => m.slug), p.slug).toEqual(moreToPlay(PLAYABLES, p.slug).map((m) => m.slug));
   });
 });

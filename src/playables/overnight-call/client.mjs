@@ -1,6 +1,6 @@
 /**
  * Block script for "The overnight call calculator" (ADR 1088 Decision 1, ADR 1090 Decision 8). Bundled to
- * public/js/blog-call.js. It reads the page's own sliders and typed boxes, runs the shared engine and writes the same
+ * public/js/blog-overnight-call.js. It reads the page's own sliders and typed boxes, runs the shared engine and writes the same
  * sentences the build printed (call-view.mjs) back into the page. Nothing is sent, stored or read from the address;
  * the three finds are kept in memory for the visit.
  */

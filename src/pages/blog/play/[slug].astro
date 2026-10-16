@@ -1,6 +1,6 @@
 ---
 // A game page: /blog/play/<slug> (blog-handoff.md section 1). The route knows no page: it renders whichever
-// src/playables/<slug>/page.astro the registry names inside the shared frame (ADR 1127 Decision 2).
+// src/playables/<slug>/page.astro the loader finds by folder inside the shared frame (ADR 1127 Decision 2).
 import PlayableShell from "../../../components/blog/PlayableShell.astro";
 import { getPublished } from "../../../blog/collection.mjs";
 import { PLAYABLES, pageOf } from "../../../blog/playables.mjs";

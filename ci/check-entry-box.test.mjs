@@ -54,8 +54,8 @@ describe("scanPages — the declared expectation", () => {
   });
 });
 
-describe("scanPages — a page under blog/ is bound by the fixed list, not a row (ADR 1090 Decision 10)", () => {
-  const list = ["/js/blog-guess.js"];
+describe("scanPages — a page under blog/ is bound by the derived list, not a row (ADR 1090 Decision 10)", () => {
+  const list = ["/js/blog-guess-the-gap.js"];
   const blogPage = (html, rel = "blog/a-post/index.html") => scanPages([...page(rel, html), ...page("index.html", "<p>x</p>")], ONE_PAGE, cleanAssets, list);
 
   it("passes a blog page with no declaration and no script, so a new post or topic page cannot break the gate", () => {
@@ -65,15 +65,15 @@ describe("scanPages — a page under blog/ is bound by the fixed list, not a row
   });
   it("allows a JSON-LD data block, and an external script that is on the list when its body is clean", () => {
     expect.soft(blogPage('<script type="application/ld+json">{"a":1}</script>')).toEqual([]);
-    expect.soft(blogPage('<script src="/js/blog-guess.js"></script>')).toEqual([]);
+    expect.soft(blogPage('<script src="/js/blog-guess-the-gap.js"></script>')).toEqual([]);
   });
   it("fails an inline executable script on a blog page, and a script that is not on the list", () => {
     expect.soft(blogPage("<script>var a=1;</script>")).toEqual([expect.stringMatching(/expected 0 inline executable .*found 1/)]);
-    expect.soft(blogPage('<script src="/js/other.js"></script>')).toEqual([expect.stringMatching(/not on the blog's fixed list/)]);
-    expect.soft(blogPage('<script src="/_astro/x.abc.js"></script>')).toEqual([expect.stringMatching(/not on the blog's fixed list/)]);
+    expect.soft(blogPage('<script src="/js/other.js"></script>')).toEqual([expect.stringMatching(/not a bundle derived from a src\/playables/)]);
+    expect.soft(blogPage('<script src="/_astro/x.abc.js"></script>')).toEqual([expect.stringMatching(/not a bundle derived from a src\/playables/)]);
   });
   it("still scans a listed script's body, so a reviewed block file cannot call out", () => {
-    const failures = scanPages(page("blog/a/index.html", '<script src="/js/blog-guess.js"></script>'), {}, () => "fetch('/x')", list);
+    const failures = scanPages(page("blog/a/index.html", '<script src="/js/blog-guess-the-gap.js"></script>'), {}, () => "fetch('/x')", list);
     expect(failures.join("\n")).toMatch(/fetch/);
   });
   it("does not widen to a page that merely looks like blog: only the blog/ path is list-bound", () => {

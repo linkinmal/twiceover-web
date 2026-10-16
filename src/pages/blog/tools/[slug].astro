@@ -1,7 +1,7 @@
 ---
 // A tool page: /blog/tools/<slug> (blog-handoff.md section 1). Built like a game page, and like it knows no page:
 // it exists only once a post is published (ADR 1090 Decision 2), and renders whichever src/playables/<slug>/page.astro
-// the registry names inside the shared frame (ADR 1127 Decision 2).
+// the loader finds by folder inside the shared frame (ADR 1127 Decision 2).
 import PlayableShell from "../../../components/blog/PlayableShell.astro";
 import { getPublished } from "../../../blog/collection.mjs";
 import { PLAYABLES, pageOf } from "../../../blog/playables.mjs";

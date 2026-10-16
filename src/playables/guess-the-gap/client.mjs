@@ -1,5 +1,5 @@
 /**
- * Block script for "Guess the gap" (ADR 1088 Decision 1, ADR 1090 Decision 8). Bundled to public/js/blog-guess.js. The
+ * Block script for "Guess the gap" (ADR 1088 Decision 1, ADR 1090 Decision 8). Bundled to public/js/blog-guess-the-gap.js. The
  * page carries the first question, all five answers and the lesson already (printed at build); this script turns them
  * into the game: one report at a time, a slider and a lock, the answer on one scale with a sentence that says why, then
  * the score and the lesson. The reports are the set baked into the bundle. Nothing is sent, stored or read from the

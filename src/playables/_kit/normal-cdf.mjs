@@ -7,7 +7,7 @@
  * stock price of up to 100,000, so a 1e-7 erf approximation would show as a wrong cent; this does not.
  *
  * `.mjs` and JSDoc, no dependency: this repo has no type-check step, and the same file is imported by
- * the build (to render a page's opening state) and by the block script in `public/js/`.
+ * the build (to render a page's opening state) and by the block script (client.mjs).
  */
 
 /**

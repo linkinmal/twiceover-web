@@ -54,5 +54,5 @@ export const moreToPlay = (playables, slug) => {
 };
 export const otherPlayables = (slug) => moreToPlay(PLAYABLES, slug);
 
-/** Every playable, newest update first; the registry's order breaks a tie (the sort is stable). */
+/** Every playable, newest update first; the order of PLAYABLES breaks a tie (the sort is stable). */
 export const playablesNewestFirst = () => [...PLAYABLES].sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));

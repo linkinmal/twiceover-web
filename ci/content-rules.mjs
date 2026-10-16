@@ -12,7 +12,7 @@
  *     descriptions are subtracted, and take the floor too. Every other page, and every other page under
  *     `blog/` (games, tools), keeps the full scan. The disclaimer check stays on every page.
  *   - Markup rules on every blog page: no inline script (JSON-LD data excepted), no handler, no
- *     iframe/object/embed/base/meta refresh, scripts only from a fixed list, root-relative images,
+ *     iframe/object/embed/base/meta refresh, scripts only from the list derived from the client files, root-relative images,
  *     https or root-relative links, `rel="noopener noreferrer"` on external ones, `/go/try` links with
  *     only the pinned keys, and `<form>` only the pinned door on a post.
  *
@@ -301,7 +301,7 @@ function markupFailures(doc, rel, kind, slug, allowedScripts) {
           add("JSON-LD block is not valid JSON");
         }
       }
-    } else if (!allowedScripts.includes(src)) add(`script src "${src}" is not on the fixed list`);
+    } else if (!allowedScripts.includes(src)) add(`script src "${src}" is not a bundle derived from a src/playables/<slug>/client.mjs`);
   }
   for (const el of doc.querySelectorAll("*")) {
     const handler = el.getAttributeNames().find((n) => n.startsWith("on"));

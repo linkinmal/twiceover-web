@@ -217,7 +217,7 @@ describe("markup rules on every blog page (Decision 11)", () => {
     expect.soft(fails(withBody('<script type="application/ld+json">{"a":"</script><script>alert(1)</script>"}</script>')), "a body containing </script>").toBe(true);
   });
 
-  it("allows a script only from the fixed list, root-relative and same-origin", () => {
+  it("allows a script only from the derived list, root-relative and same-origin", () => {
     const pageWith = (src) => scanPage({ ...withBody(`<script src="${src}" defer></script>`), disclaimer, postSlugs: SLUGS, allowedScripts: ["/js/blog-example.js"] });
     expect.soft(pageWith("/js/blog-example.js")).toEqual([]);
     for (const src of ["/js/other.js", "https://evil.test/a.js", "//evil.test/a.js", "/js/blog-example.js?x=1", "js/blog-example.js"]) {
@@ -427,7 +427,7 @@ describe("the home page's From the blog strip: post titles leave the banned-term
   });
 });
 
-describe("deriveBlogScripts: the fixed list is read from src/playables/*/client.mjs (ADR 1127 Decision 4)", () => {
+describe("deriveBlogScripts: the list is read from src/playables/*/client.mjs (ADR 1127 Decision 4)", () => {
   /** A playables folder: `{ slug: ["client.mjs", ...] }`, and loose files by name. */
   const tree = (dirs, files = []) => {
     const root = mkdtempSync(join(tmpdir(), "playables-"));

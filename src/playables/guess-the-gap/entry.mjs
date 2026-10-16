@@ -1,5 +1,5 @@
 /**
- * Guess the gap (a game): the registry entry (ADR 1127 Decision 2). The folder's name is the slug and the loader checks they
+ * Guess the gap (a game): its entry file (ADR 1127 Decision 2), read by the loader in src/blog/playables.mjs. The folder's name is the slug and the loader checks they
  * agree; the address (/blog/play/<slug>) and the bundle (/js/blog-<slug>.js) follow from the slug and the kind.
  * `updatedAt` moves only on a real change to the page's content (the post rule, applied here by hand). `art` is the
  * hub's picture cell: a static string, no script and no data from a reader or a post.

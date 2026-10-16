@@ -255,8 +255,8 @@ export function scanPages(pages, expected = EXPECTED_SCRIPTS, readAsset = () => 
   for (const { rel, html } of pages) {
     seen.add(rel);
     // A page under blog/ is bound by a list, not a per-page row (ADR 1090 Decision 10, relaxing ADR 0810 condition
-    // 4(iii); Security consult 1091): no inline executable script, and every external script is on the fixed list
-    // of reviewed block files (BLOG_SCRIPTS). A post can add no script, so no row is needed, and a new page under
+    // 4(iii); Security consult 1091): no inline executable script, and every external script is a bundle derived
+    // from a playable's client.mjs (BLOG_SCRIPTS). A post can add no script, so no row is needed, and a new page under
     // blog/ cannot ship unscanned. Every other check below applies to it unchanged.
     const blog = rel.startsWith("blog/");
     const declared = blog ? { inline: 0, external: null } : expected[rel];
@@ -289,7 +289,7 @@ export function scanPages(pages, expected = EXPECTED_SCRIPTS, readAsset = () => 
     const seenBundles = new Set();
     if (blog) {
       for (const e of external) {
-        if (!blogScripts.includes(e.src)) failures.push(`[scripts] ${rel}: script src "${e.src}" is not on the blog's fixed list of reviewed block files`);
+        if (!blogScripts.includes(e.src)) failures.push(`[scripts] ${rel}: script src "${e.src}" is not a bundle derived from a src/playables/<slug>/client.mjs`);
       }
     }
     for (const e of external) {
