@@ -133,7 +133,7 @@ describe("ci.yml has three jobs, and only the deploy step holds the token", () =
 });
 
 // ── The import graph of what verify and deploy run ────────────────────────────
-const FORBIDDEN_FILES = /^src\/(playables|blog-tools)\//;
+const FORBIDDEN_FILES = /(^|\/)src\/(playables|blog-tools)\//;
 const FORBIDDEN_PACKAGES = (name) => name === "astro" || name === "vite" || name.startsWith("@astrojs/") || name === "vitest";
 const NPX_PACKAGE = { wrangler: "wrangler" };
 
@@ -233,7 +233,7 @@ describe("what verify and deploy run never reaches the build's toolchain or the 
       const viaAstro = write("a.mjs", 'import { z } from "astro/zod"; export default z;');
       const viaTool = write("b.mjs", `import "${relative(dir, join(root, "src/blog-tools/coin-game.mjs"))}";`);
       expect.soft(violations(await reach({ files: [viaAstro], packages: [] }))).toContain("astro");
-      expect.soft(violations(await reach({ files: [viaTool], packages: [] }))).toContain("src/blog-tools/coin-game.mjs");
+      expect.soft(violations(await reach({ files: [viaTool], packages: [] })).some((f) => f.endsWith("src/blog-tools/coin-game.mjs"))).toBe(true);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
