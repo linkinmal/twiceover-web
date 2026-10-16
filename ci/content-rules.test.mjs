@@ -10,6 +10,7 @@ import {
   PHRASE_FLOOR,
   contentSlugFailures,
   crossPageFailures,
+  markedTitleCount,
   pageKind,
   postStrings,
   removedAddresses,
@@ -354,5 +355,55 @@ describe("postStrings — the exact title and description strings a list page pr
   it("reads the h1, the meta description and the page title from a built post", () => {
     const h = html("<h1>Why the sell-off was not a surprise</h1><p>x</p>", { head: '<meta name="description" content="What the options had priced in.">' }).replace("<title>t</title>", "<title>Why the sell-off was not a surprise · TwiceOver Blog</title>");
     expect.soft(postStrings(h)).toEqual(expect.arrayContaining(["Why the sell-off was not a surprise", "What the options had priced in."]));
+  });
+});
+
+describe("the home page's From the blog strip: post titles leave the banned-term scan (ADR 1090 Amendment 3)", () => {
+  const TITLES = ["Why a sell-off hits stocks twice", "Sell-off 101", "Buy now or wait: the CPI date"];
+  const strip = (...cards) => `<section><h2>From the blog</h2>${cards.join("")}</section>`;
+  const card = (title, attrs = "data-post-title") => `<a href="/blog/x?ref=home-strip"><p>Topic</p><p ${attrs}>${title}</p><p>Wed 14 Oct 2026</p></a>`;
+  const home = (body, extra = {}) => ({ rel: "index.html", html: html(body), ...extra });
+  const scanHome = (page) => scan(page, { postTitles: TITLES });
+  const ac3 = (f) => f.filter((x) => x.includes("[AC3]"));
+
+  it("a marked title with 'sell-off' passes, long or under 20 characters; the plain home page passes with the strip", () => {
+    expect.soft(scanHome(home(strip(card("Why a sell-off hits stocks twice"), card("Sell-off 101"))))).toEqual([]);
+  });
+
+  it("the same word anywhere else on the page still fails, including the same title text outside a marked element", () => {
+    expect.soft(ac3(scanHome(home(`${strip(card("Sell-off 101"))}<p>A sell-off hurts.</p>`)))).toHaveLength(1);
+    expect.soft(ac3(scanHome(home(`${strip(card("Sell-off 101"))}<p>Sell-off 101</p>`)))).toHaveLength(1);
+  });
+
+  it("a marked element whose text is not a post title is scanned in full", () => {
+    expect.soft(ac3(scanHome(home(strip(card("You can buy this today"))))).length).toBeGreaterThan(0);
+    expect.soft(ac3(scanHome(home(strip(card("Sell-off 101 and then some"))))).length).toBeGreaterThan(0);
+  });
+
+  it("a marked element with a child element is scanned in full", () => {
+    expect.soft(ac3(scanHome(home(strip(card("Sell-off <b>101</b>"))))).length).toBeGreaterThan(0);
+  });
+
+  it("the marker is ignored on every route but index.html", () => {
+    for (const rel of ["pricing/index.html", "terms/index.html", "blog/tools/the-overnight-call-calculator/index.html", "404.html"]) {
+      const f = scan({ rel, html: html(strip(card("Sell-off 101"))) }, { postTitles: TITLES });
+      expect.soft(ac3(f).length, rel).toBeGreaterThan(0);
+    }
+  });
+
+  it("the phrase floor still runs on the whole home page, a marked title included", () => {
+    const f = scanHome(home(strip(card("Buy now or wait: the CPI date"))));
+    expect.soft(f.some((x) => x.includes("[BLOG-PHRASE]") && x.includes('"buy now"'))).toBe(true);
+    expect.soft(scanHome(home(`${strip(card("Sell-off 101"))}<p>You must act.</p>`)).some((x) => x.includes('"you must"'))).toBe(true);
+  });
+
+  it("the disclaimer check stays on the home page", () => {
+    const f = scanHome({ rel: "index.html", html: html(strip(card("Sell-off 101")), { disc: "" }) });
+    expect.soft(f.some((x) => x.includes("[AC4]"))).toBe(true);
+  });
+
+  it("control: counts the marked elements, so a build that lost the strip is not read as a clean one", () => {
+    expect.soft(markedTitleCount(home(strip(card("Sell-off 101"), card("Why a sell-off hits stocks twice"))).html)).toBe(2);
+    expect.soft(markedTitleCount(home("<p>No strip.</p>").html)).toBe(0);
   });
 });

@@ -6,7 +6,7 @@
 //
 // Sections, in consult 0987 §1's order (kept by the founder): hero with its product deck → the
 // analysis band → how the sections become the Outlook → Your Portfolio → broker connection →
-// facts strip → pricing strip → mobile → trust plate → FAQ → what it is not → closing band.
+// facts strip → pricing strip → mobile → trust plate → From the blog → FAQ → what it is not → closing band.
 //
 // The "Connect read-only →" CTA and header sign-in slot are same-origin /go/* redirects (#1754,
 // site-app-seam.md §3/§4); see Base.astro for the header slot.
@@ -18,6 +18,9 @@ import OutlookBand from "../components/OutlookBand.astro";
 import PortfolioCard from "../components/PortfolioCard.astro";
 import PositionCard from "../components/PositionCard.astro";
 import { SECTIONS, sectionsOn, sectionCountLine } from "../data/sections.mjs";
+import { getPublished } from "../blog/collection.mjs";
+import { formatDay } from "../blog/format.mjs";
+import { TOPIC_LABELS } from "../blog/labels.mjs";
 
 // Organization + WebSite JSON-LD (SEO audit 2026-07 finding 7) — brand-SERP/knowledge-panel
 // groundwork. No FAQPage schema: Google deprecated FAQ rich results 2026-05-07.
@@ -45,6 +48,11 @@ const websiteJsonLd = {
 const chips = SECTIONS.filter((s) => s.key !== "outlook");
 // Decorative lines converging on the Outlook — one per chip column, evenly spaced across the viewBox.
 const CONVERGE = Array.from({ length: 11 }, (_, i) => 20 + i * 56);
+
+// "From the blog": the three newest published posts, read when the site builds (blog.md §1 ruling 10c;
+// ADR 1090 Decision 2 — getPublished applies the date gate, so a future post is absent until a build on
+// or after its date). The page never counts the posts: a fourth or fortieth changes nothing here.
+const blogStrip = (await getPublished()).slice(0, 3);
 ---
 <Base
   title="TwiceOver — a second look at your own book"
@@ -227,6 +235,26 @@ const CONVERGE = Array.from({ length: 11 }, (_, i) => 20 + i * 56);
           <p>Every figure in a section carries its source and the time it was fetched. The Outlook's prices are labelled as our projection.</p>
         </div>
       </div>
+    </div>
+  </section>
+
+  {/* From the blog (blog.md §1 ruling 10c). Plain canvas ground: the trust plate above is dark and the FAQ
+      below is lifted, so no two neighbours share a ground (section-grounds.test.mjs). Text cards only. Each
+      title carries data-post-title, which ci/content-rules.mjs honors on this page alone and only for a
+      post's own title (ADR 1090 Amendment 3). The card is the link; its title is a paragraph, not a heading. */}
+  <section class="blog-strip section-ground" aria-labelledby="blog-strip-heading">
+    <div class="blog-strip__head">
+      <h2 id="blog-strip-heading" class="type-heading-1">From the blog</h2>
+      <a class="blog-strip__all" href="/blog?ref=home-strip">All posts →</a>
+    </div>
+    <div class="blog-strip__cards">
+      {blogStrip.map((post) => (
+        <a class="blog-card" href={`/blog/${post.id}?ref=home-strip`}>
+          <p class="blog-card__topic">{TOPIC_LABELS[post.data.topic as keyof typeof TOPIC_LABELS]}</p>
+          <p class="blog-card__title" data-post-title>{post.data.title}</p>
+          <p class="blog-card__date">{formatDay(post.data.publishAt)}</p>
+        </a>
+      ))}
     </div>
   </section>
 

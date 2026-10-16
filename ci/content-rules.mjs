@@ -339,12 +339,39 @@ export function crossPageFailures(pages, postSlugs) {
 // One page
 // ---------------------------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------------------------
+// The home page's "From the blog" strip (ADR 1090 Amendment 3)
+// ---------------------------------------------------------------------------------------------
+
+const HOME = "index.html";
+const TITLE_MARKER = "[data-post-title]";
+
+/** How many elements on this page carry the post-title marker: the control that the exemption is not blind. */
+export function markedTitleCount(html) {
+  return parse(html).querySelectorAll(TITLE_MARKER).length;
+}
+
+/**
+ * The home page's visible text for the banned-term scan, with each valid post title taken out. A marked element is
+ * valid only if its whole text equals a title in the post files and it holds no child element; any other marked
+ * element stays in the scan, so the marker cannot hide other copy. Removing the element, not replacing a string,
+ * keeps the same words elsewhere on the page in the scan, and needs no length floor.
+ */
+function homeTextWithoutTitles(html, postTitles) {
+  const titles = new Set(postTitles.map(normalizeBlog));
+  const doc = parse(html);
+  for (const el of doc.querySelectorAll(TITLE_MARKER)) {
+    if (el.children.length === 0 && titles.has(normalizeBlog(el.textContent))) el.remove();
+  }
+  return textOf(doc.documentElement.outerHTML).toLowerCase();
+}
+
 /**
  * Every rule that applies to one built page.
  * @param {{rel:string, html:string, disclaimer:string, postSlugs?:string[], listStrings?:string[], allowedScripts?:readonly string[]}} p
  * @returns {string[]} failures, empty when the page passes
  */
-export function scanPage({ rel, html, disclaimer, postSlugs = [], listStrings = [], allowedScripts = BLOG_SCRIPTS }) {
+export function scanPage({ rel, html, disclaimer, postSlugs = [], listStrings = [], postTitles = [], allowedScripts = BLOG_SCRIPTS }) {
   const failures = [];
   const kind = pageKind(rel, postSlugs);
   const isBlog = kind !== "other";
@@ -365,12 +392,14 @@ export function scanPage({ rel, html, disclaimer, postSlugs = [], listStrings = 
   const visible = isBlog ? blogText(doc, true) : text;
   if (!visible.includes(disc)) failures.push(`[AC4] ${rel}: shared disclaimer missing or altered`);
 
-  let scrubbed = text.replaceAll(disc, " ");
+  // The home page's strip titles leave the bare-word scan below, not the phrase floor above (Amendment 3).
+  let scrubbed = (rel === HOME ? homeTextWithoutTitles(html, postTitles) : text).replaceAll(disc, " ");
+  const phraseText = text.replaceAll(disc, " ");
 
-  if (kind === "post" || kind === "list") {
+  if (kind === "post" || kind === "list" || rel === HOME) {
     for (const p of PHRASE_FLOOR) {
-      for (const m of scrubbed.matchAll(new RegExp(`\\b${p}\\b`, "g"))) {
-        const ctx = scrubbed.slice(Math.max(0, m.index - 35), m.index + p.length + 35).trim();
+      for (const m of phraseText.matchAll(new RegExp(`\\b${p}\\b`, "g"))) {
+        const ctx = phraseText.slice(Math.max(0, m.index - 35), m.index + p.length + 35).trim();
         failures.push(`[BLOG-PHRASE] ${rel}: "${p}" — …${ctx}…`);
       }
     }

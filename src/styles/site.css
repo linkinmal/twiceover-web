@@ -1166,6 +1166,38 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .trust-card h3 { margin: 0 0 var(--space-100); }
 .trust-card p { margin: 0; color: var(--color-text-secondary); }
 
+/* ── From the blog strip (blog.md §1 ruling 10c; build reference site-blog-links-2026-10-16.html) ──
+   Text cards on the plain ground. Three columns from 640px, one below. No new token. */
+.blog-strip__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-200); margin: 0 0 var(--space-300); }
+.blog-strip__head h2 { margin: 0; }
+.blog-strip__all { font-size: var(--font-size-300); white-space: nowrap; }
+.blog-strip__cards { display: grid; grid-template-columns: 1fr; gap: var(--space-300); }
+@media (min-width: 640px) { .blog-strip__cards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.blog-card {
+  display: block;
+  border-top: 1px solid var(--color-border-strong);
+  padding-top: var(--space-150);
+  color: var(--color-text-primary);
+}
+.blog-card:hover { color: var(--color-text-primary); text-decoration: none; }
+.blog-card:hover .blog-card__title { text-decoration: underline; }
+.blog-card p { margin: 0; }
+.blog-card__topic {
+  font-size: var(--font-size-100);
+  letter-spacing: var(--font-letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-050);
+}
+.blog-card__title {
+  font-family: var(--font-family-serif);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-400);
+  line-height: 1.3;
+  margin-bottom: var(--space-100);
+}
+.blog-card__date { font-size: var(--font-size-200); color: var(--color-text-muted); }
+
 /* ── FAQ (v2.3, new) — two-column at lg, native details/summary, no JS ──────── */
 .faq { display: grid; grid-template-columns: 1fr; gap: var(--space-400); padding-block: var(--space-600); }
 @media (min-width: 960px) {
