@@ -5,8 +5,8 @@
  * twiceover-web has no TypeScript build/type-check step, so the app-repo's type-level
  * "uninhabitable field" mechanism (RejectedTelemetryField) isn't available here. This is
  * the right-sized equivalent Security scoped in consult 0163: a source-text assertion in
- * the same regex-over-source idiom deploy.sh / ci/check-content.mjs already use, run as a
- * fail-closed gate before every deploy. It keeps the Worker source *incapable of
+ * the same regex-over-source idiom ci/check-observability-off.mjs / ci/check-content.mjs already use, run as a
+ * fail-closed gate in the verify job, which every deploy needs. It keeps the Worker source *incapable of
  * referencing* per-request identifying data as the code evolves — a stronger invariant
  * than only disabling the observability sink.
  *
