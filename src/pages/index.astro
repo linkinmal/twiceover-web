@@ -245,11 +245,11 @@ const blogStrip = (await getPublished()).slice(0, 3);
   <section class="blog-strip section-ground" aria-labelledby="blog-strip-heading">
     <div class="blog-strip__head">
       <h2 id="blog-strip-heading" class="type-heading-1">From the blog</h2>
-      <a class="blog-strip__all" href="/blog?ref=home-strip">All posts →</a>
+      <a class="blog-strip__all" href="/blog">All posts →</a>
     </div>
     <div class="blog-strip__cards">
       {blogStrip.map((post) => (
-        <a class="blog-card" href={`/blog/${post.id}?ref=home-strip`}>
+        <a class="blog-card" href={`/blog/${post.id}`}>
           <p class="blog-card__topic">{TOPIC_LABELS[post.data.topic as keyof typeof TOPIC_LABELS]}</p>
           <p class="blog-card__title" data-post-title>{post.data.title}</p>
           <p class="blog-card__date">{formatDay(post.data.publishAt)}</p>
