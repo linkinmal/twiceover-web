@@ -12,6 +12,7 @@ import { assertShareImage } from "../blog/url.mjs";
 import { YEAR } from "../config.mjs";
 import { HUB_PATH, PLAYABLES } from "../blog/playables.mjs";
 import { ORGANIZATION } from "../blog/org.mjs";
+import { BAR_DOOR_HREF } from "../blog/door.mjs";
 
 interface Props {
   title: string;
@@ -79,7 +80,7 @@ const preloads = [...new Set([...shellFaces, ...preload])];
         <header class="bar">
           <span class="brand"><a class="b-p" href="/"><BlogMark />TwiceOver</a><a class="b-b" href="/blog">Blog</a></span>
           <nav class="nav" aria-label="Blog"><a href="/blog">Posts</a>{hasHub && <a href={HUB_PATH} aria-current={onHub ? "page" : undefined}>Games and tools</a>}<a href="/blog#topics">Topics</a></nav>
-          <a class="door" href="/">Analyze a stock →</a>
+          <a class="door" href={BAR_DOOR_HREF}>Analyze a stock →</a>
         </header>
         <slot name="meta" />
       </div>
