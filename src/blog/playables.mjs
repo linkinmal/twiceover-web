@@ -14,23 +14,23 @@
 const entries = import.meta.glob("/src/playables/*/entry.mjs", { eager: true, import: "default" });
 const bodies = import.meta.glob("/src/playables/*/page.astro");
 
+// The hub's pinned order among pages updated at the same moment is the order the first five were written (the hub
+// test pins it, blog-handoff.md section 5.4). A page not named here follows them, by slug, so a new folder needs no
+// edit here; retire the list when that order is ruled on data.
+const WRITTEN_FIRST = ["guess-the-gap", "implied-move-from-a-straddle", "coin", "overnight-call", "option-payoff-calculator"];
+const written = (slug) => (WRITTEN_FIRST.includes(slug) ? WRITTEN_FIRST.indexOf(slug) : Infinity);
+const compare = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
 const SECTION = { game: "play", tool: "tools" };
-
-// The hub and the strip have so far followed this order (the newest updates first, then the order the pages were
-// written); the directories list alphabetically, so it is spelled out until the order is ruled by data.
-const LEGACY_ORDER = ["guess-the-gap", "implied-move-from-a-straddle", "coin", "overnight-call", "option-payoff-calculator"];
 
 function load([file, entry]) {
   const dir = file.split("/").at(-2);
   if (entry.slug !== dir) throw new Error(`${file}: slug "${entry.slug}" must equal its directory name "${dir}"`);
   if (!(entry.kind in SECTION)) throw new Error(`${file}: kind "${entry.kind}" must be "game" or "tool"`);
   if (!(`/src/playables/${dir}/page.astro` in bodies)) throw new Error(`${file}: src/playables/${dir}/page.astro is missing`);
-  const rank = LEGACY_ORDER.indexOf(dir);
-  if (rank < 0) throw new Error(`${file}: add "${dir}" to LEGACY_ORDER in src/blog/playables.mjs`);
-  return Object.freeze({ ...entry, path: `/blog/${SECTION[entry.kind]}/${entry.slug}`, rank });
+  return Object.freeze({ ...entry, path: `/blog/${SECTION[entry.kind]}/${entry.slug}` });
 }
 
-export const PLAYABLES = Object.freeze(Object.entries(entries).map(load).sort((a, b) => a.rank - b.rank));
+export const PLAYABLES = Object.freeze(Object.entries(entries).map(load).sort((a, b) => (written(a.slug) === written(b.slug) ? compare(a.slug, b.slug) : written(a.slug) < written(b.slug) ? -1 : 1)));
 
 /** A playable's page body (its page.astro component), loaded when a route renders it. */
 export const pageOf = async (slug) => (await bodies[`/src/playables/${slug}/page.astro`]()).default;
@@ -40,8 +40,19 @@ export const playablePath = (p) => p.path;
 /** The games-and-tools hub (blog-handoff.md section 5.4): where the bar's "Games and tools" link and each strip's last cell go. */
 export const HUB_PATH = "/blog/play";
 
-/** The other playables, for the "More to play" strip: two, then the strip's own last cell opens the hub. */
-export const otherPlayables = (slug) => PLAYABLES.filter((p) => p.slug !== slug).slice(0, 2);
+/**
+ * The "More to play" strip (Designer, consult 1125 ask 5): the strip is the next thing to play, so a page on the
+ * same topic comes first, then the newest update, then the slug. Two, then the strip's own last cell opens the hub.
+ */
+export const moreToPlay = (playables, slug) => {
+  const topic = playables.find((p) => p.slug === slug)?.topic;
+  const rank = (p) => (p.topic === topic ? 0 : 1);
+  return playables
+    .filter((p) => p.slug !== slug)
+    .sort((a, b) => rank(a) - rank(b) || Date.parse(b.updatedAt) - Date.parse(a.updatedAt) || compare(a.slug, b.slug))
+    .slice(0, 2);
+};
+export const otherPlayables = (slug) => moreToPlay(PLAYABLES, slug);
 
 /** Every playable, newest update first; the registry's order breaks a tie (the sort is stable). */
 export const playablesNewestFirst = () => [...PLAYABLES].sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));

@@ -584,13 +584,13 @@ describe("the games-and-tools hub and the link map (blog-handoff.md v1.2 section
     const { pageKind } = await import("./content-rules.mjs");
     expect.soft(pageKind("blog/play/index.html", ["first-fixture-post"])).toBe("blog");
   });
-  it("ends each playable page's More to play strip with a cell that opens the hub, after two other pages", () => {
+  it("ends each playable page's More to play strip with a cell that opens the hub, after two other pages: the same topic first, then the newest, then the slug", () => {
     for (const [file, others] of [
       ["blog/play/guess-the-gap/index.html", ["/blog/tools/implied-move-from-a-straddle", "/blog/play/coin"]],
       ["blog/tools/implied-move-from-a-straddle/index.html", ["/blog/play/guess-the-gap", "/blog/play/coin"]],
       ["blog/play/coin/index.html", ["/blog/play/guess-the-gap", "/blog/tools/implied-move-from-a-straddle"]],
-      ["blog/tools/overnight-call/index.html", ["/blog/play/guess-the-gap", "/blog/tools/implied-move-from-a-straddle"]],
-      ["blog/tools/option-payoff-calculator/index.html", ["/blog/play/guess-the-gap", "/blog/tools/implied-move-from-a-straddle"]],
+      ["blog/tools/overnight-call/index.html", ["/blog/tools/option-payoff-calculator", "/blog/play/guess-the-gap"]],
+      ["blog/tools/option-payoff-calculator/index.html", ["/blog/tools/overnight-call", "/blog/play/guess-the-gap"]],
     ]) {
       const cells = [...dom(dist, file).querySelectorAll('.pnav[aria-label="More to play"] a')];
       expect.soft(cells.map((a) => a.getAttribute("href")), file).toEqual([...others, "/blog/play"]);
