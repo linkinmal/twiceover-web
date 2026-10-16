@@ -362,7 +362,7 @@ describe("postStrings — the exact title and description strings a list page pr
 describe("the home page's From the blog strip: post titles leave the banned-term scan (ADR 1090 Amendment 3)", () => {
   const TITLES = ["Why a sell-off hits stocks twice", "Sell-off 101", "Buy now or wait: the CPI date"];
   const strip = (...cards) => `<section><h2>From the blog</h2>${cards.join("")}</section>`;
-  const card = (title, attrs = "data-post-title") => `<a href="/blog/x?ref=home-strip"><p>Topic</p><p ${attrs}>${title}</p><p>Wed 14 Oct 2026</p></a>`;
+  const card = (title, attrs = "data-post-title") => `<a href="/blog/x"><p>Topic</p><p ${attrs}>${title}</p><p>Wed 14 Oct 2026</p></a>`;
   const home = (body, extra = {}) => ({ rel: "index.html", html: html(body), ...extra });
   const scanHome = (page) => scan(page, { postTitles: TITLES });
   const ac3 = (f) => f.filter((x) => x.includes("[AC3]"));
