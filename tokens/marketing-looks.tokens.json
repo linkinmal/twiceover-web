@@ -1,0 +1,142 @@
+{
+  "$description": "TwiceOver MARKETING looks · v1.2.0 (adds `card`, ADR 1005 Amendment 1, #3989; 1.1.1 fixes the Night desk underline geometry; 1.1.2 corrects the Risograph sunflower's prose to the pixel-measured 55%, ADR 1005 Amendment 2, #3995; 1.2.0 adds `thumbnail`, ADR 1005 Amendment 3, #3996) · 2026-09-24 · ADR 1005 (Designer, consult 1000, stock-analyst-platform#3969; founder signed off seven looks and sound logos A+B in chat 2026-09-24). Marketing-only: Growth's videos, social cards and free images. No app, site or product surface may import this file, except the twiceover.io /blog section (ADR 1005 Amendment 4) — the product's tokens stay twiceover.tokens.json. Colours here are the look's frame; figures still use the product's signal pair on a neutral plate, and every figure is set in font.family.mono (Source Code Pro, tabular), except a figure inside a card's title (see `card`). Build reference: ai-team/design/assets/marketing-look-book-2026-09-24.html.",
+
+  "reserved-hue": {
+    "$description": "Hue bands no expressive look colour may enter (ADR 1005 rule 1). The signal pair sits at ~151–159° (gain: 159° light #14684B, 151° dark #4CC38A) and ~0° (loss). A colour is exempt only as a neutral (see `neutral`). A checker computes each swatch's HSL hue and refuses one inside a band; a band with from > to wraps through 0°.",
+    "gain": { "from": { "$type": "number", "$value": 85 }, "to": { "$type": "number", "$value": 195 } },
+    "loss": { "from": { "$type": "number", "$value": 335 }, "to": { "$type": "number", "$value": 25 } }
+  },
+  "neutral": {
+    "$description": "A colour counts as neutral (exempt from reserved-hue) when HSL saturation < 22%, or lightness < 9%, or lightness > 92%.",
+    "max-saturation": { "$type": "number", "$value": 22 },
+    "min-lightness": { "$type": "number", "$value": 9 },
+    "max-lightness": { "$type": "number", "$value": 92 }
+  },
+
+  "font": {
+    "$description": "Marketing-only display faces, all SIL OFL 1.1, variable, no Reserved Font Name (google/fonts OFL.txt, checked 2026-09-24). Display faces set WORDS only; captions never use the condensed or marker face; figures always use the product's font.family.sans with tabular lining figures (ADR 1082, was font.family.mono) — except a figure inside a card's title, which takes the title's face (see `card`).",
+    "condensed": { "$type": "fontFamily", "$value": ["Big Shoulders", "Big Shoulders Display", "Arial Narrow", "sans-serif"] },
+    "grotesk":   { "$type": "fontFamily", "$value": ["Bricolage Grotesque", "Helvetica Neue", "Arial", "sans-serif"] },
+    "editorial": { "$type": "fontFamily", "$value": ["Fraunces", "Georgia", "serif"] },
+    "marker":    { "$type": "fontFamily", "$value": ["Caveat", "cursive"] }
+  },
+
+  "look": {
+    "house": {
+      "$description": "Today's identity, unchanged: the ADR 0945 grounds and the three Source faces. Carries every format and all card types as they are.",
+      "ground": { "$type": "color", "$value": "#E8E3D8" },
+      "ink":    { "$type": "color", "$value": "#211D17" },
+      "accent": { "$type": "color", "$value": "#23436F" },
+      "plate":  { "$type": "color", "$value": "#F4F0E8" },
+      "display": { "$type": "fontFamily", "$value": ["Source Serif 4", "Georgia", "serif"] },
+      "text":    { "$type": "fontFamily", "$value": ["Source Sans 3", "-apple-system", "sans-serif"] }
+    },
+    "night-desk": {
+      "$description": "Warm black, one amber lamp glow, film grain 16%, slow push-in ~2%/s. Captions: text face 700 white on a 72% black strip, key word amber. Carries cold open, countdown, kinetic type, trailer parody, week ahead; cards mover, big number, levels. Never amber on a figure.",
+      "ground": { "$type": "color", "$value": "#0F0E0B" },
+      "ink":    { "$type": "color", "$value": "#F4F0E8" },
+      "muted":  { "$type": "color", "$value": "#A79E8B" },
+      "accent": { "$type": "color", "$value": "#F2A93B" },
+      "plate":  { "$type": "color", "$value": "#242019" },
+      "display": { "$type": "fontFamily", "$value": "{font.condensed}" },
+      "text":    { "$type": "fontFamily", "$value": ["Source Sans 3", "-apple-system", "sans-serif"] }
+    },
+    "paper-marker": {
+      "$description": "Paper with faint ruled lines; marks draw on in 300–500 ms, camera still. Captions: text face 600 with highlighter behind key words, never the marker face. Carries math class, guess the number, myth vs. math; cards term, scorecard. Never red pen, green highlighter, marker over highlighter, or handwritten numbers.",
+      "ground":      { "$type": "color", "$value": "#E8E3D8" },
+      "ink":         { "$type": "color", "$value": "#211D17" },
+      "marker":      { "$type": "color", "$value": "#2B59C3" },
+      "highlighter": { "$type": "color", "$value": "#FFE24A" },
+      "plate":       { "$type": "color", "$value": "#F4F0E8" },
+      "display": { "$type": "fontFamily", "$value": ["Source Serif 4", "Georgia", "serif"] },
+      "annotation": { "$type": "fontFamily", "$value": "{font.marker}" },
+      "text":    { "$type": "fontFamily", "$value": ["Source Sans 3", "-apple-system", "sans-serif"] }
+    },
+    "blueprint": {
+      "$description": "Drafting blue on a major/minor grid (22%/8%); lines draw, dimension arrows extend, labels tick in; flat pans. Captions: grotesk 600 white. Carries structure anatomy, satisfying UI; cards levels, term. Amber marks one callout per frame; hypothetical max gain/loss is never coloured.",
+      "ground":  { "$type": "color", "$value": "#0F3563" },
+      "line":    { "$type": "color", "$value": "#CFE3FF" },
+      "ink":     { "$type": "color", "$value": "#F4F7FB" },
+      "callout": { "$type": "color", "$value": "#FFB347" },
+      "plate":   { "$type": "color", "$value": "#15130E" },
+      "display": { "$type": "fontFamily", "$value": "{font.grotesk}" },
+      "text":    { "$type": "fontFamily", "$value": ["Source Code Pro", "ui-monospace", "monospace"] }
+    },
+    "newsprint": {
+      "$description": "Broadsheet: masthead, column rules, halftone on image blocks, one ochre spot. Columns slide, headline stamps, page-turn transitions. Captions: serif 600 under a heavy rule. Carries week ahead, deadpan documentary, the episodic series; cards week ahead, series. Ochre is never text (2.4:1).",
+      "ground": { "$type": "color", "$value": "#EFE9DC" },
+      "ink":    { "$type": "color", "$value": "#1A1814" },
+      "spot":   { "$type": "color", "$value": "#C98A1A" },
+      "plate":  { "$type": "color", "$value": "#F7F3EA" },
+      "display": { "$type": "fontFamily", "$value": "{font.editorial}" },
+      "text":    { "$type": "fontFamily", "$value": ["Source Serif 4", "Georgia", "serif"] }
+    },
+    "neon": {
+      "$description": "Violet-black with magenta and sky-blue tube glow. One flicker-on of at most 2 flashes (WCAG 2.3.1), then a beat pulse of 10% or less; never strobing. Captions: grotesk 700 white, key word magenta. Carries guess the number, countdown, mystery box. Never a green or red tube; a signed figure sits flat on the plate, unglowed.",
+      "ground":  { "$type": "color", "$value": "#0E0A1A" },
+      "ink":     { "$type": "color", "$value": "#F4F0E8" },
+      "tube-a":  { "$type": "color", "$value": "#FF3FD2" },
+      "tube-b":  { "$type": "color", "$value": "#4DB5FF" },
+      "warm":    { "$type": "color", "$value": "#FFB23F" },
+      "plate":   { "$type": "color", "$value": "#17131F" },
+      "display": { "$type": "fontFamily", "$value": "{font.editorial}", "$description": "italic, light weight" },
+      "text":    { "$type": "fontFamily", "$value": "{font.grotesk}" }
+    },
+    "risograph": {
+      "$description": "Two-ink zine print, blue ~0.7% off register, paper grain, stop-motion on twos (12 fps). Captions: grotesk 700 ink on a paper chip. Carries old way vs. the analysis, two voices, POV; cards pairing, surface. Inks never overprint (blue over yellow prints green); blue text only at display size (4.2:1).",
+      "ground": { "$type": "color", "$value": "#F6F1E7" },
+      "ink":    { "$type": "color", "$value": "#1A1814" },
+      "ink-a":  { "$type": "color", "$value": "#0078BF" },
+      "ink-b":  { "$type": "color", "$value": "#FFB511" },
+      "plate":  { "$type": "color", "$value": "#FFFFFF" },
+      "display": { "$type": "fontFamily", "$value": "{font.grotesk}" },
+      "text":    { "$type": "fontFamily", "$value": ["Source Sans 3", "-apple-system", "sans-serif"] }
+    }
+  },
+
+  "card": {
+    "$description": "How a social card (ADR 0945 chassis, 1200x1500) wears a look other than House — ADR 1005 Decision 4 as amended by Amendment 1 (#3989, founder sign-off 2026-09-24). The PLATE is the card type's own ADR 0945 ground with that ground's whole token set, so the body renders exactly as House renders it; it carries an edge in the ground's own muted token (night #A79E8B, paper #60594F, navy #9BBCE6). Eyebrow, body and note sit inside the plate; the title and footer sit on the look's field. The title is at most `title-max-lines` lines (refuse a third: cut words); a figure inside the title is set in the title's own face (founder-directed 2026-09-24); figures on the plate stay Source Code Pro. The chassis density guard is unchanged and decides fit — cut content, never shrink type — and must measure after document.fonts.ready (#3992). Texture sits under the plate; marks never touch it. House is the chassis as-is: no plate, no field.",
+    "plate-bleed":      { "$type": "dimension", "$value": "40px", "$description": "How far the plate reaches into the chassis's 80px card margin, so the text column keeps its 1040px width." },
+    "plate-padding":    { "$type": "dimension", "$value": "36px" },
+    "plate-edge":       { "$type": "dimension", "$value": "4px" },
+    "plate-radius":     { "$type": "dimension", "$value": "16px" },
+    "title-gap":        { "$type": "dimension", "$value": "32px", "$description": "Title bottom to plate top." },
+    "title-max-lines":  { "$type": "number", "$value": 2 },
+    "look": {
+      "night-desk":   { "title": { "$type": "typography", "$value": { "fontFamily": "{font.condensed}", "fontWeight": 800, "fontSize": "96px", "lineHeight": 0.92, "textTransform": "uppercase" } }, "title-color": { "$type": "color", "$value": "#F4F0E8" }, "disclaimer": { "$type": "color", "$value": "#A79E8B" }, "lockup": { "$type": "string", "$value": "dark" }, "marks": { "$type": "string", "$value": "Amber #F2A93B underline under one key title word, hung off the baseline (text-decoration, skip-ink none) — never a box-shadow or background on the line box, which at this line-height lands in the next line's caps and is painted over; lamp glow top right; film grain 16% under the plate." }, "underline-thickness": { "$type": "dimension", "$value": "5px", "$description": "0.05em of the title. The baseline-to-next-cap gap is ~0.08em, so thickness + offset must stay under it." }, "underline-offset": { "$type": "dimension", "$value": "1px", "$description": "0.01em below the baseline." } },
+      "paper-marker": { "title": { "$type": "typography", "$value": { "fontFamily": ["Source Serif 4", "Georgia", "serif"], "fontWeight": 600, "fontSize": "72px", "lineHeight": 1.08 } }, "title-color": { "$type": "color", "$value": "#211D17" }, "disclaimer": { "$type": "color", "$value": "#5E574B" }, "lockup": { "$type": "string", "$value": "light" }, "marks": { "$type": "string", "$value": "Highlighter #FFE24A behind key title words; ruled lines 10%. No margin notes on a card." } },
+      "blueprint":    { "title": { "$type": "typography", "$value": { "fontFamily": "{font.grotesk}", "fontWeight": 800, "fontWidth": 75, "fontSize": "84px", "lineHeight": 0.95, "textTransform": "uppercase" } }, "title-color": { "$type": "color", "$value": "#F4F7FB" }, "disclaimer": { "$type": "color", "$value": "#CFE3FF" }, "lockup": { "$type": "string", "$value": "dark" }, "marks": { "$type": "string", "$value": "Major/minor grid; one unlabelled dimension line up the plate's left side, in the margin, #CFE3FF. Needs Bricolage's wdth axis vendored." } },
+      "newsprint":    { "title": { "$type": "typography", "$value": { "fontFamily": "{font.editorial}", "fontWeight": 600, "fontOpticalSize": 72, "fontSize": "76px", "lineHeight": 1.06 } }, "title-color": { "$type": "color", "$value": "#1A1814" }, "disclaimer": { "$type": "color", "$value": "#5E574B" }, "lockup": { "$type": "string", "$value": "light" }, "marks": { "$type": "string", "$value": "14px #1A1814 masthead rule above the title, 30px ochre #C98A1A square before it, 6px rule above the footer." } },
+      "neon":         { "title": { "$type": "typography", "$value": { "fontFamily": "{font.editorial}", "fontStyle": "italic", "fontWeight": 300, "fontOpticalSize": 144, "fontSoft": 100, "fontSize": "84px", "lineHeight": 1.0 } }, "title-color": { "$type": "color", "$value": "#FFE3F7" }, "disclaimer": { "$type": "color", "$value": "#A79E8B" }, "lockup": { "$type": "string", "$value": "dark" }, "marks": { "$type": "string", "$value": "Three-shadow #FF3FD2 glow on the title only; field haze. Carries no existing card type — reference for the quiz card's ADR." } },
+      "risograph":    { "title": { "$type": "typography", "$value": { "fontFamily": "{font.grotesk}", "fontWeight": 800, "fontSize": "84px", "lineHeight": 0.92, "textTransform": "uppercase" } }, "title-color": { "$type": "color", "$value": "#0078BF" }, "disclaimer": { "$type": "color", "$value": "#1A1814" }, "lockup": { "$type": "string", "$value": "light" }, "marks": { "$type": "string", "$value": "Title shadow offset 8px 6px at 28% riso blue; flat sunflower #FFB511 field from 55% down the plate through the footer; grain 22% under the plate." } }
+    }
+  },
+
+  "thumbnail": {
+    "$description": "How the YouTube thumbnail (1280x720, ADR 0999 Decision 1) wears a look — ADR 1005 Amendment 3 (#3996, founder sign-off in chat 2026-09-24: \"go\", against the rendered proposal https://claude.ai/artifact/D9AET5684huxVeXMjHhxmh; build reference ai-team/growth/assets/youtube-thumb-look-reference.source.html, beside the production template). The look is the FIELD across the whole canvas; the product screenshot is the PLATE, with a 4px edge in the paper ground's own muted `plate-edge-color` and a 16px radius — one edge colour, not per-ground like the card plate, since the thumbnail's crop is always the app's own paper-ground UI. The title takes the look's own `card.look.<look>.title` face, weight, case and colour, fixed at `title-size` on every look — every face fits the 456px band at that size, so no look needs a size of its own. The key word takes the look's own title mark where `card.look.<look>.marks` names one for a title word (Night desk's underline, Paper & marker's highlighter); otherwise the one emphasis colour a look already allows, never a new colour; `key-word:\"none\"` carries no mark at all (Risograph: a highlighter block would break its own \"the two inks never overlap\", so its second ink is the sunflower field instead, unchanged from the card). House is the chassis as-is: no plate border, no field, today's ink band.",
+    "plate-edge": { "$type": "dimension", "$value": "4px" },
+    "plate-edge-color": { "$type": "color", "$value": "#60594F" },
+    "plate-radius": { "$type": "dimension", "$value": "16px" },
+    "title-size": { "$type": "dimension", "$value": "100px" },
+    "look": {
+      "night-desk":   { "key-word": { "$type": "string", "$value": "underline" } },
+      "paper-marker": { "key-word": { "$type": "string", "$value": "highlighter" } },
+      "blueprint":    { "key-word": { "$type": "string", "$value": "callout" }, "key-word-color": { "$type": "color", "$value": "#FFB347" } },
+      "newsprint":    { "key-word": { "$type": "string", "$value": "italic" } },
+      "neon":         { "key-word": { "$type": "string", "$value": "glow" }, "key-word-color": { "$type": "color", "$value": "#FF3FD2" } },
+      "risograph":    { "key-word": { "$type": "string", "$value": "none" } }
+    }
+  },
+
+  "sound-logo": {
+    "$description": "The mark read as a score (1 mark unit = 12 ms): note 1 at 0 s, note 2 enters at 0.26 s at 55% amplitude (−5.2 dB), both release at 1.14 s. Soft mallet timbre (sine + ~2nd partial at 18%, low-pass 2.6 kHz, 8 ms attack). Plays on the end card after the music bed has faded out. Generated in code (synth.py), never by a model. A is the default; B is the alternate.",
+    "root-hz":       { "$type": "number", "$value": 392 },
+    "note2-onset":   { "$type": "duration", "$value": "260ms" },
+    "release":       { "$type": "duration", "$value": "1140ms" },
+    "note2-gain-db": { "$type": "number", "$value": -5.2 },
+    "variant": {
+      "a": { "$description": "Default. Note 2 a perfect fifth above (ratio 1.5).", "ratio": { "$type": "number", "$value": 1.5 } },
+      "b": { "$description": "Alternate, warmer. Note 2 a major sixth above (ratio 1.6818).", "ratio": { "$type": "number", "$value": 1.6818 } }
+    }
+  }
+}

@@ -1,0 +1,46 @@
+name: lane
+
+# The post-only review lane (#4233, ADR 1090 Decision 5, Security consult 1091).
+#
+# A pull request that touches a post, a post image or a share image may touch only those, by exact path,
+# with plain files of an allowed image type and size, and may not remove, rename or re-date a live post.
+# A pull request that touches none of them passes this check untouched, to its normal review.
+#
+# Why `pull_request_target`: the definition of this workflow, and the code it runs, come from `main`, not
+# from the pull request, so a pull request cannot edit the check that judges it. That is also why it is safe
+# to run here and why it must stay this way:
+#   - it checks out the BASE (the default for this event) and never the pull request's head;
+#   - it installs nothing and runs nothing from the pull request;
+#   - it reads the pull request only through the GitHub API, as data (ci/blog-lane.mjs);
+#   - its token is read-only, and it holds no secret.
+# Do not add a `ref:` or `repository:` to the checkout, an install step, or a `${{ }}` of pull-request text
+# inside a `run:`. test: ci/blog-lane.test.mjs pins each.
+#
+# Making this job a required status check on `main` is a human action item (Operations).
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: lane-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  lane:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: node ci/blog-lane.mjs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}

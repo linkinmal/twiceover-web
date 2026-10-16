@@ -473,7 +473,7 @@
       },
       "550": {
         "$value": "1.375rem",
-        "$description": "Half-header slot — 'Your read / Ticker analysis' banners. One step below heading-1 (1.5rem), one above heading-2 (1.25rem). App-only (#34)."
+        "$description": "Half-header slot — 'Your read / Analysis' banners. One step below heading-1 (1.5rem), one above heading-2 (1.25rem). App-only (#34)."
       },
       "600": {
         "$value": "1.5rem"
@@ -593,7 +593,7 @@
         "lineHeight": "{font.line-height.tight}",
         "letterSpacing": "{font.letter-spacing.tight}"
       },
-      "$description": "App-only (#34). The 'Your read / Ticker analysis' half banners — one step below heading-1, above heading-2. Source Serif 4 semibold at 1.375rem. Sits between heading-1 (1.5rem) and heading-2 (1.25rem) in the section-header scale; never used for per-section heads (those are heading-2)."
+      "$description": "App-only (#34). The 'Your read / Analysis' half banners — one step below heading-1, above heading-2. Source Serif 4 semibold at 1.375rem. Sits between heading-1 (1.5rem) and heading-2 (1.25rem) in the section-header scale; never used for per-section heads (those are heading-2)."
     },
     "ticker": {
       "$value": {
@@ -1105,7 +1105,7 @@
   "surface": {
     "$description": "App-only (#34). Named surfaces that are not bg.canvas/surface/raised — structural zones with their own identity. Theme-variant.",
     "panel": {
-      "$description": "The impersonal half ('Ticker analysis'). Retuned 2026-07-19 (ADR 0340) from a full-bleed tinted band to an elevated card fill (elevation.high) that floats on the stone canvas alongside surface.personal — mechanism changed (banding → elevation-separated card), name and role ('the impersonal half's own surface') unchanged.",
+      "$description": "The impersonal half ('Analysis'). Retuned 2026-07-19 (ADR 0340) from a full-bleed tinted band to an elevated card fill (elevation.high) that floats on the stone canvas alongside surface.personal — mechanism changed (banding → elevation-separated card), name and role ('the impersonal half's own surface') unchanged.",
       "light": {
         "$type": "color",
         "$value": "#EEE7D6",

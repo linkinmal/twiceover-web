@@ -1,0 +1,36 @@
+---
+// /blog/topic/<subject> and its later pages: one plain page per subject that has a published post. A subject
+// with none has no page, so no filter ever leads to an empty list.
+import BlogList from "../../../../components/blog/BlogList.astro";
+import { getPublished } from "../../../../blog/collection.mjs";
+import { issueNumbers, paginate, topicsWithPosts } from "../../../../blog/list.mjs";
+import { TOPICS } from "../../../../blog/vocabulary.mjs";
+import { TOPIC_LABELS, TOPIC_DESCRIPTIONS } from "../../../../blog/labels.mjs";
+import { PAGE_SIZE } from "../../../../blog/config.mjs";
+
+export async function getStaticPaths() {
+  const posts = await getPublished();
+  const numbers = issueNumbers(posts);
+  const topics = topicsWithPosts(posts, TOPICS);
+  return topics.flatMap((topic) => {
+    const pages = paginate(posts.filter((p) => p.data.topic === topic), PAGE_SIZE);
+    return pages.map((items, i) => ({
+      params: { topic, rest: i === 0 ? undefined : `page/${i + 1}` },
+      props: { topic, items, numbers, topics, pageNo: i + 1, pageCount: pages.length },
+    }));
+  });
+}
+const { topic, items, numbers, topics, pageNo, pageCount } = Astro.props;
+const label = TOPIC_LABELS[topic as keyof typeof TOPIC_LABELS];
+---
+<BlogList
+  title={`${label} — TwiceOver Blog${pageNo > 1 ? ` — page ${pageNo}` : ""}`}
+  description={`${pageNo > 1 ? `Page ${pageNo} of ${pageCount}. ` : ""}${TOPIC_DESCRIPTIONS[topic as keyof typeof TOPIC_DESCRIPTIONS]} Informational and educational.`}
+  topic={topic}
+  topics={topics}
+  items={items}
+  numbers={numbers}
+  basePath={`/blog/topic/${topic}`}
+  pageNo={pageNo}
+  pageCount={pageCount}
+/>

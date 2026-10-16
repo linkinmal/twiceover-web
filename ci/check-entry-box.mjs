@@ -68,8 +68,9 @@
  */
 
 import { readFileSync, readdirSync, statSync } from "node:fs";
-import { join, dirname, relative, sep } from "node:path";
+import { join, dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { BLOG_SCRIPTS } from "./content-rules.mjs";
 
 // ── The declared script expectation ─────────────────────────────────────────
 // One row per built page. `inline` counts executable inline <script> blocks (data blocks
@@ -96,6 +97,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const EXPECTED_SCRIPTS = {
   "404.html": { inline: 0, external: 0 },
   "cookies/index.html": { inline: 0, external: 0 },
+  "delete-account/index.html": { inline: 0, external: 0 },
   // The explainer pages (stock-analyst-platform#3829) are static: every picture is drawn at build.
   "how-our-analysis-works/index.html": { inline: 0, external: 0 },
   // Still 3 since homepage v3.4 (stock-analyst-platform#3829): the hero deck (public/js/hero-deck.js)
@@ -246,13 +248,18 @@ function scanBundleTree(src, readAsset, rel, seen, failures) {
  * @param expected  the EXPECTED_SCRIPTS-shaped declaration to assert against
  * @param readAsset (srcPath) => string | null — resolves an external src to its bundle body
  */
-export function scanPages(pages, expected = EXPECTED_SCRIPTS, readAsset = () => null) {
+export function scanPages(pages, expected = EXPECTED_SCRIPTS, readAsset = () => null, blogScripts = BLOG_SCRIPTS) {
   const failures = [];
   const seen = new Set();
 
   for (const { rel, html } of pages) {
     seen.add(rel);
-    const declared = expected[rel];
+    // A page under blog/ is bound by a list, not a per-page row (ADR 1090 Decision 10, relaxing ADR 0810 condition
+    // 4(iii); Security consult 1091): no inline executable script, and every external script is on the fixed list
+    // of reviewed block files (BLOG_SCRIPTS). A post can add no script, so no row is needed, and a new page under
+    // blog/ cannot ship unscanned. Every other check below applies to it unchanged.
+    const blog = rel.startsWith("blog/");
+    const declared = blog ? { inline: 0, external: null } : expected[rel];
     if (!declared) {
       failures.push(
         `[scripts] ${rel}: built page is not declared in EXPECTED_SCRIPTS — every page must be declared so a new one cannot ship unscanned`,
@@ -266,7 +273,7 @@ export function scanPages(pages, expected = EXPECTED_SCRIPTS, readAsset = () => 
           `[scripts] ${rel}: expected ${declared.inline} inline executable <script> block(s), found ${inline.length} — update EXPECTED_SCRIPTS deliberately, with review, or remove the script`,
         );
       }
-      if (external.length !== declared.external) {
+      if (declared.external !== null && external.length !== declared.external) {
         failures.push(
           `[scripts] ${rel}: expected ${declared.external} external <script src=…> tag(s), found ${external.length} — update EXPECTED_SCRIPTS deliberately, with review, or remove the script`,
         );
@@ -280,6 +287,11 @@ export function scanPages(pages, expected = EXPECTED_SCRIPTS, readAsset = () => 
     }
 
     const seenBundles = new Set();
+    if (blog) {
+      for (const e of external) {
+        if (!blogScripts.includes(e.src)) failures.push(`[scripts] ${rel}: script src "${e.src}" is not on the blog's fixed list of reviewed block files`);
+      }
+    }
     for (const e of external) {
       if (!EXTERNAL_SRC_SHAPE.test(e.src)) {
         failures.push(
@@ -581,7 +593,10 @@ function collectHtml(dir, root, out = []) {
 
 function main() {
   const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-  const distDir = join(root, "dist");
+  // `--dist <dir>` checks another build (the fixture build in ci/blog-build.test.mjs). An argument, not the
+  // environment: scripts/deploy.sh passes none, so a deploy always checks dist/.
+  const di = process.argv.indexOf("--dist");
+  const distDir = di > -1 ? resolve(process.argv[di + 1]) : join(root, "dist");
   const workerPath = join(root, "worker", "index.js");
 
   let pages;

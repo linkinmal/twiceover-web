@@ -36,11 +36,11 @@ const INDEX = [
 function mount() {
   document.body.innerHTML = `
     <form id="entry-form" action="/go/try" method="get" novalidate>
-      <label class="visually-hidden" for="entry-ticker">A ticker</label>
+      <label class="visually-hidden" for="entry-ticker">A stock</label>
       <div class="symbol-combobox entry-box__field-wrap">
         <input id="entry-ticker" name="ticker" type="text" autocomplete="off" spellcheck="false" />
       </div>
-      <button type="submit" class="entry-box__submit">Get the read</button>
+      <button type="submit" class="entry-box__submit">Analyze</button>
     </form>`;
   const input = document.getElementById('entry-ticker');
   const loadIndex = vi.fn(() => Promise.resolve(INDEX));
@@ -100,7 +100,7 @@ describe('a late index arrival never opens a listbox on a field nobody is focuse
     document.body.innerHTML = `
       <form id="entry-form" action="/go/try" method="get" novalidate>
         <div class="symbol-combobox"><input id="entry-ticker" name="ticker" type="text" /></div>
-        <button type="submit">Get the read</button>
+        <button type="submit">Analyze</button>
       </form>`;
     const input = document.getElementById('entry-ticker');
     createSymbolCombobox({ input, loadIndex });
@@ -228,7 +228,7 @@ describe('R6 — selecting fills the field and never submits', () => {
   it('leaves the option in place on mousedown — it selects on click, so a tap cannot fall through', async () => {
     // The failure this guards: selecting inside `mousedown` removes the option synchronously, and
     // `preventDefault` on mousedown does NOT suppress the click that follows. On the stacked
-    // mobile layout the first option sits almost exactly over the "Get the read" submit button, so
+    // mobile layout the first option sits almost exactly over the "Analyze" submit button, so
     // a torn-down option leaves the tap's own click to hit-test onto that button and GET /go/try —
     // a read nobody assented to. jsdom never synthesizes a click from a dispatched mousedown, so
     // the tap-through itself is unobservable here; what IS observable, and what makes it

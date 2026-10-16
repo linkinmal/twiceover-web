@@ -128,7 +128,7 @@ export function createSymbolCombobox({ input, loadIndex = loadSymbolIndex }) {
       // `mousedown` ONLY holds focus. It must not select, because selecting here removes the
       // listbox synchronously — and `preventDefault` on mousedown does not suppress the `click`
       // that follows. On this site's STACKED mobile layout the first option sits almost exactly on
-      // top of the "Get the read" submit button (option +16px..+60px below the field, button
+      // top of the "Analyze" submit button (option +16px..+60px below the field, button
       // +12px..+56px — a 44px overlap), so deleting the option mid-gesture leaves the tap's own
       // click to hit-test onto the submit button underneath and GET /go/try: a read the visitor
       // never assented to, from a tap they aimed at a suggestion. That is the classic touch

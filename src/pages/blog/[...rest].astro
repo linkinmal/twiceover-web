@@ -1,0 +1,34 @@
+---
+// /blog and /blog/page/N: the index, newest first. With no published post there is no index at all (no
+// route is generated), so the site carries no empty /blog before the first post goes live.
+import BlogList from "../../components/blog/BlogList.astro";
+import { getPublished } from "../../blog/collection.mjs";
+import { issueNumbers, paginate, topicsWithPosts } from "../../blog/list.mjs";
+import { TOPICS } from "../../blog/vocabulary.mjs";
+import { INDEX_BLURB, INDEX_DESCRIPTION } from "../../blog/labels.mjs";
+import { PAGE_SIZE } from "../../blog/config.mjs";
+
+export async function getStaticPaths() {
+  const posts = await getPublished();
+  if (!posts.length) return [];
+  const numbers = issueNumbers(posts);
+  const topics = topicsWithPosts(posts, TOPICS);
+  const pages = paginate(posts, PAGE_SIZE);
+  return pages.map((items, i) => ({
+    params: { rest: i === 0 ? undefined : `page/${i + 1}` },
+    props: { items, numbers, topics, pageNo: i + 1, pageCount: pages.length },
+  }));
+}
+const { items, numbers, topics, pageNo, pageCount } = Astro.props;
+const base = "TwiceOver Blog — markets, options and the math behind them";
+---
+<BlogList
+  title={pageNo === 1 ? base : `${base} — page ${pageNo}`}
+  description={pageNo === 1 ? `${INDEX_DESCRIPTION} Informational and educational.` : `Older posts, page ${pageNo} of ${pageCount}. ${INDEX_BLURB}`}
+  topics={topics}
+  items={items}
+  numbers={numbers}
+  basePath="/blog"
+  pageNo={pageNo}
+  pageCount={pageCount}
+/>

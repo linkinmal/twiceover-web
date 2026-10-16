@@ -1,0 +1,79 @@
+---
+// "The overnight call calculator" as served (blog-handoff.md section 5.2, kit v3): three open numbered steps in one
+// column. The opening night (the design's defaults) is printed in full: the night in a sentence, the answer, the
+// waterfall, the three finds and the grid of every case. The functions the block script imports
+// (src/blog-tools/call-view.mjs) write it, so the script only moves what is already here. The steps' controls are
+// hidden until the script runs them; with script off the opening night reads as a page of its own.
+import { DEFAULTS, PRESETS, SLIDERS, presetMatches, runOvernight, findsMet, heatGrid } from "../../blog-tools/overnight-call.mjs";
+import { headlineHtml, sentenceHtml, breakEvenHtml, whyHtml, pricedHtml, nightHtml, sliderText, breakEvenMarker, findsHtml, heatHtml, waterfallSvg, waterfallLabel } from "../../blog-tools/call-view.mjs";
+import { rowHtml } from "../../blog-tools/number-input.mjs";
+
+const r = runOvernight(DEFAULTS);
+if (!r.ok) throw new Error("the design's opening night must be valid");
+const st = sliderText(r);
+const marker = breakEvenMarker(r);
+const found = findsMet(r.inputs, r);
+const grid = heatGrid(r.inputs, r);
+const SL = [
+  ["t-m", "movePct", "Stock moves", "move"],
+  ["t-iva", "ivAfterPct", "Implied volatility goes to", "iv"],
+  ["t-dd", "daysPass", "Days that pass", "days"],
+];
+---
+<div data-call>
+  <section class="blk calc" data-js hidden>
+    <h2 class="lab">Step 1 · Pick a night</h2>
+    <div class="chips" data-presets role="group" aria-label="Example nights" style="margin:0">
+      {PRESETS.map((p, i) => <button type="button" class="chip" data-p={i} aria-pressed={presetMatches(r.inputs, p) ? "true" : "false"}>{p.label}</button>)}
+    </div>
+    <p class="pdesc" data-night aria-live="polite" set:html={nightHtml(r)}></p>
+  </section>
+  <section class="blk calc">
+    <h2 class="lab" data-js hidden>Step 2 · Change the night</h2>
+    <p class="lab" data-nojs>The example: an earnings beat</p>
+    <p class="pdesc" data-nojs set:html={nightHtml(r)}></p>
+    <div class="tans" aria-live="polite"><p class="thead" data-head set:html={headlineHtml(r)}></p><p class="tsent" data-sent set:html={sentenceHtml(r)}></p></div>
+    <div class="plate">
+      <p class="lab">Where the change came from</p>
+      <svg class="ch" data-wf viewBox="0 0 600 270" role="img" aria-label={waterfallLabel(r)} set:html={waterfallSvg(r, 600)}></svg>
+      <div class="sxs" data-js hidden>
+        {SL.map(([id, key, label, k]) => {
+          const s = SLIDERS[key];
+          return (
+            <div class="sx">
+              <div class="sx-h"><label for={id}>{label}</label><output id={`${id}-v`} for={id}>{st[k].value}</output></div>
+              <div class="sx-e">{st[k].guide && <small>{st[k].guide}</small>}<span class={`eff ${st[k].tone}`} id={`${id}-e`}>{st[k].effect}</span></div>
+              <div class="sx-t"><input type="range" class="rng" id={id} min={s.min} max={s.max} step={s.step} value={DEFAULTS[key]} />{id === "t-m" && <i class={`be${marker ? marker.side : ""}`} id="tbemk" hidden={!marker} style={marker ? `left:${marker.left}` : undefined}>{marker?.text}</i>}</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+    <div class="why" aria-live="polite"><p data-why set:html={whyHtml(r)}></p><p data-em set:html={pricedHtml(r)}></p><p data-be set:html={breakEvenHtml(r)}></p></div>
+    <p class="stamp"><span><b>As of</b> the numbers you set</span><span><b>Source</b> computed in this page. Illustrative, not a quote. Nothing is sent anywhere.</span></p>
+  </section>
+  <section class="blk calc" data-js hidden>
+    <h2 class="lab">Step 3 · Change the call</h2>
+    <div class="plate terms">
+      <h3>The call</h3>
+      <div class="tin" data-in>
+        <Fragment set:html={rowHtml("t-k", "Strike", DEFAULTS.strike, "$") + rowHtml("t-d", "Days to expiration", DEFAULTS.daysToExpiry, "") + rowHtml("t-s", "Stock price", DEFAULTS.stock, "$") + rowHtml("t-ivb", "Implied volatility now", DEFAULTS.ivNowPct, "%")} />
+      </div>
+    </div>
+    <p class="twarn" data-bad aria-live="polite"></p>
+    <p class="fine tnote">These are invented example numbers. Type in any box. Implied volatility is the IV column on an option chain.</p>
+    <div class="row"><button class="btn alt" type="button" data-reset>Back to the example call</button></div>
+  </section>
+  <section class="blk">
+    <p class="lab">Three things to find <span data-fc style="font-weight:400">· {found.filter(Boolean).length} of 3 found</span></p>
+    <h2 class="bt">Move the sliders until each one happens.</h2>
+    <ol class="finds plain" data-finds aria-live="polite" set:html={findsHtml(found)}></ol>
+  </section>
+  <section class="blk">
+    <p class="lab">The whole night at a glance</p>
+    <h2 class="bt">Every stock move against every volatility.</h2>
+    <p>Each cell is the call's change by the morning. Rows are where implied volatility (IV) ends up. The outlined cell is the night you set, when it is on the grid.</p>
+    <div class="plate"><div class="tw"><table class="heat" data-heat set:html={heatHtml(grid, r.inputs)}></table></div>
+      <p class="stamp"><span><b>As of</b> the call you set</span><span><b>Source</b> computed in this page</span></p></div>
+  </section>
+</div>

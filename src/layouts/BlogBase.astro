@@ -1,0 +1,102 @@
+---
+// The blog's page frame: shell C ("Quarterly"), the constant bar, nameplate slot, legal footer and feed link
+// around every blog page (blog-handoff.md section 1; ADR 1088). It does NOT load site.css or tokens.css: the
+// blog's class names (.tile, .btn, .door, .nav, ...) would collide with the site's, so blog pages carry only
+// blog.css and blog-fonts.css, and ci/blog-isolation.mjs fails the build if a non-blog page ever links them.
+// The head repeats Base.astro's meta set (og, twitter, canonical, icons) because it cannot reuse its shell.
+import "../styles/blog-fonts.css";
+import "../styles/blog.css";
+import BlogMark from "../components/blog/BlogMark.astro";
+import Disclaimer from "../components/Disclaimer.astro";
+import { assertShareImage } from "../blog/url.mjs";
+import { YEAR } from "../config.mjs";
+import { HUB_PATH, PLAYABLES } from "../blog/playables.mjs";
+import { ORGANIZATION } from "../blog/org.mjs";
+
+interface Props {
+  title: string;
+  description: string;
+  // A root-relative share image for this page (a post's own); omitted, the site's rotating card stays.
+  image?: string;
+  // "article" on a post, "website" on a list page.
+  ogType?: "article" | "website";
+  // Font file stems (public/fonts/<stem>.woff2) to preload: the post's display face.
+  preload?: string[];
+  // A post's end block carries the disclaimer itself; every other page prints it in the footer.
+  footerDisclaimer?: boolean;
+  // A list page's second and later pages: still indexable, but their own canonical.
+  robots?: string;
+}
+const { title, description, image, ogType = "website", preload = [], footerDisclaimer = true, robots } = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site).href;
+const OG_CARD = "/og-card-path.png";
+const cardURL = new URL(OG_CARD, Astro.site).href;
+const ogImageURL = image ? new URL(assertShareImage(image), Astro.site).href : cardURL;
+// The hub exists once there is a playable (and a post, which every page using this frame already implies).
+const hasHub = PLAYABLES.length > 0;
+const onHub = Astro.url.pathname.replace(/\/$/, "") === HUB_PATH;
+// The footer's follow links are the Organization record's two accounts (blog-site-copy.md section 3), untagged: no query string, no utm_*, no ref (Security ruling, https://github.com/linkinmal/stock-analyst-platform/issues/4235#issuecomment-6128787811; ci/blog-build.test.mjs holds it).
+const follow = [
+  { name: "X", href: ORGANIZATION.sameAs.find((u) => u.startsWith("https://x.com/"))! },
+  { name: "YouTube", href: ORGANIZATION.sameAs.find((u) => u.startsWith("https://www.youtube.com/"))! },
+];
+const shellFaces =["newsreader-latin-opsz-normal"];
+const preloads = [...new Set([...shellFaces, ...preload])];
+---
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {robots && <meta name="robots" content={robots} />}
+    <link rel="canonical" href={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:image" content={ogImageURL} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageURL} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="alternate" type="application/rss+xml" title="TwiceOver Blog" href="/blog/feed.xml" />
+    {preloads.map((stem) => <link rel="preload" as="font" type="font/woff2" href={`/fonts/${stem}.woff2`} crossorigin />)}
+    <slot name="head" />
+  </head>
+  <body>
+    <div id="blog" data-shell="c">
+      <a class="skip-link" href="#main">Skip to content</a>
+      <div class="page">
+        <header class="bar">
+          <span class="brand"><a class="b-p" href="/"><BlogMark />TwiceOver</a><a class="b-b" href="/blog">Blog</a></span>
+          <nav class="nav" aria-label="Blog"><a href="/blog">Posts</a>{hasHub && <a href={HUB_PATH} aria-current={onHub ? "page" : undefined}>Games and tools</a>}<a href="/blog#topics">Topics</a></nav>
+          <a class="door" href="/">Analyze a stock →</a>
+        </header>
+        <slot name="meta" />
+      </div>
+      <main id="main">
+        <slot />
+      </main>
+      <div class="page">
+        <footer class="foot">
+          <div class="follow">
+            <span>Follow TwiceOver</span>
+            {follow.map((f) => <a href={f.href} target="_blank" rel="noopener noreferrer" aria-label={`TwiceOver on ${f.name} (opens in a new tab)`}>{f.name}</a>)}
+          </div>
+          <p>Every post is signed TwiceOver. <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/refunds">Refunds</a> · <a href="/cookies">Cookies</a> · <a href="/contact">Contact</a> · <a href="/blog/feed.xml">Feed</a></p>
+          {footerDisclaimer && <Disclaimer />}
+          <p>© {YEAR} TwiceOver</p>
+        </footer>
+      </div>
+    </div>
+  </body>
+</html>

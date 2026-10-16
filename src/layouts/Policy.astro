@@ -11,15 +11,18 @@ interface Props {
   description: string;
   heading: string;
   chrome?: "full" | "none";
+  // A page added after the policy set carries its own date; the default is the shared
+  // policy date (/delete-account, stock-analyst-platform#4202).
+  effective?: string;
 }
-const { title, description, heading, chrome = "full" } = Astro.props;
+const { title, description, heading, chrome = "full", effective = EFFECTIVE_DATE } = Astro.props;
 ---
 <Base title={title} description={description} chrome={chrome}>
   <article class="policy">
     <div class="page-title-block">
       <h1 class="type-heading-1">{heading}</h1>
     </div>
-    <p class="effective-date">Effective {EFFECTIVE_DATE}</p>
+    <p class="effective-date">Effective {effective}</p>
     <div class="policy-body type-legal">
       <slot />
     </div>

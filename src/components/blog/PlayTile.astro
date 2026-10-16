@@ -1,0 +1,27 @@
+---
+// One game or tool's row on the hub (blog-handoff.md section 5.4): the index row's layout, with the kind in the
+// number column, the topic under it, the title and deck in the middle, and the page's own picture on the right in its
+// own theme. The whole row is one link; no date, since a playable has none of its own.
+import { LOOKS } from "../../blog/vocabulary.mjs";
+import { TOPIC_LABELS } from "../../blog/labels.mjs";
+import { PLAY_ART } from "../../blog/play-art.mjs";
+
+interface Props {
+  p: any;
+}
+const { p } = Astro.props;
+const art = PLAY_ART[p.slug as keyof typeof PLAY_ART];
+---
+<a class="tile" href={p.path}>
+  <div class="t-top">
+    <span class="t-no">{p.kind === "game" ? "Game" : "Tool"}</span>
+    <span class="t-topic">{TOPIC_LABELS[p.topic as keyof typeof TOPIC_LABELS]}</span>
+  </div>
+  <div class="t-main">
+    <h2 class="t-title">{p.title}</h2>
+    <p class="t-deck">{p.deck}</p>
+  </div>
+  <div class="t-cell pc skin" data-look={LOOKS[p.look as keyof typeof LOOKS].kit}>
+    {art && <Fragment set:html={art} />}
+  </div>
+</a>
