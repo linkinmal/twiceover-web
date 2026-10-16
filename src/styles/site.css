@@ -187,6 +187,9 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
    for a pair — flagged to Designer on #2520 rather than left to drift. */
 @media (max-width: 639px) {
   .site-header__signin { display: none; }
+  /* Blog (blog.md §1 ruling 10a): at 375px it would sit 1.6px from the wordmark, and the 320px header is full. */
+  /* a.site-nav__blog, not .site-nav__blog: `.site-nav a` (display: inline-flex) outranks a bare class. */
+  .site-nav a.site-nav__blog { display: none; }
 }
 
 /* ── Footer ───────────────────────────────────────────────────────────── */
