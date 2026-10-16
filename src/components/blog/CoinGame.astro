@@ -54,12 +54,6 @@ const start = bars.find((b) => b.fraction === DEFAULT)!;
       <span><svg width="14" height="14" aria-hidden="true"><rect width="14" height="14" fill="var(--loss)"/></svg>went bust, under $2</span>
       <span><svg width="14" height="14" aria-hidden="true"><rect width="14" height="14" fill="color-mix(in srgb,var(--ink) 14%,var(--plate))"/></svg>neither after 300 flips</span>
     </div>
-    <details class="prim" style="margin-top:14px"><summary>The same figures as a table</summary>
-      <div class="tw"><table class="heat" style="min-width:0">
-        <thead><tr><th scope="col">Bet</th><th scope="col">Hit the cap</th><th scope="col">Went bust</th><th scope="col">Neither</th><th scope="col">Middle game ended at</th></tr></thead>
-        <tbody>{bars.map((b) => <tr><th scope="row">{pc(b.fraction)}</th><td>{b.cap}%</td><td>{b.bust}%</td><td>{b.neither}%</td><td>{formatMoney(b.median)}</td></tr>)}</tbody>
-      </table></div>
-    </details>
     <p class="stamp"><span><b>As of</b> {asOf}</span><span><b>Source</b> computed on this page, a fair 60% coin, 2,000 seeded games per bet size</span></p>
     <div class="teach" style="margin-top:28px">
       <p class="lab">What this shows</p>
