@@ -18,10 +18,10 @@ describe("Blog links", () => {
     expect(hrefs(nav("Primary"))).toEqual(["/blog?ref=site-header", "/pricing"]);
   });
 
-  it("puts footer Blog first, before Terms, tagged site-footer, under the label Footer", () => {
+  it("puts footer Blog after the two explainer links and right before Terms, under the label Footer", () => {
+    // blog.md §1 ruling 10b: content links first (the explainers, then Blog), then the policies.
     const links = hrefs(nav("Footer"));
-    expect(links[0]).toBe("/blog?ref=site-footer");
-    expect(links.indexOf("/blog?ref=site-footer")).toBeLessThan(links.indexOf("/terms"));
+    expect(links.slice(0, 4)).toEqual(["/how-our-analysis-works", "/your-portfolio", "/blog?ref=site-footer", "/terms"]);
     expect(base).not.toContain("Policies and contact");
   });
 

@@ -1,0 +1,5 @@
+{
+  "$comment": "The explainer page's supported-broker list (stock-analyst-platform#3951, ADR 0990: never a frozen copy). Its writer is pending consult 0997 (Architect, #3964). Seeded from #2201's dated baseline: all eight names re-verified live against SnapTrade's own integration pages on 2026-08-14. `updated` is the date the list was last checked, and the page states it.",
+  "updated": "2026-08-14",
+  "brokers": ["Interactive Brokers", "Schwab", "Fidelity", "Robinhood", "E*Trade", "tastytrade", "Webull", "Vanguard"]
+}

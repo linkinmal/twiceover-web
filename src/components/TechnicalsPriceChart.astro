@@ -32,7 +32,8 @@ import { technicalsPriceSvgBody } from "../charts/technicals-svg.mjs";
 import { TECHNICALS, TECHNICALS_SERIES } from "../charts/site-fixture.mjs";
 
 interface Props {
-  variant?: "responsive" | "compact";
+  /** `hero`: the compact state at full card width, for the hero deck's Technicals card (#3829). */
+  variant?: "responsive" | "compact" | "hero";
 }
 const { variant = "responsive" } = Astro.props;
 
@@ -61,7 +62,7 @@ const compact = render(true);
 {
   compact && (
     <svg
-      class={`t-chart ${variant === "responsive" ? "t-chart--phone" : "t-chart--only"}`}
+      class={`t-chart ${variant === "responsive" ? "t-chart--phone" : variant === "hero" ? "t-chart--hero" : "t-chart--only"}`}
       viewBox={compact.viewBox}
       aria-hidden="true"
       xmlns="http://www.w3.org/2000/svg"

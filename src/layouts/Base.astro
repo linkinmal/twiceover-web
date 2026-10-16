@@ -104,7 +104,10 @@ const ogImageURL = image ? new URL(assertShareImage(image), Astro.site).href : c
       <div class="container">
         {chrome === "full" && (
         <nav class="footer-links" aria-label="Footer">
-          {/* Blog before Terms, every full-chrome page (blog.md §1 ruling 10b). */}
+          {/* The two explainer pages lead the footer, on every page (ADR 0996, consult 0995). */}
+          <a href="/how-our-analysis-works">How our analysis works</a>
+          <a href="/your-portfolio">How Your Portfolio works</a>
+          {/* Blog after the explainers, before Terms (blog.md §1 ruling 10b). */}
           <a href="/blog?ref=site-footer">Blog</a>
           <a href="/terms">Terms</a>
           <a href="/privacy">Privacy</a>
