@@ -52,6 +52,21 @@ export const EXMP_TECHNICALS = {
 };
 
 /**
+ * EXMP's last 21 sessions (Jul 31 – Aug 28), made up: the line the Outlook picture draws up to its
+ * TODAY mark. It ends on EXMP_PRICE and stays inside the card's own 52-week range, so the chart and the
+ * Technicals numbers cannot disagree (asserted in the test). Not a vendor series, so nothing licensed is
+ * drawn on a public page (R8). The homepage draws a slice of its own series for its own made-up stock.
+ */
+export const EXMP_OUTLOOK_HISTORY = [
+  ["2026-07-31", "46.20"], ["2026-08-03", "46.45"], ["2026-08-04", "46.10"], ["2026-08-05", "46.70"],
+  ["2026-08-06", "47.15"], ["2026-08-07", "47.40"], ["2026-08-10", "47.05"], ["2026-08-11", "47.60"],
+  ["2026-08-12", "48.20"], ["2026-08-13", "48.65"], ["2026-08-14", "49.30"], ["2026-08-17", "49.10"],
+  ["2026-08-18", "48.55"], ["2026-08-19", "48.90"], ["2026-08-20", "49.70"], ["2026-08-21", "49.20"],
+  ["2026-08-24", "48.45"], ["2026-08-25", "47.95"], ["2026-08-26", "48.40"], ["2026-08-27", "47.90"],
+  ["2026-08-28", "48.30"],
+].map(([date, close]) => ({ date, close }));
+
+/**
  * The Outlook. Each horizon's price sits INSIDE the move options price in for that horizon — the
  * notes' own check, asserted in the test rather than trusted.
  */

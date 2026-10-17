@@ -651,22 +651,25 @@ describe("the explainer's Outlook picture draws every card folded (stock-analyst
     }
   });
 
-  it("draws a static aria-hidden chevron on each healthy card and none on the dark far card", () => {
+  it("draws no chevron on any card, and the dark far card still reads the product's own degraded line", () => {
     const d = doc();
     const rows = [...d.querySelectorAll(".xp-hzrow")];
     expect.soft(rows.length, "placements").toBe(3);
     const healthy = rows.map((row) => row.querySelectorAll(".xp-hz:not(.xp-hz--dark)").length);
-    const chevrons = rows.map((row) => row.querySelectorAll(".xp-hz:not(.xp-hz--dark) > .xp-hz__ch[aria-hidden='true']").length);
     expect.soft(healthy).toEqual([3, 3, 2]);
-    expect.soft(chevrons).toEqual([3, 3, 2]);
-    expect.soft(d.querySelectorAll(".xp-hz__ch").length, "all chevrons").toBe(8);
+    expect.soft(d.querySelectorAll(".xp-hz__ch").length, "chevrons").toBe(0);
     const dark = d.querySelectorAll(".xp-hz--dark");
     expect.soft(dark.length, "dark cards").toBe(1);
-    expect.soft(dark[0].querySelector(".xp-hz__ch"), "chevron on dark card").toBeNull();
     expect.soft(dark[0].querySelector(".xp-hz__deg")?.textContent?.trim()).toBe(DEGRADED_FAR_LINE);
-    for (const c of d.querySelectorAll(".xp-hz__ch")) {
-      expect.soft(c.tagName, "static span").toBe("SPAN");
-      expect.soft(c.hasAttribute("tabindex") || c.closest("a,button"), "no behaviour").toBeFalsy();
+  });
+
+  it("draws EXMP's last month of closes into each of the three charts, up to the TODAY mark", () => {
+    const d = doc();
+    const charts = [...d.querySelectorAll(".xp-fig .k-chart--desk, .xp-sec .k-chart--desk, .k-chart--desk")];
+    expect.soft(charts.length, "desktop charts").toBe(3);
+    for (const c of charts) {
+      expect.soft(c.getAttribute("aria-label"), "label names the history").toContain("Recent daily closes leading into today");
+      expect.soft(c.textContent, "TODAY mark").toContain("TODAY");
     }
   });
 });
