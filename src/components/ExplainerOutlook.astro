@@ -2,9 +2,9 @@
 /**
  * EXMP's Outlook, as page 1 of "How our analysis works" draws it (stock-analyst-platform#3829; ADR
  * 0993, build reference `explainer-outlook-fold-4388-2026-10-17.html`): the product's chart on the accent
- * surface, then each horizon's price on a card drawn folded, as the product rests: the condition (what would
- * break the call) is not on the page, and a static chevron sits at the card's bottom edge. Three placements, all
- * folded: the hero's screenshot frame, "How the Outlook is made", and its fifth step with the far horizon dark.
+ * surface, then each horizon's price on its card: the condition (what would break the call) is not on the page, and the
+ * chart opens on EXMP's last month of closes up to its TODAY mark (founder, 2026-10-17: no chevrons, the
+ * history on every placement). Three placements: the hero's screenshot frame, "How the Outlook is made", and its fifth step with the far horizon dark.
  *
  * `darkFar` draws the degraded state the product draws: the far price leaves the chart and the
  * row shows twiceover-app's own `degradedProjectionLine()` string, copied exactly. The chart's
@@ -19,6 +19,7 @@ import {
   EXMP_AS_OF_CLOCK,
   EXMP_LAST_CLOSE,
   EXMP_OUTLOOK,
+  EXMP_OUTLOOK_HISTORY,
   EXMP_PRICE,
   usd,
 } from "../charts/exmp-fixture.mjs";
@@ -41,7 +42,7 @@ const outlook = {
     <span class="proof__band-note">AI synthesis · Core · as of {EXMP_AS_OF_CLOCK}</span>
   </div>
   <p class="proof__chartcap">price {usd(EXMP_PRICE)} · {EXMP_LAST_CLOSE}</p>
-  <OutlookPathChart outlook={outlook} cards={EXMP_OUTLOOK.horizons} />
+  <OutlookPathChart outlook={outlook} cards={EXMP_OUTLOOK.horizons} history={EXMP_OUTLOOK_HISTORY} />
   <div class="xp-hzrow">
     {horizons.map((h) =>
       h.dark ? (
@@ -53,7 +54,6 @@ const outlook = {
         <div class="xp-hz">
           <div class="xp-hz__k">{h.label} · {h.date}</div>
           <div class="xp-hz__p">Our projection lands at <b>{usd(h.price)}</b></div>
-          <span class="xp-hz__ch" aria-hidden="true">⌄</span>
         </div>
       ),
     )}

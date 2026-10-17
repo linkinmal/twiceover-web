@@ -56,16 +56,15 @@
 .xp-hz__k { color:var(--accent-surface-marker);font:500 11px/1.3 var(--font-family-mono);letter-spacing:.08em }
 .xp-hz__p { color:var(--accent-surface-on-surface-muted);font-size:13px;margin-top:4px }
 .xp-hz__p b { color:var(--accent-surface-on-surface);font:500 17px/1 var(--font-family-mono);margin-left:2px }
-.xp-hz__ch { color:var(--accent-surface-on-surface-muted);display:block;font-size:.95rem;height:26px;line-height:26px }
 .xp-hz__deg { color:var(--accent-surface-on-surface-muted);font-size:13px;font-style:italic;line-height:1.45;margin:6px 0 0 }
 @container (max-width:560px) { .xp-hzrow { grid-template-columns:minmax(0,1fr) } }
 @container (max-width:560px) { .xp-hz { border-left:0;border-top:1px solid color-mix(in srgb,var(--accent-surface-border) 45%,transparent);padding-left:0 } }
 @container (max-width:560px) { .xp-hz:first-child { border-top:0 } }
 .xp-flow { counter-reset:none;display:grid;gap:var(--space-400);grid-template-columns:repeat(3,minmax(0,1fr));list-style:none;margin:0;padding:0 }
-.xp-stage { background:var(--color-bg-surface);border-radius:var(--radius-medium);border:1px solid var(--color-border-strong);padding:var(--space-200);position:relative }
+.xp-stage { background:var(--color-bg-surface);border-radius:var(--radius-medium);border:1px solid var(--color-border-strong);display:flex;flex-direction:column;padding:var(--space-200);position:relative }
 .xp-stage:not(:last-child)::after { color:var(--color-text-muted);content:"→";font:500 22px/1 var(--font-family-sans);position:absolute;right:calc(-1 * var(--space-400) + 7px);top:62px }
 .xp-stage--ai { background:var(--accent-surface-container);border-color:var(--accent-surface-border) }
-.xp-stage__g { border-bottom:1px solid var(--color-border-default);display:flex;flex-direction:column;height:124px;justify-content:center;margin-bottom:var(--space-150) }
+.xp-stage__g { border-bottom:1px solid var(--color-border-default);display:flex;flex:1 1 auto;flex-direction:column;justify-content:center;margin-bottom:var(--space-150);min-height:124px }
 .xp-stage--ai .xp-stage__g { border-color:color-mix(in srgb,var(--accent-surface-border) 45%,transparent) }
 .xp-stage__n { color:var(--color-text-primary);font:600 13px/1 var(--font-family-mono);letter-spacing:.06em;margin:0 0 6px;text-transform:uppercase }
 .xp-stage p:last-child { color:var(--color-text-secondary);font-size:15px;line-height:1.5;margin:0 }

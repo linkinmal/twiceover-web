@@ -13,6 +13,7 @@ import {
   EXMP_PE,
   EXMP_PORTFOLIO,
   EXMP_PRICE,
+  EXMP_OUTLOOK_HISTORY,
   EXMP_TECHNICALS,
   coveredCallMath,
   sectionPlanLabel,
@@ -105,6 +106,18 @@ describe("page 1's analysis", () => {
   it("keeps the price inside its own 52-week range, above the 200-DMA it is said to sit over", () => {
     expect.soft(EXMP_PRICE).toBeGreaterThan(EXMP_TECHNICALS.range52w.low);
     expect.soft(EXMP_PRICE).toBeLessThan(EXMP_TECHNICALS.range52w.high);
+  });
+
+  it("draws a month of EXMP closes that ends on the price and stays inside its own 52-week range", () => {
+    expect.soft(EXMP_OUTLOOK_HISTORY.length).toBe(21);
+    expect.soft(Number(EXMP_OUTLOOK_HISTORY.at(-1).close)).toBe(EXMP_PRICE);
+    for (const s of EXMP_OUTLOOK_HISTORY) {
+      expect.soft(Number(s.close), s.date).toBeGreaterThanOrEqual(EXMP_TECHNICALS.range52w.low);
+      expect.soft(Number(s.close), s.date).toBeLessThanOrEqual(EXMP_TECHNICALS.range52w.high);
+    }
+    const dates = EXMP_OUTLOOK_HISTORY.map((s) => s.date);
+    expect.soft(dates).toEqual([...dates].sort());
+    expect.soft(new Set(dates.map((d) => new Date(`${d}T00:00:00Z`).getUTCDay())).has(0) || new Set(dates.map((d) => new Date(`${d}T00:00:00Z`).getUTCDay())).has(6), "no weekend sessions").toBe(false);
   });
 
   it.todo("computes the 50-DMA ($46.78) from the series' own last 50 closes — series pending #3963 item 4");

@@ -6,8 +6,10 @@
 // so the two pages draw each section the same way. Every figure is the fixture's; nothing is typed here.
 //
 // Block vocabulary: kv / kv2 (label-over-value grid), row (label · value), sub, narr, chips (subject vs
-// median), news, post, mra (the risk-appetite axis), okh (the Outlook's three horizons), chart.
+// median), news, post, mra (the risk-appetite axis), okh (the Outlook's three horizons), outlookChart (EXMP's month and projection path), chart.
 import TechnicalsPriceChart from "./TechnicalsPriceChart.astro";
+import OutlookPathChart from "./OutlookPathChart.astro";
+import { EXMP_OUTLOOK_CHART } from "../charts/exmp-fixture.mjs";
 import { BAND_CARDS, riskAxisLeft } from "../charts/site-fixture.mjs";
 
 interface Props {
@@ -24,6 +26,10 @@ const fmtNet = (n: number) => `${n < 0 ? "−" : "+"}${Math.abs(n).toFixed(2)}`;
       {b.chart === "technicals" && (
         /* Its own compact state, never a shrunk desktop chart: this card is a fixed ~239px slot. */
         <div class="band-mini__chart"><TechnicalsPriceChart variant="compact" /></div>
+      )}
+      {b.outlookChart && (
+        /* The Outlook's own compact state in a fixed slot, like the Technicals card above it. */
+        <div class="band-mini__chart"><OutlookPathChart {...EXMP_OUTLOOK_CHART} /></div>
       )}
       {b.kv && (
         <div class="kv-grid">
