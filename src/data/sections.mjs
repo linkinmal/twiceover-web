@@ -31,7 +31,7 @@ export const SECTIONS = [
   { key: "news", name: "News & catalysts", plan: "core", tagline: "What just changed, and what's scheduled next." },
   { key: "voices", name: "Voices", plan: "core", tagline: "What prominent market voices are saying — attributed." },
   { key: "macro", name: "Macro & regime", plan: "free", tagline: "The backdrop: rates, risk appetite, volatility." },
-  { key: "outlook", name: "Outlook", plan: "free", tagline: "Near, mid and far: a projected price for each, with its reasoning." },
+  { key: "outlook", name: "Outlook", plan: "free", tagline: "Near, mid and far: a projected price for each, and what would break the call." },
 ].map((s) => ({ short: s.name, ...s }));
 
 /** The sections a plan shows: its own plus every lower plan's. */
