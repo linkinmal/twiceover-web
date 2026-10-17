@@ -99,6 +99,17 @@ export const EXMP_OUTLOOK = {
   ],
 };
 
+/** What the Outlook chart draws for EXMP: the spot, the as-of, the three prices and the month before. */
+export const EXMP_OUTLOOK_CHART = {
+  outlook: {
+    spot: EXMP_PRICE,
+    asOf: EXMP_AS_OF,
+    horizons: EXMP_OUTLOOK.horizons.map((h) => ({ horizon: h.key, price: h.price })),
+  },
+  cards: EXMP_OUTLOOK.horizons,
+  history: EXMP_OUTLOOK_HISTORY,
+};
+
 /** twiceover-app's `degradedProjectionLine('far')`, copied exactly (ADR 0993), never paraphrased. */
 export const DEGRADED_FAR_LINE = "No far projection right now — it needs inputs that aren't all live.";
 
@@ -155,6 +166,7 @@ export const EXMP_BAND_CARDS = {
   ],
   macro: [{ row: ["Tactical", "Fed on hold"] }, { row: ["Strategic", "Soft landing"] }, { mra: 0.35 }],
   outlook: [
+    { outlookChart: true },
     { okh: EXMP_OUTLOOK.horizons.map((h) => [h.label, usd(h.price).replace(/\.00$/, "")]) },
   ],
 };

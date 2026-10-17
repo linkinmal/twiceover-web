@@ -663,10 +663,10 @@ describe("the explainer's Outlook picture draws every card folded (stock-analyst
     expect.soft(dark[0].querySelector(".xp-hz__deg")?.textContent?.trim()).toBe(DEGRADED_FAR_LINE);
   });
 
-  it("draws EXMP's last month of closes into each of the three charts, up to the TODAY mark", () => {
+  it("draws EXMP's last month of closes into every Outlook chart on the page (three large, four in cards), up to the TODAY mark", () => {
     const d = doc();
-    const charts = [...d.querySelectorAll(".xp-fig .k-chart--desk, .xp-sec .k-chart--desk, .k-chart--desk")];
-    expect.soft(charts.length, "desktop charts").toBe(3);
+    const charts = [...d.querySelectorAll(".k-chart--desk")];
+    expect.soft(charts.length, "desktop charts").toBe(7);
     for (const c of charts) {
       expect.soft(c.getAttribute("aria-label"), "label names the history").toContain("Recent daily closes leading into today");
       expect.soft(c.textContent, "TODAY mark").toContain("TODAY");

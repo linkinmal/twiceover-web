@@ -14,6 +14,7 @@ import Base from "../layouts/Base.astro";
 import "../styles/explainer.css";
 import AnalysisMini from "../components/AnalysisMini.astro";
 import ExplainerOutlook from "../components/ExplainerOutlook.astro";
+import OutlookPathChart from "../components/OutlookPathChart.astro";
 import { SECTIONS } from "../data/sections.mjs";
 import { EXPLAINER_ENTRIES, EXPLAINER_ORDER, entryAnchor } from "../data/explainer-sections.mjs";
 import {
@@ -21,6 +22,7 @@ import {
   EXMP_BAND_CARDS,
   EXMP_LAST_CLOSE,
   EXMP_OUTLOOK,
+  EXMP_OUTLOOK_CHART,
   EXMP_PRICE,
   sectionPlanLabel,
   usd,
@@ -99,6 +101,7 @@ const FAQ = [
             <div class="xp-stage__g">
               <div class="xp-pts">
                 <p class="xp-pts__k">OUR PROJECTION</p>
+                <div class="band-mini__chart"><OutlookPathChart {...EXMP_OUTLOOK_CHART} /></div>
                 {projections.map((p) => <div class="xp-pt"><b>{p.k}</b><span>{p.v}</span></div>)}
               </div>
             </div>
@@ -123,6 +126,7 @@ const FAQ = [
               <div class="xp-same__c">
                 <p class="xp-same__who">Reader {who} · Core · EXMP · {EXMP_AS_OF_CLOCK}</p>
                 <div class="band-mini band-mini--ok">
+                  <div class="band-mini__chart"><OutlookPathChart {...EXMP_OUTLOOK_CHART} /></div>
                   {projections.map((p) => <div class="okh"><div class="okh__r"><b>{p.label}</b><span class="proj-v">{p.v}</span></div></div>)}
                 </div>
               </div>
