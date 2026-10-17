@@ -50,7 +50,7 @@ const PINNED = [
     ]],
     ["synthesis", [
       "How the sections become three projected prices.",
-      "The Outlook is our AI synthesis. It weighs every section your plan shows you and projects where the price lands in about two weeks, three months and six months. Each price comes with what would prove it wrong.",
+      "The Outlook is our AI synthesis. It weighs every section your plan shows you and projects where the price lands in about two weeks, three months and six months. Each price comes with what would break the call.",
       "Illustrative example with made-up figures.",
     ]],
     ["portfolio", [
@@ -67,7 +67,7 @@ const PINNED = [
       "4",
       "Paths for every options structure you hold: make no change, close, reduce or roll. Each comes with its math.",
       "3",
-      "Horizons in every Outlook: about two weeks, three months and six months out. Each gets one projected price and what would prove it wrong.",
+      "Horizons in every Outlook: about two weeks, three months and six months out. Each gets one projected price and what would break the call.",
       "Read-only",
       "TwiceOver can see your positions. It can never place, change or cancel an order.",
     ]],

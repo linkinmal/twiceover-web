@@ -47,20 +47,26 @@ describe("the Outlook FAQ lines (#3693)", () => {
 
 // #3829 / #3693: the 10-03 explainer strings (Growth deb4fe2a, as the 10-05 re-pass left them in
 // `site-copy-explainer-pages.md`; PM ruling 2026-10-06 that they ride this PR). ADR 1036 Amendment 1:
-// ADR 1131 Amendment 2 (stock-analyst-platform#4380): the writer retired; one model reaches the call
-// and names what would prove it wrong.
-describe("'How the Outlook is made' describes one model and its condition (ADR 1131 Amendment 2)", () => {
+// ADR 1131 Amendment 2 (stock-analyst-platform#4380): the writer retired; the page says what the AI does, never how it is built (PM ruling 2026-10-17); the AI reaches the call
+// and names what would break the call.
+describe("'How the Outlook is made' names the AI and its condition, not the build (ADR 1131 Amendment 2)", () => {
   it("says it in the intro, steps 2 to 5 and the record row", () => {
-    expect.soft(explainer).toContain("One AI model makes it. It thinks through the sections and reaches a call for each horizon.");
+    expect.soft(explainer).toContain("It works through the sections and reaches a call for each horizon.");
     expect.soft(explainer).toContain("On every plan it also sees how the stock has actually moved over each horizon across the past five years.");
-    expect.soft(explainer).toContain("One AI model thinks it through and reaches a call for each horizon.");
-    expect.soft(explainer).toContain("The same model names what would prove each price wrong.");
-    expect.soft(explainer).toContain("It writes one plain sentence: the event or the price level that would break its call.");
+    expect.soft(explainer).toContain("Our AI thinks it through and reaches a call for each horizon.");
+    expect.soft(explainer).toContain("It names what would break each call.");
+    expect.soft(explainer).toContain("It writes one plain sentence: the event or the price level that would break the call. The sentence sits under the horizon's price, one click away. A price level in it is our AI's own call, not a reading from our data. If the sentence can't be shown, the price shows without it.");
     expect.soft(explainer).toContain("A line in its place says the horizon's inputs aren't all live.</p>");
     expect.soft(explainer).not.toContain("writes the notes");
+    // PM ruling 2026-10-17 (#4380): no model count, no pipeline words, no "prove", no figure-check claim.
+    for (const page of [explainer, index]) {
+      for (const banned of ["AI model", "same model", "model's own", "instructions", "prove", "checked against our data"]) {
+        expect.soft(page, banned).not.toContain(banned);
+      }
+    }
     expect.soft(explainer).not.toContain("two steps");
-    expect.soft(explainer).toContain("and the version of the model and of the instructions that made the Outlook.");
-    expect.soft(explainer).toContain("<span>Produced by</span><span>the model version and the instructions version</span>");
+    expect.soft(explainer).toContain("and the version of our system that made it.");
+    expect.soft(explainer).toContain("<span>Produced by</span><span>the version of our system</span>");
   });
 
   it("no longer says one pass projects the price, or that the note names the main driver", () => {

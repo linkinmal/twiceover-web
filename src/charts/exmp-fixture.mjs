@@ -64,7 +64,7 @@ export const EXMP_OUTLOOK = {
       price: 46.6,
       impliedMovePct: 7.2,
       condition: "while the pullback holds",
-      note: "A return to $51.80 would prove it wrong.",
+      note: "A return to $51.80 would break the call.",
     },
     {
       key: "mid",
@@ -73,7 +73,7 @@ export const EXMP_OUTLOOK = {
       price: 50.25,
       impliedMovePct: 22.0,
       condition: "absent a trend change",
-      note: "A miss against estimates in the Nov 18 report would prove it wrong.",
+      note: "A miss against estimates in the Nov 18 report would break the call.",
     },
     {
       key: "far",
@@ -82,7 +82,7 @@ export const EXMP_OUTLOOK = {
       price: 53.65,
       impliedMovePct: 31.8,
       condition: "hinges on the macro regime",
-      note: "A turn in the macro regime to cautious would prove it wrong.",
+      note: "A turn in the macro regime to cautious would break the call.",
     },
   ],
 };
