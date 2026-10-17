@@ -64,7 +64,7 @@ export const EXMP_OUTLOOK = {
       price: 46.6,
       impliedMovePct: 7.2,
       condition: "while the pullback holds",
-      note: "The pullback from the 52-week high drifts toward the 50-day average, $46.78. A return to $51.80 would prove it wrong.",
+      note: "A return to $51.80 would prove it wrong.",
     },
     {
       key: "mid",
@@ -73,7 +73,7 @@ export const EXMP_OUTLOOK = {
       price: 50.25,
       impliedMovePct: 22.0,
       condition: "absent a trend change",
-      note: "The Nov 18 report falls inside this horizon, with ±7.4% priced in for it. A miss against its estimates would prove it wrong.",
+      note: "A miss on the Nov 18 report would prove it wrong.",
     },
     {
       key: "far",
@@ -82,7 +82,7 @@ export const EXMP_OUTLOOK = {
       price: 53.65,
       impliedMovePct: 31.8,
       condition: "hinges on the macro regime",
-      note: "Rests on a supportive macro regime, +0.35 on its scale. A turn to cautious would prove it wrong.",
+      note: "A turn in the macro regime to cautious would prove it wrong.",
     },
   ],
 };

@@ -9,7 +9,7 @@
  */
 export const EXPLAINER_ENTRIES = {
   "outlook": {
-    about: "Our AI synthesis of the other sections your plan includes. It projects three prices, one for each horizon. Each comes with its reason and what would prove it wrong.",
+    about: "Our AI synthesis of the other sections your plan includes. It projects three prices, one for each horizon. Each comes with what would prove it wrong.",
   },
   "fundamentals": {
     shows: "Market cap, P/E and earnings per share. Earnings come from the company's SEC filings and carry their fiscal year.",

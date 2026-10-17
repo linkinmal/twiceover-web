@@ -47,17 +47,20 @@ describe("the Outlook FAQ lines (#3693)", () => {
 
 // #3829 / #3693: the 10-03 explainer strings (Growth deb4fe2a, as the 10-05 re-pass left them in
 // `site-copy-explainer-pages.md`; PM ruling 2026-10-06 that they ride this PR). ADR 1036 Amendment 1:
-// one model reaches the call, a second writes the notes; the page may name the split, the product may not.
-describe("'How the Outlook is made' describes one reasoner and one writer (ADR 1036 A1, 1037, 1047)", () => {
+// ADR 1131 Amendment 2 (stock-analyst-platform#4380): the writer retired; one model reaches the call
+// and names what would prove it wrong.
+describe("'How the Outlook is made' describes one model and its condition (ADR 1131 Amendment 2)", () => {
   it("says it in the intro, steps 2 to 5 and the record row", () => {
-    expect.soft(explainer).toContain("Two separate AI models make it: one thinks through the sections and reaches a call for each horizon, and the other writes the notes.");
+    expect.soft(explainer).toContain("One AI model makes it. It thinks through the sections and reaches a call for each horizon.");
     expect.soft(explainer).toContain("On every plan it also sees how the stock has actually moved over each horizon across the past five years.");
     expect.soft(explainer).toContain("One AI model thinks it through and reaches a call for each horizon.");
-    expect.soft(explainer).toContain("A second, separate AI model writes each note.");
-    expect.soft(explainer).toContain("It works from the first model's call and cannot change a price. The note gives the reason the Outlook states for that price");
-    expect.soft(explainer).toContain("and the Outlook's note for that horizon is one click away, as on any other.");
-    expect.soft(explainer).toContain("for each of the Outlook's two steps, the version of the model and of the instructions used");
-    expect.soft(explainer).toContain("for each of the two steps, the model version and the instructions version");
+    expect.soft(explainer).toContain("The same model names what would prove each price wrong.");
+    expect.soft(explainer).toContain("It writes one plain sentence: the event or the price level that would break its call.");
+    expect.soft(explainer).toContain("A line in its place says the horizon's inputs aren't all live.</p>");
+    expect.soft(explainer).not.toContain("writes the notes");
+    expect.soft(explainer).not.toContain("two steps");
+    expect.soft(explainer).toContain("and the version of the model and of the instructions that made the Outlook.");
+    expect.soft(explainer).toContain("<span>Produced by</span><span>the model version and the instructions version</span>");
   });
 
   it("no longer says one pass projects the price, or that the note names the main driver", () => {
