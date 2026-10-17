@@ -41,7 +41,7 @@ const CHEVRON = '<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true
 const FAQ = [
   ["How is the Outlook different from a price target?", "An analyst's price target is usually one number, a year out. The Outlook gives three projected prices, about two weeks, three months and six months out, each with what would break the call. The Outlook shows the sections it weighed."],
   ["Why can the Outlook differ between plans?", "Each plan's Outlook weighs only the sections that plan shows. Core and Premium give it more to weigh, so their projections for a stock can differ from Free's."],
-  ["Why can an analysis take a moment?", "Our AI works through the sections before it projects a price for each horizon. A first analysis of a stock on a given day is usually ready in under a minute."],
+  ["Why can an analysis take a moment?", "Our AI works through the sections before it projects a price for each horizon, so the Outlook lands after the other sections do."],
   ["What happens when data is missing?", "The section with the gap says so, and nothing is estimated to cover it. If an Outlook horizon lacks the inputs it needs, that horizon shows no price."],
   ["Which parts are written by AI?", "The Outlook's three prices, and what would break each call, are written by our AI. So are the short written summaries in some sections, such as the one-line summary of each news item. Every figure in a section comes from vendor data or public filings, through our own code."],
 ];
@@ -70,7 +70,7 @@ const FAQ = [
             <div class="xp-fadeout" aria-hidden="true"><span>Fundamentals</span><span>Earnings &amp; dividends</span><span>Technicals &amp; levels</span></div>
           </div>
         </div>
-        <figcaption class="proof__caption type-caption">Illustrative example with made-up figures.</figcaption>
+        <figcaption class="proof__caption type-caption">Every figure and chart on this page is a made-up example. EXMP is a made-up symbol.</figcaption>
       </figure>
     </section>
 
@@ -103,10 +103,9 @@ const FAQ = [
               </div>
             </div>
             <p class="xp-stage__n">3 · Synthesize</p>
-            <p>The Outlook weighs the sections and projects three prices. They are the only numbers our AI produces, and each is labelled as our projection.</p>
+            <p>The Outlook weighs the sections and projects three prices. Each is labelled as our projection.</p>
           </li>
         </ol>
-        <figcaption class="proof__caption type-caption">Illustrative diagram.</figcaption>
       </figure>
     </section>
 
@@ -130,7 +129,6 @@ const FAQ = [
             </>
           ))}
         </div>
-        <figcaption class="proof__caption type-caption">Illustrative example with made-up figures.</figcaption>
       </figure>
     </section>
 
@@ -154,7 +152,6 @@ const FAQ = [
               </div>
             ))}
           </div>
-          <figcaption class="proof__caption type-caption">Illustrative example with made-up figures.</figcaption>
         </figure>
       </div>
       {entries.map((e) => (
@@ -188,16 +185,15 @@ const FAQ = [
       <p class="xp-lead2">The Outlook is our AI synthesis. It works through the sections and reaches a call for each horizon.</p>
       <figure class="xp-fig xp-fig--outlook">
         <ExplainerOutlook />
-        <figcaption class="proof__caption type-caption">Illustrative example with made-up figures.</figcaption>
       </figure>
       <ol class="xp-steps">
         <li>
           <h3 class="type-heading-2">It weighs the other sections your plan includes.</h3>
-          <p>On Free, the Outlook weighs the five other Free sections. Core adds four more sections for it to weigh, and Premium three beyond that.</p>
+          <p>On Free, the Outlook weighs the five other Free sections and the company's recent SEC filings. Core adds four more sections for it to weigh, and Premium three beyond that.</p>
         </li>
         <li>
           <h3 class="type-heading-2">It gets a sense of scale and a calendar for each horizon.</h3>
-          <p>First, the Outlook is told how far the stock usually moves over each horizon. On Free, that scale comes from the stock's recent volatility. On Core and Premium, it comes from what options imply, where quotes allow. On every plan it also sees how the stock has actually moved over each horizon across the past five years. The Outlook also gets a calendar of what falls inside each horizon. That includes the monthly options expiry and, on Core and Premium, the earnings date.</p>
+          <p>First, the Outlook is told how far the stock usually moves over each horizon. On Free, that scale comes from the stock's recent volatility. On Core and Premium, it comes from what options imply, where quotes allow. On every plan it also sees how the stock has actually moved over each horizon across the past five years. The Outlook also gets a calendar of what falls inside each horizon. That includes the monthly options expiry, scheduled economic events and, on Core and Premium, the earnings date.</p>
         </li>
         <li>
           <h3 class="type-heading-2">Our AI thinks it through and reaches a call for each horizon.</h3>
@@ -212,7 +208,6 @@ const FAQ = [
           <p>Each horizon needs certain sections to be up to date. When one isn't, that horizon shows no price. A line in its place says the horizon's inputs aren't all live.</p>
           <figure class="xp-fig xp-fig--step">
             <ExplainerOutlook darkFar />
-            <figcaption class="proof__caption type-caption">Illustrative example with made-up figures.</figcaption>
           </figure>
         </li>
       </ol>
@@ -231,7 +226,6 @@ const FAQ = [
           <div class="xp-rec__r"><span>Produced by</span><span>the version of our system</span></div>
           <div class="xp-rec__r"><span>Labelled</span><span>“Our projection lands at {projections[0].v}” · AI synthesis</span></div>
         </div>
-        <figcaption class="proof__caption type-caption">Illustrative example with made-up figures.</figcaption>
       </figure>
     </section>
 

@@ -31,11 +31,12 @@ describe("the Outlook FAQ lines (#3693)", () => {
     expect(index).toContain("Every plan's Outlook also sees how the stock has moved before, and how it moves with its sector and the market.");
   });
 
-  it("puts 'Why can an analysis take a moment?' before the missing-data FAQ, with the time figure on this page only", () => {
+  it("puts 'Why can an analysis take a moment?' before the missing-data FAQ, with no time figure (the product's own estimate is a stand-in)", () => {
     const q = explainer.indexOf("Why can an analysis take a moment?");
     expect.soft(q).toBeGreaterThan(-1);
     expect.soft(q).toBeLessThan(explainer.indexOf("What happens when data is missing?"));
-    expect.soft(explainer).toContain("usually ready in under a minute");
+    expect.soft(explainer).toContain("so the Outlook lands after the other sections do");
+    expect.soft(explainer).not.toContain("under a minute");
     expect.soft(index).not.toContain("under a minute");
   });
 
