@@ -154,5 +154,7 @@ describe("money format: whole dollars from $100, cents below", () => {
     const got = [25, 99.99, 100, 249.6, 250, 1.7409].map(formatMoney);
     expect.soft(got).toEqual(["$25.00", "$99.99", "$100", "$250", "$250", "$1.74"]);
     expect.soft(formatMoney(0)).toBe("$0.00");
+    expect.soft(formatMoney(1234.4)).toBe("$1,234");
+    expect.soft(formatMoney(100000)).toBe("$100,000");
   });
 });

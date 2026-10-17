@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { EXAMPLES, runStraddle, sliderBounds } from "./straddle.mjs";
-import { answerHtml, chartLabel, chartSvg, money, percent, resultHtml, sayText, sliderText, straddleNote } from "./straddle-view.mjs";
+import { answerHtml, chartLabel, chartSvg, chartSvgNarrow, impliedPercent, money, percent, resultHtml, sayText, sliderText, straddleNote } from "./straddle-view.mjs";
 
 const opening = runStraddle(100, 9);
 
@@ -8,7 +8,10 @@ describe("the straddle page's words", () => {
   it("formats cents as dollars and tenths as a percent", () => {
     expect.soft(money(9100)).toBe("$91.00");
     expect.soft(money(1)).toBe("$0.01");
-    expect.soft(money(12345678)).toBe("$123456.78");
+    expect.soft(money(99999)).toBe("$999.99");
+    expect.soft(money(100000)).toBe("$1,000.00");
+    expect.soft(money(10000000)).toBe("$100,000.00");
+    expect.soft(money(12345678)).toBe("$123,456.78");
     expect.soft(percent(90)).toBe("9.0%");
     expect.soft(percent(46)).toBe("4.6%");
     expect.soft(percent(2)).toBe("0.2%");
@@ -26,6 +29,29 @@ describe("the straddle page's words", () => {
     expect(sayText(opening)).toBe(
       "The straddle costs $9.00 for a $100.00 stock, so the market is pricing a move of about 9.0%. The stock has to end below $91.00 or above $109.00 for the straddle to make money.",
     );
+  });
+
+  it("prints a big stock's figures with separators, the per-contract amount whole (stock $100,000, straddle $4,500)", () => {
+    const big = runStraddle(100000, 4500);
+    expect.soft(answerHtml(big)).toContain("<b>$95,500.00 to $104,500.00</b>");
+    expect.soft(sayText(big)).toContain("The straddle costs $4,500.00 for a $100,000.00 stock");
+    expect.soft(straddleNote(big)).toBe("The call's price plus the put's price. A $4,500.00 straddle costs $450,000 for one contract.");
+    expect.soft(resultHtml(big, 10000000)).toContain("loss $4,500.00 a share, $450,000 a contract");
+  });
+
+  it("never prints a move above zero and under 0.1% as 0.0%, and drops 'about' from the sentence (stock $100, straddle $0.04)", () => {
+    const tiny = runStraddle(100, 0.04);
+    expect.soft(answerHtml(tiny)).toContain("<b>under 0.1%</b>");
+    expect.soft(sayText(tiny)).toContain("pricing a move of under 0.1%.");
+    expect.soft(sayText(tiny)).not.toContain("about");
+    expect.soft(sayText(opening)).toContain("pricing a move of about 9.0%.");
+  });
+
+  it("decides 'under 0.1%' on the cents: 0.04% and 0.099% are under, exactly 0.1% is not, a true zero stays 0.0%", () => {
+    expect.soft(impliedPercent({ straddleC: 4, stockC: 10000, impliedTenths: 0 })).toBe("under 0.1%");
+    expect.soft(impliedPercent({ straddleC: 1, stockC: 1010, impliedTenths: 1 })).toBe("under 0.1%");
+    expect.soft(impliedPercent({ straddleC: 10, stockC: 10000, impliedTenths: 1 })).toBe("0.1%");
+    expect.soft(impliedPercent({ straddleC: 0, stockC: 10000, impliedTenths: 0 })).toBe("0.0%");
   });
 
   it("says what the straddle costs for one contract under the straddle box", () => {
@@ -96,5 +122,40 @@ describe("the straddle chart", () => {
     expect(chartLabel(opening)).toBe(
       "Profit or loss of the straddle on its last day at each stock price. The shaded band runs from $91.00 to $109.00, the implied move.",
     );
+  });
+});
+
+describe("the straddle chart for a phone", () => {
+  const svg = chartSvgNarrow(opening, 10000);
+
+  it("keeps every drawn x inside the 296-wide plot for every example at both ends of the slider", () => {
+    for (const e of EXAMPLES) {
+      const r = runStraddle(e.stock, e.straddle);
+      const b = sliderBounds(r);
+      for (const end of [b.minC, r.stockC, b.maxC]) {
+        const xs = [...chartSvgNarrow(r, end).matchAll(/(?:cx|x1|x2)="([\d.-]+)"/g)].map((m) => Number(m[1]));
+        for (const x of xs) {
+          expect.soft(x, `${JSON.stringify(e)} at ${end}`).toBeGreaterThanOrEqual(12);
+          expect.soft(x, `${JSON.stringify(e)} at ${end}`).toBeLessThanOrEqual(308);
+        }
+      }
+    }
+  });
+
+  it("labels the breakevens and the strike, and leaves the figure off 'most you can lose'", () => {
+    expect.soft(svg).toContain(">$91.00<");
+    expect.soft(svg).toContain(">$109.00<");
+    expect.soft(svg).toContain(">strike $100.00<");
+    expect.soft(svg).toContain(">most you can lose<");
+    expect.soft(svg).not.toContain("a share");
+  });
+
+  it("gives every label a halo and the same data as the wide drawing (handle on the loss line at the strike)", () => {
+    const labels = svg.match(/<text /g);
+    expect.soft(labels).toHaveLength(5);
+    expect.soft(svg.match(/class="ax sd-halo/g)).toHaveLength(5);
+    const [, cx, cy] = svg.match(/<circle class="sd-hd" cx="([\d.]+)" cy="([\d.]+)"/).map(Number);
+    expect.soft(cx).toBe(160);
+    expect.soft(cy).toBe(170);
   });
 });

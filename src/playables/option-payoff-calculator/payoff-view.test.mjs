@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { STRUCTURES, curvePoints, evaluate } from "./payoff-builder.mjs";
 import { BAD_NUMBER, rowHtml } from "../_kit/number-input.mjs";
-import { DESCRIPTIONS, FINDS, cardsHtml, chartSvg, describe as describeKind, headHtml, sentenceHtml, sixHtml, statsHtml, structureOf, termsHtml, typeRowHtml, whyHtml } from "./payoff-view.mjs";
+import { DESCRIPTIONS, FINDS, f2, pp, cardsHtml, chartSvg, describe as describeKind, headHtml, sentenceHtml, sixHtml, statsHtml, structureOf, termsHtml, typeRowHtml, whyHtml } from "./payoff-view.mjs";
 
 const models = STRUCTURES.map((def) => {
   const values = Object.fromEntries(def.fields.map((f) => [f.id, f.default]));
@@ -103,5 +103,15 @@ describe("a sentence states a breakeven or a maximum only when the engine has on
   });
   it("groups the contract multiplier with commas", () => {
     expect(why("lc", null, { K: 105, P: 2.46 }, 100, 100)).toContain("$10,000 for every $1");
+  });
+});
+
+describe("a price over $1,000 carries the shared separator", () => {
+  it("prints a strike and a premium with commas, whole dollars bare and cents at two decimals", () => {
+    expect.soft(pp(100000)).toBe("$100,000");
+    expect.soft(pp(1234.5)).toBe("$1,234.50");
+    expect.soft(pp(999.99)).toBe("$999.99");
+    expect.soft(f2(100000)).toBe("$100,000.00");
+    expect.soft(f2(2.46)).toBe("$2.46");
   });
 });
