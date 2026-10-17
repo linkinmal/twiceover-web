@@ -93,7 +93,7 @@ const preloads = [...new Set([...shellFaces, ...preload])];
             <span>Follow TwiceOver</span>
             {follow.map((f) => <a href={f.href} target="_blank" rel="noopener noreferrer" aria-label={`TwiceOver on ${f.name} (opens in a new tab)`}>{f.name}</a>)}
           </div>
-          <p>Every post is signed TwiceOver. <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/refunds">Refunds</a> · <a href="/cookies">Cookies</a> · <a href="/contact">Contact</a> · <a href="/blog/feed.xml">Feed</a></p>
+          <p><a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/refunds">Refunds</a> · <a href="/cookies">Cookies</a> · <a href="/contact">Contact</a> · <a href="/blog/feed.xml">Feed</a></p>
           {footerDisclaimer && <Disclaimer />}
           <p>© {YEAR} TwiceOver</p>
         </footer>
