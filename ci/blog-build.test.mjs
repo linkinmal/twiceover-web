@@ -6,7 +6,7 @@
  * The build writes to a temp folder (`--outDir`), never to dist/, and only ever reads the fixture folder.
  */
 import { spawnSync } from "node:child_process";
-import { cpSync, existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { JSDOM } from "jsdom";
@@ -162,7 +162,9 @@ describe("the game page", () => {
     const d = game();
     expect.soft(d.querySelectorAll("[data-bars] .sb[data-f]")).toHaveLength(6);
     expect.soft(d.querySelector("[data-line]").textContent).toMatch(/^Betting 20% on every flip hit the cap in \d+% of games and went bust in \d+%\. The middle game ended at \$\d+(\.\d\d)?\.$/);
-    expect.soft(d.querySelectorAll(".heat tbody tr")).toHaveLength(6);
+    expect.soft([...d.querySelectorAll("[data-bars] .sb[data-f] .n")].map((n) => /^\d+% cap · \d+% bust$/.test(n.textContent)), "each bar's figures are text").toEqual(Array(6).fill(true));
+    expect.soft(d.querySelectorAll("details"), "nothing is folded").toHaveLength(0);
+    expect.soft(d.querySelectorAll("table"), "the kit has no table of the bars").toHaveLength(0);
     expect.soft(d.querySelector(".teach").textContent).toContain("went bust");
     expect.soft(d.querySelector(".study").textContent).toContain("Haghani and Dewey, arXiv 1701.01427");
     expect.soft(d.querySelector("[data-controls] p.cap").textContent).toBe("Your game: your balance after each flip.");
@@ -232,11 +234,11 @@ const type = (w, id, v) => {
 
 describe("the overnight call page", () => {
   const PAGE = "blog/tools/overnight-call/index.html";
-  const live = () => liveTool(PAGE, "js/blog-call.js");
+  const live = () => liveTool(PAGE, "js/blog-overnight-call.js");
 
   it("is one column of three open steps with the one reviewed script, and works out the opening night in the served HTML", () => {
     const d = dom(dist, PAGE);
-    expect.soft([...d.querySelectorAll("script")].map((x) => x.getAttribute("src"))).toEqual(["/js/blog-call.js"]);
+    expect.soft([...d.querySelectorAll("script")].map((x) => x.getAttribute("src"))).toEqual(["/js/blog-overnight-call.js"]);
     expect.soft(d.querySelector("article").getAttribute("data-look")).toBe("exhibit");
     expect.soft(d.querySelectorAll("details"), "nothing is folded").toHaveLength(0);
     expect.soft(d.querySelector(".words").textContent).toContain("quoted as a yearly percentage");
@@ -306,11 +308,11 @@ describe("a control the script shows is hidden by the stylesheet while it has no
 
 describe("the option payoff calculator page", () => {
   const PAGE = "blog/tools/option-payoff-calculator/index.html";
-  const live = () => liveTool(PAGE, "js/blog-payoff.js");
+  const live = () => liveTool(PAGE, "js/blog-option-payoff-calculator.js");
 
   it("is one column of three open steps with the one reviewed script and the opening long call in the served HTML", () => {
     const d = dom(dist, PAGE);
-    expect.soft([...d.querySelectorAll("script")].map((x) => x.getAttribute("src"))).toEqual(["/js/blog-payoff.js"]);
+    expect.soft([...d.querySelectorAll("script")].map((x) => x.getAttribute("src"))).toEqual(["/js/blog-option-payoff-calculator.js"]);
     expect.soft(d.querySelector("h1").textContent).toBe("The option payoff calculator");
     expect.soft(d.querySelector("article").getAttribute("data-look")).toBe("blueprint");
     expect.soft(d.querySelectorAll("details"), "nothing is folded").toHaveLength(0);
@@ -394,11 +396,11 @@ describe("a stamp on a dark lesson block", () => {
 
 describe("the implied move from a straddle page", () => {
   const PAGE = "blog/tools/implied-move-from-a-straddle/index.html";
-  const live = () => liveTool(PAGE, "js/blog-straddle.js");
+  const live = () => liveTool(PAGE, "js/blog-implied-move-from-a-straddle.js");
 
   it("is one column of two open steps with the one reviewed script and the opening example worked out in the served HTML", () => {
     const d = dom(dist, PAGE);
-    expect.soft([...d.querySelectorAll("script")].map((x) => x.getAttribute("src"))).toEqual(["/js/blog-straddle.js"]);
+    expect.soft([...d.querySelectorAll("script")].map((x) => x.getAttribute("src"))).toEqual(["/js/blog-implied-move-from-a-straddle.js"]);
     expect.soft(d.querySelector("h1").textContent).toBe("Implied move from a straddle");
     expect.soft(d.querySelector("article").getAttribute("data-look")).toBe("riso");
     expect.soft(d.querySelectorAll("details"), "nothing is folded").toHaveLength(0);
@@ -469,11 +471,11 @@ describe("the implied move from a straddle page", () => {
 
 describe("the Guess the gap page", () => {
   const PAGE = "blog/play/guess-the-gap/index.html";
-  const live = () => liveTool(PAGE, "js/blog-guess.js");
+  const live = () => liveTool(PAGE, "js/blog-guess-the-gap.js");
 
   it("carries the one reviewed script, the first question, all five answers and the lesson in the served HTML", () => {
     const d = dom(dist, PAGE);
-    expect.soft([...d.querySelectorAll("script")].map((x) => x.getAttribute("src"))).toEqual(["/js/blog-guess.js"]);
+    expect.soft([...d.querySelectorAll("script")].map((x) => x.getAttribute("src"))).toEqual(["/js/blog-guess-the-gap.js"]);
     expect.soft(d.querySelector("h1").textContent).toBe("Guess the gap");
     expect.soft(d.querySelector("article").getAttribute("data-look")).toBe("ticket");
     expect.soft(d.querySelectorAll("details"), "nothing is folded").toHaveLength(0);
@@ -582,13 +584,13 @@ describe("the games-and-tools hub and the link map (blog-handoff.md v1.2 section
     const { pageKind } = await import("./content-rules.mjs");
     expect.soft(pageKind("blog/play/index.html", ["first-fixture-post"])).toBe("blog");
   });
-  it("ends each playable page's More to play strip with a cell that opens the hub, after two other pages", () => {
+  it("ends each playable page's More to play strip with a cell that opens the hub, after two other pages: the same topic first, then the newest, then the slug", () => {
     for (const [file, others] of [
       ["blog/play/guess-the-gap/index.html", ["/blog/tools/implied-move-from-a-straddle", "/blog/play/coin"]],
       ["blog/tools/implied-move-from-a-straddle/index.html", ["/blog/play/guess-the-gap", "/blog/play/coin"]],
       ["blog/play/coin/index.html", ["/blog/play/guess-the-gap", "/blog/tools/implied-move-from-a-straddle"]],
-      ["blog/tools/overnight-call/index.html", ["/blog/play/guess-the-gap", "/blog/tools/implied-move-from-a-straddle"]],
-      ["blog/tools/option-payoff-calculator/index.html", ["/blog/play/guess-the-gap", "/blog/tools/implied-move-from-a-straddle"]],
+      ["blog/tools/overnight-call/index.html", ["/blog/tools/option-payoff-calculator", "/blog/play/guess-the-gap"]],
+      ["blog/tools/option-payoff-calculator/index.html", ["/blog/tools/overnight-call", "/blog/play/guess-the-gap"]],
     ]) {
       const cells = [...dom(dist, file).querySelectorAll('.pnav[aria-label="More to play"] a')];
       expect.soft(cells.map((a) => a.getAttribute("href")), file).toEqual([...others, "/blog/play"]);
@@ -661,6 +663,23 @@ describe("the gates over the built fixture site", () => {
     expect(r.stdout + r.stderr).toMatch(/Entry box security check passed: \d+ built page/);
     expect(r.status).toBe(0);
   });
+  it("fails the entry-box gate on a bundle the client files do not derive, and on a page that loads another page's bundle (known positives)", () => {
+    const copy = mkdtempSync(join(tmpdir(), "blog-bundles-"));
+    cpSync(dist, copy, { recursive: true });
+    writeFileSync(join(copy, "js/blog-stray.js"), "void 0;");
+    const stray = node("ci/check-entry-box.mjs", "--dist", copy);
+    expect.soft(stray.status).toBe(1);
+    expect.soft(stray.stderr).toContain("/js/blog-stray.js: built but not derived");
+    rmSync(join(copy, "js/blog-stray.js"));
+    writeFileSync(join(copy, "js/blog-stray.js.map"), "{}");
+    expect.soft(node("ci/check-entry-box.mjs", "--dist", copy).stderr, "any blog-* file in dist/js is held to the list").toContain("/js/blog-stray.js.map: built but not derived");
+    rmSync(join(copy, "js/blog-stray.js.map"));
+    const p = "blog/play/coin/index.html";
+    writeFileSync(join(copy, p), read(copy, p).replace("/js/blog-coin.js", "/js/blog-overnight-call.js"));
+    const wrong = node("ci/check-entry-box.mjs", "--dist", copy);
+    expect.soft(wrong.status).toBe(1);
+    expect.soft(wrong.stderr).toContain("loads /js/blog-overnight-call.js, which is not this page's own bundle");
+  });
   it("passes the isolation gate, with blog pages present so its blindness controls run", () => {
     const r = node("ci/blog-isolation.mjs", "--dist", dist);
     expect(r.stdout).toMatch(/Blog isolation check passed: \d+ site page\(s\) carry no blog styles; 15 blog page\(s\)/);
@@ -694,5 +713,8 @@ describe("a build with no published post", () => {
     expect.soft(read(empty, "sitemap-0.xml")).not.toContain("/blog");
     expect.soft(node("ci/check-content.mjs", "--dist", empty, "--content", join(root, "test-fixtures/blog")).status).toBe(0);
     expect.soft(node("ci/blog-isolation.mjs", "--dist", empty).status).toBe(0);
+    const entry = node("ci/check-entry-box.mjs", "--dist", empty);
+    expect.soft(entry.stderr + entry.stdout, "the bundles ship, no playable page does").toMatch(/Entry box security check passed/);
+    expect.soft(entry.status).toBe(0);
   }, 150000);
 });

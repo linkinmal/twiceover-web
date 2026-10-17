@@ -60,7 +60,7 @@ import { payoffSvgBody } from "../src/charts/payoff-svg.mjs";
 import {
   HERO_OUTLOOK,
   HORIZON_CARDS,
-  LAST_CLOSE_CAPTION,
+  PRICE_CAPTION,
   SPOT,
   SPREAD,
   SPREAD_PAYOFF,
@@ -113,7 +113,7 @@ export const MEMBERS = [
     file: "og-card-path.png",
     title: "A · the projection path",
     scale: 1.53,
-    caption: LAST_CLOSE_CAPTION,
+    caption: PRICE_CAPTION,
     plot: { x: 80, y: 262, width: 980 },
     disclaimer: { x: 1120, baselines: [253] },
   },

@@ -12,6 +12,8 @@
  *         (stock-analyst-platform#4033) link nowhere but their own anchors, mailto:
  *         and each other, and are noindex. A path from them to Pricing or Sign up
  *         is a purchase path outside Apple's IAP (ADR 1018 Decision 4).
+ *   STRIP — the home page's "From the blog" titles leave the banned-term scan, by a marker honored on index.html only
+ *         and only for a title that is a post's own heading; the phrase floor still reads them (ADR 1090 Amendment 3).
  *   BLOG — posts under blog/<slug> leave the banned-word scan for a phrase floor; the blog index and
  *         topic pages keep it after their exact post titles are subtracted; every other page,
  *         including blog games and tools, keeps it. Blog pages also meet the markup and door-form
@@ -31,15 +33,17 @@ import {
   contentSlugFailures,
   crossPageFailures,
   disallowedInAppHrefs,
+  markedTitleCount,
   normalize,
   pageKind,
+  postHeading,
   postStrings,
   scanPage,
 } from "./content-rules.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-// `--dist <dir> --content <dir>` check another build and its posts (the fixture build, test/blog-build.test.mjs).
-// Arguments, not environment: scripts/deploy.sh passes none, so a deploy always checks dist/ and src/content/blog.
+// `--dist <dir> --content <dir>` check another build and its posts (the fixture build, ci/blog-build.test.mjs).
+// Arguments, not environment: the verify job passes none, so the gate on a deploy's artifact always checks dist/ and src/content/blog.
 const arg = (name) => {
   const i = process.argv.indexOf(name);
   return i > -1 ? process.argv[i + 1] : undefined;
@@ -50,6 +54,9 @@ const blogContent = arg("--content") ? resolve(arg("--content")) : join(root, "s
 const EXPECTED_PAGES = [
   "index.html",
   "pricing/index.html",
+  // The two explainer pages (stock-analyst-platform#3829; ADR 0990, ADR 0993).
+  "how-our-analysis-works/index.html",
+  "your-portfolio/index.html",
   "terms/index.html",
   "privacy/index.html",
   "cookies/index.html",
@@ -104,7 +111,18 @@ const built = pages.map((p) => ({ rel: relative(dist, p), html: readFileSync(p, 
 // before its full scan, so a headline with "sell-off" in it is not a violation by itself.
 const listStrings = built.filter((b) => pageKind(b.rel, postSlugs) === "post").flatMap((b) => postStrings(b.html));
 
-for (const page of built) failures.push(...scanPage({ ...page, disclaimer, postSlugs, listStrings }));
+// The home page's "From the blog" strip marks each title; the gate honors a mark only for a title that is a post's own
+// heading (ADR 1090 Amendment 3). The built post's h1 is the post file's title as rendered.
+const postTitles = built.filter((b) => pageKind(b.rel, postSlugs) === "post").map((b) => postHeading(b.html)).filter(Boolean);
+
+for (const page of built) failures.push(...scanPage({ ...page, disclaimer, postSlugs, listStrings, postTitles }));
+
+// Control: with posts to show, the built home page carries at least one marked title. If it carries none, the strip
+// is gone or its marker was renamed, and the exemption above would be passing on a page it never looked at.
+const homePage = built.find((b) => b.rel === "index.html");
+if (homePage && postTitles.length && markedTitleCount(homePage.html) === 0) {
+  failures.push("[BLOG-STRIP] control: index.html has posts to show but no data-post-title element — the exemption is blind");
+}
 failures.push(...crossPageFailures(built, postSlugs));
 
 if (failures.length) {

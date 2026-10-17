@@ -11,10 +11,31 @@ import { priceLineChartModel } from "./technicals-chart.mjs";
 import { technicalsPriceSvgBody } from "./technicals-svg.mjs";
 import { TECHNICALS, TECHNICALS_SERIES } from "./site-fixture.mjs";
 
-function svgOf(compact) {
-  const m = priceLineChartModel({ series: TECHNICALS_SERIES, technicals: TECHNICALS, compact });
+/** The crowded case #3019 was measured on: the site fixture as it stood, with the 50-DMA stated at
+ *  175.43. The fixture now derives 178.70 (#3829/#3935), which un-crowds the pair at desktop width, so
+ *  the regression pins its own input rather than riding the fixture's current value. */
+const CROWDED = { ...TECHNICALS, ma50: "175.43" };
+
+function svgOf(compact, technicals = CROWDED) {
+  const m = priceLineChartModel({ series: TECHNICALS_SERIES, technicals, compact });
   return { m, svg: technicalsPriceSvgBody(m, { compact }) };
 }
+
+describe("the site's own fixture, with the derived 50-DMA (#3829)", () => {
+  it("draws both moving averages at desktop width, where they no longer crowd", () => {
+    const { svg } = svgOf(false, TECHNICALS);
+    expect.soft(svg).toContain(`>${TECHNICALS.ma50}<`);
+    expect.soft(svg).toContain(">200-DMA<");
+  });
+
+  it("still withholds the 200-DMA at the compact width the homepage draws — as the artifact does", () => {
+    // Build reference homepage-3818-v3 (band card and deck card, both compact) draws 50-DMA 178.70 and
+    // the 52-week pair, and no 200-DMA.
+    const { svg } = svgOf(true, TECHNICALS);
+    expect.soft(svg).toContain(">178.70<");
+    expect.soft(svg).not.toContain("200-DMA");
+  });
+});
 
 describe("a crowded level is withheld as a pair, never just the label (#3019)", () => {
   it.each([

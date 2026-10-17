@@ -70,7 +70,7 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { BLOG_SCRIPTS } from "./content-rules.mjs";
+import { BLOG_SCRIPTS, BLOG_SCRIPT_PATTERN } from "./content-rules.mjs";
 
 // ── The declared script expectation ─────────────────────────────────────────
 // One row per built page. `inline` counts executable inline <script> blocks (data blocks
@@ -98,6 +98,10 @@ const EXPECTED_SCRIPTS = {
   "404.html": { inline: 0, external: 0 },
   "cookies/index.html": { inline: 0, external: 0 },
   "delete-account/index.html": { inline: 0, external: 0 },
+  // The explainer pages (stock-analyst-platform#3829) are static: every picture is drawn at build.
+  "how-our-analysis-works/index.html": { inline: 0, external: 0 },
+  // Still 3 since homepage v3.4 (stock-analyst-platform#3829): the hero deck (public/js/hero-deck.js)
+  // took the retired before/after read's place (public/js/before-after-read.js, deleted with it).
   "index.html": { inline: 0, external: 3 },
   "in-app/cookies/index.html": { inline: 0, external: 0 },
   "in-app/privacy/index.html": { inline: 0, external: 0 },
@@ -106,6 +110,7 @@ const EXPECTED_SCRIPTS = {
   "privacy/index.html": { inline: 0, external: 0 },
   "refunds/index.html": { inline: 0, external: 0 },
   "terms/index.html": { inline: 0, external: 0 },
+  "your-portfolio/index.html": { inline: 0, external: 0 },
 };
 
 // A script src we are willing to serve: root-relative, same-origin, under a known build
@@ -250,8 +255,8 @@ export function scanPages(pages, expected = EXPECTED_SCRIPTS, readAsset = () => 
   for (const { rel, html } of pages) {
     seen.add(rel);
     // A page under blog/ is bound by a list, not a per-page row (ADR 1090 Decision 10, relaxing ADR 0810 condition
-    // 4(iii); Security consult 1091): no inline executable script, and every external script is on the fixed list
-    // of reviewed block files (BLOG_SCRIPTS). A post can add no script, so no row is needed, and a new page under
+    // 4(iii); Security consult 1091): no inline executable script, and every external script is a bundle derived
+    // from a playable's client.mjs (BLOG_SCRIPTS). A post can add no script, so no row is needed, and a new page under
     // blog/ cannot ship unscanned. Every other check below applies to it unchanged.
     const blog = rel.startsWith("blog/");
     const declared = blog ? { inline: 0, external: null } : expected[rel];
@@ -284,7 +289,7 @@ export function scanPages(pages, expected = EXPECTED_SCRIPTS, readAsset = () => 
     const seenBundles = new Set();
     if (blog) {
       for (const e of external) {
-        if (!blogScripts.includes(e.src)) failures.push(`[scripts] ${rel}: script src "${e.src}" is not on the blog's fixed list of reviewed block files`);
+        if (!blogScripts.includes(e.src)) failures.push(`[scripts] ${rel}: script src "${e.src}" is not a bundle derived from a src/playables/<slug>/client.mjs`);
       }
     }
     for (const e of external) {
@@ -330,6 +335,49 @@ export function scanPages(pages, expected = EXPECTED_SCRIPTS, readAsset = () => 
     }
   }
 
+  return failures;
+}
+
+/**
+ * The blog's bundles are one set seen three ways (ADR 1127 Decision 4; Security's set-equality condition): the list
+ * derived from the client files in the checkout, the bundles the build left in dist/js, and the scripts the built
+ * pages load. Each page loads its own bundle and no other: /blog/{play,tools}/<slug> loads /js/blog-<slug>.js when a
+ * client file derives it, and every other page, on or off /blog, loads no blog bundle. A build that holds no playable
+ * page at all (no post is published yet, ADR 1090 Decision 2) loads none, so "no page loads it" waits for the first.
+ *
+ * @param pages    [{ rel, html }] as for scanPages
+ * @param bundles  the file names of dist/js/blog-*.js
+ * @param derived  the list deriveBlogScripts() read from the checkout
+ */
+export function scanBlogScripts({ pages, bundles, derived }) {
+  const failures = [];
+  const built = bundles.map((b) => `/js/${b}`);
+  for (const u of built) if (!derived.includes(u)) failures.push(`[scripts] ${u}: built but not derived from a src/playables/<slug>/client.mjs — a bundle with no client file cannot ship`);
+  for (const u of derived) if (!built.includes(u)) failures.push(`[scripts] ${u}: derived from a client file but not built into dist/js`);
+
+  const loaded = new Set();
+  const playablePage = (rel) => /^blog\/(?:play|tools)\/[^/]+\/index\.html$/.test(rel);
+  for (const { rel, html } of pages) {
+    if (!rel.startsWith("blog/")) {
+      for (const { src } of parseScripts(html).external) if (/^\/js\/blog-/.test(src)) failures.push(`[scripts] ${rel}: loads ${src}, a blog bundle, from a page outside /blog`);
+      continue;
+    }
+    const own = rel.match(/^blog\/(?:play|tools)\/([^/]+)\/index\.html$/)?.[1];
+    const ownUrl = own === undefined ? null : `/js/blog-${own}.js`;
+    const srcs = parseScripts(html).external.map((e) => e.src);
+    for (const src of srcs) {
+      if (!BLOG_SCRIPT_PATTERN.test(src)) {
+        if (/^\/js\/blog-/.test(src)) failures.push(`[scripts] ${rel}: script ${src} is outside the bundle pattern /js/blog-<slug>.js`);
+        else failures.push(`[scripts] ${rel}: script ${src} is not a blog bundle (/js/blog-<slug>.js) — a blog page loads its own bundle and nothing else`);
+        continue;
+      }
+      loaded.add(src);
+      if (src !== ownUrl) failures.push(`[scripts] ${rel}: loads ${src}, which is not this page's own bundle${ownUrl ? ` (${ownUrl})` : " — only a playable page loads one"}`);
+    }
+    if (ownUrl && srcs.includes(ownUrl) && !derived.includes(ownUrl)) failures.push(`[scripts] ${rel}: loads ${ownUrl}, which no src/playables/${own}/client.mjs derives`);
+    if (ownUrl && derived.includes(ownUrl) && !srcs.includes(ownUrl)) failures.push(`[scripts] ${rel}: does not load ${ownUrl}, the bundle its client file builds`);
+  }
+  if (pages.some((p) => playablePage(p.rel))) for (const u of derived) if (!loaded.has(u)) failures.push(`[scripts] ${u}: no page loads it — a client file must belong to a built playable page`);
   return failures;
 }
 
@@ -589,7 +637,7 @@ function collectHtml(dir, root, out = []) {
 function main() {
   const root = join(dirname(fileURLToPath(import.meta.url)), "..");
   // `--dist <dir>` checks another build (the fixture build in ci/blog-build.test.mjs). An argument, not the
-  // environment: scripts/deploy.sh passes none, so a deploy always checks dist/.
+  // environment: the verify job passes none, so the gate on a deploy's artifact always checks dist/.
   const di = process.argv.indexOf("--dist");
   const distDir = di > -1 ? resolve(process.argv[di + 1]) : join(root, "dist");
   const workerPath = join(root, "worker", "index.js");
@@ -615,6 +663,14 @@ function main() {
   };
 
   const failures = [...scanPages(pages, EXPECTED_SCRIPTS, readAsset)];
+
+  let bundles = [];
+  try {
+    bundles = readdirSync(join(distDir, "js")).filter((f) => f.startsWith("blog-")).sort();
+  } catch {
+    failures.push(`[structure] ${join(distDir, "js")} not readable — the blog bundles cannot be compared with the client files`);
+  }
+  failures.push(...scanBlogScripts({ pages, bundles, derived: BLOG_SCRIPTS }));
 
   const indexPage = pages.find((p) => p.rel === "index.html");
   if (!indexPage) failures.push(`[structure] dist/index.html not found — the entry-form check cannot run`);

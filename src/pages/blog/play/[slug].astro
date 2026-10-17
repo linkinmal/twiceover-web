@@ -1,16 +1,9 @@
 ---
-// A game page: /blog/play/<slug> (blog-handoff.md section 1). A standing page: it wears a theme like a post, has no
-// punchline headline and no date of its own beyond "Updated", and links its sibling playables. The block
-// script is a reviewed file on the fixed list (ADR 1088 Decision 1; BLOG_SCRIPTS in ci/content-rules.mjs).
-import BlogBase from "../../../layouts/BlogBase.astro";
-import CoinGame from "../../../components/blog/CoinGame.astro";
-import GuessGap from "../../../components/blog/GuessGap.astro";
+// A game page: /blog/play/<slug> (blog-handoff.md section 1). The route knows no page: it renders whichever
+// src/playables/<slug>/page.astro the loader finds by folder inside the shared frame (ADR 1127 Decision 2).
+import PlayableShell from "../../../components/blog/PlayableShell.astro";
 import { getPublished } from "../../../blog/collection.mjs";
-import MorePlay from "../../../components/blog/MorePlay.astro";
-import { PLAYABLES } from "../../../blog/playables.mjs";
-import { LOOKS } from "../../../blog/vocabulary.mjs";
-import { TOPIC_LABELS } from "../../../blog/labels.mjs";
-import { formatStamp, toNewYorkIso } from "../../../blog/format.mjs";
+import { PLAYABLES, pageOf } from "../../../blog/playables.mjs";
 
 // With no published post there is no blog at all, and a game page would be a blog page: it waits with the first
 // post (ADR 1090 Decision 2: a build with nothing published emits no /blog, feed or sitemap entry).
@@ -19,48 +12,6 @@ export async function getStaticPaths() {
   return PLAYABLES.filter((p) => p.kind === "game").map((p) => ({ params: { slug: p.slug }, props: { p } }));
 }
 const { p } = Astro.props;
-const look = LOOKS[p.look as keyof typeof LOOKS];
+const Page = await pageOf(p.slug);
 ---
-<BlogBase title={`${p.title} — TwiceOver`} description={p.description} preload={[look.display]}>
-  <nav slot="meta" class="meta" aria-label="This page">
-    <a href={p.path}>Playable</a>
-    <span>Game</span>
-    <a href={`/blog/topic/${p.topic}`}>{TOPIC_LABELS[p.topic as keyof typeof TOPIC_LABELS]}</a>
-    <span>Updated <time datetime={toNewYorkIso(p.updatedAt)}>{formatStamp(p.updatedAt)}</time></span>
-  </nav>
-  <article class="post skin" data-look={look.kit}>
-    <div class="col">
-      <p class="lab">Game</p>
-      <h1 class="h1">{p.title}</h1>
-      <p class="deck">{p.deck}</p>
-      {p.slug === "coin" && (
-        <>
-        <section class="blk"><CoinGame /></section>
-        <section class="blk">
-          <p class="lab">How it is played</p>
-          <p>Each flip bets a share of your balance. Heads adds the bet. Tails takes it. You can change the share between flips.</p>
-          <p>A game is up to 300 flips. It stops early at the $250 cap. Under $2 counts as bust.</p>
-          <p>Your own game is new every time. The bars come from 2,000 games per bet size with a fixed seed, so every visit shows the same bars.</p>
-          <p>Nothing you do here is sent anywhere or stored. The tally of your games lasts until you leave the page.</p>
-          <p class="stamp"><span><b>Source</b> computed on this page, a fair 60% coin</span></p>
-        </section>
-        </>
-      )}
-      {p.slug === "guess-the-gap" && (
-        <>
-          <p class="words">A company reports its <b>earnings</b> four times a year, and the stock often jumps or drops the next morning. Before the report, option prices show how big a move traders are paying for, up or down. That size is the <b>priced move</b>. It says nothing about direction.</p>
-          <GuessGap />
-          <section class="blk">
-            <p class="lab">How it is played</p>
-            <p>Each report shows the priced move. You guess the size of the next day's move, close to close. Direction is not part of the guess.</p>
-            <p>A guess within 2 points counts as a hit. Your score is for this visit only. Nothing is saved.</p>
-          </section>
-        </>
-      )}
-    </div>
-  </article>
-  <div class="page">
-    <MorePlay slug={p.slug} />
-  </div>
-  <script is:inline src={`/js/blog-${p.script}.js`} defer></script>
-</BlogBase>
+<PlayableShell p={p}><Page /></PlayableShell>

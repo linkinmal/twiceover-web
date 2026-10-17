@@ -1,7 +1,7 @@
 /**
  * labels — the words a reader sees for the closed vocabularies (vocabulary.mjs). Subject names are
  * Growth's, from `ai-team/growth/blog-site-copy.md` section 5 (the earlier working names are the internal map in
- * `blog-subjects.md`); lens and build names are the kit's pills.
+ * `blog-subjects.md`); the lens names are the kit's pills. Build names are internal: no page prints them.
  */
 import { BUILDS, LENSES, TOPICS } from "./vocabulary.mjs";
 

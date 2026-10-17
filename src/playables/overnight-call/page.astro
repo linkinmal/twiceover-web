@@ -1,0 +1,10 @@
+---
+import OvernightCall from "./OvernightCall.astro";
+import MethodLimits from "../../components/blog/MethodLimits.astro";
+---
+<p class="words">A <b>call</b> is a contract that lets you pay a set price per share for 100 shares, any time until a set date. The contract itself has a price, called the premium. It is worth more when the stock is higher. The set price is the <b>strike</b>. The set date is the <b>expiration</b>. <b>Implied volatility</b> is how big a stock move the call's price has built in, quoted as a yearly percentage.</p>
+<OvernightCall />
+<MethodLimits noun="option pricing math">
+  <Fragment slot="method">Black-Scholes price of a European call, with no interest rate and no dividend. Volatility is annualized and days are calendar days over 365. The change is split in order: the stock moves first, then volatility changes, then the days pass. The one-day priced move is implied volatility divided by the square root of 365.</Fragment>
+  <Fragment slot="limits">Real options are American style, carry bid and ask spreads and rarely change volatility by one number. Results change with every input and with the market.</Fragment>
+</MethodLimits>

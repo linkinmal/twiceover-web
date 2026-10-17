@@ -12,7 +12,7 @@
  * **What this chart is allowed to say.** No signal colour anywhere: the Outlook is indicative by
  * construction and a green or red path would read as a verdict. No horizon price as chart text — every
  * figure is stated in the cards below, and the hover `<title>` is a tooltip, not a rendering. And the
- * last-close figure is NOT drawn here at all: it renders as a caption above the SVG (`.chartcap`), the
+ * price figure (captioned `price $…`, ADR 0992) is NOT drawn here at all: it renders as a caption above the SVG (`.chartcap`), the
  * signed artifact's placement, because on the dip shape the path descends into the label's own band
  * and the near dot lands on it. That is the class of bug the artifact named "furniture placed in the
  * data's own region", and no vertical offset solves it — so the label leaves the plot.
@@ -37,7 +37,7 @@ function n(v) {
 export function outlookPathSvgBody(m, { compact, horizons, labels }) {
   const parts = [];
 
-  // The last-close reference line — the LINE only. Its figure is the caption above the plot.
+  // The price reference line — the LINE only. Its figure is the caption above the plot.
   parts.push(
     `<line class="k-spotline" x1="${m.padLeft}" y1="${n(m.spotLine.y)}" x2="${m.width - m.padRight}" y2="${n(m.spotLine.y)}"/>`,
   );

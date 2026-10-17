@@ -1,0 +1,39 @@
+---
+// The frame every game and tool page wears (blog-handoff.md section 1): a standing page in a theme, the kind and
+// topic in the bar, the title and deck, then the page's own body in the slot, the "More to play" strip and the
+// page's one block script. The body is src/playables/<slug>/page.astro; the script is the reviewed bundle
+// /js/blog-<slug>.js that scripts/build-blog-scripts.mjs builds from src/playables/<slug>/client.mjs, and the one
+// address a blog page may load (ADR 1127 Decision 4).
+import BlogBase from "../../layouts/BlogBase.astro";
+import MorePlay from "./MorePlay.astro";
+import { LOOKS } from "../../blog/vocabulary.mjs";
+import { TOPIC_LABELS } from "../../blog/labels.mjs";
+import { formatStamp, toNewYorkIso } from "../../blog/format.mjs";
+
+interface Props {
+  p: any;
+}
+const { p } = Astro.props;
+const look = LOOKS[p.look as keyof typeof LOOKS];
+const kind = p.kind === "game" ? "Game" : "Tool";
+---
+<BlogBase title={`${p.title} — TwiceOver`} description={p.description} preload={[look.display]}>
+  <nav slot="meta" class="meta" aria-label="This page">
+    {p.kind === "game" ? <a href={p.path}>Playable</a> : <a href={p.path}>Tool</a>}
+    {p.kind === "game" && <span>Game</span>}
+    <a href={`/blog/topic/${p.topic}`}>{TOPIC_LABELS[p.topic as keyof typeof TOPIC_LABELS]}</a>
+    <span>Updated <time datetime={toNewYorkIso(p.updatedAt)}>{formatStamp(p.updatedAt)}</time></span>
+  </nav>
+  <article class="post skin" data-look={look.kit}>
+    <div class="col">
+      <p class="lab">{kind}</p>
+      <h1 class="h1">{p.title}</h1>
+      <p class="deck">{p.deck}</p>
+      <slot />
+    </div>
+  </article>
+  <div class="page">
+    <MorePlay slug={p.slug} />
+  </div>
+  <script is:inline src={`/js/blog-${p.slug}.js`} defer></script>
+</BlogBase>

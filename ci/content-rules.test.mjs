@@ -4,13 +4,21 @@
  * refusal is not simply "everything fails": a gate whose only proof is "the current build passes" is
  * unfalsifiable by the gate itself (consult 0811).
  */
-import { readFileSync } from "node:fs";
-import { describe, expect, it } from "vitest";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { afterAll, describe, expect, it } from "vitest";
 import {
+  BLOG_SCRIPTS,
+  BLOG_SCRIPT_PATTERN,
+  PLAYABLE_SLUG,
   PHRASE_FLOOR,
   contentSlugFailures,
   crossPageFailures,
+  deriveBlogScripts,
+  markedTitleCount,
   pageKind,
+  postHeading,
   postStrings,
   removedAddresses,
   scanPage,
@@ -211,7 +219,7 @@ describe("markup rules on every blog page (Decision 11)", () => {
     expect.soft(fails(withBody('<script type="application/ld+json">{"a":"</script><script>alert(1)</script>"}</script>')), "a body containing </script>").toBe(true);
   });
 
-  it("allows a script only from the fixed list, root-relative and same-origin", () => {
+  it("allows a script only from the derived list, root-relative and same-origin", () => {
     const pageWith = (src) => scanPage({ ...withBody(`<script src="${src}" defer></script>`), disclaimer, postSlugs: SLUGS, allowedScripts: ["/js/blog-example.js"] });
     expect.soft(pageWith("/js/blog-example.js")).toEqual([]);
     for (const src of ["/js/other.js", "https://evil.test/a.js", "//evil.test/a.js", "/js/blog-example.js?x=1", "js/blog-example.js"]) {
@@ -354,5 +362,118 @@ describe("postStrings — the exact title and description strings a list page pr
   it("reads the h1, the meta description and the page title from a built post", () => {
     const h = html("<h1>Why the sell-off was not a surprise</h1><p>x</p>", { head: '<meta name="description" content="What the options had priced in.">' }).replace("<title>t</title>", "<title>Why the sell-off was not a surprise · TwiceOver Blog</title>");
     expect.soft(postStrings(h)).toEqual(expect.arrayContaining(["Why the sell-off was not a surprise", "What the options had priced in."]));
+  });
+});
+
+describe("the home page's From the blog strip: post titles leave the banned-term scan (ADR 1090 Amendment 3)", () => {
+  const TITLES = ["Why a sell-off hits stocks twice", "Sell-off 101", "Buy now or wait: the CPI date"];
+  const strip = (...cards) => `<section><h2>From the blog</h2>${cards.join("")}</section>`;
+  const card = (title, attrs = "data-post-title") => `<a href="/blog/x"><p>Topic</p><p ${attrs}>${title}</p><p>Wed 14 Oct 2026</p></a>`;
+  const home = (body, extra = {}) => ({ rel: "index.html", html: html(body), ...extra });
+  const scanHome = (page) => scan(page, { postTitles: TITLES });
+  const ac3 = (f) => f.filter((x) => x.includes("[AC3]"));
+
+  it("a marked title with 'sell-off' passes, long or under 20 characters; the plain home page passes with the strip", () => {
+    expect.soft(scanHome(home(strip(card("Why a sell-off hits stocks twice"), card("Sell-off 101"))))).toEqual([]);
+  });
+
+  it("the same word anywhere else on the page still fails, including the same title text outside a marked element", () => {
+    expect.soft(ac3(scanHome(home(`${strip(card("Sell-off 101"))}<p>A sell-off hurts.</p>`)))).toHaveLength(1);
+    expect.soft(ac3(scanHome(home(`${strip(card("Sell-off 101"))}<p>Sell-off 101</p>`)))).toHaveLength(1);
+  });
+
+  it("a marked element whose text is not a post title is scanned in full", () => {
+    expect.soft(ac3(scanHome(home(strip(card("You can buy this today"))))).length).toBeGreaterThan(0);
+    expect.soft(ac3(scanHome(home(strip(card("Sell-off 101 and then some"))))).length).toBeGreaterThan(0);
+  });
+
+  it("a marked element with a child element is scanned in full", () => {
+    expect.soft(ac3(scanHome(home(strip(card("Sell-off <b>101</b>"))))).length).toBeGreaterThan(0);
+  });
+
+  it("the marker is ignored on every route but index.html", () => {
+    for (const rel of ["pricing/index.html", "terms/index.html", "blog/tools/the-overnight-call-calculator/index.html", "404.html"]) {
+      const f = scan({ rel, html: html(strip(card("Sell-off 101"))) }, { postTitles: TITLES });
+      expect.soft(ac3(f).length, rel).toBeGreaterThan(0);
+    }
+  });
+
+  it("the phrase floor still runs on the whole home page, a marked title included", () => {
+    const f = scanHome(home(strip(card("Buy now or wait: the CPI date"))));
+    expect.soft(f.some((x) => x.includes("[BLOG-PHRASE]") && x.includes('"buy now"'))).toBe(true);
+    expect.soft(scanHome(home(`${strip(card("Sell-off 101"))}<p>You must act.</p>`)).some((x) => x.includes('"you must"'))).toBe(true);
+  });
+
+  it("the phrase floor sees through an entity and an invisible character on the home page, as it does on a post", () => {
+    for (const hidden of ["you&#32;must act.", "you&#8203; must act.", "you&nbsp;must act."]) {
+      const f = scanHome(home(`${strip(card("Sell-off 101"))}<p>${hidden}</p>`));
+      expect.soft(f.some((x) => x.includes("[BLOG-PHRASE]") && x.includes('"you must"')), hidden).toBe(true);
+    }
+  });
+
+  it("a post's title is its h1 and nothing else: a post with no h1 contributes none, not its description", () => {
+    const withH1 = '<html><head><meta name="description" content="A description here"></head><body><h1> A headline </h1></body></html>';
+    const noH1 = '<html><head><meta name="description" content="A description here"></head><body><p>x</p></body></html>';
+    expect.soft(postHeading(withH1)).toBe("A headline");
+    expect.soft(postHeading(noH1)).toBe("");
+  });
+
+  it("the disclaimer check stays on the home page", () => {
+    const f = scanHome({ rel: "index.html", html: html(strip(card("Sell-off 101")), { disc: "" }) });
+    expect.soft(f.some((x) => x.includes("[AC4]"))).toBe(true);
+  });
+
+  it("control: counts the marked elements, so a build that lost the strip is not read as a clean one", () => {
+    expect.soft(markedTitleCount(home(strip(card("Sell-off 101"), card("Why a sell-off hits stocks twice"))).html)).toBe(2);
+    expect.soft(markedTitleCount(home("<p>No strip.</p>").html)).toBe(0);
+  });
+});
+
+describe("deriveBlogScripts: the list is read from src/playables/*/client.mjs (ADR 1127 Decision 4)", () => {
+  /** A playables folder: `{ slug: ["client.mjs", ...] }`, and loose files by name. */
+  const made = [];
+  afterAll(() => made.forEach((d) => rmSync(d, { recursive: true, force: true })));
+  const tree = (dirs, files = []) => {
+    const root = mkdtempSync(join(tmpdir(), "playables-"));
+    made.push(root);
+    for (const [slug, names] of Object.entries(dirs)) {
+      mkdirSync(join(root, slug));
+      for (const n of names) writeFileSync(join(root, slug, n), "");
+    }
+    for (const f of files) writeFileSync(join(root, f), "");
+    return root;
+  };
+
+  it("lists /js/blog-<slug>.js for each directory that holds a client.mjs, sorted, and nothing else", () => {
+    const root = tree({ "b-two": ["client.mjs", "entry.mjs"], a: ["client.mjs", "client.test.mjs"], "no-client": ["entry.mjs"], _kit: ["number-input.mjs"] });
+    expect(deriveBlogScripts(root)).toEqual(["/js/blog-a.js", "/js/blog-b-two.js"]);
+  });
+  it("fails on a directory whose name is outside the slug pattern, with or without a client", () => {
+    for (const bad of ["Coin", "two words", "-lead", "trail-", "a--b", "a_b", "a.b", "über"]) {
+      expect.soft(() => deriveBlogScripts(tree({ [bad]: ["client.mjs"] })), bad).toThrow(/outside the slug pattern/);
+      expect.soft(() => deriveBlogScripts(tree({ [bad]: [] })), `${bad} (no client)`).toThrow(/outside the slug pattern/);
+    }
+  });
+  it("passes over a dotfile such as .DS_Store, which is never a playable", () => {
+    expect(deriveBlogScripts(tree({ a: ["client.mjs"] }, [".DS_Store"]))).toEqual(["/js/blog-a.js"]);
+  });
+  it("makes every slug the folder pattern accepts a bundle address the bundle pattern accepts, and no more", () => {
+    for (const slug of ["a", "coin", "guess-the-gap", "a1-b2", "9"]) {
+      expect.soft(PLAYABLE_SLUG.test(slug), slug).toBe(true);
+      expect.soft(BLOG_SCRIPT_PATTERN.test(`/js/blog-${slug}.js`), slug).toBe(true);
+    }
+    for (const slug of ["Coin", "a--b", "-a", "a-", "a_b", "a.b", "a b", ""]) {
+      expect.soft(PLAYABLE_SLUG.test(slug), slug).toBe(false);
+      expect.soft(BLOG_SCRIPT_PATTERN.test(`/js/blog-${slug}.js`), slug).toBe(false);
+    }
+  });
+  it("fails on a loose file or a second underscore directory, which are not playables", () => {
+    expect.soft(() => deriveBlogScripts(tree({}, ["notes.md"]))).toThrow(/notes\.md/);
+    expect.soft(() => deriveBlogScripts(tree({ _other: [] }))).toThrow(/_other/);
+  });
+  it("is the list the real src/playables yields, frozen, and every entry matches the bundle pattern", () => {
+    expect.soft(Object.isFrozen(BLOG_SCRIPTS)).toBe(true);
+    expect.soft(BLOG_SCRIPTS.length).toBeGreaterThan(0);
+    for (const u of BLOG_SCRIPTS) expect.soft(BLOG_SCRIPT_PATTERN.test(u), u).toBe(true);
   });
 });

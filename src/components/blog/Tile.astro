@@ -4,7 +4,7 @@
 // links to other posts ("Keep reading") drops the date (handoff 4a item 5), because the list page is the
 // page that lists them; `.rel` hides it in CSS, and here it is not printed at all.
 import { LOOKS } from "../../blog/vocabulary.mjs";
-import { BUILD_LABELS, LENS_LABELS, TOPIC_LABELS } from "../../blog/labels.mjs";
+import { LENS_LABELS, TOPIC_LABELS } from "../../blog/labels.mjs";
 import { formatDay, splitHit } from "../../blog/format.mjs";
 
 interface Props {
@@ -41,5 +41,4 @@ const Heading = `h${level}` as "h2" | "h3";
       data.hit && <b class="t-fig">{data.hit}</b>
     )}
   </div>
-  <div class="t-build">{BUILD_LABELS[data.build]}</div>
 </a>

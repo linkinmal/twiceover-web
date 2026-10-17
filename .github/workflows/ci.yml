@@ -3,6 +3,12 @@ name: ci
 # Build + content gate (#39 AC3/AC4): fails on banned terms or a missing/altered
 # shared disclaimer in the built HTML — the same output-contract line as product output.
 #
+# Three jobs (ADR 1127 Decision 3, Security consult 1125 condition 5). `build-and-check` builds and tests; admitted
+# code runs there, so it is treated as untrusted and holds no secret. `verify` takes the built dist/ to a fresh
+# runner and runs every gate on it — the one gate list. `deploy` ships that same dist/, checked by digest, and is the
+# only job that sees the token, on one step. Neither verify nor deploy runs install scripts, uses a cache or loads the
+# build's toolchain (ci/pipeline.test.mjs pins this).
+#
 # Triggers (ADR 1090 Decision 3, Security consult 1091). Three of them can reach the deploy job, and only
 # these three: `push` to main (a merge), `schedule` (the daily build that publishes a post whose time has
 # come), and `workflow_dispatch` (a hand re-run when a scheduled run was missed). A pull request never
@@ -30,96 +36,141 @@ jobs:
     runs-on: ubuntu-latest
     # Pull requests build the blog with its clock far ahead, so every post, future ones included, is
     # built and checked and a broken post fails its own pull request (ADR 1090 Decision 4). A push
-    # builds on the real clock, and scripts/deploy.sh refuses a deploy with BLOG_NOW set.
+    # builds on the real clock; this expression is the control. scripts/deploy.sh also refuses BLOG_NOW, as a backstop.
     env:
       BLOG_NOW: ${{ github.event_name == 'pull_request' && '2100-01-01T00:00:00Z' || '' }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
       - run: npm ci
       - run: npm run build
+      - run: npm test
+      # The built site, for verify to check and deploy to ship. Nothing here is trusted until verify passes it.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 7
+
+  # Every gate, on the dist/ build-and-check uploaded, from a fresh runner and checkout. No secret, no cache, no
+  # install scripts, no build: a build that rewrote a gate or injected a script into its own job cannot change what
+  # runs here. Runs on every event, pull requests included.
+  verify:
+    needs: build-and-check
+    runs-on: ubuntu-latest
+    outputs:
+      digest: ${{ steps.digest.outputs.digest }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci --ignore-scripts
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
       # Stable addresses (#4233, ADR 1090 Decision 1): every blog address the live sitemap lists is still in
       # this build. Reads the live sitemap from its fixed address; fails if it cannot, and on a removed,
       # renamed or re-dated post. Pull requests build with the clock far ahead, so a post pushed back to a
       # later date is caught on the push build, before the deploy job.
-      - run: npm run check:addresses
-      - run: npm run check
+      - run: node ci/check-stable-addresses.mjs
+      # Content gate (#39 AC3/AC4): banned terms, the shared disclaimer byte-identical.
+      - run: node ci/check-content.mjs
       # Static-decoration a11y gate (site-prelaunch.md §6 v2.4 redeploy build note, #734):
       # the Two-doors illustrations must never surface as a focusable, non-functional control.
-      - run: npm run check:a11y-decor
+      - run: node ci/check-a11y-decor.mjs
       # Entry-box security gate (#2520, ADR 0383 Amendment 1, Security consult 0739): the hero
       # entry-box performs a real GET navigation to /go/try, so the three attributes that
       # define its shape are pinned exactly — name="ticker", method="get", action="/go/try" —
       # alongside the Worker's URLSearchParams-encoded, pattern-bounded forwarding, and the
       # carried-forward bans on any .value read or fetch/XHR/WebSocket/sendBeacon on the page.
-      # (Supersedes the demo-control gate, which enforced consult 0384's now-retired posture.)
-      - run: npm run check:entry-box
-      # SITE_METRICS Worker gates (ADR 0136 / consult 0163, #557): the six-field source
-      # assertion and the pure-helper unit tests. Fail fast on PRs, before the deploy job.
-      - run: npm run check:worker
+      - run: node ci/check-entry-box.mjs
+      # SITE_METRICS Worker field gate (ADR 0136 / consult 0163, #557): the six-field source assertion.
+      - run: node ci/check-worker-source.mjs
       # Blog font gate (#4233, ADR 1088 Decision 2): files exist, no orphans, an OFL licence per family,
       # and each blog theme's faces within the size ceiling.
-      - run: npm run check:fonts
+      - run: node ci/blog-fonts.mjs
       # Blog style gate (#4233, ADR 1088 Decision 3): the ported kit CSS matches the token files, the end
       # block is the product's own tokens, contrast and containment hold.
-      - run: npm run check:style
+      - run: node ci/blog-style.mjs
       # Blog isolation (#4233, ADR 1088 Decision 3): no page outside /blog loads the blog's styles or fonts, and no
       # blog page loads the site's. The fixture build in `npm test` runs it with blog pages present.
-      - run: npm run check:isolation
+      - run: node ci/blog-isolation.mjs
       # Share-card gate (#4233, ADR 1088 Decision 4 and Amendment 1): every post under src/content/blog has its
       # card in public/blog-share, no card lacks a post, and each card is byte-for-byte what the generator draws
       # from its post today. The fixture folder's cards are checked the same way inside `npm test`.
-      - run: npm run check:share
-      - run: npm test
+      - run: node scripts/gen-blog-share.mjs --check
+      # Consultation-0008 log gate: Workers observability stays off.
+      - run: node ci/check-observability-off.mjs
+      # The digest of the dist/ every gate above passed. deploy ships only an artifact with this digest.
+      - id: digest
+        run: |
+          d=$(node ci/dist-digest.mjs dist)
+          echo "Verified artifact: $d"
+          echo "digest=$d" >> "$GITHUB_OUTPUT"
 
   # Deploy-on-merge to production (ADR 0056, #305). Here deploy ≈ release, and that is intentional:
   # the site is static marketing content with no user data or behavior, so the pre-merge PR review is
-  # the release control. This flips only the TRIGGER leg of scripts/deploy.sh's documented flow
-  # (human-approval-before-merge replaces human-approval-before-deploy) — the AC3/AC4 content gate, the
-  # entry-box security gate, and the ADR 0008 "Workers observability off" gate are all untouched,
-  # because the deploy job runs the same guarded `npm run deploy` → scripts/deploy.sh, which re-asserts
-  # every gate before it uploads.
+  # the release control. Every gate ran in verify, on the very artifact this job ships.
   #
-  # Runs ONLY on push, schedule or workflow_dispatch, on `main`, after build-and-check is green — NEVER on pull_request, so the deploy
-  # token is out of scope for PR-triggered runs (ADR 0056 sub-decision 1, Security 0098). The real
-  # control against malicious code reaching this token is branch protection on `main`: the required check
-  # `build-and-check` is enforced; the pull-request review is a convention (the live rule asks for 0
+  # Runs ONLY on push, schedule or workflow_dispatch, on `main`, after build-and-check and verify are green — NEVER
+  # on pull_request, so the deploy token is out of scope for PR-triggered runs (ADR 0056 sub-decision 1, Security
+  # 0098). The real control against malicious code reaching this token is branch protection on `main`: the required
+  # check `build-and-check` is enforced; the pull-request review is a convention (the live rule asks for 0
   # approving reviews, Security consult 1091, read 2026-10-11). This workflow depends on the required check
-  # staying enforced.
+  # staying enforced, and since every gate runs in verify, on `verify` being required beside it (ADR 1127; an
+  # Operations action item). Within the run, this job builds nothing and runs no install script: with the token in
+  # scope it runs only deploy.sh and wrangler from this checkout of main, on the dist/ verify passed.
   #
   # If `main` goes red after a merge (the stable-address check, a gate), nothing deploys, scheduled runs
   # included, until it is green again: revert first. If the live site cannot be read, the stable-address
   # check cannot pass either, so the way back is `wrangler rollback`, not a skip flag.
   #
   # Token: `CLOUDFLARE_API_TOKEN` — the `twiceover-web-ci-deploy` repo secret (HA-33/#303), scoped
-  # `Account Settings:Read` + `Workers Scripts:Edit` only. deploy.sh already reads it from this env var
-  # (its documented `:=` CI seam), falling back to the Keychain only for a local operator run.
+  # `Account Settings:Read` + `Workers Scripts:Edit` + `Zone Workers Routes:Edit` on twiceover.io (as recorded in
+  # stock-analyst-platform ai-team/operations/operational-registry-credentials.md, read 2026-10-16). It is set in
+  # the env of the deploy step only.
   deploy:
-    needs: build-and-check
+    needs: [build-and-check, verify]
     if: (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     # Serialize production deploys so two quick merges to `main` never overlap a `wrangler deploy`;
     # never cancel one in flight (a cancelled deploy can leave the site half-updated). Job-scoped so
-    # PR build-and-check runs are unaffected.
+    # PR runs are unaffected.
     concurrency:
       group: deploy-production
       cancel-in-progress: false
     environment: production
-    env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-      - run: npm ci
+      - run: npm ci --ignore-scripts
       # The run's commit must be the head of main right now. An old run re-run by hand, or one a newer merge
       # overtook, would otherwise put old content over the new (Security consult 1091). Fails, never skips.
       - run: bash scripts/assert-head-of-main.sh
-      # Guarded deploy: re-runs build + AC3/AC4 content gate + ADR 0008 observability-off gate, then
-      # `wrangler deploy`. The token is supplied via the env var above (deploy.sh's CI override seam).
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      # What ships is what verify passed: the same bytes, or nothing.
+      - run: node ci/dist-digest.mjs dist --expect "$VERIFIED_DIGEST"
+        env:
+          VERIFIED_DIGEST: ${{ needs.verify.outputs.digest }}
+      # `wrangler deploy` of dist/ (scripts/deploy.sh). The one step that holds the token.
       - run: npm run deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

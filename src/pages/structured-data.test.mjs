@@ -60,19 +60,24 @@ describe("stock-analyst-platform#2634 — pricing Product JSON-LD (pricing.astro
 
     const freeOffer = offers.match(/{[^}]*name:\s*"Free"[^}]*}/)?.[0];
     const coreOffer = offers.match(/{[^}]*name:\s*"Core"[^}]*}/)?.[0];
+    // Premium joins with its card (stock-analyst-platform#3829, ADR 0912 Amendment 1).
+    const premiumOffer = offers.match(/{[^}]*name:\s*"Premium"[^}]*}/)?.[0];
     expect.soft(freeOffer, "Free offer present").toBeTruthy();
     expect.soft(coreOffer, "Core offer present").toBeTruthy();
+    expect.soft(premiumOffer, "Premium offer present").toBeTruthy();
+    expect.soft(premiumOffer, "Premium at its Accepted price").toMatch(/price:\s*"99"/);
 
     for (const [offer, label] of [
       [freeOffer, "Free"],
       [coreOffer, "Core"],
+      [premiumOffer, "Premium"],
     ]) {
       expect
         .soft(offer, `${label} offer declares availability`)
         .toMatch(/availability:\s*"https:\/\/schema\.org\/InStock"/);
       expect
         .soft(offer, `${label} offer declares its own url`)
-        .toMatch(/url:\s*"https:\/\/twiceover\.io\/go\/\w+"/);
+        .toMatch(/url:\s*"https:\/\/twiceover\.io\/go\/[\w-]+"/);
     }
   });
 });

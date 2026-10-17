@@ -78,6 +78,8 @@ const ogImageURL = image ? new URL(assertShareImage(image), Astro.site).href : c
         </a>
         <div class="site-header__actions">
           <nav class="site-nav" aria-label="Primary">
+            {/* Blog before Pricing, hidden below 640px like Sign in (blog.md §1 ruling 10a); Pricing stays at every width. */}
+            <a class="site-nav__blog" href="/blog">Blog</a>
             <a href="/pricing">Pricing</a>
           </nav>
           {/* Sign in / Sign up pair, founder-directed 2026-08-22 (#2520) — site-prelaunch.md
@@ -101,7 +103,12 @@ const ogImageURL = image ? new URL(assertShareImage(image), Astro.site).href : c
     <footer class="site-footer">
       <div class="container">
         {chrome === "full" && (
-        <nav class="footer-links" aria-label="Policies and contact">
+        <nav class="footer-links" aria-label="Footer">
+          {/* The two explainer pages lead the footer, on every page (ADR 0996, consult 0995). */}
+          <a href="/how-our-analysis-works">How our analysis works</a>
+          <a href="/your-portfolio">How Your Portfolio works</a>
+          {/* Blog after the explainers, before Terms (blog.md §1 ruling 10b). */}
+          <a href="/blog">Blog</a>
           <a href="/terms">Terms</a>
           <a href="/privacy">Privacy</a>
           <a href="/refunds">Refunds</a>

@@ -1,0 +1,63 @@
+---
+// "The option payoff calculator" as served (blog-handoff.md section 5.3, kit v3): three open numbered steps in one
+// column. The opening structure (a long call at the design's invented numbers, the handle at $110) is printed in
+// full: the answer, the chart, three figures, the finds and the six shapes. The functions the block script
+// imports (payoff-view.mjs beside this file) write it, so the script only moves what is already here. The steps'
+// controls are hidden until the script runs them; with script off the example reads as a page of its own.
+import { curvePoints, evaluate, findsMet } from "./payoff-builder.mjs";
+import { structureOf, describe, termsHtml, typeRowHtml, whyHtml, headHtml, sentenceHtml, statsHtml, findsHtml, chartSvg, chartLabel, chartCaption, cardsHtml, sixHtml, pp } from "./payoff-view.mjs";
+
+const kind = "lc";
+const def = structureOf(kind, null)!;
+const values = Object.fromEntries(def.fields.map((f) => [f.id, f.default]));
+const e = evaluate({ kind, spreadType: null, values, stockNow: 100, contracts: 1, handle: def.handle });
+if (!e.ok) throw new Error("the design's opening structure must be valid");
+const model = { kind, spreadType: null, values, stockNow: 100, e };
+const chart = chartSvg(e, curvePoints(e.position, 100, e.range.lo, e.range.hi), 600);
+const found = findsMet(e);
+---
+<div data-payoff>
+  <section class="blk pay" data-js hidden>
+    <h2 class="lab">Step 1 · Pick a structure</h2>
+    <div class="shapes" data-cards role="group" aria-label="Option structure" set:html={cardsHtml(kind, null)}></div>
+    <p class="pdesc" data-desc aria-live="polite">{describe(kind)}</p>
+  </section>
+  <section class="blk pay">
+    <h2 class="lab" data-js hidden>Step 2 · Drag the price</h2>
+    <p class="lab" data-nojs>The example: a {def.name.toLowerCase()}</p>
+    <div class="tans" aria-live="polite"><p class="thead" data-head set:html={headHtml(e)}></p><p class="tsent" data-s1 set:html={sentenceHtml(model)}></p></div>
+    <div class="plate">
+      <div class="axw" style={`--axy:${chart.axisTop}px`}>
+        <svg class="ch" data-chart viewBox={`0 0 600 ${chart.H}`} role="img" aria-label={chartLabel(def, e)} set:html={chart.svg}></svg>
+        <input type="range" class="rng" id="po-h" min={e.range.lo} max={e.range.hi} step={e.range.step} value={e.handle} data-js hidden />
+      </div>
+      <div class="axh" data-js hidden><label for="po-h">Stock price at expiration</label><output id="po-hv" for="po-h">{pp(e.handle)}</output></div>
+      <p class="cap" data-cap>{chartCaption(def, e)}</p>
+    </div>
+    <div class="stats" data-stats set:html={statsHtml(e)}></div>
+    <div class="why" aria-live="polite"><p data-why set:html={whyHtml(model)}></p></div>
+    <p class="stamp"><span><b>As of</b> the numbers you set</span><span><b>Source</b> computed in this page. Illustrative, not a quote. Nothing is sent anywhere.</span></p>
+  </section>
+  <section class="blk pay" data-js hidden>
+    <h2 class="lab">Step 3 · Change its numbers</h2>
+    <div class="plate terms">
+      <h3 data-tt>{def.name}</h3>
+      <div data-type hidden set:html={typeRowHtml("c")}></div>
+      <div class="tin" data-in set:html={termsHtml(def, kind)}></div>
+    </div>
+    <p class="twarn" data-bad aria-live="polite"></p>
+    <p class="fine tnote">These are invented example numbers. Type in any box. Every price is in dollars per share.</p>
+    <div class="row"><button class="btn alt" type="button" data-reset>Back to the example</button></div>
+  </section>
+  <section class="blk">
+    <p class="lab">Three things to find <span data-fc style="font-weight:400">· {found.filter(Boolean).length} of 3 found</span></p>
+    <h2 class="bt">Pick a structure and drag the price until each one happens.</h2>
+    <ol class="finds plain" data-finds aria-live="polite" set:html={findsHtml(found)}></ol>
+  </section>
+  <section class="blk">
+    <p class="lab">The six shapes side by side</p>
+    <h2 class="bt">Same stock, six different lines.</h2>
+    <p>Each one uses its own example numbers, on one contract and a $100 stock.</p>
+    <ul class="six" set:html={sixHtml()}></ul>
+  </section>
+</div>

@@ -12,12 +12,15 @@
  *     descriptions are subtracted, and take the floor too. Every other page, and every other page under
  *     `blog/` (games, tools), keeps the full scan. The disclaimer check stays on every page.
  *   - Markup rules on every blog page: no inline script (JSON-LD data excepted), no handler, no
- *     iframe/object/embed/base/meta refresh, scripts only from a fixed list, root-relative images,
+ *     iframe/object/embed/base/meta refresh, scripts only from the list derived from the client files, root-relative images,
  *     https or root-relative links, `rel="noopener noreferrer"` on external ones, `/go/try` links with
  *     only the pinned keys, and `<form>` only the pinned door on a post.
  *
  * The phrase floor is a floor, not the check: Growth's rails read is the check (ADR 1090 Decision 9).
  */
+import { readdirSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { JSDOM } from "jsdom";
 import { isValidSlug } from "../src/blog/publish.mjs";
 import { isRootRelative } from "../src/blog/url.mjs";
@@ -61,10 +64,21 @@ export const BANNED = [
 // Documented exceptions, verbatim from the signed copy sources. Negations and
 // non-trading boilerplate only — never an actual directive.
 export const ALLOWED = [
-  // Home, "What TwiceOver is not" (site-copy-twiceover.md, ADR 0011 analysis-led swap) — quoted negation.
-  'no recommendations, no trading signals, no scores, no ratings — and never a one-line verdict or a "buy" or "sell."',
-  // Home, "What you see" outlook item (site-copy-twiceover.md, ADR 0011) — quoted negation.
-  'never a score, never a "buy" or "sell."',
+  // Home v3.4 (stock-analyst-platform#3829; homepage-3818-v3-2026-09-23.html, ADR 0991, copy from
+  // consult 0987), "What TwiceOver is not" — negation. Replaces the v2 "no recommendations, no
+  // trading signals…" entry, whose sentence the redesign retired.
+  "twiceover gives no recommendations or trading signals, never scores or rates a stock, and never tells you to buy or sell",
+  // Home v3.4, FAQ "What is TwiceOver, exactly?" — negation. (The v2 "What you see" entry went with
+  // its section.)
+  "it is not a registered investment adviser or broker-dealer, and it never tells you to buy or sell",
+  // Your Portfolio explainer (stock-analyst-platform#3829; explainer-pages-3818-2026-09-24.html,
+  // ADR 0993, Growth copy): the product's own disclaimer, drawn inside its picture — negation.
+  "informational, not investment advice. you decide.",
+  // …the position picture's open-order line: an order TYPE naming the reader's own existing
+  // order, not a directive.
+  "open order: gtc buy-to-close 3 oct 16 50 c",
+  // …the rules example: a hypothetical about the reader's own past trade, not a directive.
+  "example: say you sell an exmp covered call for",
   // ToS "Nature of the service" insert (PM, compliance-load-bearing) — negation.
   "nothing it produces is investment advice, a recommendation, a solicitation, or a suitability determination",
   "not a registered investment adviser, broker-dealer, or financial planner",
@@ -101,11 +115,33 @@ export function textOf(html) {
 // Blog: which page is which
 // ---------------------------------------------------------------------------------------------
 
+/** A playable's slug, and so its directory name and its bundle's name: lowercase words joined by single hyphens. */
+export const PLAYABLE_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+/** The one shape a blog bundle's address may take (ADR 1127 Decision 4). */
+export const BLOG_SCRIPT_PATTERN = /^\/js\/blog-[a-z0-9]+(?:-[a-z0-9]+)*\.js$/;
+
 /**
- * Scripts a blog page may load, root-relative and exact: the reviewed block files (ADR 1088 Decision 1), each built
- * from src/blog-tools/client/<name>.mjs by scripts/build-blog-scripts.mjs. A post cannot add one.
+ * Scripts a blog page may load, derived from the client files: `src/playables/<slug>/client.mjs` is built to
+ * `/js/blog-<slug>.js` by scripts/build-blog-scripts.mjs (ADR 1127 Decision 4). Only a directory listing is read, no
+ * file under src/playables is imported, so the verify job (which must not reach it, ci/pipeline.test.mjs) can call
+ * this on its fresh checkout. Fails on anything in the folder that is not a slug directory or the shared `_kit`.
+ * A post cannot add a script.
  */
-export const BLOG_SCRIPTS = Object.freeze(["/js/blog-call.js", "/js/blog-coin.js", "/js/blog-guess.js", "/js/blog-payoff.js", "/js/blog-straddle.js"]);
+export function deriveBlogScripts(playablesDir = fileURLToPath(new URL("../src/playables", import.meta.url))) {
+  const urls = [];
+  for (const entry of readdirSync(playablesDir, { withFileTypes: true })) {
+    if (entry.name.startsWith(".")) continue; // .DS_Store and the like: never a playable, never shipped
+    if (entry.isDirectory() && entry.name === "_kit") continue;
+    if (!entry.isDirectory() || !PLAYABLE_SLUG.test(entry.name)) {
+      throw new Error(`src/playables/${entry.name}: a playable is a directory named by its slug (lowercase words joined by hyphens) — this name is outside the slug pattern`);
+    }
+    if (readdirSync(join(playablesDir, entry.name)).includes("client.mjs")) urls.push(`/js/blog-${entry.name}.js`);
+  }
+  return Object.freeze(urls.sort());
+}
+
+export const BLOG_SCRIPTS = deriveBlogScripts();
 
 /** The phrases a post may not contain: a floor, not the check (ADR 1090 Decision 9, 11). */
 export const PHRASE_FLOOR = Object.freeze([
@@ -266,7 +302,7 @@ function markupFailures(doc, rel, kind, slug, allowedScripts) {
           add("JSON-LD block is not valid JSON");
         }
       }
-    } else if (!allowedScripts.includes(src)) add(`script src "${src}" is not on the fixed list`);
+    } else if (!allowedScripts.includes(src)) add(`script src "${src}" is not a bundle derived from a src/playables/<slug>/client.mjs`);
   }
   for (const el of doc.querySelectorAll("*")) {
     const handler = el.getAttributeNames().find((n) => n.startsWith("on"));
@@ -328,12 +364,44 @@ export function crossPageFailures(pages, postSlugs) {
 // One page
 // ---------------------------------------------------------------------------------------------
 
+/** A built post's own title: its h1, read directly, never by position among the strings postStrings returns. */
+export function postHeading(html) {
+  return parse(html).querySelector("h1")?.textContent.trim() ?? "";
+}
+
+// ---------------------------------------------------------------------------------------------
+// The home page's "From the blog" strip (ADR 1090 Amendment 3)
+// ---------------------------------------------------------------------------------------------
+
+const HOME = "index.html";
+const TITLE_MARKER = "[data-post-title]";
+
+/** How many elements on this page carry the post-title marker: the control that the exemption is not blind. */
+export function markedTitleCount(html) {
+  return parse(html).querySelectorAll(TITLE_MARKER).length;
+}
+
+/**
+ * The home page's visible text for the banned-term scan, with each valid post title taken out. A marked element is
+ * valid only if its whole text equals a title in the post files and it holds no child element; any other marked
+ * element stays in the scan, so the marker cannot hide other copy. Removing the element, not replacing a string,
+ * keeps the same words elsewhere on the page in the scan, and needs no length floor.
+ */
+function homeTextWithoutTitles(html, postTitles) {
+  const titles = new Set(postTitles.map(normalizeBlog));
+  const doc = parse(html);
+  for (const el of doc.querySelectorAll(TITLE_MARKER)) {
+    if (el.children.length === 0 && titles.has(normalizeBlog(el.textContent))) el.remove();
+  }
+  return textOf(doc.documentElement.outerHTML).toLowerCase();
+}
+
 /**
  * Every rule that applies to one built page.
  * @param {{rel:string, html:string, disclaimer:string, postSlugs?:string[], listStrings?:string[], allowedScripts?:readonly string[]}} p
  * @returns {string[]} failures, empty when the page passes
  */
-export function scanPage({ rel, html, disclaimer, postSlugs = [], listStrings = [], allowedScripts = BLOG_SCRIPTS }) {
+export function scanPage({ rel, html, disclaimer, postSlugs = [], listStrings = [], postTitles = [], allowedScripts = BLOG_SCRIPTS }) {
   const failures = [];
   const kind = pageKind(rel, postSlugs);
   const isBlog = kind !== "other";
@@ -354,12 +422,16 @@ export function scanPage({ rel, html, disclaimer, postSlugs = [], listStrings = 
   const visible = isBlog ? blogText(doc, true) : text;
   if (!visible.includes(disc)) failures.push(`[AC4] ${rel}: shared disclaimer missing or altered`);
 
-  let scrubbed = text.replaceAll(disc, " ");
+  // The home page's strip titles leave the bare-word scan below, not the phrase floor above (Amendment 3).
+  let scrubbed = (rel === HOME ? homeTextWithoutTitles(html, postTitles) : text).replaceAll(disc, " ");
+  // The phrase floor reads what a reader, a screen reader and a search result see, with the same normalization a post
+  // gets: on the home page too, so an entity or an invisible character cannot hide a phrase (Amendment 3, consult 1126).
+  const phraseText = rel === HOME ? blogText(parse(html)).replaceAll(normalizeBlog(disclaimer), " ") : text.replaceAll(disc, " ");
 
-  if (kind === "post" || kind === "list") {
+  if (kind === "post" || kind === "list" || rel === HOME) {
     for (const p of PHRASE_FLOOR) {
-      for (const m of scrubbed.matchAll(new RegExp(`\\b${p}\\b`, "g"))) {
-        const ctx = scrubbed.slice(Math.max(0, m.index - 35), m.index + p.length + 35).trim();
+      for (const m of phraseText.matchAll(new RegExp(`\\b${p}\\b`, "g"))) {
+        const ctx = phraseText.slice(Math.max(0, m.index - 35), m.index + p.length + 35).trim();
         failures.push(`[BLOG-PHRASE] ${rel}: "${p}" — …${ctx}…`);
       }
     }

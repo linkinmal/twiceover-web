@@ -10,7 +10,7 @@
  * Source-level, the convention this repo already uses (`faq-structure.test.mjs`). It resolves each
  * top-level section's ground the way the cascade does — the section's own `background`, or the
  * `--ground-fill` its `section-ground*` classes set — and follows component roots rather than taking
- * the page's literal `<section>`s only, since three of the twelve are rendered by components.
+ * the page's literal `<section>`s only, since two of the twelve are rendered by components.
  */
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
@@ -48,11 +48,11 @@ function pageSections() {
   // The page's markup starts after the frontmatter fence and is wrapped in <Base>, not <main>.
   const body = page.slice(page.indexOf("\n---", 3) + 4);
   const out = [];
-  for (const [, cls, component] of body.matchAll(
-    /^ {2}<section[^>]*\sclass="([^"]+)"|^ {2}<([A-Z]\w+)\s*\/>/gm,
+  for (const [tag, cls, component] of body.matchAll(
+    /^ {2}<section[^>]*\sclass="([^"]+)"[^>]*>|^ {2}<([A-Z]\w+)\s*\/>/gm,
   )) {
     if (cls !== undefined) {
-      out.push({ name: cls.split(/\s+/)[0], classes: cls.split(/\s+/) });
+      out.push({ name: cls.split(/\s+/)[0], classes: cls.split(/\s+/), dark: /\sdata-theme="dark"/.test(tag) });
       continue;
     }
     const src = read(`src/components/${component}.astro`);
@@ -91,7 +91,6 @@ describe("section grounds alternate (site-prelaunch.md §2 'Section grounds')", 
     // adjacency it checks would not be the page's adjacency.
     expect(sections.length).toBeGreaterThanOrEqual(12);
     expect(sections.map((s) => s.name)).toContain("AnalysisBand");
-    expect(sections.map((s) => s.name)).toContain("BeforeAfterRead");
     expect(sections.map((s) => s.name)).toContain("MobileShowcase");
   });
 
@@ -103,7 +102,9 @@ describe("section grounds alternate (site-prelaunch.md §2 'Section grounds')", 
   });
 
   it("puts no two adjacent sections on the same ground", () => {
-    const resolved = sections.map((s) => ({ name: s.name, fill: groundOf(s) }));
+    // A data-theme="dark" section repaints the same tokens dark (the trust plate), so it is its own ground, not the
+    // canvas its token name says: the "From the blog" strip on the plain canvas sits beside it (blog.md §1 ruling 10c).
+    const resolved = sections.map((s) => ({ name: s.name, fill: s.dark ? "dark-theme" : groundOf(s) }));
     const clashes = [];
     for (let i = 1; i < resolved.length; i++) {
       if (resolved[i].fill && resolved[i].fill === resolved[i - 1].fill) {

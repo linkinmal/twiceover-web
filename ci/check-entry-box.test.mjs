@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { scanPages, scanEntryForm, scanWorkerSource } from "./check-entry-box.mjs";
+import { scanPages, scanBlogScripts, scanEntryForm, scanWorkerSource } from "./check-entry-box.mjs";
 
 // The gate's own mutation tests (Security consult 0811: "a gate whose only proof is 'the
 // current build passes' is unfalsifiable by the gate itself"). Every negative case below
@@ -54,8 +54,8 @@ describe("scanPages — the declared expectation", () => {
   });
 });
 
-describe("scanPages — a page under blog/ is bound by the fixed list, not a row (ADR 1090 Decision 10)", () => {
-  const list = ["/js/blog-guess.js"];
+describe("scanPages — a page under blog/ is bound by the derived list, not a row (ADR 1090 Decision 10)", () => {
+  const list = ["/js/blog-guess-the-gap.js"];
   const blogPage = (html, rel = "blog/a-post/index.html") => scanPages([...page(rel, html), ...page("index.html", "<p>x</p>")], ONE_PAGE, cleanAssets, list);
 
   it("passes a blog page with no declaration and no script, so a new post or topic page cannot break the gate", () => {
@@ -65,15 +65,15 @@ describe("scanPages — a page under blog/ is bound by the fixed list, not a row
   });
   it("allows a JSON-LD data block, and an external script that is on the list when its body is clean", () => {
     expect.soft(blogPage('<script type="application/ld+json">{"a":1}</script>')).toEqual([]);
-    expect.soft(blogPage('<script src="/js/blog-guess.js"></script>')).toEqual([]);
+    expect.soft(blogPage('<script src="/js/blog-guess-the-gap.js"></script>')).toEqual([]);
   });
   it("fails an inline executable script on a blog page, and a script that is not on the list", () => {
     expect.soft(blogPage("<script>var a=1;</script>")).toEqual([expect.stringMatching(/expected 0 inline executable .*found 1/)]);
-    expect.soft(blogPage('<script src="/js/other.js"></script>')).toEqual([expect.stringMatching(/not on the blog's fixed list/)]);
-    expect.soft(blogPage('<script src="/_astro/x.abc.js"></script>')).toEqual([expect.stringMatching(/not on the blog's fixed list/)]);
+    expect.soft(blogPage('<script src="/js/other.js"></script>')).toEqual([expect.stringMatching(/not a bundle derived from a src\/playables/)]);
+    expect.soft(blogPage('<script src="/_astro/x.abc.js"></script>')).toEqual([expect.stringMatching(/not a bundle derived from a src\/playables/)]);
   });
   it("still scans a listed script's body, so a reviewed block file cannot call out", () => {
-    const failures = scanPages(page("blog/a/index.html", '<script src="/js/blog-guess.js"></script>'), {}, () => "fetch('/x')", list);
+    const failures = scanPages(page("blog/a/index.html", '<script src="/js/blog-guess-the-gap.js"></script>'), {}, () => "fetch('/x')", list);
     expect(failures.join("\n")).toMatch(/fetch/);
   });
   it("does not widen to a page that merely looks like blog: only the blog/ path is list-bound", () => {
@@ -411,5 +411,63 @@ describe("scanWorkerSource", () => {
   it("fails readUtm reading the ticker — the typed value may never reach analytics", () => {
     const leaky = OK.replace('return { utm_source: "" };', 'return { ticker: searchParams.get("ticker") };');
     expect(scanWorkerSource(leaky)).toEqual([expect.stringMatching(/readUtm\(\) must never read the ticker/)]);
+  });
+});
+
+describe("scanBlogScripts: the derived list, the built bundles and the scripts the pages load are one set (ADR 1127 Decision 4)", () => {
+  const PAGE = (slug, kind = "play", srcs = [`/js/blog-${slug}.js`]) => ({
+    rel: `blog/${kind}/${slug}/index.html`,
+    html: `<html><body>${srcs.map((s) => `<script src="${s}" defer></script>`).join("")}</body></html>`,
+  });
+  const DERIVED = ["/js/blog-coin.js", "/js/blog-overnight-call.js"];
+  const BUNDLES = ["blog-coin.js", "blog-overnight-call.js"];
+  const PAGES = [PAGE("coin"), PAGE("overnight-call", "tools"), { rel: "blog/play/index.html", html: "<html></html>" }, { rel: "blog/a-post/index.html", html: "<html></html>" }];
+  const scan = (over = {}) => scanBlogScripts({ pages: PAGES, bundles: BUNDLES, derived: DERIVED, ...over });
+
+  it("passes when the three agree and each page loads its own bundle", () => {
+    expect(scan()).toEqual([]);
+  });
+  it("fails a bundle in dist that the client files do not derive", () => {
+    expect(scan({ bundles: [...BUNDLES, "blog-extra.js"] }).join("\n")).toMatch(/blog-extra\.js.*built but not derived/);
+  });
+  it("fails a derived script with no built bundle", () => {
+    expect(scan({ bundles: ["blog-coin.js"] }).join("\n")).toMatch(/blog-overnight-call\.js.*not built into dist/);
+  });
+  it("fails a derived bundle that no page loads", () => {
+    expect(scan({ pages: [PAGE("coin")] }).join("\n")).toMatch(/blog-overnight-call\.js.*no page loads/);
+  });
+  it("fails a page that loads another playable's bundle, or two", () => {
+    expect.soft(scan({ pages: [PAGE("coin", "play", ["/js/blog-overnight-call.js"]), PAGE("overnight-call", "tools")] }).join("\n")).toMatch(/blog\/play\/coin.*loads \/js\/blog-overnight-call\.js/);
+    expect.soft(scan({ pages: [PAGE("coin", "play", ["/js/blog-coin.js", "/js/blog-overnight-call.js"]), PAGE("overnight-call", "tools")] }).join("\n")).toMatch(/blog\/play\/coin.*loads \/js\/blog-overnight-call\.js/);
+  });
+  it("fails a playable page that does not load its own bundle", () => {
+    expect(scan({ pages: [PAGE("coin", "play", []), PAGE("overnight-call", "tools")] }).join("\n")).toMatch(/blog\/play\/coin.*does not load \/js\/blog-coin\.js/);
+  });
+  it("fails a script outside the bundle pattern with the pattern named, and any other script as not a blog bundle", () => {
+    for (const src of ["/js/blog-Coin.js", "/js/blog-a--b.js", "/js/blog-coin.js?x=1", "/js/blog-.js", "/js/blog-a_b.js", "/js/blog-coin.mjs"]) {
+      expect.soft(scan({ pages: [...PAGES, PAGE("x", "play", [src])] }).join("\n"), src).toMatch(/outside the bundle pattern/);
+    }
+    for (const src of ["/js/other.js", "https://evil.test/js/blog-x.js", "//evil.test/js/blog-coin.js", "js/blog-coin.js"]) {
+      expect.soft(scan({ pages: [...PAGES, PAGE("x", "play", [src])] }).join("\n"), src).toMatch(/not a blog bundle/);
+    }
+  });
+  it("fails a blog bundle on a page outside /blog, so index.html cannot swap a script for one", () => {
+    expect.soft(scan({ pages: [...PAGES, { rel: "index.html", html: '<script src="/js/blog-coin.js"></script>' }] }).join("\n")).toMatch(/index\.html: loads \/js\/blog-coin\.js, a blog bundle, from a page outside \/blog/);
+    expect.soft(scan({ pages: [...PAGES, { rel: "index.html", html: '<script src="/js/hero-deck.js"></script>' }] })).toEqual([]);
+  });
+  it("waits for the first playable page before asking who loads a bundle: a build with no published post holds none", () => {
+    const none = [{ rel: "index.html", html: "<html></html>" }];
+    expect.soft(scan({ pages: none })).toEqual([]);
+    expect.soft(scan({ pages: none, bundles: [...BUNDLES, "blog-extra.js"] }).join("\n"), "the set check still runs").toMatch(/blog-extra\.js.*built but not derived/);
+  });
+  it("fails any script that is not the page's own on a page that is not a playable", () => {
+    expect.soft(scan({ pages: [...PAGES, { rel: "blog/a-post/index.html", html: '<script src="/js/blog-coin.js"></script>' }] }).join("\n")).toMatch(/blog\/a-post.*loads \/js\/blog-coin\.js/);
+    expect.soft(scan({ pages: [...PAGES, { rel: "blog/play/index.html", html: '<script src="/js/blog-coin.js"></script>' }] }).join("\n")).toMatch(/blog\/play\/index\.html.*loads \/js\/blog-coin\.js/);
+  });
+  it("fails a playable page whose own bundle the client files do not derive, even when nothing was built for it", () => {
+    expect(scan({ pages: [...PAGES, PAGE("ghost")] }).join("\n")).toMatch(/blog\/play\/ghost.*no src\/playables\/ghost\/client\.mjs derives/);
+  });
+  it("lets a derived playable with no page of its own fail as 'no page loads', so a client file cannot ship unreachable", () => {
+    expect(scan({ derived: [...DERIVED, "/js/blog-ghost.js"], bundles: [...BUNDLES, "blog-ghost.js"] }).join("\n")).toMatch(/blog-ghost\.js.*no page loads/);
   });
 });

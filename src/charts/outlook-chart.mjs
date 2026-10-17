@@ -218,7 +218,7 @@ export function projectionChartModel({ spot, asOf, horizons, compact, history })
     segments,
     // The label the site renders as a CAPTION ABOVE THE PLOT, never as SVG text inside it — see
     // `OutlookPathChart.astro`. The model states the figure; placement is the component's.
-    spotLine: { y: y(spot), label: `last close ${money(spot)}` },
+    spotLine: { y: y(spot), label: `price ${money(spot)}` },
     darkMarks,
     history: historyModel,
     pointFor: (horizon) => points.find((p) => p.key === horizon),

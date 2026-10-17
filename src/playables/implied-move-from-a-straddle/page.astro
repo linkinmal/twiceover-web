@@ -1,0 +1,10 @@
+---
+import Straddle from "./Straddle.astro";
+import MethodLimits from "../../components/blog/MethodLimits.astro";
+---
+<p class="words">A <b>straddle</b> is a call and a put with the same strike and expiration, bought together. It makes money when the stock moves far enough in either direction. Its price, per share, is what traders pay for that move. Divide it by the stock price and you get the <b>implied move</b>: the size of move the price has built in, as a percent. It has no direction.</p>
+<Straddle />
+<MethodLimits noun="option math">
+  <Fragment slot="method">The implied move is the straddle's price divided by the stock price. The two breakevens are the stock price plus and minus the straddle's price. The page takes the strike to be the stock price. On its last day the straddle gains how far the stock ended from that strike, less the straddle's price, per share. One contract covers 100 shares.</Fragment>
+  <Fragment slot="limits">The implied move is a shorthand. A straddle's price also holds the cost of time and other things, so the figure is a rough size, not a forecast. The same straddle can be priced for any expiration, and the move it shows covers all the time until then. The examples are not quotes. Commissions, taxes and early assignment are left out. This page does not use your accounts or positions.</Fragment>
+</MethodLimits>

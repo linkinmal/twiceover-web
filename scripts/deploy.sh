@@ -1,101 +1,34 @@
 #!/usr/bin/env bash
 #
-# Guarded deploy for the TwiceOver pre-launch site (#69, within ADR 0002).
-# The one driveable deploy command — `npm run deploy` → this script.
+# Deploy for the TwiceOver pre-launch site (#69, within ADR 0002). `npm run deploy` → this script.
 #
-# Production deploys run from CI on `main` (push, the daily schedule, or a manual dispatch; see
-# .github/workflows/ci.yml), always through this script. It automates the credential bridge and re-asserts
-# every gate before it uploads. A local run is the operator's fallback.
-#
-# Pipeline:
-#   1. Build + content gate (AC3 banned terms, AC4 disclaimer byte-identical) +
-#      a11y-decor gate (Two-doors static decorations stay non-focusable, #734) +
-#      entry-box security gate (hero entry-box handoff, #2520/consult 0739).
-#   2. Consultation-0008 log gate (Security, CLOSED + re-verified 2026-06-13).
-#   3. Inject the Cloudflare token for this one invocation (env-var override,
-#      macOS Keychain fallback) — never echoed.
-#   4. wrangler deploy.
-#
+# Production deploys run from CI on `main` only (push, the daily schedule, or a manual dispatch; see
+# .github/workflows/ci.yml). This script ships the dist/ that is already in place: the `deploy` job downloads the
+# artifact `build-and-check` built and `verify` checked, and confirms its digest, before it runs this. It builds
+# nothing and runs no gate — `verify` is the one gate list (ADR 1127 Decision 3, Security consult 1125). The token
+# comes only from the environment of the one CI step that runs this; there is no local fallback. The way back from a
+# bad deploy is `wrangler rollback` (a re-run of the workflow redeploys only the head of main).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-# A set BLOG_NOW moves the blog's clock (pull-request builds set it far ahead so every post is built
-# and checked). In a deploy it would publish posts early, so a deploy refuses it (ADR 1090, Security 1091).
+# A set BLOG_NOW moves the blog's clock (pull-request builds set it far ahead so every post is built and checked).
+# This script builds nothing, so the control is build-and-check's env in ci.yml; a BLOG_NOW here means something set
+# it where a deploy runs, and the deploy refuses as a backstop (ADR 1090, Security 1091).
 if [ -n "${BLOG_NOW:-}" ]; then
   echo "BLOG_NOW is set (${BLOG_NOW}); a deploy must use the real clock. Refusing." >&2
   exit 1
 fi
 
-# A set BLOG_CONTENT_DIR points the build at another folder of posts (the fixture build). A deploy must
-# publish the posts in the tree, so it refuses that too.
+# A set BLOG_CONTENT_DIR points a build at another folder of posts (the fixture build). The same backstop.
 if [ -n "${BLOG_CONTENT_DIR:-}" ]; then
-  echo "BLOG_CONTENT_DIR is set (${BLOG_CONTENT_DIR}); a deploy must build the posts in src/content/blog. Refusing." >&2
+  echo "BLOG_CONTENT_DIR is set (${BLOG_CONTENT_DIR}); a deploy must publish the posts in src/content/blog. Refusing." >&2
   exit 1
 fi
 
-# ── 1 · Build + content gate (AC3/AC4) ──────────────────────────────────────
-echo "▸ Build…"
-npm run build
-echo "▸ Content gate (AC3 banned terms · AC4 disclaimer byte-identical)…"
-node ci/check-content.mjs
-echo "▸ A11y-decor gate (Two-doors static decorations stay non-focusable, #734)…"
-node ci/check-a11y-decor.mjs
-echo "▸ Entry-box security gate (name=\"ticker\", method=get, action=/go/try, bounded URLSearchParams forwarding, no network/.value calls — #2520/consult 0739)…"
-node ci/check-entry-box.mjs
-echo "▸ Blog font gate (files exist, no orphans, OFL licence per family, per-theme size ceiling — #4233/ADR 1088)…"
-node ci/blog-fonts.mjs
-echo "▸ Blog style gate (ported kit CSS vs the token files, end block = product tokens, contrast, containment — #4233/ADR 1088)…"
-node ci/blog-style.mjs
-echo "▸ Blog isolation gate (no non-blog page loads the blog's styles — #4233/ADR 1088)…"
-node ci/blog-isolation.mjs
-echo "▸ Stable-address gate (every live blog address is still in this build — #4233/ADR 1090)…"
-node ci/check-stable-addresses.mjs
-
-# ── 2 · Consultation-0008 log gate ──────────────────────────────────────────
-# Security's "no operator-accessible access/edge logs" posture (consultation 0008,
-# CLOSED + re-verified against the live deploy 2026-06-13) rests on two legs:
-#   (a) the zone staying on Cloudflare's Free plan — raw per-request/IP logs
-#       (Logpush / Logs Engine) are Enterprise-only, so a Free-plan operator
-#       cannot provision or access them. Account-side; Security verifies it live.
-#   (b) Workers observability staying OFF — no Workers Logs collected. This leg
-#       lives in this repo, so assert it here: a deploy must not silently enable
-#       observability and invalidate the /privacy "collects no personal
-#       information" line (which would then need softening per 0008).
-if node -e '
-  const src = require("fs").readFileSync("wrangler.jsonc", "utf8").replace(/\/\/[^\n]*/g, "");
-  const on = /"observability"\s*:\s*\{[^}]*"enabled"\s*:\s*true/s.test(src);
-  process.exit(on ? 1 : 0);
-'; then
-  echo "▸ 0008 gate: Workers observability off — no operator-accessible logs (consultation 0008)."
-else
-  echo "✗ 0008 gate: wrangler.jsonc enables Workers observability." >&2
-  echo "  That collects operator-accessible logs and makes the /privacy \"collects no" >&2
-  echo "  personal information\" line over-claim. Keep observability off, or soften" >&2
-  echo "  /privacy per consultation 0008, before deploying." >&2
+if [ -z "${CLOUDFLARE_API_TOKEN:-}" ]; then
+  echo "CLOUDFLARE_API_TOKEN is not set; the deploy step's environment supplies it. Refusing." >&2
   exit 1
 fi
 
-# ── 2b · SITE_METRICS Worker field gate (ADR 0136 / consult 0163) ────────────
-# The Worker (worker/index.js) is the first-ever code on this assets-only site. Security's
-# consult-0163 reconciliation with 0008 requires a source-level assertion that keeps the
-# Worker incapable of referencing per-request identifying data as it evolves: a denylist
-# (no IP/UA/cookie header, no full-header dump, no hash/crypto), a writeDataPoint allowlist
-# (exactly the six SITE_METRICS fields), and console.* coverage. Fail-closed, like 2 above.
-echo "▸ 0163 gate: SITE_METRICS Worker field set (denylist · six-field allowlist · console.*)…"
-node ci/check-worker-source.mjs
-
-# ── 3 · Token: env-var override, Keychain fallback (never echoed) ────────────
-# CI can export CLOUDFLARE_API_TOKEN (a secret) to override; otherwise the macOS
-# Keychain item is the source on the single deploy machine. The := seam is where
-# CD-on-merge would later plug a GitHub Actions secret (its own Architect ADR).
-: "${CLOUDFLARE_API_TOKEN:=$(security find-generic-password -s cloudflare-api-token-twiceover -w 2>/dev/null || true)}"
-export CLOUDFLARE_API_TOKEN
-if [ -z "${CLOUDFLARE_API_TOKEN}" ]; then
-  echo "✗ No Cloudflare token: set CLOUDFLARE_API_TOKEN, or store it in the macOS" >&2
-  echo "  Keychain as generic password 'cloudflare-api-token-twiceover'." >&2
-  exit 1
-fi
-
-# ── 4 · Deploy ───────────────────────────────────────────────────────────────
 echo "▸ Deploying to Cloudflare (twiceover.io)…"
 npx wrangler deploy

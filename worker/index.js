@@ -11,8 +11,8 @@
 // Emitted fields are EXACTLY six, exhaustively (ADR 0136 / consult 0163):
 //   path, referrer (origin only), utm_source, utm_medium, utm_campaign, country.
 // No IP, cookie, user-agent, or hash/identifier of any kind is read, retained, or
-// written anywhere. scripts/deploy.sh + ci/check-worker-source.mjs assert this at the
-// source level (denylist + writeDataPoint allowlist + console.* coverage) on every deploy.
+// written anywhere. ci/check-worker-source.mjs asserts this at the source level
+// (denylist + writeDataPoint allowlist + console.* coverage) in the verify job every deploy needs.
 //
 // run_worker_first:true (wrangler.jsonc) lets this Worker see page navigations before
 // falling through to env.ASSETS.fetch(request); assets otherwise serve without it. That
@@ -27,10 +27,13 @@
 // they no longer all land on the identical app entry point — /go/signin and /go/connect
 // deep-link their own hash routes, and the app decides what a visitor actually sees there.
 //   /go/try     — the hero entry-box demo (ticker forwarding is a separate, gated build)
-//               — and /pricing's Free card "Run a free read" CTA (#2513)
+//               — and /pricing's Free card "Run a free analysis" CTA (#2513)
 //   /go/connect — the hero + closing-band "Connect read-only →" CTA
 //   /go/signin  — the header "Sign in" slot
 //   /go/plan    — /pricing's Core card "Start 14-day trial" CTA (#2514)
+//   /go/plan-premium — /pricing's Premium card "Start 14-day trial" CTA (#3829, ADR 0912
+//               Amendment 1). Its own route, not `/go/plan?tier=premium`: the forwarder drops
+//               unnamed params and the intent is baked into each literal (see `/go/plan` below).
 //   /contact    — the site's own footer/FAQ Contact link (ADR 0859/0870, #3266). The one
 //                 entry NOT under /go/*, and deliberately so: it is a PUBLIC URL people
 //                 typed, bookmarked and linked to while it was a static page, so the URL
@@ -66,7 +69,8 @@ const APP_TRY_URL = "https://app.twiceover.io/";
  *
  * `/go/plan` below is unaffected — that is the subscribe road, where a Core intent is still real.
  *
- * `/go/plan` opens the auth screen carrying the Core plan intent (stock-analyst-platform#2514,
+ * `/go/plan` opens the auth screen carrying the Core plan intent, and `/go/plan-premium` the Premium
+ * one (stock-analyst-platform#2514; #3829 for Premium, whose intent the app accepts in PLAN_INTENTS,
  * site-app-seam.md §3 row 4). Two details there are load-bearing, and §3 v1.1 had to correct both
  * after the app shipped — each fails SILENTLY, returning a correct-looking 302 to the right origin:
  *   - the carrier is **`intent`**, not `plan`. The app's `plan` field is a pre-ADR-0404 dead branch
@@ -94,6 +98,7 @@ export const GO_DESTINATIONS = {
   "/go/connect": `${APP_TRY_URL}#connection`,
   "/go/signin": `${APP_TRY_URL}#signin`,
   "/go/plan": `${APP_TRY_URL}#signin?intent=core`,
+  "/go/plan-premium": `${APP_TRY_URL}#signin?intent=premium`,
   // See the note above this map on why `/contact` carries no hash. Do not add one.
   "/contact": `${APP_TRY_URL}contact`,
 };
