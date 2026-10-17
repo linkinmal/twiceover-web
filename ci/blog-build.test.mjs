@@ -11,6 +11,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { JSDOM } from "jsdom";
 import { beforeAll, describe, expect, it } from "vitest";
+import { DEGRADED_FAR_LINE, EXMP_OUTLOOK } from "../src/charts/exmp-fixture.mjs";
 
 const root = new URL("..", import.meta.url).pathname;
 const astro = join(root, "node_modules/astro/astro.js");
@@ -631,6 +632,41 @@ describe("outbound links from the blog shell (Security ruling, stock-analyst-pla
         const u = new URL(h);
         expect.soft([u.search, u.hash], `${page} ${h}`).toEqual(["", ""]);
       }
+    }
+  });
+});
+
+describe("the explainer's Outlook picture draws every card folded (stock-analyst-platform#4392, Designer ruling #4388, site-prelaunch.md v2.48)", () => {
+  // One build per run: astro builds in this repo share a content store, so a second build file races this one.
+  const page = () => read(dist, "how-our-analysis-works/index.html");
+  const doc = () => dom(dist, "how-our-analysis-works/index.html");
+
+  it("carries no condition text in any of its three placements: no note element, none of the fixture's note strings", () => {
+    const d = doc();
+    const html = page();
+    expect.soft(d.querySelectorAll(".xp-hz__n").length, "condition elements").toBe(0);
+    for (const h of EXMP_OUTLOOK.horizons) {
+      expect.soft(typeof h.note === "string" && h.note.length > 0, `${h.key} fixture note exists`).toBe(true);
+      expect.soft(html.includes(h.note), `${h.key} note in the page`).toBe(false);
+    }
+  });
+
+  it("draws a static aria-hidden chevron on each healthy card and none on the dark far card", () => {
+    const d = doc();
+    const rows = [...d.querySelectorAll(".xp-hzrow")];
+    expect.soft(rows.length, "placements").toBe(3);
+    const healthy = rows.map((row) => row.querySelectorAll(".xp-hz:not(.xp-hz--dark)").length);
+    const chevrons = rows.map((row) => row.querySelectorAll(".xp-hz:not(.xp-hz--dark) > .xp-hz__ch[aria-hidden='true']").length);
+    expect.soft(healthy).toEqual([3, 3, 2]);
+    expect.soft(chevrons).toEqual([3, 3, 2]);
+    expect.soft(d.querySelectorAll(".xp-hz__ch").length, "all chevrons").toBe(8);
+    const dark = d.querySelectorAll(".xp-hz--dark");
+    expect.soft(dark.length, "dark cards").toBe(1);
+    expect.soft(dark[0].querySelector(".xp-hz__ch"), "chevron on dark card").toBeNull();
+    expect.soft(dark[0].querySelector(".xp-hz__deg")?.textContent?.trim()).toBe(DEGRADED_FAR_LINE);
+    for (const c of d.querySelectorAll(".xp-hz__ch")) {
+      expect.soft(c.tagName, "static span").toBe("SPAN");
+      expect.soft(c.hasAttribute("tabindex") || c.closest("a,button"), "no behaviour").toBeFalsy();
     }
   });
 });
