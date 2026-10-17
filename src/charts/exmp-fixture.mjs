@@ -63,7 +63,6 @@ export const EXMP_OUTLOOK = {
       date: "SEP 14",
       price: 46.6,
       impliedMovePct: 7.2,
-      condition: "while the pullback holds",
       note: "A return to $51.80 would break the call.",
     },
     {
@@ -72,7 +71,6 @@ export const EXMP_OUTLOOK = {
       date: "NOV 30",
       price: 50.25,
       impliedMovePct: 22.0,
-      condition: "absent a trend change",
       note: "A miss against estimates in the Nov 18 report would break the call.",
     },
     {
@@ -81,7 +79,6 @@ export const EXMP_OUTLOOK = {
       date: "MAR 1",
       price: 53.65,
       impliedMovePct: 31.8,
-      condition: "hinges on the macro regime",
       note: "A turn in the macro regime to cautious would break the call.",
     },
   ],
@@ -143,8 +140,7 @@ export const EXMP_BAND_CARDS = {
   ],
   macro: [{ row: ["Tactical", "Fed on hold"] }, { row: ["Strategic", "Soft landing"] }, { mra: 0.35 }],
   outlook: [
-    { okh: EXMP_OUTLOOK.horizons.map((h) => [h.label, usd(h.price).replace(/\.00$/, ""), h.condition]) },
-    { sub: "Our projection, not a guarantee — you decide." },
+    { okh: EXMP_OUTLOOK.horizons.map((h) => [h.label, usd(h.price).replace(/\.00$/, "")]) },
   ],
 };
 

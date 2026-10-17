@@ -321,10 +321,8 @@ export const BAND_CARDS = {
       okh: HERO_OUTLOOK.horizons.map((h) => [
         HORIZON_CARDS.find((c) => c.key === h.horizon).label,
         trimWhole(h.price),
-        { near: "while the recent range holds", mid: "absent a trend change", far: "hinges on the macro regime" }[h.horizon],
       ]),
     },
-    { sub: "Our projection, not a guarantee — you decide." },
   ],
 };
 

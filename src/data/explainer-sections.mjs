@@ -17,7 +17,7 @@ export const EXPLAINER_ENTRIES = {
   },
   "earnings": {
     shows: "The next report's date and time, marked confirmed or projected, with the consensus estimates for earnings per share and revenue. The last report against its estimates, labelled GAAP or adjusted. The move options price in for the next report, and the next ex-dividend date and amount.",
-    feeds: "The report date, when it falls inside a horizon. Also the move options price in for that report, and the last earnings surprise.",
+    feeds: "The next report's date and time, its estimates and the move options price in for it. Also the last earnings surprise and the next ex-dividend date.",
   },
   "earnings-history": {
     shows: "The last eight reports. Each report shows its beat or miss, and how the stock actually moved against what options implied beforehand.",
@@ -33,7 +33,7 @@ export const EXPLAINER_ENTRIES = {
   },
   "options": {
     shows: "Put/call ratios for volume and open interest, implied volatility across expiries, skew and open interest by strike. Short interest as a share of shares outstanding, as of its settlement date, with days to cover.",
-    feeds: "Implied volatility and the move options price in over each horizon. Where quotes allow, that implied move sets the Outlook's sense of scale. The Outlook also sees skew and short interest.",
+    feeds: "Implied volatility and the move options price in over each horizon. Where quotes allow, that implied move sets the Outlook's sense of scale. The Outlook also sees skew, put/call ratios, open interest by strike and short interest.",
   },
   "flow": {
     shows: "The largest options trades of the last five sessions. Each trade shows whether it was a call or a put, with its time, strike, expiry, size, premium and where it printed against the bid and ask.",
@@ -48,16 +48,16 @@ export const EXPLAINER_ENTRIES = {
     feeds: "Everything it shows.",
   },
   "news": {
-    shows: "Up to three material news items from the last 30 days, such as earnings, guidance, deals, share offerings, regulatory or trial outcomes and leadership changes. Headlines come from major financial newsrooms and are kept only when they name the company. Commentary is dropped. Each item carries its source, its time and a one-line summary. The next monthly options expiry appears below the news.",
-    feeds: "The catalysts that could move the stock inside each horizon.",
+    shows: "Recent SEC filings, on every plan. On Core and Premium, also up to three material news items from the last 30 days, such as earnings, guidance, deals, share offerings, regulatory or trial outcomes and leadership changes. Headlines come from major financial newsrooms and are kept only when they name the company. Commentary is dropped. Each item carries its source, its time and a one-line summary. The next monthly options expiry appears below the news.",
+    feeds: "The recent SEC filings and, on Core and Premium, the headlines, each with its date.",
   },
   "voices": {
     shows: "Up to three recent posts from a list of named market voices we curate. Each post is linked, dated and summed up in one line.",
-    feeds: "Context for facts that other sections carry. The Outlook mentions a voice only alongside one of those facts.",
+    feeds: "Each post's summary, with its author and date.",
   },
   "macro": {
     shows: "The market's near-term and quarterly regime, risk appetite, the event driving markets now and the economic calendar ahead. The Fed path, real yields, the dollar, credit spreads, copper against gold and the VIX term structure are one click down.",
-    feeds: "Everything it shows, plus how each reading has moved since its last release.",
+    feeds: "The readings behind it, each with its date and how it moved since its last release. Also the published commentary on what is driving markets.",
   },
 };
 
