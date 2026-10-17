@@ -41,7 +41,7 @@ const CHEVRON = '<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true
 const FAQ = [
   ["How is the Outlook different from a price target?", "An analyst's price target is usually one number, a year out. The Outlook gives three projected prices, about two weeks, three months and six months out, each with what would prove it wrong. The Outlook shows the sections it weighed."],
   ["Why can the Outlook differ between plans?", "Each plan's Outlook weighs only the sections that plan shows. Core and Premium give it more to weigh, so their projections for a stock can differ from Free's."],
-  ["Why can an analysis take a moment?", "One AI model makes the Outlook. It thinks through the sections before it sets a price for each horizon. A first analysis of a stock on a given day is usually ready in under a minute."],
+  ["Why can an analysis take a moment?", "One AI model makes the Outlook. It thinks through the sections before it projects a price for each horizon. A first analysis of a stock on a given day is usually ready in under a minute."],
   ["What happens when data is missing?", "The section with the gap says so, and nothing is estimated to cover it. If an Outlook horizon lacks the inputs it needs, that horizon shows no price."],
   ["Which parts are written by AI?", "The Outlook's three prices, and what would prove each one wrong, are written by our AI. So are the short written summaries in some sections, such as the one-line summary of each news item. Every figure in a section comes from vendor data or public filings, through our own code."],
 ];
@@ -205,7 +205,7 @@ const FAQ = [
         </li>
         <li>
           <h3 class="type-heading-2">The same model names what would prove each price wrong.</h3>
-          <p>It writes one plain sentence: the event or the price level that would break its call. The sentence sits under the horizon's price, one click away. A level it names is the model's own, like the price itself.</p>
+          <p>It writes one plain sentence: the event or the price level that would break its call. The sentence sits under the horizon's price, one click away. A level it names is the model's own, like the projection itself.</p>
         </li>
         <li>
           <h3 class="type-heading-2">A horizon without up-to-date inputs shows no price.</h3>

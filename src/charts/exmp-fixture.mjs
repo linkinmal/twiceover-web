@@ -73,7 +73,7 @@ export const EXMP_OUTLOOK = {
       price: 50.25,
       impliedMovePct: 22.0,
       condition: "absent a trend change",
-      note: "A miss on the Nov 18 report would prove it wrong.",
+      note: "A miss against estimates in the Nov 18 report would prove it wrong.",
     },
     {
       key: "far",
