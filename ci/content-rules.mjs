@@ -79,6 +79,9 @@ export const ALLOWED = [
   "open order: gtc buy-to-close 3 oct 16 50 c",
   // …the rules example: a hypothetical about the reader's own past trade, not a directive.
   "example: say you sell an exmp covered call for",
+  // Hero deck v2.51 (stock-analyst-platform#4411; hero-deck-8-cards-4410-2026-10-18.html), Insiders
+  // card: a count of past officer and director filings (twelve sales, one purchase), not a directive.
+  "12 sells · 1 buy, officers and directors",
   // ToS "Nature of the service" insert (PM, compliance-load-bearing) — negation.
   "nothing it produces is investment advice, a recommendation, a solicitation, or a suitability determination",
   "not a registered investment adviser, broker-dealer, or financial planner",

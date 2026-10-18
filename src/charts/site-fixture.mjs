@@ -333,3 +333,109 @@ export const BAND_CARDS = {
 export function riskAxisLeft(net) {
   return ((net + 1) / 2) * 100;
 }
+
+/* ── Hero deck cards 5–8 (stock-analyst-platform#4411; site-prelaunch.md v2.51 §2 "Hero deck",
+   build reference `hero-deck-8-cards-4410-2026-10-18.html`, "The one fixture"). Everything the four
+   cards draw or state lives here, so the drawings and the figure rows beneath them cannot disagree.
+   Illustrative, like the rest of this file. ───────────────────────────────────────────────────── */
+
+/** The close the cone and the timelines are measured from (Aug 28, the last close; ISO). */
+export const DECK_CLOSE_ISO = OUTLOOK_HISTORY[OUTLOOK_HISTORY.length - 1].date;
+
+/**
+ * Card 5, Options & short interest. `landing` is the date each Outlook horizon ends on; `pct` is the
+ * move options price in to that date (±). The cone is drawn from these three points and nothing else.
+ */
+export const OPTIONS_CARD = {
+  horizons: [
+    { key: "near", pct: 7.2, landing: "2026-09-14", tick: "2 WKS" },
+    { key: "mid", pct: 22.0, landing: "2026-11-30", tick: "3 MOS" },
+    { key: "far", pct: 31.8, landing: "2027-03-01", tick: "6 MOS" },
+  ],
+  /** The Nov 20 report, which falls inside the Mid range. */
+  report: { date: "2026-11-20", label: "report Nov 20" },
+  skew: { word: "Puts over calls", volPoints: 3.4, fiveSession: [3.0, 3.3, 3.1, 3.6, 3.4] },
+  putCallVolume: 0.72,
+  shortInterest: { pct: "1.1%", settled: "Aug 14" },
+};
+
+/**
+ * Card 6, Earnings history: the last eight reports, oldest first. `implied` is the ± move options
+ * priced in; `moved` is the signed move that followed. The averages the card states are derived from
+ * these, not typed (`EARNINGS_AVERAGES`).
+ */
+export const EARNINGS_HISTORY = [
+  { month: "Nov", year: "’24", implied: 8.2, moved: 0.5 },
+  { month: "Feb", year: "’25", implied: 7.8, moved: -8.5 },
+  { month: "May", year: "’25", implied: 6.9, moved: 3.3 },
+  { month: "Aug", year: "’25", implied: 6.1, moved: -0.8 },
+  { month: "Nov", year: "’25", implied: 7.0, moved: -3.2 },
+  { month: "Feb", year: "’26", implied: 6.6, moved: 1.9 },
+  { month: "May", year: "’26", implied: 6.3, moved: 7.1 },
+  { month: "Aug", year: "’26", implied: 6.4, moved: -3.0 },
+];
+const mean = (xs) => xs.reduce((a, b) => a + b, 0) / xs.length;
+export const EARNINGS_AVERAGES = {
+  /** Beat of the EPS estimate: stated, the series above carries price moves only. */
+  beat: "7 of 8",
+  move: `±${mean(EARNINGS_HISTORY.map((r) => Math.abs(r.moved))).toFixed(1)}%`,
+  implied: `±${mean(EARNINGS_HISTORY.map((r) => r.implied)).toFixed(1)}%`,
+  movedMore: EARNINGS_HISTORY.filter((r) => Math.abs(r.moved) > r.implied).length,
+};
+
+/**
+ * Card 7, Insiders: six months of officer and director trades, $M. `plan` marks a sale under a
+ * 10b5-1 plan. Only titles appear on the card, never a name.
+ */
+export const INSIDERS = {
+  from: "2026-02-28",
+  sells: [
+    { date: "2026-03-07", usd: 6.2, plan: true },
+    { date: "2026-03-21", usd: 8.4, plan: true },
+    { date: "2026-04-04", usd: 11.0, plan: true },
+    { date: "2026-04-18", usd: 9.1, plan: true },
+    { date: "2026-05-02", usd: 13.5, plan: true },
+    { date: "2026-05-23", usd: 24.0, plan: false },
+    { date: "2026-06-06", usd: 12.7, plan: true },
+    { date: "2026-06-20", usd: 15.8, plan: true },
+    { date: "2026-07-03", usd: 14.9, plan: true },
+    { date: "2026-07-18", usd: 31.7, plan: false, title: "CFO" },
+    { date: "2026-08-01", usd: 17.2, plan: true },
+    { date: "2026-08-15", usd: 13.5, plan: true },
+  ],
+  buys: [{ date: "2026-06-12", usd: 0.4, title: "Director" }],
+  sellers: 5,
+  buyers: 1,
+};
+const sold = INSIDERS.sells.reduce((a, s) => a + s.usd, 0);
+const bought = INSIDERS.buys.reduce((a, s) => a + s.usd, 0);
+export const INSIDER_FIGURES = {
+  net: `−$${(sold - bought).toFixed(1)}M`,
+  counts: `${INSIDERS.sells.length} sells · ${INSIDERS.buys.length} buy`,
+  underPlan: `${INSIDERS.sells.filter((s) => s.plan).length} of ${INSIDERS.sells.length} sells`,
+  largest: INSIDERS.sells.reduce((a, s) => (s.usd > a.usd ? s : a)),
+  /** The largest trade's date, as the card words it (`Jul 18`). */
+  largestDate: (() => {
+    const l = INSIDERS.sells.reduce((a, s) => (s.usd > a.usd ? s : a));
+    return `${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][Number(l.date.slice(5, 7)) - 1]} ${Number(l.date.slice(8, 10))}`;
+  })(),
+};
+
+/**
+ * Card 8, Macro & regime: the risk-appetite value is the macro band card's (`BAND_CARDS.macro`); the
+ * regime words, their dates and the contributors are this card's. No VIX level and no SPY change is
+ * drawn: the spine forbids a VIX level and showing values is open on stock-analyst-platform#4415.
+ */
+export const MACRO_CARD = {
+  net: 0.35,
+  lean: "supportive",
+  date: "Aug 28",
+  contributors: [
+    { glyph: "▼", word: "real yield" },
+    { glyph: "▲", word: "carry" },
+    { glyph: "▲", word: "VIX term" },
+  ],
+  tactical: { word: "risk-on", basis: "VIX, SPY 1-month" },
+  strategic: { word: "neutral", basis: "SPY 3-month" },
+  catalyst: "none",
+};
