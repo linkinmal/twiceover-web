@@ -40,8 +40,8 @@ export const EXPLAINER_ENTRIES = {
     feeds: "Everything it shows.",
   },
   "sector": {
-    shows: "A short written read on what is driving the stock's sector now. It covers things like demand, costs, policy, rotation and the sector's own earnings.",
-    feeds: "Its written read, as the backdrop for the stock.",
+    shows: "A short written summary of what is driving the stock's sector now. It covers things like demand, costs, policy, rotation and the sector's own earnings.",
+    feeds: "Its written summary, as the backdrop for the stock.",
   },
   "peers": {
     shows: "The stock's closest peers, with P/E and 3-month return side by side. Also how closely the stock has moved with its sector fund and with the S&P 500 over the last 252 trading days, as beta and correlation of daily returns. Against the S&P 500 alone when the stock has no sector fund.",
