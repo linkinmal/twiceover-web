@@ -48,7 +48,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 // and keep FORKED_PATHS in token-scope-digest.mjs in lockstep with that repo's copy of the same
 // file. There is no cross-repo import for either; if the two ever drift, both sides' digests stop
 // agreeing and BOTH go red (fails closed, never silently trusts a mismatch).
-const CANONICAL_SCOPED_SHA256 = '5423648954fa4c4f692b7465b7d9096e17625b35e287884df1d610304bad86bc';
+const CANONICAL_SCOPED_SHA256 = '2022f839719f2b8c8b69536071acd7086dc21cf411f449b2b1760e357191f440';
 
 describe("the site's token file matches canonical outside its deliberate fork", () => {
   it('hashes to the digest recorded upstream, with the forked groups excluded', () => {
@@ -66,7 +66,7 @@ describe("the site's token file matches canonical outside its deliberate fork", 
     // A digest alone says "changed", never "changed to what". This gives the failure a human
     // coordinate, and fails independently if someone edits the version string to paper over a diff.
     const tokens = JSON.parse(readFileSync(join(root, 'tokens/twiceover.tokens.json'), 'utf8'));
-    expect(/v(\d+\.\d+\.\d+)/.exec(tokens.$description)?.[1]).toBe('2.11.1');
+    expect(/v(\d+\.\d+\.\d+)/.exec(tokens.$description)?.[1]).toBe('2.12.0');
   });
 
   it('still forks exactly the four groups the Designer ruled on — no silent widening or narrowing', () => {
