@@ -72,7 +72,7 @@ const PINNED = [
       "TwiceOver can see your positions. It can never place, change or cancel an order.",
     ]],
     ["mobile", [
-      "The same read, on your phone.",
+      "The same analysis, coming to your phone.",
       "TwiceOver is coming to iPhone and Android, with Your Portfolio, your rules and the full analysis.",
     ]],
     ["trust plate", [

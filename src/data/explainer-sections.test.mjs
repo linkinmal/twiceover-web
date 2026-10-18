@@ -58,7 +58,7 @@ describe("beta and correlation sit under Peers, not Sector (#3693, ADR 1037)", (
     expect.soft(EXPLAINER_ENTRIES.peers.shows).toContain(BETA);
     expect.soft(EXPLAINER_ENTRIES.sector.shows).not.toMatch(/beta|correlation|252/i);
     expect.soft(EXPLAINER_ENTRIES.sector.shows.endsWith("the sector's own earnings.")).toBe(true);
-    expect.soft(EXPLAINER_ENTRIES.sector.feeds).toBe("Its written read, as the backdrop for the stock.");
+    expect.soft(EXPLAINER_ENTRIES.sector.feeds).toBe("Its written summary, as the backdrop for the stock.");
   });
 });
 
