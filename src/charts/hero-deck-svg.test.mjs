@@ -7,12 +7,14 @@
  * rounding: it printed from unrounded closes where this repo's fixture stores two decimals.
  */
 import { describe, expect, it } from "vitest";
-import { coneHalfWidthPct, coneSvg, earningsSvg, insidersSvg, skewSparkSvg } from "./hero-deck-svg.mjs";
+import { coneHalfWidthPct, coneSvg, earningsSvg, insidersSvg, outlookDeckSvg, skewSparkSvg } from "./hero-deck-svg.mjs";
 import {
   EARNINGS_AVERAGES,
   EARNINGS_HISTORY,
   INSIDERS,
   INSIDER_FIGURES,
+  INSIDER_ROWS,
+  MACRO_CALENDAR,
   MACRO_CARD,
   OPTIONS_CARD,
   BAND_CARDS,
@@ -109,7 +111,7 @@ describe("card 5: the cone drawing", () => {
 
 describe("both twins name the chart", () => {
   it("gives the phone twin the desktop twin's role and label, since only one renders at a time", () => {
-    for (const draw of [coneSvg, earningsSvg, insidersSvg]) {
+    for (const draw of [coneSvg, earningsSvg, insidersSvg, outlookDeckSvg]) {
       const label = (svg) => svg.match(/role="img" aria-label="([^"]+)"/)?.[1];
       expect.soft(label(draw({ phone: true })), draw.name).toBeTruthy();
       expect.soft(label(draw({ phone: true })), draw.name).toBe(label(draw()));
@@ -140,20 +142,30 @@ describe("card 6: the earnings-history drawing", () => {
 });
 
 describe("card 7: the insider timeline", () => {
+  // Read off hero-deck-cards-v5-4410-2026-10-18.html (v2.52 ruling 5), the build reference.
   const desk = insidersSvg();
   const phone = insidersSvg({ phone: true });
+  const rects = (svg) => [...svg.matchAll(/<rect x="([\d.]+)" y="([\d.]+)" width="(\d+)" height="([\d.]+)"/g)].map((m) => m.slice(1).map(Number));
 
-  it("hangs twelve sells below the line and stands the one buy above it", () => {
-    const rects = [...desk.matchAll(/<rect x="([\d.]+)" y="([\d.]+)" width="8" height="([\d.]+)"/g)].map((m) => m.slice(1).map(Number));
-    expect.soft(rects).toHaveLength(13);
-    const sells = rects.filter(([, y]) => y === 34);
+  it("hangs twelve sells below the line and stands the one buy above it, at the v2.52 size", () => {
+    expect.soft(desk).toContain('viewBox="0 0 420 118"');
+    const d = rects(desk);
+    expect.soft(d).toHaveLength(13);
+    const sells = d.filter(([, y]) => y === 31);
     expect.soft(sells).toHaveLength(12);
-    // Height is √dollars, the largest sell 60px: the Jul 18 CFO sale, then Mar 7 at $6.2M → 26.5.
-    closeTo(Math.max(...sells.map((r) => r[2])), 60.0, 0.05);
-    closeTo(sells[0][2], 26.5, 0.1);
-    closeTo(sells[0][0], 27.8, 0.15);
-    const [buy] = rects.filter(([, y]) => y < 34);
-    closeTo(buy[2], 6.7, 0.1);
+    closeTo(sells[0][0], 28.35);
+    closeTo(sells[0][3], 23.88, 0.05);
+    closeTo(Math.max(...sells.map((r) => r[3])), 54, 0.05);
+    const [buy] = d.filter(([, y]) => y < 31);
+    closeTo(buy[1], 23.93, 0.05);
+    closeTo(buy[3], 6.07, 0.05);
+    expect.soft(phone).toContain('viewBox="0 0 280 88"');
+    const p = rects(phone);
+    const psells = p.filter(([, y]) => y === 11);
+    expect.soft(psells).toHaveLength(12);
+    closeTo(psells[0][0], 17.9);
+    closeTo(Math.max(...psells.map((r) => r[3])), 56, 0.05);
+    closeTo(p.find(([, y]) => y < 11)[0], 155.09);
   });
 
   it("inks the two discretionary sells in full and mutes the ten under a plan", () => {
@@ -161,15 +173,84 @@ describe("card 7: the insider timeline", () => {
     expect.soft(desk.match(/fill-opacity="\.75"/g)).toHaveLength(10);
   });
 
-  it("labels only titles — the largest sell and the one buy — and names no insider", () => {
+  it("labels only titles on the desktop twin, and none on the phone twin", () => {
     expect.soft(desk).toContain(">CFO −$31.7M</text>");
     expect.soft(desk).toContain(">Director +$0.4M</text>");
     expect.soft(desk).toContain("the CFO on Jul 18, was minus 31.7 million dollars");
-    expect.soft(phone).toContain('viewBox="0 0 300 178"');
-    expect.soft(phone).toContain(">CFO −$31.7M</text>");
+    expect.soft(phone).not.toContain("CFO −$31.7M</text>");
+    expect.soft(phone).not.toContain("Director +$0.4M</text>");
+    // The artifact's phone twin is aria-hidden; this site keeps the label (Designer asked, #4422).
+    expect.soft(phone).toContain('role="img"');
   });
 
   it("marks the six months", () => {
     expect.soft(desk.match(/>(Mar|Apr|May|Jun|Jul|Aug)<\/text>/g)).toHaveLength(6);
+  });
+});
+
+describe("card 7: the By insider rows follow from the fixture", () => {
+  it("sums each title's sells to the artifact's figures", () => {
+    expect.soft(INSIDER_ROWS.map((r) => [r.title, r.usd, r.pct])).toEqual([
+      ["CEO", 75.5, 3.8],
+      ["CFO", 40.1, 18.4],
+      ["COO", 39.8, 26.7],
+    ]);
+  });
+  it("gives every sell a title and none an insider's name", () => {
+    expect.soft(INSIDERS.sells.every((s) => typeof s.title === "string")).toBe(true);
+    expect.soft(new Set(INSIDERS.sells.map((s) => s.title))).toEqual(new Set(["CEO", "CFO", "COO", "General Counsel", "Director"]));
+    expect.soft(INSIDERS.sells.reduce((t, s) => t + s.usd, 0) - INSIDERS.buys[0].usd).toBeCloseTo(177.6, 5);
+  });
+});
+
+describe("card 8: the Economic calendar", () => {
+  it("lists three releases, each with its publisher", () => {
+    expect.soft(MACRO_CALENDAR).toEqual([
+      { date: "Sep 4", event: "Employment situation", source: "FRED" },
+      { date: "Sep 11", event: "CPI", source: "FRED" },
+      { date: "Sep 16", event: "FOMC decision", source: "Federal Reserve" },
+    ]);
+  });
+});
+
+describe("card 1: the deck's own Outlook drawing (v2.52 ruling 9)", () => {
+  // Coordinates read off the build reference's two charts (440×412 and 300×322).
+  const desk = outlookDeckSvg();
+  const phone = outlookDeckSvg({ phone: true });
+  const pts = (svg, cls) => [...svg.matchAll(new RegExp(`<circle class="${cls}" cx="([\\d.]+)" cy="([\\d.]+)"`, "g"))].map((m) => [Number(m[1]), Number(m[2])]);
+
+  it("draws the desktop twin at 440×412 with the path on the artifact's points", () => {
+    expect.soft(desk).toContain('viewBox="0 0 440 412"');
+    expect.soft(desk).toContain('class="k-chart k-dk"');
+    const [o] = pts(desk, "k-origin");
+    closeTo(o[0], 79.81); closeTo(o[1], 217.56);
+    const p = pts(desk, "k-point");
+    expect.soft(p).toHaveLength(3);
+    [[103.21, 264.79], [231.91, 163.38], [384, 69.21]].forEach(([x, y], i) => { closeTo(p[i][0], x); closeTo(p[i][1], y); });
+    expect.soft(desk.match(/<polyline class="k-hist" points="([^"]+)"/)[1].split(" ")).toHaveLength(21);
+  });
+
+  it("draws the phone twin at 300×322", () => {
+    expect.soft(phone).toContain('viewBox="0 0 300 322"');
+    expect.soft(phone).toContain('class="k-chart k-dp"');
+    const [o] = pts(phone, "k-origin");
+    closeTo(o[0], 52.64); closeTo(o[1], 163.74);
+    const p = pts(phone, "k-point");
+    [[68.28, 197.12], [154.32, 125.44], [256, 58.88]].forEach(([x, y], i) => { closeTo(p[i][0], x); closeTo(p[i][1], y); });
+  });
+
+  it("puts each horizon's price in a tile directly under its own point", () => {
+    for (const [svg, w] of [[desk, 104], [phone, 74]]) {
+      const tiles = [...svg.matchAll(/<rect class="k-tile" x="([\d.]+)" y="[\d.]+" width="(\d+)"/g)].map((m) => [Number(m[1]), Number(m[2])]);
+      const xs = pts(svg, "k-point").map(([x]) => x);
+      expect.soft(tiles).toHaveLength(3);
+      tiles.forEach(([x, tw], i) => { expect.soft(tw).toBe(w); closeTo(x + tw / 2, xs[i], 0.02); });
+      expect.soft([...svg.matchAll(/class="k-hzv"[^>]*>([^<]+)</g)].map((m) => m[1])).toEqual(["$178.00", "$192.00", "$205.00"]);
+      expect.soft([...svg.matchAll(/class="k-hzk"[^>]*>([^<]+)</g)].map((m) => m[1])).toEqual(["NEAR", "MID", "FAR"]);
+    }
+  });
+
+  it("states the shape and the three prices in its label", () => {
+    expect.soft(desk).toContain("near 2 weeks $178.00. mid 3 months $192.00. far 6 months $205.00.");
   });
 });

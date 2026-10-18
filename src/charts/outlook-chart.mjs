@@ -96,20 +96,24 @@ function daysFromAsOf(asOf, isoDate) {
 /**
  * @param {{ spot: number, asOf: string, horizons: ReadonlyArray<{horizon: string, price: number|null}>,
  *           compact: boolean,
+ *           frame?: { width: number, height: number, padLeft: number, padRight: number, padTop: number, padBottom: number, insetLeft?: number, insetRight?: number },
  *           history?: ReadonlyArray<{date: string, close: string}> | null }} input
+ *   `frame` replaces the drawing box (the hero deck's own Outlook, v2.52 ruling 9, draws taller charts
+ *   with a tile row under the plot); the scale math is unchanged, so the points keep their proportions. `insetLeft`/`insetRight` (px)
+ *   replace the 0.06–0.94 band: the deck's tiles are wider than the points' margin and must stay in the box.
  *   `history` is the Technicals series' last sessions, oldest first (read-components-outlook.md v3.68,
  *   stock-analyst-platform#3959). Missing or empty draws the chart exactly as it was without it.
  */
-export function projectionChartModel({ spot, asOf, horizons, compact, history }) {
-  const width = compact ? 300 : 620;
-  const height = compact ? 150 : 190;
+export function projectionChartModel({ spot, asOf, horizons, compact, history, frame }) {
+  const width = frame?.width ?? (compact ? 300 : 620);
+  const height = frame?.height ?? (compact ? 150 : 190);
   // Flat 12 at both breakpoints. The compact widening to 16 existed only to clear a TODAY caption
   // right-aligned off the rule's left side; that caption centers on the rule now, which needs half
   // its width per side, and the widening was retired with it (read-components.md §7 v3.54).
-  const padLeft = 12;
-  const padRight = 12;
-  const padTop = 22;
-  const padBottom = 34;
+  const padLeft = frame?.padLeft ?? 12;
+  const padRight = frame?.padRight ?? 12;
+  const padTop = frame?.padTop ?? 22;
+  const padBottom = frame?.padBottom ?? 34;
 
   const byHorizon = new Map(horizons.map((h) => [h.horizon, h.price]));
 
@@ -143,9 +147,10 @@ export function projectionChartModel({ spot, asOf, horizons, compact, history })
   const lo = min - pad;
   const hi = max + pad;
 
-  const x = (days) =>
-    padLeft +
-    (width - padLeft - padRight) * (BAND_START + (BAND_END - BAND_START) * ((days - startDays) / spanDays));
+  const plotW = width - padLeft - padRight;
+  const bandStart = frame?.insetLeft != null ? frame.insetLeft / plotW : BAND_START;
+  const bandEnd = frame?.insetRight != null ? 1 - frame.insetRight / plotW : BAND_END;
+  const x = (days) => padLeft + plotW * (bandStart + (bandEnd - bandStart) * ((days - startDays) / spanDays));
   const y = (v) => padTop + (height - padTop - padBottom) * (1 - (v - lo) / (hi - lo));
 
   // The origin's date is the READ's (`asOf`), never the last close's — they genuinely differ on a

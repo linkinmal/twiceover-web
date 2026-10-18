@@ -87,3 +87,25 @@ describe("every fixture figure the deck reads exists", () => {
     expect.soft(deck).toContain("{INSIDERS.sellers} sellers · {INSIDERS.buyers} buyer");
   });
 });
+
+describe("the v2.52 cards (stock-analyst-platform#4410, #4422)", () => {
+  const band = read("src/components/OutlookBand.astro");
+
+  it("the deck's Outlook is the deck drawing, and the synthesis Outlook keeps its row", () => {
+    expect.soft(deck).toContain("<OutlookBand deck />");
+    expect.soft(band).toContain("outlookDeckSvg()");
+    expect.soft(band).toContain("proof__hzrow"); // still rendered for the page's other Outlook
+    expect.soft(read("src/styles/site.css")).not.toContain(".dcard--outlook .proof__hzrow");
+  });
+
+  it("Insiders states each seller's title, amount and share, and the calendar names its publisher", () => {
+    expect.soft(deck).toContain("INSIDER_ROWS.map");
+    expect.soft(deck).toContain("MACRO_CALENDAR.map");
+    expect.soft(deck).toContain("Economic calendar");
+    expect.soft(deck).toContain('class="dk-only"><span>Latest trade</span>');
+  });
+
+  it("ships no review-only .v5 class in the stylesheet", () => {
+    expect.soft(read("src/styles/site.css")).not.toMatch(/\.v5\.dcard/);
+  });
+});
