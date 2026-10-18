@@ -12,6 +12,9 @@
  * the desktop one scaled down. CSS swaps them with a container query on `.deck` below 400px
  * (`svg.hc--desk` hides, `svg.hc--phone` shows).
  *
+ * Both twins carry the same `role="img"` and label: below 400px the desktop twin is `display:none`, so
+ * it is out of the accessibility tree, and only one twin renders at a time (nothing reads twice).
+ *
  * Colour comes from `--muted`, `--text`, `--bmark` and the other short names, which `.hc` binds to the
  * site's tokens in `site.css`; the markup is otherwise the artifact's.
  *
@@ -112,7 +115,7 @@ export function coneSvg({ phone = false } = {}) {
     lower.push([X(d), g.yc + w]);
   }
   const pts = (arr) => arr.map(([x, y]) => `${f(x)},${f(y)}`).join(" ");
-  const out = [svgOpen(phone, phone ? "" : label, g.w, g.h)];
+  const out = [svgOpen(phone, label, g.w, g.h)];
   out.push(
     `<polygon points="${pts(upper)} ${pts([...lower].reverse())}" fill="var(--bmark)" fill-opacity=".13" stroke="var(--bmark)" stroke-width="1.3" stroke-linejoin="round"/>`,
     `<line x1="${g.left}" y1="${f(g.yc)}" x2="${g.right}" y2="${f(g.yc)}" stroke="var(--muted)" stroke-dasharray="1 4"/>`,
@@ -193,7 +196,7 @@ export function earningsSvg({ phone = false } = {}) {
   const pitch = (g.x1 - g.x0) / EARNINGS_HISTORY.length;
   const movedMore = EARNINGS_HISTORY.filter((r) => Math.abs(r.moved) > r.implied).length;
   const label = `The last eight reports, oldest first: what options implied against how the stock moved. It moved more than implied ${movedMore === 2 ? "twice" : `${movedMore} times`}.`;
-  const out = [svgOpen(phone, phone ? "" : label, g.w, g.h)];
+  const out = [svgOpen(phone, label, g.w, g.h)];
   const axis = (y, name, strong) => {
     const yy = phone && strong ? g.zero.toFixed(1) : y;
     out.push(
@@ -246,7 +249,7 @@ export function insidersSvg({ phone = false } = {}) {
   const buy = INSIDERS.buys[0];
   const month = (m) => ["Mar", "Apr", "May", "Jun", "Jul", "Aug"][m];
   const label = `Officer and director trades from Feb 28 to Aug 28: ${INSIDERS.sells.length} sells and ${INSIDERS.buys.length} buy. Sells hang below the line, the buy stands above, height is dollar value. ${INSIDER_FIGURES.underPlan.replace(" of", " of the")} were under a 10b5-1 plan. The largest, the ${largest.title} on ${monthDay(largest.date).replace(/^(\w)(\w+)/, (_, a, b) => a + b.toLowerCase())}, was minus ${largest.usd} million dollars; the one buy, a ${buy.title.toLowerCase()}, plus ${buy.usd} million.`;
-  const out = [svgOpen(phone, phone ? "" : label, g.w, g.h)];
+  const out = [svgOpen(phone, label, g.w, g.h)];
   out.push(`<line x1="${g.x0}" y1="${g.axis}" x2="${g.x1}" y2="${g.axis}" stroke="var(--border-strong)" stroke-width="1.2"/>`);
   for (let m = 0; m < 6; m++) {
     const x = X(`${INSIDERS.from.slice(0, 4)}-${String(m + 3).padStart(2, "0")}-01`);

@@ -20,7 +20,7 @@ import {
 
 const nums = (s) => s.match(/-?\d+(?:\.\d+)?/g).map(Number);
 const attr = (svg, tag, name) => [...svg.matchAll(new RegExp(`<${tag}\\b[^>]*\\b${name}="([^"]*)"`, "g"))].map((m) => m[1]);
-const near = (got, want) => expect.soft(got).toBeCloseTo(want, 0);
+const near = (got, want) => expect.soft(got).toBeCloseTo(want, 1);
 const closeTo = (got, want, tol = 0.15) => expect.soft(Math.abs(got - want)).toBeLessThanOrEqual(tol);
 
 describe("the fixture's derived figures", () => {
@@ -87,8 +87,6 @@ describe("card 5: the cone drawing", () => {
 
   it("draws the phone twin at its own size, aria-hidden, without the desktop's axis captions", () => {
     expect.soft(phone).toContain('viewBox="0 0 300 164"');
-    expect.soft(phone).toContain('aria-hidden="true"');
-    expect.soft(phone).not.toContain("role=");
     expect.soft(phone).not.toContain(">TODAY<");
     expect.soft(attr(phone, "text", "font-size").map(Number).sort((a, b) => a - b)[0]).toBeGreaterThanOrEqual(10);
     expect.soft(attr(desk, "svg", "class")).toEqual(["hc hc--desk"]);
@@ -106,6 +104,17 @@ describe("card 5: the cone drawing", () => {
     const spark = skewSparkSvg();
     expect.soft(spark).toContain('points="2.0,12.5 16.0,8.0 30.0,11.0 44.0,3.5 58.0,6.5"');
     expect.soft(spark).toContain('<circle cx="58.0" cy="6.5"');
+  });
+});
+
+describe("both twins name the chart", () => {
+  it("gives the phone twin the desktop twin's role and label, since only one renders at a time", () => {
+    for (const draw of [coneSvg, earningsSvg, insidersSvg]) {
+      const label = (svg) => svg.match(/role="img" aria-label="([^"]+)"/)?.[1];
+      expect.soft(label(draw({ phone: true })), draw.name).toBeTruthy();
+      expect.soft(label(draw({ phone: true })), draw.name).toBe(label(draw()));
+      expect.soft(draw({ phone: true }), draw.name).not.toContain("aria-hidden");
+    }
   });
 });
 
