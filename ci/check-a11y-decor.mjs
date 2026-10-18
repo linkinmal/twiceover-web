@@ -61,9 +61,8 @@ function divsByClass(source, className) {
 const failures = [];
 
 const EXPECTED = {
-  // 4 hero-deck slides + the Portfolio section's two cards; 1 phone. PENDING stock-analyst-platform#3963
-  // item 4: the deck's options and earnings-history slides raise the first to 8 when their data lands.
-  "index.html": { dcard: 6, phone: 1 },
+  // 8 hero-deck slides (v2.51, stock-analyst-platform#4411) + the Portfolio section's two cards; 1 phone.
+  "index.html": { dcard: 10, phone: 1 },
   // The 13 section cards and the hero's analysis screenshot.
   "how-our-analysis-works/index.html": { "xp-card": 13, "xp-shot": 1 },
   // The seven product pictures: the portfolio desk, two row close-ups, the position page, the rules,

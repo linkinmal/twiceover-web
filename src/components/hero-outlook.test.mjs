@@ -192,7 +192,8 @@ describe("Option B — the hero's presentation treatment (#2987/#3013, v2.35 ele
         '.deck .dcard[data-pos="0"]',
         '.deck .dcard[data-pos="1"]',
         '.deck .dcard[data-pos="2"]',
-        '.deck .dcard:not([data-pos]), .deck .dcard[data-pos="3"], .deck .dcard[data-pos="4"], .deck .dcard[data-pos="5"]',
+        // v2.51 (#4411): one hidden state for every position past the third, so it holds at any card count.
+        '.deck .dcard:not([data-pos="0"]):not([data-pos="1"]):not([data-pos="2"])',
         ".deck .dcard.leaving",
       ]),
     );
