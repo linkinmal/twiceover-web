@@ -25,6 +25,7 @@ import TechnicalsPriceChart from "./TechnicalsPriceChart.astro";
 import { coneSvg, earningsSvg, insidersSvg, skewSparkSvg } from "../charts/hero-deck-svg.mjs";
 import {
   EARNINGS_AVERAGES,
+  INSIDERS,
   INSIDER_FIGURES,
   MACRO_CARD,
   OPTIONS_CARD,
@@ -108,7 +109,7 @@ const macroLabel = `Risk appetite ${signed(macro.net).replace("+", "plus ").repl
       </div>
       <div class="dcard__fill"><Fragment set:html={insidersSvg() + insidersSvg({ phone: true })} /></div>
       <div class="figs3 figs3--two">
-        <div><span>Under a 10b5-1 plan</span><b>{INSIDER_FIGURES.underPlan}</b><em>{INSIDER_FIGURES.sellers} sellers · {INSIDER_FIGURES.buyers} buyer</em></div>
+        <div><span>Under a 10b5-1 plan</span><b>{INSIDER_FIGURES.underPlan}</b><em>{INSIDERS.sellers} sellers · {INSIDERS.buyers} buyer</em></div>
         <div><span>Largest trade</span><b>−${INSIDER_FIGURES.largest.usd.toFixed(1)}M</b><em>{INSIDER_FIGURES.largest.title} · {INSIDER_FIGURES.largestDate}</em></div>
       </div>
     </div>

@@ -67,3 +67,23 @@ describe("card 8 draws no VIX level and no SPY change (#4415 is open)", () => {
     expect.soft(macro).not.toMatch(/VIX\s*[\d(]/);
   });
 });
+
+describe("every fixture figure the deck reads exists", () => {
+  // Astro prints `undefined` as nothing, so a misspelt or misplaced property builds green and drops
+  // the figure from the card (Designer gate on #147: "sellers · buyer" lost its counts).
+  it("resolves each FIXTURE.property in the template to a defined value", async () => {
+    const fixture = await import("../charts/site-fixture.mjs");
+    const body = deck.slice(deck.indexOf("---", 3));
+    const refs = [...new Set([...body.matchAll(/\b([A-Z][A-Z_]+)\.([A-Za-z]+)\b/g)].map((m) => `${m[1]}.${m[2]}`))];
+    expect.soft(refs.length).toBeGreaterThan(10);
+    for (const ref of refs) {
+      const [obj, prop] = ref.split(".");
+      if (!(obj in fixture)) continue;
+      expect.soft(fixture[obj][prop], ref).not.toBeUndefined();
+    }
+  });
+
+  it("states the Insiders closing counts in words", () => {
+    expect.soft(deck).toContain("{INSIDERS.sellers} sellers · {INSIDERS.buyers} buyer");
+  });
+});
