@@ -13,7 +13,8 @@
  * connection (ci/check-entry-box.mjs scans it, declared in EXPECTED_SCRIPTS).
  *
  * Eight cards (v2.51, stock-analyst-platform#4410/#4411; build reference
- * `hero-deck-8-cards-4410-2026-10-18.html`). Cards 5–8 are static markup and inline SVG drawn from the
+ * `hero-deck-8-cards-4410-2026-10-18.html`; v2.52 redrew cards 1, 7 and 8 from
+ * `hero-deck-cards-v5-4410-2026-10-18.html`). Cards 5–8 are static markup and inline SVG drawn from the
  * page's one fixture (`site-fixture.mjs`, `hero-deck-svg.mjs`); the script and the CSS take any card
  * count, and `hero-deck.test.mjs` fails if the dots and the cards drift apart. No card names a plan or
  * a tier: each note is `section · <data kind>`.
@@ -27,6 +28,8 @@ import {
   EARNINGS_AVERAGES,
   INSIDERS,
   INSIDER_FIGURES,
+  INSIDER_ROWS,
+  MACRO_CALENDAR,
   MACRO_CARD,
   OPTIONS_CARD,
   TECHNICALS_ROWS,
@@ -56,7 +59,7 @@ const macroLabel = `Risk appetite ${signed(macro.net).replace("+", "plus ").repl
 <figure class="deck-fig">
   <div class="deck" id="deck" aria-roledescription="carousel" aria-label="Product views, changing every 5 seconds">
     <div role="group" aria-roledescription="slide" aria-label="Outlook" class="dcard dcard--outlook" data-key="outlook" data-pos="0">
-      <OutlookBand />
+      <OutlookBand deck />
     </div>
     <PortfolioCard variant="deck" />
     <PositionCard variant="deck" />
@@ -102,15 +105,26 @@ const macroLabel = `Risk appetite ${signed(macro.net).replace("+", "plus ").repl
       <div class="hero-fig">
         <span class="hero-fig__k">Net, 6 months</span>
         <span class="hero-fig__v">Net selling <span class="nw">{INSIDER_FIGURES.net}</span></span>
-        <span class="hero-fig__s">{INSIDER_FIGURES.counts}, officers and directors</span>
-      </div>
-      <div class="legend" aria-hidden="true">
-        <span><i class="sw"></i>discretionary</span><span><i class="sw sw--plan"></i>10b5-1 plan</span><span>height is dollar value</span>
+        <span class="hero-fig__s">{INSIDER_FIGURES.counts}<span class="dk-only"> · officers and directors</span></span>
       </div>
       <div class="dcard__fill"><Fragment set:html={insidersSvg() + insidersSvg({ phone: true })} /></div>
-      <div class="figs3 figs3--two">
+      <div class="legend" aria-hidden="true">
+        <span><i class="sw"></i>trade</span><span><i class="sw sw--plan"></i>10b5-1 plan trade</span><span class="dk-only">sells below the line · height is dollar value</span>
+      </div>
+      <div class="ib">
+        <div class="ib-hd"><span>By insider</span><span>Traded</span><span>Of their shares</span></div>
+        {INSIDER_ROWS.map((r) => (
+          <div class="ib-row">
+            <span class="ib-who">{r.title}</span>
+            <span class="ib-amt">Sold ${r.usd.toFixed(1)}M</span>
+            <span class="ib-pct"><i class="ib-bar" aria-hidden="true"><i style={`width:${r.pct}%`}></i></i>{r.pct}%</span>
+          </div>
+        ))}
+      </div>
+      <div class="figs3">
         <div><span>Under a 10b5-1 plan</span><b>{INSIDER_FIGURES.underPlan}</b><em>{INSIDERS.sellers} sellers · {INSIDERS.buyers} buyer</em></div>
         <div><span>Largest trade</span><b>−${INSIDER_FIGURES.largest.usd.toFixed(1)}M</b><em>{INSIDER_FIGURES.largest.title} · {INSIDER_FIGURES.largestDate}</em></div>
+        <div class="dk-only"><span>Latest trade</span><b>{INSIDER_FIGURES.latestDate}</b><em>{INSIDER_FIGURES.latest.title}</em></div>
       </div>
     </div>
     <div role="group" aria-roledescription="slide" aria-label="Macro & regime" class="dcard dcard--macro" data-key="macro">
@@ -118,9 +132,9 @@ const macroLabel = `Risk appetite ${signed(macro.net).replace("+", "plus ").repl
       <div class="dcard__fill">
         <div class="rg">
           <div class="hero-fig">
-            <span class="hero-fig__k">Risk appetite</span>
+            <span class="hero-fig__k">Risk appetite<span class="ph-only"> · {macro.date}</span></span>
             <span class="hero-fig__v">▲ {macro.lean}</span>
-            <span class="hero-fig__s">{macro.date}</span>
+            <span class="hero-fig__s dk-only">{macro.date}</span>
           </div>
           <div class="rg-scale" role="img" aria-label={macroLabel}>
             <div class="rg-track"><i class="rg-zero"></i><span class="rg-mark" style={`left:${riskAxisLeft(macro.net)}%`}><b>{signed(macro.net)}</b></span></div>
@@ -136,6 +150,18 @@ const macroLabel = `Risk appetite ${signed(macro.net).replace("+", "plus ").repl
         <div><span>Tactical · near-term</span><b>{macro.tactical.word}</b><em class="two"><i>{macro.tactical.basis} · {nbsp(macro.date)}</i></em></div>
         <div><span>Strategic · quarterly</span><b>{macro.strategic.word}</b><em class="two"><i>{macro.strategic.basis} · {nbsp(macro.date)}</i></em></div>
         <div><span>Catalyst · today</span><b>{macro.catalyst}</b></div>
+      </div>
+      <div class="cal">
+        <p class="cal-k">Economic calendar</p>
+        <div class="cal-rows">
+          {MACRO_CALENDAR.map((c) => (
+            <>
+              <span class="cal-d">{c.date}</span>
+              <span class="cal-e">{c.event}</span>
+              <span class="cal-s">— {c.source}</span>
+            </>
+          ))}
+        </div>
       </div>
     </div>
   </div>

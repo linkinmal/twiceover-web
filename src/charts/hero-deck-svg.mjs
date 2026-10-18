@@ -1,7 +1,8 @@
 /**
- * The drawings behind the hero deck's cards 5–7 (stock-analyst-platform#4411; site-prelaunch.md v2.51
+ * The drawings behind the hero deck's cards 1 and 5–7 (stock-analyst-platform#4411; site-prelaunch.md v2.51
  * §2 "Hero deck"; build reference `hero-deck-8-cards-4410-2026-10-18.html`, which is what was signed
- * off and what the numbers below were measured from).
+ * off and what the numbers below were measured from). v2.52 (#4410, #4422) redrew card 1 (the deck's
+ * own Outlook) and card 7 (Insiders) from `hero-deck-cards-v5-4410-2026-10-18.html`.
  *
  * String builders, like `outlook-svg.mjs` beside it, so each drawing is a module this repo can test
  * in isolation. Every figure comes from the page's one fixture (`site-fixture.mjs`); the only numbers
@@ -20,14 +21,18 @@
  *
  * Card 8's gauge is HTML, not SVG, so it has no builder here.
  */
+import { projectionChartModel } from "./outlook-chart.mjs";
 import {
   DECK_CLOSE_ISO,
   EARNINGS_HISTORY,
+  HERO_OUTLOOK,
+  HORIZON_CARDS,
   INSIDERS,
   INSIDER_FIGURES,
   OPTIONS_CARD,
   OUTLOOK_HISTORY,
   SPOT,
+  money as usd,
 } from "./site-fixture.mjs";
 
 const ESCAPES = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" };
@@ -234,8 +239,8 @@ export function earningsSvg({ phone = false } = {}) {
 /* ── Card 7: the insider timeline ──────────────────────────────────────────────────────────────── */
 
 const INS = {
-  desk: { w: 440, h: 116, x0: 12, x1: 428, axis: 34, mar1: 18.25, pxPerDay: 2.2542, tall: 60, tickY: 110, size: 10.5, tick: 3 },
-  phone: { w: 300, h: 178, x0: 8, x1: 292, axis: 50, mar1: 13.52, pxPerDay: 1.525, tall: 92, tickY: 168, size: 11.5, tick: 3 },
+  desk: { w: 420, h: 118, x0: 12, x1: 408, axis: 30, mar1: 20.12, pxPerDay: 2.1216, tall: 54, bar: 9, tickY: 110, size: 10.5, tick: 3 },
+  phone: { w: 280, h: 88, x0: 6, x1: 274, axis: 10, mar1: 13.41, pxPerDay: 1.4145, tall: 56, bar: 8, tickY: 83, size: 10, tick: 3 },
 };
 
 /** Sells hang below the line, buys stand above it; height is √dollars, the largest sell the tallest. */
@@ -249,31 +254,87 @@ export function insidersSvg({ phone = false } = {}) {
   const buy = INSIDERS.buys[0];
   const month = (m) => ["Mar", "Apr", "May", "Jun", "Jul", "Aug"][m];
   const label = `Officer and director trades from Feb 28 to Aug 28: ${INSIDERS.sells.length} sells and ${INSIDERS.buys.length} buy. Sells hang below the line, the buy stands above, height is dollar value. ${INSIDER_FIGURES.underPlan.replace(" of", " of the")} were under a 10b5-1 plan. The largest, the ${largest.title} on ${monthDay(largest.date).replace(/^(\w)(\w+)/, (_, a, b) => a + b.toLowerCase())}, was minus ${largest.usd} million dollars; the one buy, a ${buy.title.toLowerCase()}, plus ${buy.usd} million.`;
+  // Two decimals, like the v2.52 artifact (the other drawings print one).
+  const t = (x, y, anchor, body) =>
+    `<text x="${f2(x)}" y="${f2(y)}" text-anchor="${anchor}" font-family="var(--font-family-sans)" font-size="${g.size}" font-weight="600" fill="var(--text)">${esc(body)}</text>`;
   const out = [svgOpen(phone, label, g.w, g.h)];
   out.push(`<line x1="${g.x0}" y1="${g.axis}" x2="${g.x1}" y2="${g.axis}" stroke="var(--border-strong)" stroke-width="1.2"/>`);
   for (let m = 0; m < 6; m++) {
     const x = X(`${INSIDERS.from.slice(0, 4)}-${String(m + 3).padStart(2, "0")}-01`);
     out.push(
-      `<line x1="${f(x)}" y1="${g.axis - g.tick}" x2="${f(x)}" y2="${g.axis + g.tick}" stroke="var(--border-strong)"/>`,
-      text(x, g.tickY, "middle", g.size, "var(--muted)", month(m), { family: "var(--font-family-sans)" }),
+      `<line x1="${f2(x)}" y1="${g.axis - g.tick}" x2="${f2(x)}" y2="${g.axis + g.tick}" stroke="var(--border-strong)"/>`,
+      `<text x="${f2(x)}" y="${g.tickY}" text-anchor="middle" font-family="var(--font-family-sans)" font-size="${g.size}" fill="var(--muted)">${month(m)}</text>`,
     );
   }
   for (const s of INSIDERS.sells) {
     const fill = s.plan ? `fill="var(--muted)" fill-opacity=".75"` : `fill="var(--text)"`;
-    out.push(`<rect x="${f(X(s.date) - 4)}" y="${g.axis}" width="8" height="${f(H(s.usd))}" rx="1.5" ${fill}/>`);
+    out.push(`<rect x="${f2(X(s.date) - g.bar / 2)}" y="${g.axis + 1}" width="${g.bar}" height="${f2(H(s.usd))}" rx="1" ${fill}/>`);
   }
-  const bx = X(buy.date) - 4;
+  const bx = X(buy.date) - g.bar / 2;
   const bh = H(buy.usd);
-  out.push(
-    `<rect x="${f(bx)}" y="${f(g.axis - bh)}" width="8" height="${f(bh)}" rx="1.5" fill="var(--text)"/>`,
-    text(bx + 4, g.axis - bh - 6, "middle", g.size, "var(--text)", `${buy.title} +${money(buy.usd)}`, { family: "var(--font-family-sans)" }),
-  );
-  const lx = X(largest.date) - 4;
-  out.push(
-    phone
-      ? text(lx - 3, g.axis + H(largest.usd) - 6, "end", g.size, "var(--text)", `${largest.title} −${money(largest.usd)}`, { family: "var(--font-family-sans)", weight: 600 })
-      : text(lx + 12, g.axis + H(largest.usd) - 4, "start", g.size, "var(--text)", `${largest.title} −${money(largest.usd)}`, { family: "var(--font-family-sans)", weight: 600 }),
-    `</svg>`,
-  );
+  out.push(`<rect x="${f2(bx)}" y="${f2(g.axis - bh)}" width="${g.bar}" height="${f2(bh)}" rx="1" fill="var(--text)"/>`);
+  // The two value labels are the desktop twin's; a phone-width card has no room for them.
+  if (!phone) {
+    out.push(
+      t(bx + g.bar / 2, g.axis - bh - 5, "middle", `${buy.title} +${money(buy.usd)}`),
+      t(X(largest.date) - g.bar / 2 - 5, g.axis + H(largest.usd) - 1, "end", `${largest.title} −${money(largest.usd)}`),
+    );
+  }
+  out.push(`</svg>`);
+  return out.join("");
+}
+
+/* ── Card 1: the deck's own Outlook (v2.52 ruling 9) ────────────────────────────────────────────── */
+
+/**
+ * The hero Outlook chart at the deck's size, with each horizon's price in a tile under its own point.
+ * The scale math is `projectionChartModel`'s; only the frame and the tile row are the deck's. Two
+ * twins, swapped by a container query at 360px of band width (`k-dk` / `k-dp`, site.css).
+ */
+const OUTLOOK_DECK = {
+  desk: { cls: "k-dk", frame: { width: 440, height: 412, padLeft: 8, padRight: 8, padTop: 34, padBottom: 112, insetLeft: 20, insetRight: 48 }, r: 5, tile: { w: 104, h: 64, k: [21.76, 10.5], v: [51.2, 26] } },
+  phone: { cls: "k-dp", frame: { width: 300, height: 322, padLeft: 8, padRight: 8, padTop: 34, padBottom: 100, insetLeft: 10, insetRight: 36 }, r: 4, tile: { w: 74, h: 52, k: [17.68, 9], v: [41.6, 19] } },
+};
+
+export function outlookDeckSvg({ phone = false } = {}) {
+  const g = OUTLOOK_DECK[phone ? "phone" : "desk"];
+  const m = projectionChartModel({ ...HERO_OUTLOOK, history: OUTLOOK_HISTORY, compact: phone, frame: g.frame });
+  // The value scale ends 6px above the chrome's baseline, and the today rule starts 8px above the scale.
+  const bottom = g.frame.height - g.frame.padBottom + 6;
+  const cards = Object.fromEntries(HORIZON_CARDS.map((c) => [c.key, c.label]));
+  const priceOf = (key) => HERO_OUTLOOK.horizons.find((h) => h.horizon === key).price;
+  const words = m.points.map((p) => {
+    const [k, d] = cards[p.key].split(" · ");
+    return `${k.toLowerCase()} ${d.toLowerCase()} ${usd(priceOf(p.key))}`;
+  });
+  const label = `Recent daily closes leading into today, then the projection path across the three horizons, each point labelled with its projected price. Shape follows time. ${words.join(". ")}.`;
+  const out = [
+    `<svg class="k-chart ${g.cls}" viewBox="0 0 ${g.frame.width} ${g.frame.height}" role="img" aria-label="${esc(label)}" xmlns="http://www.w3.org/2000/svg">`,
+    `<line class="k-spotline" x1="${m.padLeft}" y1="${f2(m.spotLine.y)}" x2="${m.width - m.padRight}" y2="${f2(m.spotLine.y)}"/>`,
+    `<line class="k-today" x1="${f2(m.origin.x)}" y1="${m.padTop - 8}" x2="${f2(m.origin.x)}" y2="${bottom}"/>`,
+    `<text class="k-tick" x="${f2(m.origin.x)}" y="11" text-anchor="middle">${esc(m.origin.axisLabel.tick)}</text>`,
+    `<text class="k-sub" x="${f2(m.origin.x)}" y="23" text-anchor="middle">${esc(m.origin.axisLabel.sub)}</text>`,
+    `<polyline class="k-hist" points="${m.history.points.map((p) => `${f2(p.x)},${f2(p.y)}`).join(" ")}"/>`,
+    `<line class="k-conn" x1="${f2(m.history.connector.from.x)}" y1="${f2(m.history.connector.from.y)}" x2="${f2(m.history.connector.to.x)}" y2="${f2(m.history.connector.to.y)}"/>`,
+    `<text class="k-hist-date" x="${f2(m.history.startLabel.x)}" y="${bottom + 20}" text-anchor="middle">${esc(m.history.startLabel.text)}</text>`,
+    ...m.segments.map((sg) => `<line class="k-seg" x1="${f2(sg.from.x)}" y1="${f2(sg.from.y)}" x2="${f2(sg.to.x)}" y2="${f2(sg.to.y)}"/>`),
+    `<circle class="k-origin" cx="${f2(m.origin.x)}" cy="${f2(m.origin.y)}" r="${g.r}"/>`,
+  ];
+  const dy = phone ? 7 : 8;
+  for (const p of m.points) {
+    const tileY = bottom + 38;
+    out.push(
+      `<line class="k-lead" x1="${f2(p.x)}" y1="${f2(p.y + dy)}" x2="${f2(p.x)}" y2="${bottom - 3}"/>`,
+      `<line class="k-lead" x1="${f2(p.x)}" y1="${bottom + 26}" x2="${f2(p.x)}" y2="${tileY}"/>`,
+      `<circle class="k-point" cx="${f2(p.x)}" cy="${f2(p.y)}" r="${g.r}"/>`,
+      `<text class="k-tick" x="${f2(p.x)}" y="${bottom + 8}" text-anchor="middle">${esc(p.axisLabel.tick)}</text>`,
+      `<text class="k-sub" x="${f2(p.x)}" y="${bottom + 20}" text-anchor="middle">${esc(p.axisLabel.sub)}</text>`,
+      `<rect class="k-tile" x="${f2(p.x - g.tile.w / 2)}" y="${tileY}" width="${g.tile.w}" height="${g.tile.h}" rx="7"/>`,
+      `<text class="k-hzk" x="${f2(p.x)}" y="${f2(tileY + g.tile.k[0])}" text-anchor="middle" style="font-size:${g.tile.k[1]}px">${p.key.toUpperCase()}</text>`,
+      `<text class="k-hzv" x="${f2(p.x)}" y="${f2(tileY + g.tile.v[0])}" text-anchor="middle" style="font-size:${g.tile.v[1]}px">${usd(priceOf(p.key))}</text>`,
+      `<circle class="k-hit" cx="${f2(p.x)}" cy="${f2(p.y)}" r="14"><title>${esc(cards[p.key])} — Our projection lands at ${usd(priceOf(p.key))}</title></circle>`,
+    );
+  }
+  out.push(`</svg>`);
   return out.join("");
 }

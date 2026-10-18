@@ -390,35 +390,49 @@ export const EARNINGS_AVERAGES = {
 export const INSIDERS = {
   from: "2026-02-28",
   sells: [
-    { date: "2026-03-07", usd: 6.2, plan: true },
-    { date: "2026-03-21", usd: 8.4, plan: true },
-    { date: "2026-04-04", usd: 11.0, plan: true },
-    { date: "2026-04-18", usd: 9.1, plan: true },
-    { date: "2026-05-02", usd: 13.5, plan: true },
-    { date: "2026-05-23", usd: 24.0, plan: false },
-    { date: "2026-06-06", usd: 12.7, plan: true },
-    { date: "2026-06-20", usd: 15.8, plan: true },
-    { date: "2026-07-03", usd: 14.9, plan: true },
+    { date: "2026-03-07", usd: 6.2, plan: true, title: "CEO" },
+    { date: "2026-03-21", usd: 8.4, plan: true, title: "CFO" },
+    { date: "2026-04-04", usd: 11.0, plan: true, title: "CEO" },
+    { date: "2026-04-18", usd: 9.1, plan: true, title: "General Counsel" },
+    { date: "2026-05-02", usd: 13.5, plan: true, title: "CEO" },
+    { date: "2026-05-23", usd: 24.0, plan: false, title: "COO" },
+    { date: "2026-06-06", usd: 12.7, plan: true, title: "CEO" },
+    { date: "2026-06-20", usd: 15.8, plan: true, title: "COO" },
+    { date: "2026-07-03", usd: 14.9, plan: true, title: "CEO" },
     { date: "2026-07-18", usd: 31.7, plan: false, title: "CFO" },
-    { date: "2026-08-01", usd: 17.2, plan: true },
-    { date: "2026-08-15", usd: 13.5, plan: true },
+    { date: "2026-08-01", usd: 17.2, plan: true, title: "CEO" },
+    { date: "2026-08-15", usd: 13.5, plan: true, title: "Director" },
   ],
   buys: [{ date: "2026-06-12", usd: 0.4, title: "Director" }],
   sellers: 5,
   buyers: 1,
 };
+
+/** The Insiders card's "By insider" rows (v2.52 ruling 5): the three largest sellers by title, their
+ *  summed sells from `INSIDERS`, and the share of their own shares they sold. Titles only — no insider
+ *  is named. The share is the fixture's own stated figure; it does not follow from the sells. */
+export const INSIDER_ROWS = [
+  { title: "CEO", pct: 3.8 },
+  { title: "CFO", pct: 18.4 },
+  { title: "COO", pct: 26.7 },
+].map((r) => ({
+  ...r,
+  usd: Number(INSIDERS.sells.filter((s) => s.title === r.title).reduce((t, s) => t + s.usd, 0).toFixed(1)),
+}));
 const sold = INSIDERS.sells.reduce((a, s) => a + s.usd, 0);
 const bought = INSIDERS.buys.reduce((a, s) => a + s.usd, 0);
+const shortDate = (iso) =>
+  `${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][Number(iso.slice(5, 7)) - 1]} ${Number(iso.slice(8, 10))}`;
 export const INSIDER_FIGURES = {
   net: `−$${(sold - bought).toFixed(1)}M`,
   counts: `${INSIDERS.sells.length} sells · ${INSIDERS.buys.length} buy`,
   underPlan: `${INSIDERS.sells.filter((s) => s.plan).length} of ${INSIDERS.sells.length} sells`,
   largest: INSIDERS.sells.reduce((a, s) => (s.usd > a.usd ? s : a)),
   /** The largest trade's date, as the card words it (`Jul 18`). */
-  largestDate: (() => {
-    const l = INSIDERS.sells.reduce((a, s) => (s.usd > a.usd ? s : a));
-    return `${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][Number(l.date.slice(5, 7)) - 1]} ${Number(l.date.slice(8, 10))}`;
-  })(),
+  largestDate: shortDate(INSIDERS.sells.reduce((a, s) => (s.usd > a.usd ? s : a)).date),
+  /** The most recent trade of either kind, and its date (`Aug 15`) — the card's third figure. */
+  latest: [...INSIDERS.sells, ...INSIDERS.buys].reduce((a, t) => (t.date > a.date ? t : a)),
+  latestDate: shortDate([...INSIDERS.sells, ...INSIDERS.buys].reduce((a, t) => (t.date > a.date ? t : a)).date),
 };
 
 /**
@@ -426,6 +440,14 @@ export const INSIDER_FIGURES = {
  * regime words, their dates and the contributors are this card's. No VIX level and no SPY change is
  * drawn: the spine forbids a VIX level and showing values is open on stock-analyst-platform#4415.
  */
+/** The Macro card's Economic calendar (v2.52 ruling 6): the next three scheduled releases, each with
+ *  the body that publishes it. */
+export const MACRO_CALENDAR = [
+  { date: "Sep 4", event: "Employment situation", source: "FRED" },
+  { date: "Sep 11", event: "CPI", source: "FRED" },
+  { date: "Sep 16", event: "FOMC decision", source: "Federal Reserve" },
+];
+
 export const MACRO_CARD = {
   net: 0.35,
   lean: "supportive",
