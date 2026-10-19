@@ -5,7 +5,7 @@ publishAt: "2026-10-30T07:00:00-04:00"
 topic: "risk-sizing-behaviour"
 lens: "concept"
 build: "text-led"
-look: "printout"
+look: "night-desk"
 hit: "loses money"
 sources: "Haghani and Dewey, 2017 | https://arxiv.org/abs/1701.01427; Kelly, 1956"
 ---
