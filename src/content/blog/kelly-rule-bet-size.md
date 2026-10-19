@@ -12,7 +12,7 @@ sources: "Haghani and Dewey, 2017 | https://arxiv.org/abs/1701.01427; Kelly, 195
 
 ## In plain words
 
-A coin that lands heads 60% of the time gives its bettor a real edge. The bettor still loses money when each bet takes too much of the stack, the money on the table.
+A bettor on a coin that lands heads 60% of the time still loses money when each bet takes too much of the stack, the money on the table. The edge is real, and bet size decides what it pays.
 
 At 20% of the stack a flip, 100 flips with 60 heads take $25 to $187.25. At 40% a flip, the same 100 flips leave $19.57. The coin did what it promised both times.
 
