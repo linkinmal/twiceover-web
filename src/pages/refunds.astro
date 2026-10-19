@@ -7,16 +7,19 @@
 // with the shipped ADR 0399 one-click Settings cancel instead of the pre-ADR-0399
 // contact-only path; underlying terms (48-hour Dodo-direct notice, no partial
 // refund, sole-discretion refunds) unchanged. See ai-team/pm/site-copy-twiceover.md.
+// iPhone-app purchases added 2026-10-19 (stock-analyst-platform#4437, founder sign-off):
+// in-app purchases are sold and billed by Apple, so the Dodo-only opening was wrong for them.
 // Do not reword (PM #41 / #1266 / #2528).
 import Policy from "../layouts/Policy.astro";
 import { EMAIL } from "../config.mjs";
 ---
 <Policy
   title="Refund Policy — TwiceOver"
-  description="TwiceOver's cancellation and refund terms, handled by Dodo Payments, our merchant of record."
+  description="TwiceOver's cancellation and refund terms: Dodo Payments, our merchant of record, for web purchases, and Apple for purchases made in the iPhone app."
   heading="Refunds"
 >
-  <p>TwiceOver is sold as a subscription through <strong>Dodo Payments</strong>, our merchant of record. Dodo is the seller you purchase from and the party you contract with for the transaction itself — TwiceOver is the software and service you're using.</p>
+  <p>TwiceOver is sold as a subscription through <strong>Dodo Payments</strong>, our merchant of record, when you subscribe on the web. Dodo is the seller you purchase from and the party you contract with for the transaction itself — TwiceOver is the software and service you're using.</p>
+  <p>If you subscribe in the iPhone app, <strong>Apple</strong> is the seller and bills your Apple ID under Apple's terms. You cancel in your iPhone's Settings under Subscriptions, at least 24 hours before the renewal, and Apple handles refund requests at <a href="https://reportaproblem.apple.com">reportaproblem.apple.com</a>. The rest of this page describes web purchases.</p>
   <ul>
     <li><strong>Cancel anytime.</strong> The primary way is one click in Settings — no retention flow, no call, no form to fill in; it takes effect at the end of the period already paid for, with no partial refund for the remainder. You can also cancel directly with Dodo, our merchant of record, at least 48 hours before your renewal date, on the same period-end terms.</li>
     <li><strong>Refund requests.</strong> Refunds are handled by Dodo, our merchant of record, under <a href="https://dodopayments.com/legal/buyer-terms">Dodo's Buyer Terms</a> — contact Dodo directly, or reach us at <a href={`mailto:${EMAIL}`}>{EMAIL}</a> and we'll route you. Refunds are given <strong>at Dodo's sole discretion, on a case-by-case basis, and may be refused</strong>; contact Dodo within 60 days of your purchase. This is a real change from TwiceOver's own prior promise to "review requests and issue eligible refunds directly" — under a true MoR, refund decisions are Dodo's to make, not ours.</li>
