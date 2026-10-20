@@ -12,10 +12,10 @@ figure:
   note: "between Monday's close and Merck KGaA's $20 cash offer"
 image:
   src: "/blog-images/silence-therapeutics-merck-spread.png"
-  alt: "What the 8-K says must happen before the $20, step by step"
-  source: "Silence Therapeutics 8-K, 19 Oct 2026"
+  alt: "What has to happen before the $20, step by step"
+  source: "Silence Therapeutics SEC filing, 19 Oct 2026"
   licence: "Own chart"
-sources: "Silence Therapeutics 8-K | https://www.sec.gov/Archives/edgar/data/1479615/000119312526424695/d172259d8k.htm; Transaction agreement | https://www.sec.gov/Archives/edgar/data/1479615/000119312526424695/d172259dex21.htm; US Treasury bill rates; Stock Analysis | https://stockanalysis.com/stocks/sln/history/; Takeover Code Rule 21.2 | https://code.thetakeoverpanel.org.uk/tp/rules/rule-21/rule-21-2.html"
+sources: "Silence Therapeutics SEC filing | https://www.sec.gov/Archives/edgar/data/1479615/000119312526424695/d172259d8k.htm; Transaction agreement | https://www.sec.gov/Archives/edgar/data/1479615/000119312526424695/d172259dex21.htm; US Treasury bill rates; Stock Analysis | https://stockanalysis.com/stocks/sln/history/; Takeover Code Rule 21.2 | https://code.thetakeoverpanel.org.uk/tp/rules/rule-21/rule-21-2.html"
 ---
 
 Silence Therapeutics closed Monday at $19.58, 42 cents under the $20.00 in cash that Merck KGaA, the German drug group, has agreed to pay for each Silence share listed on Nasdaq. The same $19.58 put in a six-month Treasury bill would earn about 38 cents by the end of March. That leaves about 4 cents for the risk that the deal breaks, so the price treats it as close to done. The company's own filing lists what still has to happen first.
@@ -51,13 +51,13 @@ If the deal broke, the price could fall back toward Friday's close of $8.68, whi
 
 ## 3. What the filing says still has to happen
 
-Silence filed the deal on Form 8-K on 19 October, with the full transaction agreement attached. The 8-K lists eight conditions. The first is the vote:
+Silence filed the deal with the SEC on 19 October, on a Form 8-K. That is the short report a US-listed company files when something major happens, and this one has the full transaction agreement attached. The filing lists eight conditions. The first is the vote:
 
 > approval by the Company's shareholders of the Scheme of Arrangement by a majority in number representing not less than three-fourths (75%) in value of the members [...] present and voting
 
 Silence is a company of England and Wales, so it is being bought through a scheme of arrangement. That is a procedure under the UK Companies Act. Shareholders vote on it, a court sanctions it, and from then on it binds every holder, including those who voted against. The vote has two tests. Most of the holders who vote, counted by head, must approve. Those approving must also hold at least 75% of the shares voted. A second meeting must then pass a special resolution, which also needs 75% of the votes cast.
 
-The other seven, in the 8-K's order:
+The other seven, in the filing's order:
 
 2. The US antitrust waiting period ends, and the deal is cleared under German antitrust law.
 3. Each side has kept its promises under the agreement.
@@ -67,7 +67,7 @@ The other seven, in the 8-K's order:
 7. Each side delivers its closing papers.
 8. Nothing happens to Silence that counts as a "Company material adverse effect."
 
-Holders of about 14% of the votes have signed agreements to vote yes. The 8-K also says: "The consummation of the Transaction is not subject to any financing condition."
+Holders of about 14% of the votes have signed agreements to vote yes. The filing also says: "The consummation of the Transaction is not subject to any financing condition."
 
 Each Silence share on Nasdaq is an American depositary share. A bank holds three ordinary Silence shares behind each one. The agreement pays $6.6667 for each ordinary share, which is where the $20.00 comes from.
 
