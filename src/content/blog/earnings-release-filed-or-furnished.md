@@ -94,4 +94,3 @@ When the release shows one, it has to show the closest GAAP figure “with equal
 4. Read the sentence about the release itself, usually Exhibit 99.1. A release that “shall be deemed” or is “considered” filed, with no “not” before it, sits under Section 18. That covers the whole release or the parts the sentence names.
 5. With no such sentence, the release keeps the default label, furnished, unless another filing copies it in by reference.
 
-Two earlier posts also work from the source document: [the Bureau of Labor Statistics note on the missing October CPI rate](/blog/september-cpi-next-yearly-rate-10-december) and [the Brady Report on the 1987 crash](/blog/1987-crash-four-sellers).
