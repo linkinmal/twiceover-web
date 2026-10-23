@@ -7,6 +7,8 @@
  *
  * The Outlook has one paragraph (`about`); every other section has "Shows" and "Feeds the Outlook".
  */
+import { SECTIONS } from "./sections.mjs";
+
 export const EXPLAINER_ENTRIES = {
   "outlook": {
     about: "Our AI synthesis of the other sections your plan includes. It projects three prices, one for each horizon. Each comes with what would break the call.",
@@ -61,8 +63,8 @@ export const EXPLAINER_ENTRIES = {
   },
 };
 
-/** Page 1's order: the Outlook first, then the band's order. */
-export const EXPLAINER_ORDER = ["outlook", "fundamentals", "earnings", "earnings-history", "insiders", "technicals", "options", "flow", "sector", "peers", "news", "voices", "macro"];
+/** Page 1's order: the section list's own, which already leads with the Outlook. */
+export const EXPLAINER_ORDER = SECTIONS.map((s) => s.key);
 
 /** The entry's anchor, from the section's own name: "Earnings & dividends" → "s-earnings-and-dividends". */
 export const entryAnchor = (name) => `s-${name.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`;

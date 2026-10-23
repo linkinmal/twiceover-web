@@ -11,21 +11,21 @@ import { describe, expect, it } from "vitest";
 import { SECTIONS, PLANS, sectionsOn, sectionCountLine, sectionGroups } from "./sections.mjs";
 
 describe("the thirteen sections", () => {
-  it("lists them in the band's order, each with its plan", () => {
+  it("lists them in the app's order (ADR 0658 Amendment 3), each with its plan", () => {
     expect(SECTIONS.map((s) => [s.name, s.plan])).toEqual([
+      ["Outlook", "free"],
       ["Fundamentals", "free"],
-      ["Earnings & dividends", "core"],
-      ["Earnings history", "premium"],
-      ["Insiders", "premium"],
       ["Technicals & levels", "free"],
       ["Options & short interest", "core"],
       ["Large options trades", "premium"],
       ["Sector regime", "free"],
       ["Peers & relative position", "free"],
+      ["Earnings & dividends", "core"],
+      ["Earnings history", "premium"],
+      ["Insiders", "premium"],
       ["News & catalysts", "core"],
       ["Voices", "core"],
       ["Macro & regime", "free"],
-      ["Outlook", "free"],
     ]);
   });
 
@@ -75,13 +75,12 @@ describe("plan placement", () => {
 });
 
 describe("the /pricing table's groups (ADR 0912 Amendment 1 ruling 2)", () => {
-  it("groups each section under the plan that adds it, Outlook leading the every-plan group", () => {
-    // The table lists each section once, under the lowest plan that includes it; the build
-    // reference puts the Outlook first because it is what the other sections feed.
+  it("groups each section under the plan that adds it, in the app's order", () => {
+    // The table lists each section once, under the lowest plan that includes it, in the list's order.
     expect(sectionGroups().map((g) => [g.label, g.sections.map((s) => s.name)])).toEqual([
       ["On every plan", ["Outlook", "Fundamentals", "Technicals & levels", "Sector regime", "Peers & relative position", "Macro & regime"]],
-      ["Added on Core", ["Earnings & dividends", "Options & short interest", "News & catalysts", "Voices"]],
-      ["Added on Premium", ["Earnings history", "Insiders", "Large options trades"]],
+      ["Added on Core", ["Options & short interest", "Earnings & dividends", "News & catalysts", "Voices"]],
+      ["Added on Premium", ["Large options trades", "Earnings history", "Insiders"]],
     ]);
   });
 
