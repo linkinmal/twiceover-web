@@ -439,12 +439,18 @@
   .sd-ans{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:0 0 14px}
   .sd-ans div{background:var(--plate);border:1.5px solid var(--ink);padding:14px 16px}
   .sd-ans div:nth-child(2){background:var(--a2)}
+  /* the range and cost tiles carry figures that can run to $1,045,000.00, so their type scales with the tile (nothing abbreviated) */
+  .sd-ans div:nth-child(n+2){container-type:inline-size}
   .sd-ans b{display:block;font-family:var(--fd);font-weight:var(--fdw);font-style:var(--fdst);font-size:calc(clamp(26px,4vw,38px)*var(--fdsz));line-height:1;letter-spacing:var(--fdls);font-variant-numeric:tabular-nums}
+  .sd-ans div:nth-child(n+2) b{font-size:max(12px,min(calc(clamp(26px,4vw,38px)*var(--fdsz)),calc(9.5cqw*var(--fdsz))))}
   .sd-ans span{display:block;font-size:14.5px;line-height:1.35;margin-top:6px}
   .sd-band{fill:var(--a2);opacity:.35}
   .sd-zero{stroke:var(--ink);stroke-width:1.5}
   .sd-lose{fill:var(--loss)}
   .sd-hd{fill:var(--plate);stroke:var(--ink);stroke-width:3}
+  .sd-halo{stroke:var(--g);stroke-width:3;paint-order:stroke}
+  svg.sd-narrow{display:none}
+  @media (max-width:560px){svg.sd-wide{display:none} svg.sd-narrow{display:block}}
   .post p.sd-res{font-family:var(--fd);font-weight:var(--fdw);font-style:var(--fdst);font-size:calc(clamp(22px,3.4vw,30px)*var(--fdsz));line-height:1.1;letter-spacing:var(--fdls);margin:6px 0 0;max-width:none}
   .sd-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
   .sd-field label{display:block;font:600 14px/1.3 "Source Sans 3",system-ui,sans-serif;margin-bottom:6px}

@@ -12,6 +12,7 @@
  *
  * Pure functions shared by the build (the finished page carries the bars) and the block script.
  */
+import { wholeDollars } from "../_kit/money.mjs";
 
 export const COIN = Object.freeze({
   winChance: 0.6,
@@ -123,5 +124,5 @@ export function lessonFigures(bars) {
 
 /** Whole dollars from $100, cents below. */
 export function formatMoney(w) {
-  return "$" + (w >= 100 ? Math.round(w) : w.toFixed(2));
+  return w >= 100 ? wholeDollars(w) : "$" + w.toFixed(2);
 }
