@@ -15,7 +15,7 @@ export const EXPLAINER_ENTRIES = {
   },
   "fundamentals": {
     shows: "Market cap, P/E and earnings per share. Earnings come from the company's SEC filings and carry their fiscal year.",
-    feeds: "Everything it shows, plus how revenue, margins, earnings per share, net cash or debt and share count are trending. The Outlook also sees where P/E sits against the stock's own past range.",
+    feeds: "Everything it shows, plus how revenue, margins, earnings per share, net cash or debt and share count are trending. Our analysis also sees where P/E sits against the stock's own past range.",
   },
   "earnings": {
     shows: "The next report's date and time, marked confirmed or projected, with the consensus estimates for earnings per share and revenue. The last report against its estimates, labelled GAAP or adjusted. The move options price in for the next report, and the next ex-dividend date and amount.",
@@ -35,7 +35,7 @@ export const EXPLAINER_ENTRIES = {
   },
   "options": {
     shows: "Put/call ratios for volume and open interest, implied volatility across expiries, skew and open interest by strike. Short interest as a share of shares outstanding, as of its settlement date, with days to cover.",
-    feeds: "Implied volatility and the move options price in over each horizon. Where quotes allow, that implied move sets the Outlook's sense of scale. The Outlook also sees skew, put/call ratios, open interest by strike and short interest.",
+    feeds: "Implied volatility and the move options price in over each horizon. Where quotes allow, that implied move sets the scale our analysis works to. It also sees skew, put/call ratios, open interest by strike and short interest.",
   },
   "flow": {
     shows: "The largest options trades of the last five sessions. Each trade shows whether it was a call or a put, with its time, strike, expiry, size, premium and where it printed against the bid and ask.",

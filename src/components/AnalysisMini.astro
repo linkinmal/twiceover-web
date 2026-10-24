@@ -57,7 +57,8 @@ const blocks = cards[kind];
         <p class="narr narr--news"><strong>{b.news[0]}</strong> · {b.news[1]} — {b.news[2]} <span class="sub">· {b.news[3]}</span></p>
       )}
       {b.post && (
-        <p class="narr narr--post"><span class="handle">@handle</span><span class="sub"> · {b.post[0]} — </span>{b.post[1]} <span class="src">X ↗</span></p>
+        /* Date first, as the product's own Voices row reads (read-components §8a; site-prelaunch v2.54). */
+        <p class="narr narr--post"><span class="sub">{b.post[0]} · </span><span class="handle">@handle</span><span class="sub"> — </span>{b.post[1].charAt(0).toUpperCase() + b.post[1].slice(1)} <span class="src">X ↗</span></p>
       )}
       {b.macroTiles && (
         /* Two of the product's Macro board tiles (stock-analyst-platform#4432/#4438), which replaced

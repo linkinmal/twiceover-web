@@ -39,17 +39,6 @@
 .xp-key { font-size:var(--font-size-300) !important }
 .xp-key b { color:var(--color-text-primary);font-weight:600 }
 .xp-plan { border-radius:3px;border:1px solid var(--color-border-strong);color:var(--color-text-muted);display:inline-block;font:600 10px/1 var(--font-family-sans);letter-spacing:.08em;margin-left:6px;padding:3px 5px;text-transform:uppercase;vertical-align:3px;white-space:nowrap }
-.xp-shot { background:var(--color-bg-canvas);border-radius:var(--radius-medium);border:1px solid var(--color-border-strong);box-shadow:0 1px 2px color-mix(in srgb, var(--color-text-primary) 12%, transparent),0 18px 40px -16px color-mix(in srgb, var(--color-text-primary) 32%, transparent);overflow:hidden }
-.xp-shot__bar { align-items:center;background:var(--color-bg-raised);border-bottom:1px solid var(--color-border-default);display:flex;gap:6px;padding:8px 12px }
-.xp-dot { background:var(--color-border-strong);border-radius:50%;height:8px;width:8px }
-.xp-url { color:var(--color-text-muted);font:11px/1 var(--font-family-mono);margin-left:8px }
-.xp-shot__body { padding:14px 16px 0;position:relative }
-.xp-snap { align-items:baseline;display:flex;gap:8px;justify-content:space-between }
-.xp-snap__tk { color:var(--color-text-primary);font:600 22px/1 var(--font-family-mono) }
-.xp-snap__nm { color:var(--color-text-muted);font-size:13px }
-.xp-snap__px { font:500 18px/1 var(--font-family-mono) }
-.xp-snap__asof { color:var(--color-text-muted);font:11px/1.4 var(--font-family-mono);margin:4px 0 10px }
-.xp-fadeout { -webkit-mask-image:linear-gradient(black,transparent);mask-image:linear-gradient(black,transparent);border-top:1px solid var(--color-border-default);color:var(--color-text-muted);display:flex;font-family:var(--font-family-serif);font-size:14px;font-weight:600;gap:18px;margin-top:12px;overflow:hidden;padding:12px 2px 14px;white-space:nowrap }
 .xp-hzrow { border-top:1px solid var(--accent-surface-border);display:grid;gap:0;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:8px }
 .xp-hz { border-left:1px solid color-mix(in srgb,var(--accent-surface-border) 45%,transparent);padding:10px 12px 4px }
 .xp-hz:first-child { border-left:0;padding-left:0 }
