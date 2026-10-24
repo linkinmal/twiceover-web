@@ -37,8 +37,6 @@ const rulesChart = rulesChartSvg(COVERED_CALL_RULE_ROWS, 154);
 const updated = new Date(`${BROKERS.updated}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
 const obligation = `Obligates delivering ${CC.shares} sh at ${usd(CC.strike)} if assigned.`;
 
-const YES = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5l2.5 2.5L10 3.5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>';
-const NO = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 3l6 6M9 3l-6 6" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>';
 const CHEVRON = '<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
 const FAQ = [
   ["Does opening Your Portfolio use up analyses?", "No. Your Portfolio comes with every plan, and you can open it as often as you like. An analysis counts only when you press Analyze."],
@@ -266,23 +264,19 @@ const FAQ = [
       </figure>
     </section>
 
-    <section class="xp-sec xp-split" aria-labelledby="ro-h">
+    <section class="xp-sec xp-split" aria-labelledby="conn-h">
       <div class="xp-copy">
-        <h2 id="ro-h" class="type-heading-1">A read-only connection</h2>
-        <p>The connection reads your positions, balances and open orders. It can never place, change or cancel an order, or move money. Connections run through SnapTrade (SOC 2 Type II), and you approve yours with your broker's own login. TwiceOver never sees your credentials.</p>
+        <h2 id="conn-h" class="type-heading-1">How your broker connects</h2>
+        <p>TwiceOver reads your positions, balances and open orders through SnapTrade (SOC 2 Type II). You approve the connection with your broker's own login.</p>
       </div>
       <figure class="xp-fig">
-        <div class="xp-conn" role="img" aria-label="Your broker connects through SnapTrade to TwiceOver, read-only. It reads positions, balances and open orders. It can never place, change or cancel an order, or move money.">
+        <div class="xp-conn" role="img" aria-label="Your broker connects through SnapTrade to TwiceOver. You approve the connection with your broker's own login, and TwiceOver never sees your credentials.">
           <div class="xp-conn__row">
-            <div class="xp-node">Your broker<em>you approve with its own login</em></div>
-            <div class="xp-arrow"><b>→</b>read-only</div>
+            <div class="xp-node">Your broker<em>you approve, own login</em></div>
+            <div class="xp-arrow"><b>→</b></div>
             <div class="xp-node">SnapTrade<em>SOC 2 Type II</em></div>
-            <div class="xp-arrow"><b>→</b>read-only</div>
-            <div class="xp-node">TwiceOver<em>never sees your credentials</em></div>
-          </div>
-          <div class="xp-caps">
-            <div><p>READS</p><ul>{["Positions", "Balances", "Open orders"].map((c) => <li class="y"><Fragment set:html={YES} />{c}</li>)}</ul></div>
-            <div><p>CAN NEVER</p><ul>{["Place, change or cancel an order", "Move money"].map((c) => <li class="n"><Fragment set:html={NO} />{c}</li>)}</ul></div>
+            <div class="xp-arrow"><b>→</b></div>
+            <div class="xp-node">TwiceOver<em>never sees credentials</em></div>
           </div>
         </div>
         <figcaption class="proof__caption type-caption">Illustrative diagram.</figcaption>
