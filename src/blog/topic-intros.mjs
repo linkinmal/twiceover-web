@@ -27,7 +27,7 @@ export const TOPIC_INTROS = Object.freeze({
   ],
   "market-plumbing": [
     "A trade is not finished when you click the button. It settles later, when cash and shares actually change hands. Short selling means borrowing shares, selling them, and buying them back later. An index fund holds the stocks in an index, so it must trade when the index changes its members.",
-    "These mechanics run in the background, and they explain moves that look odd from the outside. The posts on this page describe how each one works, step by step, and show an example with numbers. They are about how the market is built, not about where it goes next.",
+    "These mechanics run in the background, and they explain moves that look odd from the outside. The posts on this page describe how each one works, step by step, and show an example with numbers. Once you see the mechanism, the move makes sense.",
   ],
   "macro-fed": [
     "Some numbers move every stock at once. The Federal Reserve's rate committee meets eight times a year and sets a target for short-term interest rates. Inflation reports, such as the Consumer Price Index, arrive on a published schedule. Each one shifts what the market expects for rates.",
@@ -35,7 +35,7 @@ export const TOPIC_INTROS = Object.freeze({
   ],
   "policy-geopolitics": [
     "Tariffs, wars and speeches change what companies earn and what investors will pay for those earnings. The link between a headline and a stock price is rarely a straight line. Some effects arrive in days. Others take quarters to show up in a company's results.",
-    "The posts on this page pick one event and follow it into the numbers. They show what was said or decided, what companies reported afterward and how their stock prices moved. Where the cause is unclear, the post says so instead of choosing a story.",
+    "The posts on this page pick one event and follow it into the numbers. They show what was said or decided, what companies reported afterward and how their stock prices moved. You see the chain from the headline to the price.",
   ],
   "other-markets": [
     "Stocks do not move alone. Oil, gold, government bonds, the dollar and bitcoin each pull on stock prices in their own way. Higher bond yields can lower what investors will pay for future profits. A stronger dollar can reduce the dollar value of what a company sells abroad.",
@@ -47,7 +47,7 @@ export const TOPIC_INTROS = Object.freeze({
   ],
   "risk-sizing-behaviour": [
     "Position sizing is how much of an account goes into one trade. It matters because losses and gains are not symmetric. A fall of 50 percent needs a rise of 100 percent to get back to even. Formulas such as the Kelly rule turn a bet's odds into a size, and the answer is often smaller than people expect.",
-    "The posts on this page work through the math with small, clear examples. They also cover what studies show about how traders actually behave, such as holding losers and selling winners early. These posts explain the arithmetic of risk. They do not tell you what size to use.",
+    "The posts on this page work through the math with small, clear examples. They also cover what studies show about how traders actually behave, such as holding losers and selling winners early. The arithmetic is short, and it changes how a loss looks.",
   ],
   "levels-patterns": [
     "Traders draw lines on charts. Support is a price where a stock has stopped falling before. Resistance is a price where it has stopped rising. A gap is a jump between one day's close and the next day's open, and a gap fill is a return to the old price. Round numbers, such as 100, draw attention too.",
@@ -55,7 +55,7 @@ export const TOPIC_INTROS = Object.freeze({
   ],
   "positioning-flow": [
     "Who holds a stock, and who is betting against it, is public in pieces. Short interest is the number of shares sold short, and it is published twice a month. A 13F is a quarterly filing in which large investment managers list what they hold. Options flow is the record of options trades as they happen.",
-    "Each of these is delayed or partial, and the posts on this page say so. They show what the figure is, when it was reported and what it can and cannot tell you. They read the filings and the data directly instead of repeating a summary.",
+    "The posts on this page put those pieces together for one stock at a time. They show who holds it, who is short and where the big options money went. They read the filings and the data directly, so you see the numbers behind the story.",
   ],
   "number-in-the-headline": [
     "A news story often rests on one number, such as a percentage, a record or a total. Numbers in headlines are easy to repeat and hard to check. The base, the period and the way it was counted can change what the number means.",
