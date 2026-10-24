@@ -11,17 +11,17 @@ import { describe, expect, it } from "vitest";
 import { SECTIONS, PLANS, sectionsOn, sectionCountLine, sectionGroups } from "./sections.mjs";
 
 describe("the thirteen sections", () => {
-  it("lists them in the app's order (ADR 0658 Amendment 3), each with its plan", () => {
+  it("lists them in the app's order (ADR 0658 Amendment 4), each with its plan", () => {
     expect(SECTIONS.map((s) => [s.name, s.plan])).toEqual([
       ["Outlook", "free"],
       ["Fundamentals", "free"],
       ["Technicals & levels", "free"],
       ["Options & short interest", "core"],
+      ["Earnings & dividends", "core"],
+      ["Earnings history", "premium"],
       ["Large options trades", "premium"],
       ["Sector regime", "free"],
       ["Peers & relative position", "free"],
-      ["Earnings & dividends", "core"],
-      ["Earnings history", "premium"],
       ["Insiders", "premium"],
       ["News & catalysts", "core"],
       ["Voices", "core"],
@@ -80,7 +80,7 @@ describe("the /pricing table's groups (ADR 0912 Amendment 1 ruling 2)", () => {
     expect(sectionGroups().map((g) => [g.label, g.sections.map((s) => s.name)])).toEqual([
       ["On every plan", ["Outlook", "Fundamentals", "Technicals & levels", "Sector regime", "Peers & relative position", "Macro & regime"]],
       ["Added on Core", ["Options & short interest", "Earnings & dividends", "News & catalysts", "Voices"]],
-      ["Added on Premium", ["Large options trades", "Earnings history", "Insiders"]],
+      ["Added on Premium", ["Earnings history", "Large options trades", "Insiders"]],
     ]);
   });
 
