@@ -45,10 +45,10 @@ export function planTag(section) {
   return section.plan === "free" ? null : PLAN_LABEL[section.plan];
 }
 
-/** The facts strip's caption, composed from the counts rather than typed beside them. */
+/** The facts strip's caption under the section count: what the sections are, not how plans split them
+ *  (#4498, Growth brief standing ruling item 2: no plan mechanics on marketing surfaces). */
 export function sectionCountLine() {
-  const [free, core, premium] = PLANS.map((p) => sectionsOn(p).length);
-  return `Sections in our analysis: ${free} on Free, ${core} on Core, all ${premium} on Premium.`;
+  return "Sections in our analysis, from the Outlook and Voices to insiders, the largest options trades and the macro board.";
 }
 
 const GROUP_LABEL = { free: "On every plan", core: "Added on Core", premium: "Added on Premium" };

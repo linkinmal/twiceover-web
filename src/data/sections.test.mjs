@@ -70,8 +70,9 @@ describe("plan placement", () => {
     for (const s of sectionsOn("free")) expect.soft(sectionsOn("core")).toContain(s);
   });
 
-  it("states the facts-strip line from those counts, never as typed numbers", () => {
-    expect(sectionCountLine()).toBe("Sections in our analysis: 6 on Free, 10 on Core, all 13 on Premium.");
+  it("names sections on the facts strip, not plan counts (#4498)", () => {
+    expect(sectionCountLine()).toBe("Sections in our analysis, from the Outlook and Voices to insiders, the largest options trades and the macro board.");
+    expect(sectionCountLine()).not.toMatch(/Free|Core|Premium/);
   });
 });
 
