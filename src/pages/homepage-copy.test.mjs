@@ -40,7 +40,7 @@ const PINNED = [
     ["hero", [
       "A second look at your own book.",
       "Every position in your brokerage account, checked against the rules you set.",
-      "Connect read-only →",
+      "Connect your broker →",
       "Or analyze any US-listed stock, down to a projected price for each horizon. No account needed.",
       "Analyze",
       "Illustrative example with made-up figures and positions.",
@@ -55,12 +55,12 @@ const PINNED = [
     ]],
     ["portfolio", [
       "Your book, checked against your own rules.",
-      "Connect read-only and Your Portfolio lists everything you hold. Positions that have hit one of your rules come first: a profit target, a max loss or an expiry line you set. Open a position to see its breakevens and where each rule stands on current prices. For an options structure, scenarios show it at other prices. Paths show what you could do next, from making no change to rolling, each with its math.",
+      "Connect your broker and Your Portfolio lists everything you hold. Positions that have hit one of your rules come first: a profit target, a max loss or an expiry line you set. Open a position to see its breakevens and where each rule stands on current prices. For an options structure, scenarios show it at other prices. Paths show what you could do next, from making no change to rolling, each with its math.",
       "Illustrative example with made-up positions.",
     ]],
     ["broker connection", [
       "Connect with the broker login you already have.",
-      "Interactive Brokers, Schwab, Fidelity, Robinhood, E*Trade, tastytrade, Webull, Vanguard and more connect read-only, and TwiceOver never touches your funds.",
+      "Interactive Brokers, Schwab, Fidelity, Robinhood, E*Trade, tastytrade, Webull, Vanguard and more are supported.",
       "Connections run through SnapTrade (SOC 2 Type II) and are authorized by your broker. You sign in through SnapTrade or your broker, and TwiceOver never sees your credentials.",
     ]],
     ["facts strip", [
@@ -68,16 +68,12 @@ const PINNED = [
       "Paths for every options structure you hold: make no change, close, reduce or roll. Each comes with its math.",
       "3",
       "Horizons in every Outlook: about two weeks, three months and six months out. Each gets one projected price and what would break the call.",
-      "Read-only",
-      "TwiceOver can see your positions. It can never place, change or cancel an order.",
     ]],
     ["mobile", [
       "The same analysis, coming to your phone.",
       "TwiceOver is coming to iPhone and Android, with Your Portfolio, your rules and the full analysis.",
     ]],
     ["trust plate", [
-      "Read-only, structurally",
-      "Your brokerage connection can view your positions and is technically incapable of placing, changing or canceling an order.",
       "Every figure sourced",
       "Quotes, options and news data come from data vendors. Insider trades come from SEC filings, and short interest from FINRA. Every figure names its source and the time it was fetched.",
       "Your book stays yours",
@@ -90,7 +86,7 @@ const PINNED = [
     ]],
     ["closing band", [
       "See it on your own book.",
-      "Connect read-only to see your own positions, or analyze any US-listed stock.",
+      "Connect your broker to see your own positions, or analyze any US-listed stock.",
       "Your Portfolio comes with every plan. Free includes 10 analyses a month.",
       "Core and Premium give the Outlook more to weigh. Core adds the news, market voices, earnings and the options market. Premium adds the largest options trades, earnings history and insider activity.",
     ]],
