@@ -50,7 +50,7 @@ export const EXPLAINER_ENTRIES = {
     feeds: "Everything it shows.",
   },
   "news": {
-    shows: "Recent SEC filings, on every plan. On Core and Premium, also up to three material news items from the last 30 days, such as earnings, guidance, deals, share offerings, regulatory or trial outcomes and leadership changes. Headlines come from major financial newsrooms and are kept only when they name the company. Commentary is dropped. Each item carries its source, its time and a one-line summary. The next monthly options expiry appears below the news.",
+    shows: "Recent SEC filings, on every plan. On Core and Premium, also up to three material news items, such as earnings, guidance, deals, share offerings, regulatory or trial outcomes and leadership changes. Filings and company releases reach back 30 days. On a heavily covered stock, newsroom headlines reach back as far as the section says. Headlines come from major financial newsrooms and are kept only when they name the company. Commentary is dropped. Each item carries its source, its time and a one-line summary. The next monthly options expiry appears below the news.",
     feeds: "The recent SEC filings and, on Core and Premium, the headlines, each with its date.",
   },
   "voices": {

@@ -246,6 +246,8 @@ describe("card 1: the deck's own Outlook drawing (v2.52 ruling 9)", () => {
       expect.soft(tiles).toHaveLength(3);
       tiles.forEach(([x, tw], i) => { expect.soft(tw).toBe(w); closeTo(x + tw / 2, xs[i], 0.02); });
       expect.soft([...svg.matchAll(/class="k-hzv"[^>]*>([^<]+)</g)].map((m) => m[1])).toEqual(["$178.00", "$192.00", "$205.00"]);
+      for (const price of ["$178.00", "$192.00", "$205.00"]) expect.soft(svg).toContain(`Our projection points to ${price}`);
+      expect.soft(svg).not.toContain("lands at");
       expect.soft([...svg.matchAll(/class="k-hzk"[^>]*>([^<]+)</g)].map((m) => m[1])).toEqual(["NEAR", "MID", "FAR"]);
     }
   });
