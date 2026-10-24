@@ -11,7 +11,7 @@ import { SECTIONS } from "./sections.mjs";
 
 export const EXPLAINER_ENTRIES = {
   "outlook": {
-    about: "Our AI synthesis of the other sections your plan includes. It projects three prices, one for each horizon. Each comes with what would break the call.",
+    about: "Our AI synthesis of the other sections your plan includes. It projects three prices, one for each horizon, each with the thesis behind it.",
   },
   "fundamentals": {
     shows: "Market cap, P/E and earnings per share. Earnings come from the company's SEC filings and carry their fiscal year.",
@@ -30,7 +30,7 @@ export const EXPLAINER_ENTRIES = {
     feeds: "Insiders' net buying or selling over those six months.",
   },
   "technicals": {
-    shows: "The 50- and 200-day moving averages, RSI and the 52-week range, with today's price marked. Also how the stock has moved over the past five years, or its full history if shorter, across rolling 10-, 63- and 126-trading-day windows: the share that ended higher, the median move and the middle half of outcomes. A window shows only when there is enough history for it.",
+    shows: "The 50- and 200-day moving averages, RSI and the 52-week range, with today's price marked. Also how the stock has moved over the past five years, or its full history if shorter, across rolling 10-, 63- and 126-trading-day windows: the share that ended higher, the median move and the middle half of outcomes.",
     feeds: "Everything it shows, plus Fibonacci levels drawn from recent price swings and today's volume against its average.",
   },
   "options": {
@@ -50,11 +50,11 @@ export const EXPLAINER_ENTRIES = {
     feeds: "Everything it shows.",
   },
   "news": {
-    shows: "Recent SEC filings, on every plan. On Core and Premium, also up to three material news items, such as earnings, guidance, deals, share offerings, regulatory or trial outcomes and leadership changes. Filings and company releases reach back 30 days. On a heavily covered stock, newsroom headlines reach back as far as the section says. Headlines come from major financial newsrooms and are kept only when they name the company. Commentary is dropped. Each item carries its source, its time and a one-line summary. The next monthly options expiry appears below the news.",
+    shows: "Recent SEC filings and the material news from major financial newsrooms: earnings, guidance, deals, share offerings, trial outcomes and leadership changes. Each item carries its source, its time and a one-line summary. The next monthly options expiry sits below.",
     feeds: "The recent SEC filings and, on Core and Premium, the headlines, each with its date.",
   },
   "voices": {
-    shows: "Up to three recent posts from a list of named market voices we curate. Each post is linked, dated and summed up in one line.",
+    shows: "What prominent traders on X are saying about the stock right now. Each post is linked, dated and summed up in one line.",
     feeds: "Each post's summary, with its author and date.",
   },
   "macro": {

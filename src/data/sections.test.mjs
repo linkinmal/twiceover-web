@@ -52,7 +52,8 @@ describe("the thirteen sections", () => {
     expect.soft(tagline("peers")).toBe(
       "P/E and 3-month return against the stock's closest peers, and how the stock moves with its sector and the market.",
     );
-    expect.soft(tagline("outlook")).toBe("Near, mid and far: a projected price for each, and what would break the call.");
+    expect.soft(tagline("outlook")).toBe("Near, mid and far: a projected price for each, and the thesis behind it.");
+    expect.soft(tagline("voices")).toBe("What prominent traders on X are saying about the stock.");
     expect.soft(tagline("options")).toBe(
       "The options market's expected move and skew, and how heavily the stock is shorted.",
     );

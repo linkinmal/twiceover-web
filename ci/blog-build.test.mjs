@@ -641,7 +641,7 @@ describe("the explainer's Outlook picture draws every card folded (stock-analyst
   const page = () => read(dist, "how-our-analysis-works/index.html");
   const doc = () => dom(dist, "how-our-analysis-works/index.html");
 
-  it("carries no condition text in any of its three placements: no note element, none of the fixture's note strings", () => {
+  it("carries no condition text in either of its two placements: no note element, none of the fixture's note strings", () => {
     const d = doc();
     const html = page();
     expect.soft(d.querySelectorAll(".xp-hz__n").length, "condition elements").toBe(0);
@@ -651,22 +651,22 @@ describe("the explainer's Outlook picture draws every card folded (stock-analyst
     }
   });
 
-  it("draws no chevron on any card, and the dark far card still reads the product's own degraded line", () => {
+  // The stale-horizon step and its dark far card left the page on 2026-10-24 (#4498): no volunteered limitation.
+  it("draws no chevron on any card and no dark, degraded card", () => {
     const d = doc();
     const rows = [...d.querySelectorAll(".xp-hzrow")];
-    expect.soft(rows.length, "placements").toBe(3);
+    expect.soft(rows.length, "placements").toBe(2);
     const healthy = rows.map((row) => row.querySelectorAll(".xp-hz:not(.xp-hz--dark)").length);
-    expect.soft(healthy).toEqual([3, 3, 2]);
+    expect.soft(healthy).toEqual([3, 3]);
     expect.soft(d.querySelectorAll(".xp-hz__ch").length, "chevrons").toBe(0);
-    const dark = d.querySelectorAll(".xp-hz--dark");
-    expect.soft(dark.length, "dark cards").toBe(1);
-    expect.soft(dark[0].querySelector(".xp-hz__deg")?.textContent?.trim()).toBe(DEGRADED_FAR_LINE);
+    expect.soft(d.querySelectorAll(".xp-hz--dark").length, "dark cards").toBe(0);
+    expect.soft(page()).not.toContain(DEGRADED_FAR_LINE);
   });
 
-  it("draws EXMP's last month of closes into every Outlook chart on the page (three large, four in cards), up to the TODAY mark", () => {
+  it("draws EXMP's last month of closes into every Outlook chart on the page (two large, two in cards), up to the TODAY mark", () => {
     const d = doc();
     const charts = [...d.querySelectorAll(".k-chart--desk")];
-    expect.soft(charts.length, "desktop charts").toBe(7);
+    expect.soft(charts.length, "desktop charts").toBe(4);
     for (const c of charts) {
       expect.soft(c.getAttribute("aria-label"), "label names the history").toContain("Recent daily closes leading into today");
       expect.soft(c.textContent, "TODAY mark").toContain("TODAY");
