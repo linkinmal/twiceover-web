@@ -332,7 +332,7 @@ export function outlookDeckSvg({ phone = false } = {}) {
       `<rect class="k-tile" x="${f2(p.x - g.tile.w / 2)}" y="${tileY}" width="${g.tile.w}" height="${g.tile.h}" rx="7"/>`,
       `<text class="k-hzk" x="${f2(p.x)}" y="${f2(tileY + g.tile.k[0])}" text-anchor="middle" style="font-size:${g.tile.k[1]}px">${p.key.toUpperCase()}</text>`,
       `<text class="k-hzv" x="${f2(p.x)}" y="${f2(tileY + g.tile.v[0])}" text-anchor="middle" style="font-size:${g.tile.v[1]}px">${usd(priceOf(p.key))}</text>`,
-      `<circle class="k-hit" cx="${f2(p.x)}" cy="${f2(p.y)}" r="14"><title>${esc(cards[p.key])} — Our projection lands at ${usd(priceOf(p.key))}</title></circle>`,
+      `<circle class="k-hit" cx="${f2(p.x)}" cy="${f2(p.y)}" r="14"><title>${esc(cards[p.key])} — Our projection points to ${usd(priceOf(p.key))}</title></circle>`,
     );
   }
   out.push(`</svg>`);

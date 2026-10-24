@@ -56,8 +56,9 @@ describe("no horizon price is rendered as chart text", () => {
     // Every figure is stated as real text in the cards below; the tooltip is the only place the
     // chart itself names one, and it carries its attribution marker with it.
     for (const price of ["178.00", "192.00", "205.00"]) {
-      expect.soft(svg).toContain(`Our projection lands at $${price}`);
+      expect.soft(svg).toContain(`Our projection points to $${price}`);
     }
+    expect.soft(svg).not.toContain("lands at");
     const withoutTitles = svg.replace(/<title>[\s\S]*?<\/title>/g, "");
     for (const price of ["178", "192", "205"]) {
       expect.soft(withoutTitles).not.toMatch(new RegExp(`>[^<]*${price}[^<]*<`));

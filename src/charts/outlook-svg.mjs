@@ -101,7 +101,7 @@ export function outlookPathSvgBody(m, { compact, horizons, labels }) {
       // still attributed.
       parts.push(
         `<circle class="k-hit" cx="${n(p.x)}" cy="${n(p.y)}" r="14">` +
-          `<title>${esc(labels[p.key])} — Our projection lands at $${price.toFixed(2)}</title>` +
+          `<title>${esc(labels[p.key])} — Our projection points to $${price.toFixed(2)}</title>` +
           `</circle>`,
       );
     }

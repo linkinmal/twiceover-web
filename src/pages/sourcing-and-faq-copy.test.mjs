@@ -88,6 +88,25 @@ describe("the explainer's News entry says what the headline filter does, without
     expect.soft(shows).toContain("Headlines come from major financial newsrooms and are kept only when they name the company. Commentary is dropped.");
     expect.soft(shows).not.toMatch(/yahoo|cnbc|benzinga/i);
   });
+
+  it("says filings and releases reach back 30 days and newsroom headlines reach back as far as the section says (ADR 1045 Amendment 1, #4499)", async () => {
+    const { EXPLAINER_ENTRIES } = await import("../data/explainer-sections.mjs");
+    const shows = EXPLAINER_ENTRIES.news.shows;
+    expect.soft(shows).toContain("also up to three material news items, such as earnings,");
+    expect.soft(shows).toContain("Filings and company releases reach back 30 days. On a heavily covered stock, newsroom headlines reach back as far as the section says.");
+    expect.soft(shows).not.toContain("from the last 30 days");
+  });
+});
+
+describe("the Outlook's marker reads 'points to' wherever the explainer draws the card (consult 1148, ADR 0231 Amendment 9, #4499)", () => {
+  it("says it in the sentence, the Labelled row and the three horizon cards, and nowhere says 'lands at'", () => {
+    const card = read("../components/ExplainerOutlook.astro");
+    expect.soft(explainer).toContain('Each price reads "Our projection points to", and the Outlook is labelled as AI synthesis wherever it appears.');
+    expect.soft(explainer).toContain("“Our projection points to {projections[0].v}” · AI synthesis");
+    expect.soft(card).toContain("Our projection points to <b>{usd(h.price)}</b>");
+    expect.soft(explainer).not.toContain("lands at");
+    expect.soft(card).not.toContain("lands at");
+  });
 });
 
 describe("the homepage's meta description and the no-positions rule (#3842, ADR 0959 Decisions 4-5)", () => {
