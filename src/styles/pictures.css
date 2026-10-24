@@ -126,24 +126,3 @@
   .pic-hero__cta { justify-self: start; margin-top: 6px; }
   .pic-hero__row .pic-swipe { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; overflow: visible; margin: 0; padding: 0; }
 }
-
-/* ── /pricing: one picture over each plan, inside the ink band ──
-   The band tightens to the artifact's measures (34px over the title, a 30/40px title on one line) so the
-   plan cards' figures stay above the fold at 1280×720 under the pictures. The closing padding still
-   moves with the cards' straddle (site.css, ADR 0912). */
-section.pricing-band { padding-block: 1.5rem 6rem; }
-.pricing-band .pricing-band__title { max-width: none; font-size: var(--font-size-700); }
-@media (min-width: 640px) {
-  section.pricing-band { padding-block: 2.125rem 7.5rem; }
-  .pricing-band .pricing-band__title { font-size: var(--font-size-800); }
-}
-.pic-plans { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; margin-top: var(--space-300); text-align: left; }
-.pic-plan { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-.pic-plan__k { margin: 0; font-size: 12px; font-weight: var(--font-weight-semibold); letter-spacing: .08em; text-transform: uppercase; color: var(--color-text-secondary); }
-.pic-plans .pic-swipe > * { flex-basis: 248px; }
-.pricing-caption { max-width: 65ch; margin: var(--space-300) auto 0; padding-inline: var(--space-200); text-align: center; }
-@media (max-width: 859px) { .pic-dk { display: none; } }
-@media (min-width: 860px) {
-  .pic-plans { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; align-items: stretch; }
-  .pic-plans .pic-swipe { display: contents; }
-}
