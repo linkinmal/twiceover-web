@@ -1,0 +1,16 @@
+---
+// The Macro board card (site-prelaunch v2.54, build reference above-fold-pictures-4498-2026-10-24/MacroCard):
+// one board tile, the VIX, drawn by the site's own MacroTile (spine §4c). `width` is the graph's width in
+// the card's desktop slot and `phoneWidth` its width in the phone swipe row (pictures.css swaps them).
+import MacroTile from "../MacroTile.astro";
+
+interface Props {
+  width?: number;
+  phoneWidth?: number;
+}
+const { width = 166, phoneWidth = 206 } = Astro.props;
+---
+<div class="pic pic-macro pic-card">
+  <div class="pic__hd"><span class="pic__title">Macro &amp; regime</span><span class="pic__meta">macro board</span></div>
+  <MacroTile row="vix" width={width} phoneWidth={phoneWidth} class="pic-macro__tile" />
+</div>

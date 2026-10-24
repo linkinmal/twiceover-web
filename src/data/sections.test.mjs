@@ -13,7 +13,7 @@ import { SECTIONS, PLANS, sectionsOn, sectionCountLine, sectionGroups } from "./
 describe("the thirteen sections", () => {
   it("lists them in the app's order (ADR 0658 Amendment 4), each with its plan", () => {
     expect(SECTIONS.map((s) => [s.name, s.plan])).toEqual([
-      ["Outlook", "free"],
+      ["Projected prices", "free"],
       ["Fundamentals", "free"],
       ["Technicals & levels", "free"],
       ["Options & short interest", "core"],
@@ -71,7 +71,7 @@ describe("plan placement", () => {
   });
 
   it("names sections on the facts strip, not plan counts (#4498)", () => {
-    expect(sectionCountLine()).toBe("Sections in our analysis, from the Outlook and Voices to insiders, the largest options trades and the macro board.");
+    expect(sectionCountLine()).toBe("Sections in our analysis, from the projected prices and Voices to insiders, the largest options trades and the macro board.");
     expect(sectionCountLine()).not.toMatch(/Free|Core|Premium/);
   });
 });
@@ -80,7 +80,7 @@ describe("the /pricing table's groups (ADR 0912 Amendment 1 ruling 2)", () => {
   it("groups each section under the plan that adds it, in the app's order", () => {
     // The table lists each section once, under the lowest plan that includes it, in the list's order.
     expect(sectionGroups().map((g) => [g.label, g.sections.map((s) => s.name)])).toEqual([
-      ["On every plan", ["Outlook", "Fundamentals", "Technicals & levels", "Sector regime", "Peers & relative position", "Macro & regime"]],
+      ["On every plan", ["Projected prices", "Fundamentals", "Technicals & levels", "Sector regime", "Peers & relative position", "Macro & regime"]],
       ["Added on Core", ["Options & short interest", "Earnings & dividends", "News & catalysts", "Voices"]],
       ["Added on Premium", ["Earnings history", "Large options trades", "Insiders"]],
     ]);

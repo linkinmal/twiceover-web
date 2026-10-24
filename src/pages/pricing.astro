@@ -43,6 +43,10 @@
 // pricing-strip-and-closing-band.test.mjs asserts both equalities from both surfaces and
 // pins the three numbers so neither page can drift, nor both together.
 import Base from "../layouts/Base.astro";
+import "../styles/pictures.css";
+import PicAnalysis from "../components/pictures/PicAnalysis.astro";
+import PicVoices from "../components/pictures/PicVoices.astro";
+import PicTrades from "../components/pictures/PicTrades.astro";
 import { PLANS, sectionGroups, sectionsOn } from "../data/sections.mjs";
 
 // Offer JSON-LD (SEO audit 2026-07 finding 7) — the Accepted prices, verbatim from
@@ -112,7 +116,16 @@ const includedOn = (section) => PLANS.map((plan) => PLANS.indexOf(plan) >= PLANS
   <section class="pricing-band" data-theme="dark">
     <div class="container">
       <h1 class="pricing-band__title type-display">Simple subscription. You hold the decisions; we do the math.</h1>
-      <p class="pricing-band__sub">One simple monthly subscription. Use it with or without a broker connection. Connect your broker and Your Portfolio checks your own rules on the positions they fit.</p>
+      {/* One picture over each plan (site-prelaunch v2.54, stock-analyst-platform#4498; build reference
+          above-fold-pictures-4498-2026-10-24/Pricing + PricingPhone). The artifact drops the band's
+          sub-line so the plan cards' figures stay above the fold at 1280×720. */}
+      <div class="pic-plans">
+        <div class="pic-plan"><p class="pic-plan__k">Free · three projected prices</p><PicAnalysis /></div>
+        <div class="pic-swipe">
+          <div class="pic-plan"><p class="pic-plan__k">Core adds · Voices</p><PicVoices /></div>
+          <div class="pic-plan"><p class="pic-plan__k">Premium adds · Large <span class="pic-dk">options </span>trades</p><PicTrades /></div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -130,7 +143,7 @@ const includedOn = (section) => PLANS.map((plan) => PLANS.indexOf(plan) >= PLANS
             whitespace-only node between flex items is not rendered, so the visual is unchanged. */}
         <p class="tier__cap"><span class="tier__cap-n">10</span> <span class="tier__cap-w">analyses a month</span></p>
       </div>
-      <p class="tier__line">Your Portfolio in full. The Outlook, built on fundamentals, technicals, peers, the sector and macro.</p>
+      <p class="tier__line">Your Portfolio in full. Three projected prices, built on fundamentals, technicals, peers, the sector and macro.</p>
       <div class="tier__foot">
         <a class="btn-quiet tier__cta" href="/go/try">Run a free analysis</a>
       </div>
@@ -162,6 +175,8 @@ const includedOn = (section) => PLANS.map((plan) => PLANS.indexOf(plan) >= PLANS
       </div>
     </li>
   </ul>
+
+  <p class="pic-caption pricing-caption">Illustrative example with made-up figures. EXMP is a made-up symbol.</p>
 
   <p class="mor-line">Subscriptions are sold by <strong>Dodo Payments</strong>, our merchant of record; TwiceOver is the software and service you're using. Prices in USD. You can cancel anytime; see the <a href="/refunds">Refund Policy</a>.</p>
 
@@ -210,7 +225,7 @@ const includedOn = (section) => PLANS.map((plan) => PLANS.indexOf(plan) >= PLANS
         </tfoot>
       </table>
     </div>
-    <p class="plans__foot">Each plan's Outlook weighs only the sections that plan shows.</p>
+    <p class="plans__foot">Each plan's analysis weighs only the sections that plan shows.</p>
     <p class="plans__foot">Every figure in a section carries its source and the exact time it was fetched.</p>
   </section>
 </Base>

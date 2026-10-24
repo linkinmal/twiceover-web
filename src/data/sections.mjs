@@ -19,7 +19,7 @@ export const PLANS = ["free", "core", "premium"];
 const PLAN_LABEL = { free: "Free", core: "Core", premium: "Premium" };
 
 export const SECTIONS = [
-  { key: "outlook", name: "Outlook", plan: "free", tagline: "Near, mid and far: a projected price for each, and the thesis behind it." },
+  { key: "outlook", name: "Projected prices", plan: "free", tagline: "Near, mid and far: a projected price for each, and the thesis behind it." },
   { key: "fundamentals", name: "Fundamentals", plan: "free", tagline: "Market cap, P/E, earnings — the numbers in context." },
   { key: "technicals", name: "Technicals & levels", plan: "free", tagline: "Moving averages, momentum, the 52-week range and how the stock has moved before." },
   { key: "options", name: "Options & short interest", plan: "core", tagline: "The options market's expected move and skew, and how heavily the stock is shorted." },
@@ -48,7 +48,7 @@ export function planTag(section) {
 /** The facts strip's caption under the section count: what the sections are, not how plans split them
  *  (#4498, Growth brief standing ruling item 2: no plan mechanics on marketing surfaces). */
 export function sectionCountLine() {
-  return "Sections in our analysis, from the Outlook and Voices to insiders, the largest options trades and the macro board.";
+  return "Sections in our analysis, from the projected prices and Voices to insiders, the largest options trades and the macro board.";
 }
 
 const GROUP_LABEL = { free: "On every plan", core: "Added on Core", premium: "Added on Premium" };

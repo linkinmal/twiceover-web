@@ -653,25 +653,30 @@ describe("the explainer's Outlook picture draws every card folded (stock-analyst
   });
 
   // The stale-horizon step and its dark far card left the page on 2026-10-24 (#4498): no volunteered limitation.
+  // One placement since the hero draws the analysis card instead (site-prelaunch v2.54).
   it("draws no chevron on any card and no dark, degraded card", () => {
     const d = doc();
     const rows = [...d.querySelectorAll(".xp-hzrow")];
-    expect.soft(rows.length, "placements").toBe(2);
+    expect.soft(rows.length, "placements").toBe(1);
     const healthy = rows.map((row) => row.querySelectorAll(".xp-hz:not(.xp-hz--dark)").length);
-    expect.soft(healthy).toEqual([3, 3]);
+    expect.soft(healthy).toEqual([3]);
     expect.soft(d.querySelectorAll(".xp-hz__ch").length, "chevrons").toBe(0);
     expect.soft(d.querySelectorAll(".xp-hz--dark").length, "dark cards").toBe(0);
     expect.soft(page()).not.toContain(DEGRADED_FAR_LINE);
   });
 
-  it("draws EXMP's last month of closes into every Outlook chart on the page (two large, two in cards), up to the TODAY mark", () => {
+  it("draws EXMP's last month of closes into every projection chart on the page (one large, two in cards, the hero's two), up to the TODAY mark", () => {
     const d = doc();
     const charts = [...d.querySelectorAll(".k-chart--desk")];
-    expect.soft(charts.length, "desktop charts").toBe(4);
+    expect.soft(charts.length, "desktop charts").toBe(3);
     for (const c of charts) {
       expect.soft(c.getAttribute("aria-label"), "label names the history").toContain("Recent daily closes leading into today");
       expect.soft(c.textContent, "TODAY mark").toContain("TODAY");
     }
+    // The hero's analysis card, a wide and a narrow drawing (site-prelaunch v2.54).
+    const hero = [...d.querySelectorAll(".pic-hero .pic-chart")];
+    expect.soft(hero.length, "hero analysis drawings").toBe(2);
+    for (const c of hero) expect.soft(c.textContent, "TODAY mark").toContain("TODAY");
   });
 });
 

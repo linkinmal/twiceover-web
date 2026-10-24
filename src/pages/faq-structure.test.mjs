@@ -26,8 +26,8 @@ beforeAll(() => {
 const BEFORE_SIGNUP_GROUP = [
   "What is TwiceOver, exactly?",
   // The two Outlook questions (consult 0987 §2, #3829) join after the first.
-  "How is the Outlook different from a price target?",
-  "Does every plan get the same Outlook?",
+  "How are the projected prices different from a price target?",
+  "Does every plan get the same projected prices?",
   "Can TwiceOver trade on my behalf?",
   "Where does the data come from?",
   "Do I need to connect my brokerage to use it?",

@@ -1,0 +1,33 @@
+---
+// The Large options trades card (site-prelaunch v2.54 ruling 3, read-components-options-earnings.md §4l;
+// build reference above-fold-pictures-4498-2026-10-24/TradesCard): the five sessions' premium, the calls
+// and puts shares, and the session chart. No direction wording. The shares are computed from the sessions.
+import { largeTradesSummary, largeTradesSvg } from "../../charts/pictures-svg.mjs";
+
+// Three drawings, one per slot the card takes (pictures.css picks by the card's width): the explainer's
+// row of three, a phone swipe row, and a /pricing column.
+interface Props {
+  narrow?: number;
+  mid?: number;
+  wide?: number;
+}
+const { narrow = 174, mid = 230, wide = 300 } = Astro.props;
+const s = largeTradesSummary();
+---
+<div class="pic pic-trades-card pic-card">
+  <div class="pic__hd"><span class="pic__title">Large options trades</span><span class="pic__meta">EXMP</span></div>
+  <div class="pic-stat">
+    <div class="pic-stat__fig">
+      <span class="pic-stat__k">Premium in large trades</span>
+      <span class="pic-stat__v">{s.total}</span>
+      <span class="pic-stat__s">last five sessions</span>
+    </div>
+    <div class="pic-share">
+      <div class="pic-share__bar" aria-hidden="true"><span class="pic-share__c" style={`width: ${s.callsPct}%`}></span><span class="pic-share__p" style={`width: ${s.putsPct}%`}></span></div>
+      <div class="pic-share__l"><span>Calls {s.callsPct}%</span><span>Puts {s.putsPct}%</span></div>
+    </div>
+  </div>
+  <div class="pic-trades-v pic-trades-v--narrow"><Fragment set:html={largeTradesSvg(narrow)} /></div>
+  <div class="pic-trades-v pic-trades-v--mid"><Fragment set:html={largeTradesSvg(mid)} /></div>
+  <div class="pic-trades-v pic-trades-v--wide"><Fragment set:html={largeTradesSvg(wide)} /></div>
+</div>

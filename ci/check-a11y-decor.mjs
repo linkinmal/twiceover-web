@@ -19,8 +19,8 @@
  *
  * The two explainer pages (stock-analyst-platform#3829, ADR 0993) are held to the same rule: their
  * product pictures (`.app`, the signed Portfolio/Position artifact's own markup) and section cards
- * (`.xp-card`) and the analysis screenshot (`.xp-shot`) render the artifact's links, sort buttons,
- * section nav and disclosure as plain text.
+ * (`.xp-card`) render the artifact's links, sort buttons, section nav and disclosure as plain text, and
+ * so do the product pictures above the fold on the explainer and /pricing (`.pic-card`, v2.54).
  *
  * Run after `astro build` (same dependency as ci/check-content.mjs).
  */
@@ -63,8 +63,11 @@ const failures = [];
 const EXPECTED = {
   // 8 hero-deck slides (v2.51, stock-analyst-platform#4411) + the Portfolio section's two cards; 1 phone.
   "index.html": { dcard: 10, phone: 1 },
-  // The 13 section cards, the Voices and Macro pair (stock-analyst-platform#4498), and the hero's analysis screenshot.
-  "how-our-analysis-works/index.html": { "xp-card": 15, "xp-shot": 1 },
+  // The 13 section cards, the Voices and Macro pair (stock-analyst-platform#4498), and the hero's four
+  // product pictures (site-prelaunch v2.54: analysis, Voices, Large options trades, Macro board).
+  "how-our-analysis-works/index.html": { "xp-card": 15, "pic-card": 4 },
+  // One picture over each plan in the ink band (v2.54): analysis, Voices, Large options trades.
+  "pricing/index.html": { "pic-card": 3 },
   // The seven product pictures: the portfolio desk, two row close-ups, the position page, the rules,
   // scenarios and paths cards.
   "your-portfolio/index.html": { app: 7 },

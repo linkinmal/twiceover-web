@@ -110,6 +110,19 @@ export const EXMP_OUTLOOK_CHART = {
   history: EXMP_OUTLOOK_HISTORY,
 };
 
+/**
+ * Premium in EXMP's large options trades, in $ millions, over its last five sessions (made up). The
+ * Large options trades picture draws them (site-prelaunch v2.54 ruling 3, read-components §4l): calls
+ * above the line, puts below. They sum to the flow card's $38M, asserted in the test.
+ */
+export const EXMP_LARGE_TRADES = [
+  { label: "Aug 25", calls: 4.1, puts: 2.0 },
+  { label: "Aug 26", calls: 6.3, puts: 3.2 },
+  { label: "Aug 27", calls: 2.4, puts: 5.1 },
+  { label: "Aug 28", calls: 7.8, puts: 1.9 },
+  { label: "today", calls: 3.6, puts: 1.6 },
+];
+
 /** twiceover-app's `degradedProjectionLine('far')`, copied exactly (ADR 0993), never paraphrased. */
 export const DEGRADED_FAR_LINE = "No far projection right now — it needs inputs that aren't all live.";
 

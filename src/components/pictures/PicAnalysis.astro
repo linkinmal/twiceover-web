@@ -1,0 +1,35 @@
+---
+// The analysis card (site-prelaunch v2.54, build reference above-fold-pictures-4498-2026-10-24/OutlookCard):
+// EXMP's month of closes, its three projected prices and a tile under each point. On public surfaces the
+// card is titled "analysis", never "Outlook", and carries no "AI synthesis" label (v2.54 ruling 1). Two
+// drawings, one swapped in by the card's own width (pictures.css), so the chart's type stays at size.
+import { analysisCard } from "../../charts/pictures-svg.mjs";
+
+interface Props {
+  wide?: number;
+  narrow?: number;
+}
+const { wide = 600, narrow = 330 } = Astro.props;
+const variants = [
+  { cls: "pic-analysis__v--wide", c: analysisCard(wide) },
+  { cls: "pic-analysis__v--narrow", c: analysisCard(narrow) },
+];
+const { spot, asOf } = variants[0].c;
+---
+<div class="pic pic-analysis pic-card">
+  <div class="pic__hd"><span class="pic__title">EXMP analysis</span><span class="pic__meta">{spot} · {asOf}</span></div>
+  {variants.map(({ cls, c }) => (
+    <div class={`pic-analysis__v ${cls}`} style={`--tw: ${c.tileWidth}`}>
+      <Fragment set:html={c.svg} />
+      <div class="pic-tiles">
+        {c.tiles.map((t) => (
+          <div class="pic-tile" style={`--x: ${t.pct}%`}>
+            <span class="pic-tile__w">{t.word}</span>
+            <span class="pic-tile__p">{t.price}</span>
+            <span class="pic-tile__d">{t.date}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  ))}
+</div>

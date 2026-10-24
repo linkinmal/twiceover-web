@@ -36,7 +36,7 @@ import {
 
 const tech = Object.fromEntries(TECHNICALS_ROWS.map((r) => [r.label, r.value]));
 const CARDS = [
-  "Outlook",
+  "Analysis",
   "Your Portfolio",
   "Your position",
   "Technicals & levels",
@@ -49,7 +49,7 @@ const CARDS = [
 
 <figure class="deck-fig">
   <div class="deck" id="deck" aria-roledescription="carousel" aria-label="Product views, changing every 5 seconds">
-    <div role="group" aria-roledescription="slide" aria-label="Outlook" class="dcard dcard--outlook" data-key="outlook" data-pos="0">
+    <div role="group" aria-roledescription="slide" aria-label="Analysis" class="dcard dcard--outlook" data-key="outlook" data-pos="0">
       <OutlookBand deck />
     </div>
     <PortfolioCard variant="deck" />

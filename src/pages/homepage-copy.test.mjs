@@ -50,7 +50,7 @@ const PINNED = [
     ]],
     ["synthesis", [
       "How the sections become three projected prices.",
-      "The Outlook is our AI synthesis. It weighs every section your plan shows, from the options market and the news to what traders on X are saying and the macro backdrop. Then it projects a price for about two weeks, three months and six months out, each with the thesis behind it.",
+      "Our AI weighs every section your plan shows, from the options market and the news to what traders on X are saying and the macro backdrop. Then it projects a price for about two weeks, three months and six months out, each with the thesis behind it.",
       "Illustrative example with made-up figures.",
     ]],
     ["portfolio", [
@@ -67,7 +67,7 @@ const PINNED = [
       "4",
       "Paths for every options structure you hold: make no change, close, reduce or roll. Each comes with its math.",
       "3",
-      "Horizons in every Outlook: about two weeks, three months and six months out. Each gets its own projected price and date.",
+      "Horizons in every analysis: about two weeks, three months and six months out. Each gets its own projected price and date.",
     ]],
     ["mobile", [
       "The same analysis, coming to your phone.",
@@ -86,7 +86,7 @@ const PINNED = [
       "See it on your own book.",
       "Connect your broker to see your own positions, or analyze any US-listed stock.",
       "Your Portfolio comes with every plan.",
-      "Core and Premium give the Outlook more to weigh. Core adds the news, market voices, earnings and the options market. Premium adds the largest options trades, earnings history and insider activity.",
+      "Core and Premium give the analysis more to weigh. Core adds the news, market voices, earnings and the options market. Premium adds the largest options trades, earnings history and insider activity.",
     ]],
 ];
 

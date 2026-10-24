@@ -1,0 +1,14 @@
+---
+// The Voices card (site-prelaunch v2.54, build reference above-fold-pictures-4498-2026-10-24/VoicesCard).
+// Rows read date first, as the product's own row does (read-components-characterized-items.md §8a):
+// [date] · @handle — line. X ↗. The posts are EXMP's, the same three the explainer's Voices card draws.
+import { EXMP_BAND_CARDS } from "../../charts/exmp-fixture.mjs";
+
+const rows = EXMP_BAND_CARDS.voices.filter((b) => b.post).map(({ post: [date, line] }) => ({ date, line: line.charAt(0).toUpperCase() + line.slice(1) }));
+---
+<div class="pic pic-voices pic-card">
+  <div class="pic__hd"><span class="pic__title">Voices</span><span class="pic__meta">via X · EXMP</span></div>
+  {rows.map((r) => (
+    <p class="pic-voice"><span class="pic-voice__d">{r.date} · </span><span class="pic-voice__h">@handle</span><span class="pic-voice__d"> — </span>{r.line} <span class="pic-voice__x">X ↗</span></p>
+  ))}
+</div>

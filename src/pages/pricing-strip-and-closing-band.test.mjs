@@ -223,7 +223,7 @@ describe("Closing band (homepage v3.4, stock-analyst-platform#3829)", () => {
   // nothing on the homepage starts a trial, and /pricing is where one is started.
   const BODY_1 = "Your Portfolio comes with every plan.";
   const BODY_2 =
-    "Core and Premium give the Outlook more to weigh. Core adds the news, market voices, earnings and the options market. Premium adds the largest options trades, earnings history and insider activity.";
+    "Core and Premium give the analysis more to weigh. Core adds the news, market voices, earnings and the options market. Premium adds the largest options trades, earnings history and insider activity.";
   it("carries both body paragraphs verbatim, and no trial disclosure", () => {
     const band = astro.slice(astro.indexOf('<section class="closing-band"'));
 

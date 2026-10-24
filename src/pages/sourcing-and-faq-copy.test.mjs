@@ -26,9 +26,19 @@ describe("the public pages make no 'licensed' sourcing claim (#3649, ADR 0927)",
   });
 });
 
-describe("the Outlook FAQ lines (#3693)", () => {
-  it("adds the history and sector sentence to the homepage's 'same Outlook' answer", () => {
-    expect(index).toContain("Every plan's Outlook also sees how the stock has moved before, and how it moves with its sector and the market.");
+describe("the projected-prices FAQ lines (#3693)", () => {
+  it("adds the history and sector sentence to the homepage's 'same projected prices' answer", () => {
+    expect(index).toContain("Every plan's analysis also sees how the stock has moved before, and how it moves with its sector and the market.");
+  });
+
+  // Site-prelaunch v2.54 ruling 1 (founder, 2026-10-24, #4498): on public surfaces the word is analysis,
+  // never "Outlook". Comments and component names are code, not copy, so they are stripped first.
+  it("says analysis, never Outlook, in any copy a reader meets", () => {
+    const copy = (src) => src.replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+    for (const [name, src] of Object.entries({ index, explainer, pricing: read("pricing.astro"), portfolio: read("your-portfolio.astro"), sections: read("../data/sections.mjs"), entries: read("../data/explainer-sections.mjs") })) {
+      expect.soft(copy(src).match(/\bOutlook\b.{0,40}/g), name).toBeNull();
+    }
+    expect.soft(copy(index), "the check finds a known word").toMatch(/\banalysis\b/);
   });
 
   // Founder 2026-10-24 (#4498, Growth brief standing ruling item 2): no volunteered limitation on a marketing page.
@@ -50,9 +60,9 @@ describe("the Outlook FAQ lines (#3693)", () => {
 // `site-copy-explainer-pages.md`; PM ruling 2026-10-06 that they ride this PR). ADR 1036 Amendment 1:
 // ADR 1131 Amendment 2 (stock-analyst-platform#4380): the writer retired; the page says what the AI does, never how it is built (PM ruling 2026-10-17); the AI reaches the call.
 // The falsifier step left the page on 2026-10-24 (#4498).
-describe("'How the Outlook is made' names the AI, not the build (ADR 1131 Amendment 2), and sells instead of disclaiming (#4498)", () => {
+describe("'How the projected prices are made' names the AI, not the build (ADR 1131 Amendment 2), and sells instead of disclaiming (#4498)", () => {
   it("says it in the intro and steps 2 and 3, with no falsifier, stale-horizon or record copy", () => {
-    expect.soft(explainer).toContain("It works through the sections and reaches a call for each horizon.");
+    expect.soft(explainer).toContain("Our AI works through the sections and reaches a call for each horizon.");
     expect.soft(explainer).toContain("On every plan it also sees how the stock has actually moved over each horizon across the past five years.");
     expect.soft(explainer).toContain("Our AI thinks it through and reaches a call for each horizon.");
     for (const page of [explainer, index]) {

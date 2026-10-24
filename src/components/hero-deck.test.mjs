@@ -31,7 +31,7 @@ describe("the dots and the cards are one list", () => {
     expect.soft(slides).toHaveLength(8);
     expect.soft(dotNames()).toEqual(slides);
     expect.soft(slides).toEqual([
-      "Outlook", "Your Portfolio", "Your position", "Technicals & levels",
+      "Analysis", "Your Portfolio", "Your position", "Technicals & levels",
       "Options & short interest", "Earnings history", "Insiders", "Macro & regime",
     ]);
   });

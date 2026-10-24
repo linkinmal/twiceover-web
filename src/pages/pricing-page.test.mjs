@@ -143,7 +143,7 @@ describe("the section-by-plan table", () => {
       "Your Portfolio comes with every plan. The plans differ in which sections of the analysis they include.",
     ]);
     expect.soft(textsOf(template, "plans__foot")).toEqual([
-      "Each plan's Outlook weighs only the sections that plan shows.",
+      "Each plan's analysis weighs only the sections that plan shows.",
       "Every figure in a section carries its source and the exact time it was fetched.",
     ]);
   });

@@ -107,7 +107,7 @@ export function coneSvg({ phone = false } = {}) {
   const Y = (pct) => g.yc - pct * g.pxPerPct;
   const reportDays = days(DECK_CLOSE_ISO, OPTIONS_CARD.report.date);
 
-  const label = `Price over the last month into today at $${SPOT.toFixed(2)}, then the range options price in to each Outlook horizon: ${horizons
+  const label = `Price over the last month into today at $${SPOT.toFixed(2)}, then the range options price in to each horizon: ${horizons
     .map((h, i) => `${["Near", "Mid", "Far"][i]}, plus or minus ${h.pct.toFixed(1)}% through ${monthDay(h.landing).replace(/^(\w)(\w+)/, (_, a, b) => a + b.toLowerCase())}`)
     .join("; ")}. The ${OPTIONS_CARD.report.label.replace("report ", "")} report falls inside the Mid range.`;
 

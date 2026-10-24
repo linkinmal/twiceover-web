@@ -12,20 +12,17 @@
 // Technicals chart need their EXMP series, which the build reference carries only as pixels.
 import Base from "../layouts/Base.astro";
 import "../styles/explainer.css";
+import "../styles/pictures.css";
 import AnalysisMini from "../components/AnalysisMini.astro";
+import PicAnalysis from "../components/pictures/PicAnalysis.astro";
+import PicVoices from "../components/pictures/PicVoices.astro";
+import PicTrades from "../components/pictures/PicTrades.astro";
+import PicMacro from "../components/pictures/PicMacro.astro";
 import ExplainerOutlook from "../components/ExplainerOutlook.astro";
 import OutlookPathChart from "../components/OutlookPathChart.astro";
 import { SECTIONS } from "../data/sections.mjs";
 import { EXPLAINER_ENTRIES, EXPLAINER_ORDER, entryAnchor } from "../data/explainer-sections.mjs";
-import {
-  EXMP_BAND_CARDS,
-  EXMP_LAST_CLOSE,
-  EXMP_OUTLOOK,
-  EXMP_OUTLOOK_CHART,
-  EXMP_PRICE,
-  sectionPlanLabel,
-  usd,
-} from "../charts/exmp-fixture.mjs";
+import { EXMP_BAND_CARDS, EXMP_OUTLOOK, EXMP_OUTLOOK_CHART, sectionPlanLabel, usd } from "../charts/exmp-fixture.mjs";
 
 const byKey = Object.fromEntries(SECTIONS.map((s) => [s.key, s]));
 const entries = EXPLAINER_ORDER.map((k) => ({ ...byKey[k], ...EXPLAINER_ENTRIES[k] }));
@@ -40,38 +37,35 @@ const projections = EXMP_OUTLOOK.horizons.map((h) => ({ k: h.key.toUpperCase(), 
 const LOCK = '<svg class="xp-lock" viewBox="0 0 12 14" aria-hidden="true"><rect x="1.5" y="6" width="9" height="7" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 6V4.2a2.5 2.5 0 0 1 5 0V6" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>';
 const CHEVRON = '<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
 const FAQ = [
-  ["How is the Outlook different from a price target?", "An analyst's price target is usually one number, a year out. The Outlook gives three projected prices, about two weeks, three months and six months out, each with its date and the thesis behind it. You can open every section it weighed."],
-  ["What are Voices?", "What prominent traders on X are saying about the stock right now. Each post is linked, dated and summed up in one line, and on Core and Premium the Outlook weighs them with everything else."],
-  ["Does Core or Premium change the Outlook?", "Yes. Core and Premium give the Outlook more to weigh: the news, Voices, earnings and the options market on Core, then the largest options trades, earnings history and insiders on Premium."],
-  ["Which parts are written by AI?", "The Outlook's three prices and the thesis behind each are written by our AI. So are the short summaries in some sections, such as the one-line summary of each news item. Every figure in a section comes from vendor data or public filings, through our own code."],
+  ["How are the projected prices different from a price target?", "An analyst's price target is usually one number, a year out. Our analysis gives three projected prices, about two weeks, three months and six months out, each with its date and the thesis behind it. You can open every section it weighed."],
+  ["What are Voices?", "What prominent traders on X are saying about the stock right now. Each post is linked, dated and summed up in one line, and on Core and Premium our analysis weighs them with everything else."],
+  ["Do Core and Premium change the projected prices?", "Yes. Core and Premium give our analysis more to weigh: the news, Voices, earnings and the options market on Core, then the largest options trades, earnings history and insiders on Premium."],
+  ["Which parts are written by AI?", "The three projected prices and the thesis behind each are written by our AI. So are the short summaries in some sections, such as the one-line summary of each news item. Every figure in a section comes from vendor data or public filings, through our own code."],
 ];
 ---
 <Base
   title="How TwiceOver's stock analysis works: 13 sections"
-  description="What each of the 13 sections in a TwiceOver analysis shows, which plan includes it, and how the Outlook turns them into three projected prices."
+  description="What each of the 13 sections in a TwiceOver analysis shows, which plan includes it, and how our analysis turns them into three projected prices."
 >
   <div class="xp-page">
-    <section class="xp-hero">
-      <div class="xp-hero__copy">
-        <h1 class="type-display">How our analysis works</h1>
-        <p class="xp-lede">One stock, thirteen sections: its filings and earnings, the options market and its largest trades, what traders on X are saying and the macro backdrop. The Outlook weighs them all and projects a price for about two weeks, three months and six months out.</p>
-        <a class="btn-filled xp-cta" href="/go/try">Analyze a stock →</a>
-      </div>
-      <figure class="xp-fig">
-        <div class="xp-shot">
-          <div class="xp-shot__bar" aria-hidden="true"><span class="xp-dot"></span><span class="xp-dot"></span><span class="xp-dot"></span><span class="xp-url">twiceover · analysis</span></div>
-          <div class="xp-shot__body">
-            <div class="xp-snap">
-              <div><span class="xp-snap__tk">EXMP</span> <span class="xp-snap__nm">Example Co. · stock</span></div>
-              <div class="xp-snap__r"><span class="xp-snap__px">{usd(EXMP_PRICE)}</span> <span class="xp-plan">Core</span></div>
-            </div>
-            <p class="xp-snap__asof">price as of {EXMP_LAST_CLOSE.charAt(0) + EXMP_LAST_CLOSE.slice(1).toLowerCase()} close</p>
-            <ExplainerOutlook />
-            <div class="xp-fadeout" aria-hidden="true"><span>Fundamentals</span><span>Earnings &amp; dividends</span><span>Technicals &amp; levels</span></div>
+    {/* Product pictures above the fold (site-prelaunch v2.54, stock-analyst-platform#4498; build reference
+        above-fold-pictures-4498-2026-10-24/Main + ExplainerPhone): the analysis card, then Voices, Large
+        options trades and the Macro board in a row of three, a swipe row on a phone. */}
+    <section class="pic-hero">
+      <h1 class="type-display pic-hero__h1">How our analysis works</h1>
+      <p class="xp-lede pic-hero__lede">One stock, thirteen sections: its filings and earnings, the options market and its largest trades, what traders on X are saying and the macro backdrop. Our analysis weighs them all and projects a price for about two weeks, three months and six months out.</p>
+      <a class="btn-filled xp-cta pic-hero__cta" href="/go/try">Analyze a stock →</a>
+      <div class="pic-hero__fig">
+        <div class="pic-hero__main"><PicAnalysis /></div>
+        <figure class="pic-hero__row">
+          <div class="pic-swipe">
+            <PicVoices />
+            <PicTrades />
+            <PicMacro width={150} />
           </div>
-        </div>
-        <figcaption class="proof__caption type-caption">Every figure and chart on this page is a made-up example. EXMP is a made-up symbol.</figcaption>
-      </figure>
+          <figcaption class="pic-caption">Illustrative example with made-up figures. EXMP is a made-up symbol.</figcaption>
+        </figure>
+      </div>
     </section>
 
     <section class="xp-sec section-ground" aria-labelledby="flow-h">
@@ -104,7 +98,7 @@ const FAQ = [
               </div>
             </div>
             <p class="xp-stage__n">3 · Synthesize</p>
-            <p>The Outlook weighs the sections and projects three prices, each with its date and the thesis behind it.</p>
+            <p>Our analysis weighs the sections and projects three prices, each with its date and the thesis behind it.</p>
           </li>
         </ol>
       </figure>
@@ -113,7 +107,7 @@ const FAQ = [
     <section class="xp-sec xp-split" aria-labelledby="edge-h">
       <div class="xp-copy">
         <h2 id="edge-h" class="type-heading-1">What traders on X are saying, and the backdrop they trade in</h2>
-        <p>Voices pulls what prominent traders on X are saying about the stock, each post linked and summed up in one line. Macro &amp; regime graphs the backdrop: the VIX, the S&amp;P 500, Treasury yields, inflation, jobs, the dollar and commodities, each against its past year. The Outlook weighs the backdrop on every plan, and Voices on Core and Premium.</p>
+        <p>Voices pulls what prominent traders on X are saying about the stock, each post linked and summed up in one line. Macro &amp; regime graphs the backdrop: the VIX, the S&amp;P 500, Treasury yields, inflation, jobs, the dollar and commodities, each against its past year. Our analysis weighs the backdrop on every plan, and Voices on Core and Premium.</p>
         <p class="synth__more"><a class="synth__link" href="#s-voices">See Voices ↓</a></p>
       </div>
       <figure class="xp-fig">
@@ -133,7 +127,7 @@ const FAQ = [
         <div class="xp-copy">
           <h2 id="thirteen-h" class="type-heading-1">The thirteen sections</h2>
           <p>Thirteen angles on the same stock, each drawn the way the app draws it.</p>
-          <p class="xp-key">Each section below is given as <b>plan · shows · feeds the Outlook</b>.</p>
+          <p class="xp-key">Each section below is given as <b>plan · shows · feeds the projected prices</b>.</p>
         </div>
         <figure class="xp-fig">
           <div class="xp-rail" role="img" aria-label="The thirteen sections of an EXMP analysis on the Free plan: six open, four locked to Core and three to Premium.">
@@ -163,12 +157,12 @@ const FAQ = [
             {e.about ? (
               <>
                 <p>{e.about}</p>
-                <p><a class="synth__link" href="#made">How the Outlook is made ↓</a></p>
+                <p><a class="synth__link" href="#made">How the projected prices are made ↓</a></p>
               </>
             ) : (
               <dl class="xp-dl">
                 <div><dt>Shows</dt><dd>{e.shows}</dd></div>
-                <div><dt>Feeds the Outlook</dt><dd>{e.feeds}</dd></div>
+                <div><dt>Feeds the projected prices</dt><dd>{e.feeds}</dd></div>
               </dl>
             )}
           </div>
@@ -177,8 +171,8 @@ const FAQ = [
     </section>
 
     <section class="xp-sec" id="made" aria-labelledby="made-h">
-      <h2 id="made-h" class="type-heading-1 section-heading">How the Outlook is made</h2>
-      <p class="xp-lead2">The Outlook is our AI synthesis. It works through the sections and reaches a call for each horizon.</p>
+      <h2 id="made-h" class="type-heading-1 section-heading">How the projected prices are made</h2>
+      <p class="xp-lead2">Our AI works through the sections and reaches a call for each horizon.</p>
       <figure class="xp-fig xp-fig--outlook">
         <ExplainerOutlook />
       </figure>
@@ -189,7 +183,7 @@ const FAQ = [
         </li>
         <li>
           <h3 class="type-heading-2">It gets a sense of scale and a calendar for each horizon.</h3>
-          <p>First, the Outlook is told how far the stock usually moves over each horizon. On Free, that scale comes from the stock's recent volatility. On Core and Premium, it comes from what options imply, where quotes allow. On every plan it also sees how the stock has actually moved over each horizon across the past five years. The Outlook also gets a calendar of what falls inside each horizon. That includes the monthly options expiry, scheduled economic events and, on Core and Premium, the earnings date.</p>
+          <p>First, our AI is told how far the stock usually moves over each horizon. On Free, that scale comes from the stock's recent volatility. On Core and Premium, it comes from what options imply, where quotes allow. On every plan it also sees how the stock has actually moved over each horizon across the past five years. It also gets a calendar of what falls inside each horizon. That includes the monthly options expiry, scheduled economic events and, on Core and Premium, the earnings date.</p>
         </li>
         <li>
           <h3 class="type-heading-2">Our AI thinks it through and reaches a call for each horizon.</h3>
