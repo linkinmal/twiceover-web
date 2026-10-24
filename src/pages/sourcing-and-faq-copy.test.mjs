@@ -110,8 +110,9 @@ describe("the Outlook's marker reads 'points to' wherever the explainer draws th
 });
 
 describe("the homepage's meta description and the no-positions rule (#3842, ADR 0959 Decisions 4-5)", () => {
-  it("uses Growth's meta description", () => {
-    expect(index).toContain('description="See your positions against your own rules. Run an analysis on any US-listed stock, no account needed. Depth, never a verdict."');
+  it("uses Growth's meta title and description (#4506)", () => {
+    expect.soft(index).toContain('title="TwiceOver: stock and options analysis and your portfolio"');
+    expect.soft(index).toContain('description="Analyze any stock down to a projected price for each horizon, no account needed. Connect your broker to check your positions against your own rules."');
   });
 
   it("has no sentence saying the analysis runs on, or is built from, the positions you hold", () => {
