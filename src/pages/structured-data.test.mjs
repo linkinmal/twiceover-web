@@ -101,7 +101,7 @@ describe("stock-analyst-platform#4156 — pricing Product JSON-LD image, descrip
   it("derives description from the same const as the Base description prop", () => {
     const block = jsonLdBlock(pricingAstro, "productJsonLd");
     const literal =
-      "Free, Core and Premium plans for stock and options analysis. One monthly price, no per-analysis charges. Use it with or without a broker.";
+      "Free, Core and Premium plans for stock and options analysis. One monthly price. Use it with or without a broker.";
 
     expect
       .soft(pricingAstro.replace(/\s+/g, " "))
