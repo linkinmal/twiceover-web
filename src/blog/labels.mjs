@@ -4,6 +4,7 @@
  * `blog-subjects.md`); the lens names are the kit's pills. Build names are internal: no page prints them.
  */
 import { BUILDS, LENSES, TOPICS } from "./vocabulary.mjs";
+import { TOPIC_INTROS } from "./topic-intros.mjs";
 
 export const TOPIC_LABELS = Object.freeze({
   "option-math": "How options are priced",
@@ -58,7 +59,7 @@ export const BUILD_LABELS = Object.freeze({
 /** Every closed value has a label and no label is for a value that does not exist. */
 export function labelGaps() {
   const out = [];
-  for (const [vocab, labels, name] of [[TOPICS, TOPIC_LABELS, "topic"], [TOPICS, TOPIC_DESCRIPTIONS, "topic description"], [LENSES, LENS_LABELS, "lens"], [BUILDS, BUILD_LABELS, "build"]]) {
+  for (const [vocab, labels, name] of [[TOPICS, TOPIC_LABELS, "topic"], [TOPICS, TOPIC_DESCRIPTIONS, "topic description"], [TOPICS, TOPIC_INTROS, "topic intro"], [LENSES, LENS_LABELS, "lens"], [BUILDS, BUILD_LABELS, "build"]]) {
     for (const v of vocab) if (!(v in labels)) out.push(`${name} "${v}" has no label`);
     for (const k of Object.keys(labels)) if (!vocab.includes(k)) out.push(`${name} label "${k}" is not a value`);
   }
