@@ -832,7 +832,7 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   background: var(--surface-panel); /* was bg.surface — 2% off canvas, no ground change (#2216) */
 }
 .depth-strip__inner { display: grid; grid-template-columns: 1fr; }
-@media (min-width: 640px) { .depth-strip__inner { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 640px) { .depth-strip__inner { grid-template-columns: repeat(3, 1fr); } }
 .depth-stat {
   padding: var(--space-400) var(--space-300);
   border-bottom: 1px solid var(--color-border-default);
@@ -1160,8 +1160,7 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   padding-block: var(--space-800);
 }
 .trust-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-400); margin: var(--space-400) 0 var(--space-600); }
-@media (min-width: 640px) { .trust-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 960px) { .trust-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 840px) { .trust-grid { grid-template-columns: repeat(3, 1fr); } }
 .trust-card__icon { width: 24px; height: 24px; color: var(--color-accent-default); margin-bottom: var(--space-200); }
 .trust-card h3 { margin: 0 0 var(--space-100); }
 .trust-card p { margin: 0; color: var(--color-text-secondary); }

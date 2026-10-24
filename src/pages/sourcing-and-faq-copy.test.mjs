@@ -92,7 +92,7 @@ describe("the explainer's News entry says what the headline filter does, without
 
 describe("the homepage's meta description and the no-positions rule (#3842, ADR 0959 Decisions 4-5)", () => {
   it("uses Growth's meta description", () => {
-    expect(index).toContain('description="See your positions against your own rules, read-only from your broker. Run an analysis on any US-listed stock, no account needed. Depth, never a verdict."');
+    expect(index).toContain('description="See your positions against your own rules. Run an analysis on any US-listed stock, no account needed. Depth, never a verdict."');
   });
 
   it("has no sentence saying the analysis runs on, or is built from, the positions you hold", () => {
