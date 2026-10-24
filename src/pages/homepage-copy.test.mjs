@@ -79,7 +79,7 @@ const PINNED = [
       "Quotes, options and news data come from data vendors. Insider trades come from SEC filings, and short interest from FINRA. Every figure names its source and the time it was fetched.",
       "Traders on X, in the analysis",
       "Voices brings in what prominent traders on X are saying about the stock, each post linked and summed up in one line.",
-      "The macro backdrop, live",
+      "The macro backdrop, graphed",
       "The VIX, the S&P 500, Treasury yields, inflation, jobs, the dollar and commodities, each graphed against its past year.",
     ]],
     ["closing band", [

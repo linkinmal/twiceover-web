@@ -92,7 +92,9 @@ export function macroGraphSvg(key, width, cls = "") {
     .map((c, k) => `<text class="macro-graph__cap${k === n - 1 ? " macro-graph__cap--now" : ""}" x="${X(k).toFixed(1)}" y="${ph + 12}" text-anchor="middle">${c}</text>`)
     .join("");
   return (
-    `<svg class="mb-graph${cls ? ` ${cls}` : ""}" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${label}">` +
+    // max-width: the graph shrinks with a narrow card but never grows past the width its 11px type was
+    // drawn for (Designer gate, twiceover-web PR 165).
+    `<svg class="mb-graph${cls ? ` ${cls}` : ""}" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" style="max-width:${w}px" role="img" aria-label="${label}">` +
     `<rect class="macro-graph__band" x="0" y="${bandTop.toFixed(1)}" width="${w}" height="${bandH.toFixed(1)}" rx="4"/>` +
     `<polyline class="macro-graph__path" points="${row.points.map(([, v], k) => `${X(k).toFixed(1)},${Y(Number(v)).toFixed(1)}`).join(" ")}"/>` +
     dots +

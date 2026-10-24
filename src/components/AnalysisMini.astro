@@ -16,8 +16,12 @@ import { BAND_CARDS } from "../charts/site-fixture.mjs";
 interface Props {
   kind: string;
   cards?: Record<string, Array<Record<string, any>>>;
+  // The Macro tiles' graph width where this card renders, and a phone twin (MacroTile), so the chart
+  // type draws at true size rather than scaled with the card (Designer gate, twiceover-web PR 165).
+  macroWidth?: number;
+  macroPhoneWidth?: number;
 }
-const { kind, cards = BAND_CARDS } = Astro.props;
+const { kind, cards = BAND_CARDS, macroWidth = 184, macroPhoneWidth } = Astro.props;
 const blocks = cards[kind];
 ---
 <div class={kind === "outlook" ? "band-mini band-mini--ok" : "band-mini"}>
@@ -57,9 +61,10 @@ const blocks = cards[kind];
       )}
       {b.macroTiles && (
         /* Two of the product's Macro board tiles (stock-analyst-platform#4432/#4438), which replaced
-           the risk-appetite gauge (#4415). The graph is drawn for the card's ~208px inner width. */
+           the risk-appetite gauge (#4415). The graph is drawn for the band card's ~208px inner width
+           unless the caller names the width it renders at. */
         <div class="mb mb--mini">
-          {b.macroTiles.map((row) => <MacroTile row={row} width={184} range={false} />)}
+          {b.macroTiles.map((row) => <MacroTile row={row} width={macroWidth} phoneWidth={macroPhoneWidth} range={false} />)}
         </div>
       )}
       {b.okh && b.okh.map(([label, value, cond]) => (

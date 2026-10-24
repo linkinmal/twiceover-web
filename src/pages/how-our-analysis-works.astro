@@ -121,7 +121,7 @@ const FAQ = [
           {["voices", "macro"].map((k) => (
             <div class="xp-card">
               <div class="xp-card__hd"><span>{byKey[k].name}</span><span>EXMP</span></div>
-              <AnalysisMini kind={k} cards={EXMP_BAND_CARDS} />
+              <AnalysisMini kind={k} cards={EXMP_BAND_CARDS} macroWidth={220} macroPhoneWidth={289} />
             </div>
           ))}
         </div>
@@ -155,7 +155,7 @@ const FAQ = [
           <figure class="xp-entry__fig">
             <div class="xp-card">
               <div class="xp-card__hd"><span>{e.name}</span><span>EXMP</span></div>
-              <AnalysisMini kind={e.key} cards={EXMP_BAND_CARDS} />
+              <AnalysisMini kind={e.key} cards={EXMP_BAND_CARDS} macroWidth={186} macroPhoneWidth={209} />
             </div>
           </figure>
           <div class="xp-entry__copy">
