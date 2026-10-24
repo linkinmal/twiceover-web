@@ -1,8 +1,11 @@
 ---
 // Cookie Policy — "Page: Cookie Policy" (#41): GetTerms Cookie body
-// (ai-team/pm/getterms-boilerplate.md, Ops edit 5 applied — no consent banner ships:
-// strictly-necessary cookies only, per the #40 flag resolution) + shared disclaimer
-// footer. Text is verbatim; editorial markers omitted. Do not reword (PM #41).
+// (ai-team/pm/getterms-boilerplate.md, Ops edit 5 applied — no consent banner ships,
+// per the #40 flag resolution) + shared disclaimer footer. Text is verbatim; editorial
+// markers omitted. Two-cookie paragraph, banner sentence and description reworded
+// 2026-10-24 (stock-analyst-platform#2521 founder sign-off; build #4502). A third cookie,
+// or any cookie used for analytics, reopens this wording and goes to Security first.
+// Do not reword (PM #41 / #2521).
 import Policy from "../layouts/Policy.astro";
 // Set only by the /in-app/* page that renders this one (stock-analyst-platform#4033).
 const { chrome = "full" } = Astro.props;
@@ -10,12 +13,12 @@ const privacyHref = chrome === "none" ? "/in-app/privacy" : "/privacy";
 ---
 <Policy
   title="Cookie Policy — TwiceOver"
-  description="Which cookies twiceover.io sets, why, and how to control them — strictly-necessary only, no advertising or analytics tracking."
+  description="Which cookies twiceover.io sets, why, and how to control them — two first-party cookies, no advertising or analytics tracking."
   heading="Cookie Policy"
   chrome={chrome}
 >
   <p>We use cookies to help improve your experience of our website at https://twiceover.io and its subdomains. This cookie policy is part of our <a href={privacyHref}>privacy policy</a>. It covers the use of cookies between your device and our site.</p>
-  <p><em>Pre-launch note: the site currently sets only strictly-necessary cookies (if any) and uses no analytics or advertising cookies. This policy describes how cookies are handled, including if and when additional cookies are introduced.</em></p>
+  <p>TwiceOver sets two cookies, both first-party and both only to run the service. A sign-in cookie keeps you signed in. A quota cookie counts your analyses against the free monthly allowance. It holds a random identifier that is not derived from your IP address or your account, and it lasts about 13 months. We set no analytics or advertising cookies.</p>
   <p>We also provide basic information on third-party services we may use, who may also use cookies as part of their service. This policy does not cover their cookies.</p>
   <p>If you don't wish to accept cookies from us, you should instruct your browser to refuse cookies from https://twiceover.io. In such a case, we may be unable to provide you with some of your desired content and services.</p>
 
@@ -26,7 +29,7 @@ const privacyHref = chrome === "none" ? "/in-app/privacy" : "/privacy";
   <p>Cookies set by other sites and companies (i.e. third parties) are called third-party cookies. They can be used to track you on other websites that use the same third-party service.</p>
 
   <h2 class="type-heading-2">How Can You Control Our Website's Use of Cookies?</h2>
-  <p>You have the right to decide whether to accept or reject cookies. At present the site sets only strictly-necessary cookies (if any) and shows no cookie-consent banner, because no analytics or advertising cookies are used. You can set or amend your cookie preferences through your web-browser settings. If we introduce non-essential cookies in future, we will add a consent mechanism and update this policy first.</p>
+  <p>You have the right to decide whether to accept or reject cookies. We show no cookie-consent banner because those two cookies are the only ones we set, and neither is for analytics or advertising. You can set or amend your cookie preferences through your web-browser settings. If we introduce non-essential cookies in future, we will add a consent mechanism and update this policy first.</p>
   <p>You may also be able to set or amend your cookie preferences by managing your web browser settings. As each web browser is different, please consult the instructions provided by your web browser (typically in the "help" section). If you choose to refuse or disable cookies you may still use the Website, though some of the functionality of the Website may not be available to you.</p>
 
   <h2 class="type-heading-2">How Often Will We Update This Cookie Policy?</h2>
