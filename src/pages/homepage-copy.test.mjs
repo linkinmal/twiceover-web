@@ -85,7 +85,7 @@ const PINNED = [
     ["closing band", [
       "See it on your own book.",
       "Connect your broker to see your own positions, or analyze any US-listed stock.",
-      "Your Portfolio comes with every plan. Free includes 10 analyses a month.",
+      "Your Portfolio comes with every plan.",
       "Core and Premium give the Outlook more to weigh. Core adds the news, market voices, earnings and the options market. Premium adds the largest options trades, earnings history and insider activity.",
     ]],
 ];
