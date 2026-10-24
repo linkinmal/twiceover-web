@@ -57,7 +57,7 @@ import { PLANS, sectionGroups, sectionsOn } from "../data/sections.mjs";
 // one brand card by its own file (ADR 0905 rotates og:image by changing OG_CARD in Base.astro, never
 // the files), and description is the same const the <Base> description prop reads, so they cannot drift.
 const pricingDescription =
-  "One simple monthly subscription. No per-analysis charges. Use it with or without a broker connection.";
+  "Free, Core and Premium plans for stock and options analysis. One monthly price, no per-analysis charges. Use it with or without a broker.";
 const productJsonLd = {
   "@context": "https://schema.org",
   "@type": "Product",
@@ -99,7 +99,7 @@ const groups = sectionGroups();
 const includedOn = (section) => PLANS.map((plan) => PLANS.indexOf(plan) >= PLANS.indexOf(section.plan));
 ---
 <Base
-  title="Pricing — TwiceOver"
+  title="Pricing for TwiceOver stock and options analysis"
   description={pricingDescription}
 >
   <script type="application/ld+json" set:html={JSON.stringify(productJsonLd)} />
