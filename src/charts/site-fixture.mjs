@@ -315,7 +315,7 @@ export const BAND_CARDS = {
     { post: ["Aug 13", "constructive on the AI chip cycle into year-end; capacity, not demand, is the constraint."] },
     { sub: "Each post named and linked in a real analysis." },
   ],
-  macro: [{ row: ["Tactical", "Fed on hold"] }, { row: ["Strategic", "Soft landing"] }, { mra: 0.35 }],
+  macro: [{ macroTiles: ["vix", "treasury-10y"] }],
   outlook: [
     {
       okh: HERO_OUTLOOK.horizons.map((h) => [
@@ -325,14 +325,6 @@ export const BAND_CARDS = {
     },
   ],
 };
-
-/**
- * The macro card's risk-appetite axis position, in percent along the rail: net −1 → 0%, 0 → 50%,
- * +1 → 100%. The marker and the net value both sit here — one number, as in the real component.
- */
-export function riskAxisLeft(net) {
-  return ((net + 1) / 2) * 100;
-}
 
 /* ── Hero deck cards 5–8 (stock-analyst-platform#4411; site-prelaunch.md v2.51 §2 "Hero deck",
    build reference `hero-deck-8-cards-4410-2026-10-18.html`, "The one fixture"). Everything the four
@@ -436,28 +428,32 @@ export const INSIDER_FIGURES = {
 };
 
 /**
- * Card 8, Macro & regime: the risk-appetite value is the macro band card's (`BAND_CARDS.macro`); the
- * regime words, their dates and the contributors are this card's. No VIX level and no SPY change is
- * drawn: the spine forbids a VIX level and showing values is open on stock-analyst-platform#4415.
+ * Card 8 and the band's macro card: rows of the product's Macro board (spine §4c v3.89–v4.02,
+ * stock-analyst-platform#4432/#4438), which replaced the risk-appetite gauge and the regime words
+ * (#4415, closed 2026-10-19). Each row is four dated points, oldest first (a year ago, 3 months ago, a
+ * month ago, now), and the year's low and high. Daily rows read their 365-, 90- and 30-day lookbacks;
+ * a monthly row the same month a year before, the print three months back and the previous one.
+ * Wire-style decimal strings, made up like the rest of this file. `macro-board-svg.mjs` draws them.
  */
-/** The Macro card's Economic calendar (v2.52 ruling 6): the next three scheduled releases, each with
- *  the body that publishes it. */
-export const MACRO_CALENDAR = [
-  { date: "Sep 4", event: "Employment situation", source: "FRED" },
-  { date: "Sep 11", event: "CPI", source: "FRED" },
-  { date: "Sep 16", event: "FOMC decision", source: "Federal Reserve" },
-];
-
-export const MACRO_CARD = {
-  net: 0.35,
-  lean: "supportive",
-  date: "Aug 28",
-  contributors: [
-    { glyph: "▼", word: "real yield" },
-    { glyph: "▲", word: "carry" },
-    { glyph: "▲", word: "VIX term" },
-  ],
-  tactical: { word: "risk-on", basis: "VIX, SPY 1-month" },
-  strategic: { word: "neutral", basis: "SPY 3-month" },
-  catalyst: "none",
+export const MACRO_BOARD = {
+  vix: {
+    name: "VIX level", kind: "level", unit: "", decimals: 2,
+    points: [["2025-08-28", "15.40"], ["2026-05-29", "18.72"], ["2026-07-29", "16.05"], ["2026-08-28", "14.38"]],
+    range: ["12.81", "29.66"],
+  },
+  sp500: {
+    name: "S&P 500 index level", kind: "level", unit: "", decimals: 2,
+    points: [["2025-08-28", "5592.18"], ["2026-05-29", "5911.69"], ["2026-07-29", "6389.45"], ["2026-08-28", "6501.86"]],
+    range: ["5186.33", "6512.40"],
+  },
+  "treasury-10y": {
+    name: "10-year Treasury yield", kind: "level", unit: "%", decimals: 2,
+    points: [["2025-08-28", "3.86"], ["2026-05-29", "4.41"], ["2026-07-29", "4.37"], ["2026-08-28", "4.21"]],
+    range: ["3.80", "4.62"],
+  },
+  inflation: {
+    name: "Inflation", kind: "monthly", unit: "%", decimals: 1,
+    points: [["2025-07-01", "2.9"], ["2026-04-01", "2.4"], ["2026-06-01", "2.7"], ["2026-07-01", "2.8"]],
+    range: ["2.3", "3.0"],
+  },
 };

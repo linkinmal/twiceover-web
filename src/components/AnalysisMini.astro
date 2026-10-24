@@ -6,11 +6,12 @@
 // so the two pages draw each section the same way. Every figure is the fixture's; nothing is typed here.
 //
 // Block vocabulary: kv / kv2 (label-over-value grid), row (label · value), sub, narr, chips (subject vs
-// median), news, post, mra (the risk-appetite axis), okh (the Outlook's three horizons), outlookChart (EXMP's month and projection path), chart.
+// median), news, post, macroTiles (Macro board tiles), okh (the Outlook's three horizons), outlookChart (EXMP's month and projection path), chart.
 import TechnicalsPriceChart from "./TechnicalsPriceChart.astro";
 import OutlookPathChart from "./OutlookPathChart.astro";
+import MacroTile from "./MacroTile.astro";
 import { EXMP_OUTLOOK_CHART } from "../charts/exmp-fixture.mjs";
-import { BAND_CARDS, riskAxisLeft } from "../charts/site-fixture.mjs";
+import { BAND_CARDS } from "../charts/site-fixture.mjs";
 
 interface Props {
   kind: string;
@@ -18,7 +19,6 @@ interface Props {
 }
 const { kind, cards = BAND_CARDS } = Astro.props;
 const blocks = cards[kind];
-const fmtNet = (n: number) => `${n < 0 ? "−" : "+"}${Math.abs(n).toFixed(2)}`;
 ---
 <div class={kind === "outlook" ? "band-mini band-mini--ok" : "band-mini"}>
   {blocks.map((b) => (
@@ -55,25 +55,11 @@ const fmtNet = (n: number) => `${n < 0 ? "−" : "+"}${Math.abs(n).toFixed(2)}`;
       {b.post && (
         <p class="narr narr--post"><span class="handle">@handle</span><span class="sub"> · {b.post[0]} — </span>{b.post[1]} <span class="src">X ↗</span></p>
       )}
-      {b.mra !== undefined && (
-        /* The product's real `.macro-risk-axis` anatomy (#2995; build reference
-           site-charts-hero-2026-08-30.html §8): hairline rule, three ticks with the zero tick
-           full-height and heavier, a 2px marker, the net value above the marker, and the product's
-           own Cautious/Supportive bounds. The marker and the value take ONE position, riskAxisLeft. */
-        <div class="mra">
-          <span class="mra__num" style={`left:${riskAxisLeft(b.mra)}%`}>{fmtNet(b.mra)}</span>
-          <div class="mra__rail" aria-hidden="true">
-            <span class="mra__line"></span>
-            <span class="mra__tick mra__tick--min" style="left:0%"></span>
-            <span class="mra__tick mra__tick--zero" style="left:50%"></span>
-            <span class="mra__tick mra__tick--max" style="left:100%"></span>
-            <span class="mra__mark" style={`left:${riskAxisLeft(b.mra)}%`}></span>
-          </div>
-          <div class="mra__scale">
-            <span><span class="mra__bound">−1.00</span> <b>Cautious</b></span>
-            <span class="mra__bound">0</span>
-            <span><b>Supportive</b> <span class="mra__bound">+1.00</span></span>
-          </div>
+      {b.macroTiles && (
+        /* Two of the product's Macro board tiles (stock-analyst-platform#4432/#4438), which replaced
+           the risk-appetite gauge (#4415). The graph is drawn for the card's ~208px inner width. */
+        <div class="mb mb--mini">
+          {b.macroTiles.map((row) => <MacroTile row={row} width={184} range={false} />)}
         </div>
       )}
       {b.okh && b.okh.map(([label, value, cond]) => (

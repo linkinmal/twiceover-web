@@ -58,8 +58,8 @@ export const EXPLAINER_ENTRIES = {
     feeds: "Each post's summary, with its author and date.",
   },
   "macro": {
-    shows: "The market's near-term and quarterly regime, risk appetite, the event driving markets now and the economic calendar ahead. The Fed path, real yields, the dollar, credit spreads, copper against gold and the VIX term structure are one click down.",
-    feeds: "The readings behind it, each with its date and how it moved since its last release. Also the published commentary on what is driving markets.",
+    shows: "The macro board: every reading as one graph of a year ago, three months ago, a month ago and now, inside the year's range. The VIX and the S&P 500 lead. Treasury yields, inflation, jobs, recession gauges, the dollar, oil, gold and copper follow. The economic releases reported and the calendar ahead sit below.",
+    feeds: "Every reading on the board with its dates, and the economic releases reported and scheduled.",
   },
 };
 

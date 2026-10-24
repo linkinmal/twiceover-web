@@ -80,7 +80,7 @@ const PINNED = [
       "Traders on X, in the analysis",
       "Voices brings in what prominent traders on X are saying about the stock, each post linked and summed up in one line.",
       "The macro backdrop, live",
-      "Rates, real yields, the dollar, credit spreads and the VIX term structure, read alongside every stock.",
+      "The VIX, the S&P 500, Treasury yields, inflation, jobs, the dollar and commodities, each graphed against its past year.",
     ]],
     ["closing band", [
       "See it on your own book.",

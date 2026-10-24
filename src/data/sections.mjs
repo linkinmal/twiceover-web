@@ -31,7 +31,7 @@ export const SECTIONS = [
   { key: "insiders", name: "Insiders", plan: "premium", tagline: "What officers and directors bought and sold, in their own filings." },
   { key: "news", name: "News & catalysts", plan: "core", tagline: "What just changed, and what's scheduled next." },
   { key: "voices", name: "Voices", plan: "core", tagline: "What prominent traders on X are saying about the stock." },
-  { key: "macro", name: "Macro & regime", plan: "free", tagline: "The backdrop: rates, risk appetite, volatility." },
+  { key: "macro", name: "Macro & regime", plan: "free", tagline: "The backdrop: the VIX, the S&P 500, rates, inflation, jobs, the dollar and commodities." },
 ].map((s) => ({ short: s.name, ...s }));
 
 /** The sections a plan shows: its own plus every lower plan's. */

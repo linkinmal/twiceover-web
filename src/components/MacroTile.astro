@@ -1,0 +1,26 @@
+---
+// One Macro board tile (twiceover-app `MacroBoard.tsx` Tile; spine §4c v3.89–v4.02): the row's name,
+// its latest value and date, the four-point graph inside the year's band, and the year's low and high.
+// `width` is the graph's rendered width; `phoneWidth` adds a phone twin swapped in below 400px of deck
+// (hero deck only, `.mb-graph--desk` / `.mb-graph--phone`). Not a button here: the site's tiles open nothing.
+import { macroGraphSvg, macroTile } from "../charts/macro-board-svg.mjs";
+
+interface Props {
+  row: string;
+  width: number;
+  phoneWidth?: number;
+  range?: boolean;
+  class?: string;
+}
+const { row, width, phoneWidth, range = true, class: cls = "" } = Astro.props;
+const t = macroTile(row);
+const graphs = phoneWidth
+  ? macroGraphSvg(row, width, "mb-graph--desk") + macroGraphSvg(row, phoneWidth, "mb-graph--phone")
+  : macroGraphSvg(row, width);
+---
+<div class={`mb-tile ${cls}`.trim()}>
+  <span class="mb-tile__name">{t.name}</span>
+  <span class="mb-tile__value"><b>{t.value}</b><time datetime={t.iso}>{t.date}</time></span>
+  <Fragment set:html={graphs} />
+  {range && <span class="mb-tile__range">Year’s low <span>{t.low}</span> · high <span>{t.high}</span></span>}
+</div>

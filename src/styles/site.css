@@ -784,38 +784,29 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .band-mini .chip-pair { display: flex; gap: var(--space-100); padding-bottom: var(--space-150); }
 .band-mini .chip-pair em { font-style: normal; color: var(--color-text-muted); }
 .band-mini .chip-pair span { flex: 1; border: 1px solid var(--color-border-default); border-radius: var(--radius-small); padding: var(--space-050) var(--space-100); font-family: var(--font-family-mono); font-size: var(--font-size-100); color: var(--color-text-secondary); }
-/* The macro card's risk-appetite axis (#2995) — the product's real `.macro-risk-axis` anatomy at
-   card scale, replacing an invented rounded bar with an accent dot at a hardcoded 55%. Ported from
-   twiceover-app `apps/web/src/read/MacroSection.css`, with the build reference
-   `site-charts-hero-2026-08-30.html` §8 (`.mra`) as the authority where the two differ.
-
-   §4c of read-components.md forbids an arc, a gradient, or a coloured zone on this object. The bar
-   this replaces was a rounded fill with a dot — closer to those forbidden states than to the real
-   thing, which is a hairline with ticks.
-
-   TWO deliberate divergences from the app's own CSS, both the artifact's calls, both flagged on the
-   PR rather than taken silently:
-   1. The marker and the net value use --color-text-primary, where the app colours both by lean
-      (--color-macro-lean-*). Those tokens exist in this repo's tokens.json but are not emitted to
-      site CSS, and the artifact paints ink here regardless of sign. Position and the value's own
-      sign already carry the direction.
-   2. The zero tick uses --color-text-muted, where the app uses --color-border-interactive. Again
-      the artifact's choice; it keeps the tick heavier than its neighbours without introducing an
-      interactive colour onto a non-interactive mark. */
-.band-mini .mra { position: relative; padding-top: 1.4rem; margin-top: var(--space-050); }
-.band-mini .mra__num { position: absolute; top: 0; transform: translateX(-50%); font-family: var(--font-family-mono); font-size: var(--font-size-200); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--color-text-primary); }
-.band-mini .mra__rail { position: relative; height: 15px; }
-.band-mini .mra__line { position: absolute; top: 7px; left: 0; right: 0; height: 1px; background: var(--color-border-strong); }
-.band-mini .mra__tick { position: absolute; top: 3px; width: 1px; height: 9px; background: var(--color-border-strong); transform: translateX(-50%); }
-/* The end ticks pull fully inside the rail rather than straddling its edge — otherwise half of each
-   sits outside the 0–100% span the marker is positioned against. */
-.band-mini .mra__tick--min { transform: none; }
-.band-mini .mra__tick--max { transform: translateX(-100%); }
-.band-mini .mra__tick--zero { top: 0; height: 15px; background: var(--color-text-muted); }
-.band-mini .mra__mark { position: absolute; top: 0; width: 2px; height: 15px; transform: translateX(-1px); background: var(--color-text-primary); }
-.band-mini .mra__scale { display: flex; justify-content: space-between; gap: var(--space-100); margin-top: var(--space-050); font-size: var(--font-size-100); color: var(--color-text-muted); }
-.band-mini .mra__scale b { font-weight: var(--font-weight-semibold); color: var(--color-text-secondary); }
-.band-mini .mra__bound { font-family: var(--font-family-mono); font-variant-numeric: tabular-nums; }
+/* Macro board tiles (MacroTile.astro), ported from twiceover-app `apps/web/src/read/MacroSection.css`
+   (spine §4c v3.89–v4.02, stock-analyst-platform#4432/#4438), which replaced the risk-appetite gauge
+   (#4415). Tile `--color-bg-inset`; the line and points `--color-accent-default`; the band
+   `--color-border-default`. One ink: nothing coloured by direction. */
+.mb { display: grid; gap: 10px; width: 100%; }
+.mb--deck { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.mb-tile { display: flex; flex-direction: column; min-width: 0; padding: 11px 12px 10px; border-radius: var(--radius-medium); background: var(--color-bg-inset); }
+.mb-tile__name { font: 400 0.8125rem/1.3 var(--font-family-sans); color: var(--color-text-secondary); }
+.mb-tile__value { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; margin-top: 2px; }
+.mb-tile__value b { font: var(--font-weight-semibold) 1.375rem/1.2 var(--font-family-serif); color: var(--color-text-primary); font-variant-numeric: tabular-nums lining-nums; }
+.mb-tile__value time { font: 400 var(--font-size-100) var(--font-family-sans); color: var(--color-text-muted); white-space: nowrap; font-variant-numeric: tabular-nums lining-nums; }
+.mb-tile__range { margin-top: 2px; font-size: var(--font-size-100); color: var(--color-text-muted); font-variant-numeric: tabular-nums lining-nums; }
+.mb-graph { display: block; width: 100%; height: auto; margin-top: auto; padding-top: 4px; overflow: visible; }
+.mb-graph--phone { display: none; }
+.mb-graph text { font: 400 11px var(--font-family-sans); fill: var(--color-text-muted); font-variant-numeric: tabular-nums lining-nums; }
+.mb-graph .macro-graph__value { fill: var(--color-text-secondary); }
+.mb-graph .macro-graph__value--now, .mb-graph .macro-graph__cap--now { fill: var(--color-text-primary); font-weight: var(--font-weight-semibold); }
+.macro-graph__band { fill: var(--color-border-default); }
+.macro-graph__path { fill: none; stroke: var(--color-accent-default); stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
+.macro-graph__old { fill: var(--color-bg-inset); stroke: var(--color-accent-default); stroke-width: 1.4; }
+.macro-graph__now { fill: var(--color-accent-default); stroke: var(--color-bg-inset); stroke-width: 2; }
+.band-mini .mb-tile { padding: 8px 10px 6px; }
+.band-mini .mb-tile__value b { font-size: 1.125rem; }
 .band-mini .horizon { border-top: 1px solid var(--color-border-default); padding-block: var(--space-100); }
 .band-mini .horizon:first-child { border-top: 0; }
 .band-mini .horizon b { font-family: var(--font-family-mono); font-weight: var(--font-weight-medium); font-size: var(--font-size-100); letter-spacing: 0.08em; color: var(--color-accent-default); display: block; }
@@ -1737,8 +1728,6 @@ main { padding-block-end: var(--space-800); }
 .figs3 em.sk i, .figs3 em.two i { font-style: normal; }
 .figs3 em.two { white-space: normal; }
 .figs3 em.two i { display: block; }
-.figs3--regime span { white-space: nowrap; }
-.figs3--regime b { font-family: var(--font-family-serif); font-weight: 600; font-size: 16px; }
 .figs3--two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .figs3--two b { font-size: 15px; }
 /* One drawing per width: below 400px of deck the phone twin draws at true size. */
@@ -1746,21 +1735,21 @@ main { padding-block-end: var(--space-800); }
 @container (max-width: 400px) {
   .dcard__fill > svg.hc--desk { display: none; }
   .dcard__fill > svg.hc--phone { display: block; }
-  .figs3--regime, .figs3--rows { grid-template-columns: minmax(0, 1fr); }
-  .figs3--regime div, .figs3--rows div {
+  .figs3--rows { grid-template-columns: minmax(0, 1fr); }
+  .figs3--rows div {
     display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; row-gap: 1px; align-items: baseline;
     border-left: 0; border-top: 1px solid var(--color-border-default); padding: 7px 0 6px;
   }
-  .figs3--regime div:first-child, .figs3--rows div:first-child { border-top: 0; }
-  .figs3--regime span, .figs3--rows span { grid-column: 1; grid-row: 1; }
-  .figs3--regime b, .figs3--rows b { grid-column: 2; grid-row: 1; text-align: right; }
-  .figs3--regime em, .figs3--rows em { grid-column: 1 / 3; grid-row: 2; }
+  .figs3--rows div:first-child { border-top: 0; }
+  .figs3--rows span { grid-column: 1; grid-row: 1; }
+  .figs3--rows b { grid-column: 2; grid-row: 1; text-align: right; }
+  .figs3--rows em { grid-column: 1 / 3; grid-row: 2; }
   .figs3--rows b.wrap { font-size: 14px; white-space: nowrap; }
   .figs3--rows em.two { white-space: nowrap; }
   .figs3--rows em.two i { display: inline; }
   .figs3--rows em.two i + i::before { content: " · "; }
 }
-/* A card led by its one figure (Insiders, Macro & regime). */
+/* A card led by its one figure (Insiders). */
 .hero-fig { display: flex; flex-direction: column; gap: 2px; margin: 4px 0 2px; }
 .hero-fig__k { font: 600 10.5px/1.3 var(--font-family-sans); letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-text-muted); }
 .hero-fig__v {
@@ -1773,17 +1762,6 @@ main { padding-block-end: var(--space-800); }
 .legend .sw { display: inline-block; width: 8px; height: 12px; border-radius: 1.5px; background: var(--color-text-primary); }
 .legend .sw--plan { background: var(--color-text-muted); opacity: 0.75; }
 .dcard--ins .dcard__fill { padding-top: 2px; }
-.dcard--macro .dcard__fill { align-items: center; }
-.rg { display: flex; flex-direction: column; gap: 6px; width: 100%; }
-.rg-scale { padding-top: 30px; }
-.rg-track { position: relative; height: 8px; background: var(--color-bg-inset); border: 1px solid var(--color-border-strong); border-radius: 4px; }
-.rg-zero { position: absolute; left: 50%; top: -7px; bottom: -7px; width: 2px; background: var(--color-border-interactive); transform: translateX(-50%); }
-.rg-mark { position: absolute; top: -11px; bottom: -11px; width: 4px; border-radius: 2px; background: var(--color-text-primary); transform: translateX(-50%); }
-.rg-mark b { position: absolute; bottom: calc(100% + 3px); left: 50%; transform: translateX(-50%); font: 700 15px/1 var(--font-family-mono); color: var(--color-text-primary); white-space: nowrap; }
-.rg-ends { display: flex; justify-content: space-between; margin-top: 14px; font: 500 10.5px/1 var(--font-family-mono); color: var(--color-text-muted); }
-.rg-contrib { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-.rg-side { display: flex; flex-wrap: wrap; gap: 6px; }
-.rg-side--r { justify-content: flex-end; }
 .chip {
   display: inline-flex; align-items: center; white-space: nowrap; padding: 3px 8px; border: 1px solid var(--color-border-strong);
   border-radius: 999px; font: 500 11.5px/1.2 var(--font-family-sans); color: var(--color-text-secondary); background: var(--color-bg-raised);
@@ -1814,33 +1792,19 @@ main { padding-block-end: var(--space-800); }
 .ib-bar{flex:1 1 auto;position:relative;display:block;height:6px;background:var(--color-bg-inset);border:1px solid var(--color-border-default);border-radius:3px;overflow:hidden}
 .ib-bar>i{position:absolute;inset:0 auto 0 0;background:var(--color-text-primary)}
 .dcard--ins .figs3{margin-top:12px}
-.dcard--macro .figs3--regime{margin-top:16px}
-.cal{margin-top:18px}
-.cal-k{display:flex;align-items:center;gap:10px;margin:0 0 6px;font:600 10.5px/1.3 var(--font-family-sans);letter-spacing:.1em;text-transform:uppercase;color:var(--color-text-muted)}
-.cal-k:after{content:"";flex:1;border-top:1px solid var(--color-border-default)}
-.cal-rows{display:grid;grid-template-columns:max-content max-content minmax(0,1fr);column-gap:10px;row-gap:7px;align-items:baseline}
-.cal-d{font:500 11.5px/1.3 var(--font-family-mono);color:var(--color-text-muted);font-variant-numeric:tabular-nums}
-.cal-e{font:500 14px/1.3 var(--font-family-sans);color:var(--color-text-secondary)}
-.cal-s{font:400 11.5px/1.3 var(--font-family-sans);color:var(--color-text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @container (max-width: 400px){
  .ib-hd,.ib-row{grid-template-columns:minmax(0,1fr) 6.6em 7.4em;column-gap:8px}
  .ib-pct{gap:6px}
  .dcard--ins .figs3 span{letter-spacing:.03em}
  .dcard--ins .figs3 span{font-size:9.5px}
- .dcard--macro .figs3--regime div{padding:4px 0 3px}
  .dcard .dk-only{display:none}
  .dcard .ph-only{display:inline}
+ .mb--deck{grid-template-columns:minmax(0,1fr)}
+ .mb-graph--desk{display:none}
+ .mb-graph--phone{display:block}
  .ib-hd{white-space:nowrap;font-size:9px;letter-spacing:.04em}
  .ib-row{padding:5px 0}
  .dcard--ins .figs3{grid-template-columns:repeat(2,minmax(0,1fr))}
- .dcard--macro .figs3--regime{margin-top:10px}
- .dcard--macro .rg-scale{padding-top:24px}
- .dcard--macro .rg-ends{margin-top:10px}
- .dcard--macro .rg-contrib{margin-top:6px}
- .dcard--macro .rg{gap:4px}
- .cal{margin-top:10px}
- .cal-rows{row-gap:3px}
- .cal-e{font-size:13.5px}
 }
 /* the Outlook band is its own container: 413px wide on desktop, 283px on a phone */
 @container (max-width: 360px){.dcard--outlook .k-dk{display:none}.dcard--outlook .k-dp{display:block}}

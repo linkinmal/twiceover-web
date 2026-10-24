@@ -57,7 +57,7 @@ describe("the thirteen sections", () => {
     expect.soft(tagline("options")).toBe(
       "The options market's expected move and skew, and how heavily the stock is shorted.",
     );
-    expect.soft(tagline("macro")).toBe("The backdrop: rates, risk appetite, volatility.");
+    expect.soft(tagline("macro")).toBe("The backdrop: the VIX, the S&P 500, rates, inflation, jobs, the dollar and commodities.");
   });
 });
 
