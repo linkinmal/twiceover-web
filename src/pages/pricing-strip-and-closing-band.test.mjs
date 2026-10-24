@@ -221,7 +221,7 @@ describe("Closing band (homepage v3.4, stock-analyst-platform#3829)", () => {
   // The two body paragraphs, verbatim from the build reference (homepage-copy.test.mjs pins the
   // rest of the page). The trial-disclosure lines left this band for /pricing (consult 0987 §2):
   // nothing on the homepage starts a trial, and /pricing is where one is started.
-  const BODY_1 = "Your Portfolio comes with every plan. Free includes 10 analyses a month.";
+  const BODY_1 = "Your Portfolio comes with every plan.";
   const BODY_2 =
     "Core and Premium give the Outlook more to weigh. Core adds the news, market voices, earnings and the options market. Premium adds the largest options trades, earnings history and insider activity.";
   it("carries both body paragraphs verbatim, and no trial disclosure", () => {
