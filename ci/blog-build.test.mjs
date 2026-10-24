@@ -678,6 +678,20 @@ describe("the explainer's Outlook picture draws every card folded (stock-analyst
     expect.soft(hero.length, "hero analysis drawings").toBe(2);
     for (const c of hero) expect.soft(c.textContent, "TODAY mark").toContain("TODAY");
   });
+
+  // Site-prelaunch v2.54 ruling 1 (#4498): public pages say analysis, never Outlook. Read from the built page,
+  // in any case (a card's caps are written in the source), in visible text and in the labels a reader hears.
+  // The Designer gate caught "EACH OUTLOOK HORIZON" on the homepage deck, which a source-text sweep had missed.
+  it("says analysis, never Outlook, in anything a reader sees or hears on the four product pages", () => {
+    for (const p of ["index.html", "how-our-analysis-works/index.html", "pricing/index.html", "your-portfolio/index.html"]) {
+      const d = dom(dist, p);
+      d.querySelectorAll("script, style, template").forEach((n) => n.remove());
+      const labels = [...d.querySelectorAll("[aria-label], [alt], [title]")].map((n) => [n.getAttribute("aria-label"), n.getAttribute("alt"), n.getAttribute("title")].join(" "));
+      const seen = `${d.body.textContent} ${labels.join(" ")} ${d.title} ${d.querySelector('meta[name="description"]')?.getAttribute("content") ?? ""}`;
+      expect.soft(seen.match(/.{0,30}\boutlook\b.{0,30}/gi), p).toBeNull();
+      expect.soft(seen, `${p}: the check finds a known word`).toMatch(/\banalysis\b/i);
+    }
+  });
 });
 
 describe("the feed and the sitemap", () => {
