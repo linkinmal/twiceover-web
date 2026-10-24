@@ -1,5 +1,5 @@
 /**
- * The site's ONE list of analysis sections, in the app's order (ADR 0658 Amendment 3: Outlook first),
+ * The site's ONE list of analysis sections, in the app's order (ADR 0658 Amendment 4: Outlook first),
  * each with the lowest plan that includes it (stock-analyst-platform#3829; build reference
  * `ai-team/design/assets/homepage-3818-v3-2026-09-23.html`, ADR 0991; plan placement ADR 0929 and
  * Amendment 3, which struck Options structures and makes the count thirteen).
@@ -23,11 +23,11 @@ export const SECTIONS = [
   { key: "fundamentals", name: "Fundamentals", plan: "free", tagline: "Market cap, P/E, earnings — the numbers in context." },
   { key: "technicals", name: "Technicals & levels", plan: "free", tagline: "Moving averages, momentum, the 52-week range and how the stock has moved before." },
   { key: "options", name: "Options & short interest", plan: "core", tagline: "The options market's expected move and skew, and how heavily the stock is shorted." },
+  { key: "earnings", name: "Earnings & dividends", plan: "core", tagline: "The next report, and the move options price in for it." },
+  { key: "earnings-history", name: "Earnings history", plan: "premium", tagline: "The last eight reports: what options implied, and what the stock did." },
   { key: "flow", name: "Large options trades", plan: "premium", tagline: "The biggest options trades of the last five sessions." },
   { key: "sector", name: "Sector regime", plan: "free", tagline: "The sector's own strength and valuation trend." },
   { key: "peers", name: "Peers & relative position", short: "Peers", plan: "free", tagline: "P/E and 3-month return against the stock's closest peers, and how the stock moves with its sector and the market." },
-  { key: "earnings", name: "Earnings & dividends", plan: "core", tagline: "The next report, and the move options price in for it." },
-  { key: "earnings-history", name: "Earnings history", plan: "premium", tagline: "The last eight reports: what options implied, and what the stock did." },
   { key: "insiders", name: "Insiders", plan: "premium", tagline: "What officers and directors bought and sold, in their own filings." },
   { key: "news", name: "News & catalysts", plan: "core", tagline: "What just changed, and what's scheduled next." },
   { key: "voices", name: "Voices", plan: "core", tagline: "What prominent market voices are saying — attributed." },
