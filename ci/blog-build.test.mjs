@@ -193,13 +193,13 @@ describe("Growth's page copy (blog-site-copy.md)", () => {
     const d = dom(dist, "blog/index.html");
     expect.soft([...d.querySelectorAll(".bar .nav a")].map((a) => a.textContent)).toEqual(["Posts", "Games and tools", "Topics"]);
     expect.soft(d.querySelector(".mast .ds").textContent).toBe("What moved in the markets, why it moved, and the math under it. Some posts are games and tools you can try.");
-    expect.soft(d.querySelector('meta[name="description"]').content).toBe("What moved in the markets, why it moved, and the math under it. Some posts are games and tools you can try. Informational and educational.");
+    expect.soft(d.querySelector('meta[name="description"]').content).toBe("What moved in the markets, why it moved, and the math under it. Some posts are games and tools you can try.");
     expect.soft(d.querySelector("#topics"), "the filter row is the Topics anchor").not.toBeNull();
   });
   it("gives a topic page its own description and a feed with Growth's blurb", () => {
     const d = dom(dist, "blog/topic/option-math/index.html");
     expect.soft(d.querySelector(".mast .ds").textContent).toMatch(/^Why a call option can lose money when the stock rises\./);
-    expect.soft(read(dist, "blog/feed.xml")).toContain("What moved in the markets, why it moved, and the math under it. Informational and educational.");
+    expect.soft(read(dist, "blog/feed.xml")).toContain("What moved in the markets, why it moved, and the math under it.");
   });
   it("words the coin game for a reader who does not trade: balance, play money, the paper's own figures", () => {
     const d = dom(dist, "blog/play/coin/index.html");
@@ -487,7 +487,8 @@ describe("the Guess the gap page", () => {
     expect.soft(d.querySelector("[data-lbig]").textContent).toMatch(/^In \d of these 5 reports, the stock moved less than options had priced\.$/);
     expect.soft(d.querySelectorAll("button.stp"), "no minus and plus buttons").toHaveLength(0);
     expect.soft(d.querySelector("#gg-guess").getAttribute("type")).toBe("range");
-    expect.soft(d.body.textContent).toContain("Your score is for this visit only. Nothing is saved.");
+    expect.soft(d.body.textContent).toContain("A guess within 2 points counts as a hit.");
+    expect.soft(d.body.textContent).not.toContain("Nothing is saved");
   });
   it("hides every control until the script runs, offers no copy button or share card, and without script shows the answers", () => {
     const d = dom(dist, PAGE);
@@ -559,7 +560,7 @@ describe("the games-and-tools hub and the link map (blog-handoff.md v1.2 section
     expect.soft(d.querySelector("p.nm")).not.toBeNull();
     expect.soft(d.querySelector(".mast .ds").textContent).toBe("Every game and calculator on the blog, in one place.");
     expect.soft(d.title).toBe("Games and tools — TwiceOver Blog");
-    expect.soft(d.querySelector('meta[name="description"]').content).toBe("Every game and calculator on the TwiceOver Blog: position sizing, option pricing and payoff at expiration. Informational and educational.");
+    expect.soft(d.querySelector('meta[name="description"]').content).toBe("Every game and calculator on the TwiceOver Blog: position sizing, option pricing and payoff at expiration.");
     expect.soft(d.querySelector(".endblk"), "no end block").toBeNull();
     expect.soft(d.querySelector(".filt"), "no filters").toBeNull();
     expect.soft(d.querySelector(".t-date"), "no dates").toBeNull();

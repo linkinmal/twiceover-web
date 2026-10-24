@@ -9,6 +9,9 @@ import MorePlay from "./MorePlay.astro";
 import { LOOKS } from "../../blog/vocabulary.mjs";
 import { TOPIC_LABELS } from "../../blog/labels.mjs";
 import { formatStamp, toNewYorkIso } from "../../blog/format.mjs";
+import { getPublished } from "../../blog/collection.mjs";
+import { topicsWithPosts } from "../../blog/list.mjs";
+import { TOPICS } from "../../blog/vocabulary.mjs";
 
 interface Props {
   p: any;
@@ -16,12 +19,15 @@ interface Props {
 const { p } = Astro.props;
 const look = LOOKS[p.look as keyof typeof LOOKS];
 const kind = p.kind === "game" ? "Game" : "Tool";
+// A subject gets its page only once it has a published post, so the bar links it only then (#4498: the coin
+// game linked a page that 404s until its first post lands).
+const topicLive = topicsWithPosts(await getPublished(), TOPICS).includes(p.topic);
 ---
 <BlogBase title={`${p.title} — TwiceOver`} description={p.description} preload={[look.display]}>
   <nav slot="meta" class="meta" aria-label="This page">
     {p.kind === "game" ? <a href={p.path}>Playable</a> : <a href={p.path}>Tool</a>}
     {p.kind === "game" && <span>Game</span>}
-    <a href={`/blog/topic/${p.topic}`}>{TOPIC_LABELS[p.topic as keyof typeof TOPIC_LABELS]}</a>
+    {topicLive ? <a href={`/blog/topic/${p.topic}`}>{TOPIC_LABELS[p.topic as keyof typeof TOPIC_LABELS]}</a> : <span>{TOPIC_LABELS[p.topic as keyof typeof TOPIC_LABELS]}</span>}
     <span>Updated <time datetime={toNewYorkIso(p.updatedAt)}>{formatStamp(p.updatedAt)}</time></span>
   </nav>
   <article class="post skin" data-look={look.kit}>
