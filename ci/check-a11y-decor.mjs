@@ -63,8 +63,8 @@ const failures = [];
 const EXPECTED = {
   // 8 hero-deck slides (v2.51, stock-analyst-platform#4411) + the Portfolio section's two cards; 1 phone.
   "index.html": { dcard: 10, phone: 1 },
-  // The 13 section cards and the hero's analysis screenshot.
-  "how-our-analysis-works/index.html": { "xp-card": 13, "xp-shot": 1 },
+  // The 13 section cards, the Voices and Macro pair (stock-analyst-platform#4498), and the hero's analysis screenshot.
+  "how-our-analysis-works/index.html": { "xp-card": 15, "xp-shot": 1 },
   // The seven product pictures: the portfolio desk, two row close-ups, the position page, the rules,
   // scenarios and paths cards.
   "your-portfolio/index.html": { app: 7 },

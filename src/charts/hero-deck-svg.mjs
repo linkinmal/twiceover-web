@@ -19,7 +19,7 @@
  * Colour comes from `--muted`, `--text`, `--bmark` and the other short names, which `.hc` binds to the
  * site's tokens in `site.css`; the markup is otherwise the artifact's.
  *
- * Card 8's gauge is HTML, not SVG, so it has no builder here.
+ * Card 8 draws the Macro board's tiles, built in `macro-board-svg.mjs`.
  */
 import { projectionChartModel } from "./outlook-chart.mjs";
 import {

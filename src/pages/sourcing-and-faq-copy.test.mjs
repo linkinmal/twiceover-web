@@ -20,7 +20,7 @@ describe("the public pages make no 'licensed' sourcing claim (#3649, ADR 0927)",
   });
 
   it("states the sourcing lines Growth signed off", () => {
-    expect.soft(index).toContain("Quotes, options and news data come from data vendors. Insider trades come from SEC filings, and short interest from FINRA. Nothing is scraped");
+    expect.soft(index).toContain("Quotes, options and news data come from data vendors. Insider trades come from SEC filings, and short interest from FINRA. Every figure names its source and the time it was fetched.");
     expect.soft(explainer).toContain("We pull market data and public filings for the stock.");
     expect.soft(explainer).toContain("comes from vendor data or public filings");
   });
@@ -31,11 +31,11 @@ describe("the Outlook FAQ lines (#3693)", () => {
     expect(index).toContain("Every plan's Outlook also sees how the stock has moved before, and how it moves with its sector and the market.");
   });
 
-  it("puts 'Why can an analysis take a moment?' before the missing-data FAQ, with no time figure (the product's own estimate is a stand-in)", () => {
-    const q = explainer.indexOf("Why can an analysis take a moment?");
-    expect.soft(q).toBeGreaterThan(-1);
-    expect.soft(q).toBeLessThan(explainer.indexOf("What happens when data is missing?"));
-    expect.soft(explainer).toContain("so the Outlook lands after the other sections do");
+  // Founder 2026-10-24 (#4498, Growth brief standing ruling item 2): no volunteered limitation on a marketing page.
+  it("asks no question nobody asked: no wait or missing-data FAQ, and no time figure", () => {
+    expect.soft(explainer).not.toContain("Why can an analysis take a moment?");
+    expect.soft(explainer).not.toContain("What happens when data is missing?");
+    expect.soft(index).not.toContain("What if some of the data isn't available?");
     expect.soft(explainer).not.toContain("under a minute");
     expect.soft(index).not.toContain("under a minute");
   });
@@ -48,16 +48,18 @@ describe("the Outlook FAQ lines (#3693)", () => {
 
 // #3829 / #3693: the 10-03 explainer strings (Growth deb4fe2a, as the 10-05 re-pass left them in
 // `site-copy-explainer-pages.md`; PM ruling 2026-10-06 that they ride this PR). ADR 1036 Amendment 1:
-// ADR 1131 Amendment 2 (stock-analyst-platform#4380): the writer retired; the page says what the AI does, never how it is built (PM ruling 2026-10-17); the AI reaches the call
-// and names what would break the call.
-describe("'How the Outlook is made' names the AI and its condition, not the build (ADR 1131 Amendment 2)", () => {
-  it("says it in the intro, steps 2 to 5 and the record row", () => {
+// ADR 1131 Amendment 2 (stock-analyst-platform#4380): the writer retired; the page says what the AI does, never how it is built (PM ruling 2026-10-17); the AI reaches the call.
+// The falsifier step left the page on 2026-10-24 (#4498).
+describe("'How the Outlook is made' names the AI, not the build (ADR 1131 Amendment 2), and sells instead of disclaiming (#4498)", () => {
+  it("says it in the intro and steps 2 and 3, with no falsifier, stale-horizon or record copy", () => {
     expect.soft(explainer).toContain("It works through the sections and reaches a call for each horizon.");
     expect.soft(explainer).toContain("On every plan it also sees how the stock has actually moved over each horizon across the past five years.");
     expect.soft(explainer).toContain("Our AI thinks it through and reaches a call for each horizon.");
-    expect.soft(explainer).toContain("It names what would break each call.");
-    expect.soft(explainer).toContain("It writes one plain sentence: the event or the price level that would break the call. The sentence sits under the horizon's price, one click away. A price level in it is our AI's own call, not a reading from our data. If the sentence can't be shown, the price shows without it.");
-    expect.soft(explainer).toContain("A line in its place says the horizon's inputs aren't all live.</p>");
+    for (const page of [explainer, index]) {
+      for (const gone of ["what would break", "break the call", "shows no price", "Labelled as ours", "The same analysis for everyone", "What TwiceOver is"]) {
+        expect.soft(page, gone).not.toContain(gone);
+      }
+    }
     expect.soft(explainer).not.toContain("writes the notes");
     // PM ruling 2026-10-17 (#4380): no model count, no pipeline words, no "prove", no figure-check claim.
     for (const page of [explainer, index]) {
@@ -66,8 +68,6 @@ describe("'How the Outlook is made' names the AI and its condition, not the buil
       }
     }
     expect.soft(explainer).not.toContain("two steps");
-    expect.soft(explainer).toContain("and the version of our system that made it.");
-    expect.soft(explainer).toContain("<span>Produced by</span><span>the version of our system</span>");
   });
 
   it("no longer says one pass projects the price, or that the note names the main driver", () => {
@@ -81,28 +81,20 @@ describe("'How the Outlook is made' names the AI and its condition, not the buil
   });
 });
 
-describe("the explainer's News entry says what the headline filter does, without naming newsrooms (ADR 1045)", () => {
-  it("carries the filter sentences and names no outlet", async () => {
+describe("the explainer's News entry sells what it shows and names no newsroom (ADR 1045; #4498)", () => {
+  it("names the newsrooms' kind, not an outlet, and carries no window or cap mechanics", async () => {
     const { EXPLAINER_ENTRIES } = await import("../data/explainer-sections.mjs");
     const shows = EXPLAINER_ENTRIES.news.shows;
-    expect.soft(shows).toContain("Headlines come from major financial newsrooms and are kept only when they name the company. Commentary is dropped.");
+    expect.soft(shows).toContain("Recent SEC filings and the material news from major financial newsrooms");
     expect.soft(shows).not.toMatch(/yahoo|cnbc|benzinga/i);
-  });
-
-  it("says filings and releases reach back 30 days and newsroom headlines reach back as far as the section says (ADR 1045 Amendment 1, #4499)", async () => {
-    const { EXPLAINER_ENTRIES } = await import("../data/explainer-sections.mjs");
-    const shows = EXPLAINER_ENTRIES.news.shows;
-    expect.soft(shows).toContain("also up to three material news items, such as earnings,");
-    expect.soft(shows).toContain("Filings and company releases reach back 30 days. On a heavily covered stock, newsroom headlines reach back as far as the section says.");
     expect.soft(shows).not.toContain("from the last 30 days");
+    expect.soft(shows).not.toContain("up to three");
   });
 });
 
 describe("the Outlook's marker reads 'points to' wherever the explainer draws the card (consult 1148, ADR 0231 Amendment 9, #4499)", () => {
-  it("says it in the sentence, the Labelled row and the three horizon cards, and nowhere says 'lands at'", () => {
+  it("says it on the three horizon cards, and nowhere says 'lands at'", () => {
     const card = read("../components/ExplainerOutlook.astro");
-    expect.soft(explainer).toContain('Each price reads "Our projection points to", and the Outlook is labelled as AI synthesis wherever it appears.');
-    expect.soft(explainer).toContain("“Our projection points to {projections[0].v}” · AI synthesis");
     expect.soft(card).toContain("Our projection points to <b>{usd(h.price)}</b>");
     expect.soft(explainer).not.toContain("lands at");
     expect.soft(card).not.toContain("lands at");

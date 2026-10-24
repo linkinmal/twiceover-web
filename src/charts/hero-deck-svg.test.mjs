@@ -14,8 +14,6 @@ import {
   INSIDERS,
   INSIDER_FIGURES,
   INSIDER_ROWS,
-  MACRO_CALENDAR,
-  MACRO_CARD,
   OPTIONS_CARD,
   BAND_CARDS,
 } from "./site-fixture.mjs";
@@ -40,12 +38,6 @@ describe("the fixture's derived figures", () => {
     // The Insiders band card further down the page says the same two things in words.
     expect.soft(JSON.stringify(BAND_CARDS.insiders)).toContain(INSIDER_FIGURES.net);
     expect.soft(JSON.stringify(BAND_CARDS.insiders)).toContain(INSIDER_FIGURES.underPlan);
-  });
-
-  it("carries the card 8 words and no VIX level or SPY change", () => {
-    expect.soft(MACRO_CARD).toMatchObject({ net: 0.35, lean: "supportive" });
-    expect.soft(JSON.stringify(MACRO_CARD)).not.toMatch(/\d%|\bVIX\s*\d/);
-    expect.soft(BAND_CARDS.macro.find((b) => b.mra).mra).toBe(MACRO_CARD.net);
   });
 
   it("keeps the three horizons the Outlook states, with the report inside Mid", () => {
@@ -200,16 +192,6 @@ describe("card 7: the By insider rows follow from the fixture", () => {
     expect.soft(INSIDERS.sells.every((s) => typeof s.title === "string")).toBe(true);
     expect.soft(new Set(INSIDERS.sells.map((s) => s.title))).toEqual(new Set(["CEO", "CFO", "COO", "General Counsel", "Director"]));
     expect.soft(INSIDERS.sells.reduce((t, s) => t + s.usd, 0) - INSIDERS.buys[0].usd).toBeCloseTo(177.6, 5);
-  });
-});
-
-describe("card 8: the Economic calendar", () => {
-  it("lists three releases, each with its publisher", () => {
-    expect.soft(MACRO_CALENDAR).toEqual([
-      { date: "Sep 4", event: "Employment situation", source: "FRED" },
-      { date: "Sep 11", event: "CPI", source: "FRED" },
-      { date: "Sep 16", event: "FOMC decision", source: "Federal Reserve" },
-    ]);
   });
 });
 

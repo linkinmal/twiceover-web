@@ -62,10 +62,11 @@ describe("beta and correlation sit under Peers, not Sector (#3693, ADR 1037)", (
   });
 });
 
-describe("Technicals shows the move history and its history floor (#3693, ADR 1037)", () => {
-  it("states the five-year windows and that a window shows only with enough history", () => {
+describe("Technicals shows the move history (#3693, ADR 1037; history-floor line dropped, #4498)", () => {
+  it("states the five-year windows", () => {
     expect.soft(EXPLAINER_ENTRIES.technicals.shows).toContain(
-      "Also how the stock has moved over the past five years, or its full history if shorter, across rolling 10-, 63- and 126-trading-day windows: the share that ended higher, the median move and the middle half of outcomes. A window shows only when there is enough history for it.",
+      "Also how the stock has moved over the past five years, or its full history if shorter, across rolling 10-, 63- and 126-trading-day windows: the share that ended higher, the median move and the middle half of outcomes.",
     );
+    expect.soft(EXPLAINER_ENTRIES.technicals.shows).not.toContain("only when there is enough history");
   });
 });

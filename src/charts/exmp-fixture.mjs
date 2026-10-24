@@ -164,7 +164,7 @@ export const EXMP_BAND_CARDS = {
     { post: ["Aug 14", "watching whether margins hold as the new supply deal ramps."] },
     { sub: "Each post named, dated and linked in a real analysis." },
   ],
-  macro: [{ row: ["Tactical", "Fed on hold"] }, { row: ["Strategic", "Soft landing"] }, { mra: 0.35 }],
+  macro: [{ macroTiles: ["vix", "treasury-10y"] }],
   outlook: [
     { outlookChart: true },
     { okh: EXMP_OUTLOOK.horizons.map((h) => [h.label, usd(h.price).replace(/\.00$/, "")]) },

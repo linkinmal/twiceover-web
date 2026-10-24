@@ -19,7 +19,7 @@ export const PLANS = ["free", "core", "premium"];
 const PLAN_LABEL = { free: "Free", core: "Core", premium: "Premium" };
 
 export const SECTIONS = [
-  { key: "outlook", name: "Outlook", plan: "free", tagline: "Near, mid and far: a projected price for each, and what would break the call." },
+  { key: "outlook", name: "Outlook", plan: "free", tagline: "Near, mid and far: a projected price for each, and the thesis behind it." },
   { key: "fundamentals", name: "Fundamentals", plan: "free", tagline: "Market cap, P/E, earnings — the numbers in context." },
   { key: "technicals", name: "Technicals & levels", plan: "free", tagline: "Moving averages, momentum, the 52-week range and how the stock has moved before." },
   { key: "options", name: "Options & short interest", plan: "core", tagline: "The options market's expected move and skew, and how heavily the stock is shorted." },
@@ -30,8 +30,8 @@ export const SECTIONS = [
   { key: "peers", name: "Peers & relative position", short: "Peers", plan: "free", tagline: "P/E and 3-month return against the stock's closest peers, and how the stock moves with its sector and the market." },
   { key: "insiders", name: "Insiders", plan: "premium", tagline: "What officers and directors bought and sold, in their own filings." },
   { key: "news", name: "News & catalysts", plan: "core", tagline: "What just changed, and what's scheduled next." },
-  { key: "voices", name: "Voices", plan: "core", tagline: "What prominent market voices are saying — attributed." },
-  { key: "macro", name: "Macro & regime", plan: "free", tagline: "The backdrop: rates, risk appetite, volatility." },
+  { key: "voices", name: "Voices", plan: "core", tagline: "What prominent traders on X are saying about the stock." },
+  { key: "macro", name: "Macro & regime", plan: "free", tagline: "The backdrop: the VIX, the S&P 500, rates, inflation, jobs, the dollar and commodities." },
 ].map((s) => ({ short: s.name, ...s }));
 
 /** The sections a plan shows: its own plus every lower plan's. */
@@ -45,10 +45,10 @@ export function planTag(section) {
   return section.plan === "free" ? null : PLAN_LABEL[section.plan];
 }
 
-/** The facts strip's caption, composed from the counts rather than typed beside them. */
+/** The facts strip's caption under the section count: what the sections are, not how plans split them
+ *  (#4498, Growth brief standing ruling item 2: no plan mechanics on marketing surfaces). */
 export function sectionCountLine() {
-  const [free, core, premium] = PLANS.map((p) => sectionsOn(p).length);
-  return `Sections in our analysis: ${free} on Free, ${core} on Core, all ${premium} on Premium.`;
+  return "Sections in our analysis, from the Outlook and Voices to insiders, the largest options trades and the macro board.";
 }
 
 const GROUP_LABEL = { free: "On every plan", core: "Added on Core", premium: "Added on Premium" };

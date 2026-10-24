@@ -37,16 +37,16 @@ const BEFORE_SIGNUP_GROUP = [
   "Is my account data shared with anyone?",
 ];
 
+// "What if some of the data isn't available?" left on 2026-10-24 (#4498): no volunteered limitation.
 const NEW_FIVE = [
   "What happens when the 14-day trial ends?",
   "How do I cancel?",
   "What if connecting my brokerage fails?",
-  "What if some of the data isn't available?",
   "How do I get support?",
 ];
 
 describe("FAQ grouping (#2534)", () => {
-  it("splits the fifteen items into two labeled groups in spec order, unreordered within each", () => {
+  it("splits the fourteen items into two labeled groups in spec order, unreordered within each", () => {
     const beforeIdx = faqList.indexOf(">Before you sign up<");
     const onceIdx = faqList.indexOf(">Once you're in<");
     expect(beforeIdx, '"Before you sign up" heading present').toBeGreaterThan(-1);
@@ -78,7 +78,7 @@ describe("FAQ grouping (#2534)", () => {
   it("keeps accordion mechanics unchanged — exactly one open item, borders on every entry", () => {
     const detailsCount = (faqList.match(/<details/g) || []).length;
     const openCount = (faqList.match(/<details open/g) || []).length;
-    expect(detailsCount, "fifteen total items").toBe(15);
+    expect(detailsCount, "fourteen total items").toBe(14);
     expect(openCount, "only one item starts open").toBe(1);
     // The one open item is the very first item of the whole list, not per-group.
     const firstDetailsIdx = faqList.indexOf("<details");
@@ -121,7 +121,7 @@ describe("FAQ chevron (#2532)", () => {
   it("gives every item a chevron affordance that rotates open, cross-browser", () => {
     const chevronCount = (faqList.match(/faq__chevron/g) || []).length;
     // One SVG per summary (13 markup occurrences) — CSS selectors add more hits below.
-    expect(chevronCount, "a chevron element in every one of the fifteen summaries").toBeGreaterThanOrEqual(15);
+    expect(chevronCount, "a chevron element in every one of the fourteen summaries").toBeGreaterThanOrEqual(14);
     expect(faqList, "chevron is an aria-hidden decorative SVG, matching the trust-card icon convention").toMatch(
       /<svg class="faq__chevron"[^>]*viewBox="0 0 24 24"[^>]*aria-hidden="true"/
     );
