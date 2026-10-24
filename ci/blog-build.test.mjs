@@ -414,7 +414,8 @@ describe("the implied move from a straddle page", () => {
     expect.soft(d.querySelectorAll("button.stp"), "no minus and plus buttons").toHaveLength(0);
     expect.soft(d.querySelectorAll("input, button").length, "four controls: the slider, the button and two boxes").toBe(4);
     expect.soft(d.body.textContent).toContain("The page takes the strike to be the stock price.");
-    expect.soft(d.body.textContent).toContain("This is a hypothetical illustration of option math. It does not predict any stock or option.");
+    expect.soft(d.body.textContent).toContain("This is a hypothetical illustration of option math.");
+    expect.soft(d.body.textContent, "no defensive line on a marketing surface (#4498)").not.toContain("does not predict");
   });
   it("hides every control until the script runs, and shows the example as a page of its own without it", () => {
     const d = dom(dist, PAGE);
