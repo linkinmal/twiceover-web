@@ -52,11 +52,12 @@ describe("the thirteen sections", () => {
     expect.soft(tagline("peers")).toBe(
       "P/E and 3-month return against the stock's closest peers, and how the stock moves with its sector and the market.",
     );
-    expect.soft(tagline("outlook")).toBe("Near, mid and far: a projected price for each, and what would break the call.");
+    expect.soft(tagline("outlook")).toBe("Near, mid and far: a projected price for each, and the thesis behind it.");
+    expect.soft(tagline("voices")).toBe("What prominent traders on X are saying about the stock.");
     expect.soft(tagline("options")).toBe(
       "The options market's expected move and skew, and how heavily the stock is shorted.",
     );
-    expect.soft(tagline("macro")).toBe("The backdrop: rates, risk appetite, volatility.");
+    expect.soft(tagline("macro")).toBe("The backdrop: the VIX, the S&P 500, rates, inflation, jobs, the dollar and commodities.");
   });
 });
 
@@ -69,8 +70,9 @@ describe("plan placement", () => {
     for (const s of sectionsOn("free")) expect.soft(sectionsOn("core")).toContain(s);
   });
 
-  it("states the facts-strip line from those counts, never as typed numbers", () => {
-    expect(sectionCountLine()).toBe("Sections in our analysis: 6 on Free, 10 on Core, all 13 on Premium.");
+  it("names sections on the facts strip, not plan counts (#4498)", () => {
+    expect(sectionCountLine()).toBe("Sections in our analysis, from the Outlook and Voices to insiders, the largest options trades and the macro board.");
+    expect(sectionCountLine()).not.toMatch(/Free|Core|Premium/);
   });
 });
 

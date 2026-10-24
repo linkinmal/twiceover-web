@@ -16,7 +16,7 @@ export async function GET(context) {
   const posts = await getPublished();
   return rss({
     title: "TwiceOver Blog",
-    description: `${INDEX_BLURB} Informational and educational.`,
+    description: INDEX_BLURB,
     site: context.site,
     trailingSlash: false,
     items: posts.map((p) => ({

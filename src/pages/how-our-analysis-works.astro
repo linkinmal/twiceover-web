@@ -18,7 +18,6 @@ import OutlookPathChart from "../components/OutlookPathChart.astro";
 import { SECTIONS } from "../data/sections.mjs";
 import { EXPLAINER_ENTRIES, EXPLAINER_ORDER, entryAnchor } from "../data/explainer-sections.mjs";
 import {
-  EXMP_AS_OF_CLOCK,
   EXMP_BAND_CARDS,
   EXMP_LAST_CLOSE,
   EXMP_OUTLOOK,
@@ -41,11 +40,10 @@ const projections = EXMP_OUTLOOK.horizons.map((h) => ({ k: h.key.toUpperCase(), 
 const LOCK = '<svg class="xp-lock" viewBox="0 0 12 14" aria-hidden="true"><rect x="1.5" y="6" width="9" height="7" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 6V4.2a2.5 2.5 0 0 1 5 0V6" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>';
 const CHEVRON = '<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
 const FAQ = [
-  ["How is the Outlook different from a price target?", "An analyst's price target is usually one number, a year out. The Outlook gives three projected prices, about two weeks, three months and six months out, each with what would break the call. The Outlook shows the sections it weighed."],
-  ["Why can the Outlook differ between plans?", "Each plan's Outlook weighs only the sections that plan shows. Core and Premium give it more to weigh, so their projections for a stock can differ from Free's."],
-  ["Why can an analysis take a moment?", "Our AI works through the sections before it projects a price for each horizon, so the Outlook lands after the other sections do."],
-  ["What happens when data is missing?", "The section with the gap says so, and nothing is estimated to cover it. If an Outlook horizon lacks the inputs it needs, that horizon shows no price."],
-  ["Which parts are written by AI?", "The Outlook's three prices, and what would break each call, are written by our AI. So are the short written summaries in some sections, such as the one-line summary of each news item. Every figure in a section comes from vendor data or public filings, through our own code."],
+  ["How is the Outlook different from a price target?", "An analyst's price target is usually one number, a year out. The Outlook gives three projected prices, about two weeks, three months and six months out, each with its date and the thesis behind it. You can open every section it weighed."],
+  ["What are Voices?", "What prominent traders on X are saying about the stock right now. Each post is linked, dated and summed up in one line, and on Core and Premium the Outlook weighs them with everything else."],
+  ["Does Core or Premium change the Outlook?", "Yes. Core and Premium give the Outlook more to weigh: the news, Voices, earnings and the options market on Core, then the largest options trades, earnings history and insiders on Premium."],
+  ["Which parts are written by AI?", "The Outlook's three prices and the thesis behind each are written by our AI. So are the short summaries in some sections, such as the one-line summary of each news item. Every figure in a section comes from vendor data or public filings, through our own code."],
 ];
 ---
 <Base
@@ -56,7 +54,7 @@ const FAQ = [
     <section class="xp-hero">
       <div class="xp-hero__copy">
         <h1 class="type-display">How our analysis works</h1>
-        <p class="xp-lede">A TwiceOver analysis reads one US-listed stock or ETF through up to thirteen sections, from its SEC filings to the options market. The Outlook weighs the sections your plan includes and projects three prices: one about two weeks out, one three months out and one six months out. Each price comes with what would break the call.</p>
+        <p class="xp-lede">One stock, thirteen sections: its filings and earnings, the options market and its largest trades, what traders on X are saying and the macro backdrop. The Outlook weighs them all and projects a price for about two weeks, three months and six months out.</p>
         <a class="btn-filled xp-cta" href="/go/try">Analyze a stock →</a>
       </div>
       <figure class="xp-fig">
@@ -67,7 +65,7 @@ const FAQ = [
               <div><span class="xp-snap__tk">EXMP</span> <span class="xp-snap__nm">Example Co. · stock</span></div>
               <div class="xp-snap__r"><span class="xp-snap__px">{usd(EXMP_PRICE)}</span> <span class="xp-plan">Core</span></div>
             </div>
-            <p class="xp-snap__asof">price as of {EXMP_LAST_CLOSE.charAt(0) + EXMP_LAST_CLOSE.slice(1).toLowerCase()} close · every figure below carries its source and time</p>
+            <p class="xp-snap__asof">price as of {EXMP_LAST_CLOSE.charAt(0) + EXMP_LAST_CLOSE.slice(1).toLowerCase()} close</p>
             <ExplainerOutlook />
             <div class="xp-fadeout" aria-hidden="true"><span>Fundamentals</span><span>Earnings &amp; dividends</span><span>Technicals &amp; levels</span></div>
           </div>
@@ -106,31 +104,25 @@ const FAQ = [
               </div>
             </div>
             <p class="xp-stage__n">3 · Synthesize</p>
-            <p>The Outlook weighs the sections and projects three prices. Each is labelled as our projection.</p>
+            <p>The Outlook weighs the sections and projects three prices, each with its date and the thesis behind it.</p>
           </li>
         </ol>
       </figure>
     </section>
 
-    <section class="xp-sec xp-split" aria-labelledby="same-h">
+    <section class="xp-sec xp-split" aria-labelledby="edge-h">
       <div class="xp-copy">
-        <h2 id="same-h" class="type-heading-1">The same analysis for everyone on a plan</h2>
-        <p>An analysis never uses your positions, your rules or your account. Two people on the same plan who analyze a stock at the same time see the same analysis.</p>
-        <p class="synth__more"><a class="synth__link" href="/your-portfolio">How Your Portfolio works →</a></p>
+        <h2 id="edge-h" class="type-heading-1">What traders on X are saying, and the backdrop they trade in</h2>
+        <p>Voices pulls what prominent traders on X are saying about the stock, each post linked and summed up in one line. Macro &amp; regime graphs the backdrop: the VIX, the S&amp;P 500, Treasury yields, inflation, jobs, the dollar and commodities, each against its past year. The Outlook weighs the backdrop on every plan, and Voices on Core and Premium.</p>
+        <p class="synth__more"><a class="synth__link" href="#s-voices">See Voices ↓</a></p>
       </div>
       <figure class="xp-fig">
-        <div class="xp-same" role="img" aria-label={`Two readers on Core analyze EXMP at ${EXMP_AS_OF_CLOCK} and see the same three projected prices.`}>
-          {["A", "B"].map((who, i) => (
-            <>
-              {i === 1 && <span class="xp-same__eq" aria-hidden="true">=</span>}
-              <div class="xp-same__c">
-                <p class="xp-same__who">Reader {who} · Core · EXMP · {EXMP_AS_OF_CLOCK}</p>
-                <div class="band-mini band-mini--ok">
-                  <div class="band-mini__chart"><OutlookPathChart {...EXMP_OUTLOOK_CHART} /></div>
-                  {projections.map((p) => <div class="okh"><div class="okh__r"><b>{p.label}</b><span class="proj-v">{p.v}</span></div></div>)}
-                </div>
-              </div>
-            </>
+        <div class="xp-duo">
+          {["voices", "macro"].map((k) => (
+            <div class="xp-card">
+              <div class="xp-card__hd"><span>{byKey[k].name}</span><span>EXMP</span></div>
+              <AnalysisMini kind={k} cards={EXMP_BAND_CARDS} />
+            </div>
           ))}
         </div>
       </figure>
@@ -140,7 +132,7 @@ const FAQ = [
       <div class="xp-split xp-split--rail">
         <div class="xp-copy">
           <h2 id="thirteen-h" class="type-heading-1">The thirteen sections</h2>
-          <p>Free includes six sections, Core ten and Premium all thirteen.</p>
+          <p>Thirteen angles on the same stock, each drawn the way the app draws it.</p>
           <p class="xp-key">Each section below is given as <b>plan · shows · feeds the Outlook</b>.</p>
         </div>
         <figure class="xp-fig">
@@ -193,7 +185,7 @@ const FAQ = [
       <ol class="xp-steps">
         <li>
           <h3 class="type-heading-2">It weighs the other sections your plan includes.</h3>
-          <p>On Free, the Outlook weighs the five other Free sections and the company's recent SEC filings. Core adds four more sections for it to weigh, and Premium three beyond that.</p>
+          <p>It weighs every section your plan shows and the company's recent SEC filings. Core adds the options market, earnings, the news and Voices. Premium adds the largest options trades, earnings history and insiders.</p>
         </li>
         <li>
           <h3 class="type-heading-2">It gets a sense of scale and a calendar for each horizon.</h3>
@@ -203,34 +195,7 @@ const FAQ = [
           <h3 class="type-heading-2">Our AI thinks it through and reaches a call for each horizon.</h3>
           <p>It goes through the sections and projects one price for each of the three horizons. They end about two weeks, three months and six months out: 10, 63 and 126 trading days. Each price shows the date it projects to.</p>
         </li>
-        <li>
-          <h3 class="type-heading-2">It names what would break each call.</h3>
-          <p>It writes one plain sentence: the event or the price level that would break the call. The sentence sits under the horizon's price, one click away. A price level in it is our AI's own call, not a reading from our data. If the sentence can't be shown, the price shows without it.</p>
-        </li>
-        <li>
-          <h3 class="type-heading-2">A horizon without up-to-date inputs shows no price.</h3>
-          <p>Each horizon needs certain sections to be up to date. When one isn't, that horizon shows no price. A line in its place says the horizon's inputs aren't all live.</p>
-          <figure class="xp-fig xp-fig--step">
-            <ExplainerOutlook darkFar />
-          </figure>
-        </li>
       </ol>
-    </section>
-
-    <section class="xp-sec xp-split section-ground" aria-labelledby="ours-h">
-      <div class="xp-copy">
-        <h2 id="ours-h" class="type-heading-1">Labelled as ours, and recorded</h2>
-        <p>Each price reads "Our projection points to", and the Outlook is labelled as AI synthesis wherever it appears. We record every analysis: its inputs, their sources and times, and the version of our system that made it. Any Outlook can be traced back to what it was given.</p>
-      </div>
-      <figure class="xp-fig">
-        <div class="xp-rec">
-          <p class="xp-rec__k">ANALYSIS RECORD · EXMP · AUG 31 {EXMP_AS_OF_CLOCK}</p>
-          <div class="xp-rec__r"><span>Inputs</span><span>the 9 other sections on Core, every figure as given</span></div>
-          <div class="xp-rec__r"><span>Sources, times</span><span>each figure’s source and the time it was fetched</span></div>
-          <div class="xp-rec__r"><span>Produced by</span><span>the version of our system</span></div>
-          <div class="xp-rec__r"><span>Labelled</span><span>“Our projection points to {projections[0].v}” · AI synthesis</span></div>
-        </div>
-      </figure>
     </section>
 
     <section class="faq section-ground section-ground--lifted" aria-labelledby="faq1">

@@ -23,17 +23,15 @@ import OutlookBand from "./OutlookBand.astro";
 import PortfolioCard from "./PortfolioCard.astro";
 import PositionCard from "./PositionCard.astro";
 import TechnicalsPriceChart from "./TechnicalsPriceChart.astro";
+import MacroTile from "./MacroTile.astro";
 import { coneSvg, earningsSvg, insidersSvg, skewSparkSvg } from "../charts/hero-deck-svg.mjs";
 import {
   EARNINGS_AVERAGES,
   INSIDERS,
   INSIDER_FIGURES,
   INSIDER_ROWS,
-  MACRO_CALENDAR,
-  MACRO_CARD,
   OPTIONS_CARD,
   TECHNICALS_ROWS,
-  riskAxisLeft,
 } from "../charts/site-fixture.mjs";
 
 const tech = Object.fromEntries(TECHNICALS_ROWS.map((r) => [r.label, r.value]));
@@ -47,13 +45,6 @@ const CARDS = [
   "Insiders",
   "Macro & regime",
 ];
-const signed = (n) => `${n < 0 ? "−" : "+"}${Math.abs(n).toFixed(2)}`;
-const nbsp = (s) => s.replace(" ", "\u00a0");
-const macro = MACRO_CARD;
-const cautious = macro.contributors.filter((c) => c.glyph === "▼");
-const supportive = macro.contributors.filter((c) => c.glyph === "▲");
-const words = (cs) => cs.map((c) => c.word).join(" and ");
-const macroLabel = `Risk appetite ${signed(macro.net).replace("+", "plus ").replace("−", "minus ")} on a scale from minus 1.00 to plus 1.00. ${words(cautious).replace(/^./, (c) => c.toUpperCase())} leans cautious; ${words(supportive)} lean supportive.`;
 ---
 
 <figure class="deck-fig">
@@ -129,38 +120,16 @@ const macroLabel = `Risk appetite ${signed(macro.net).replace("+", "plus ").repl
     </div>
     <div role="group" aria-roledescription="slide" aria-label="Macro & regime" class="dcard dcard--macro" data-key="macro">
       <div class="dcard__hd"><span class="dcard__ttl">Macro &amp; regime</span><span class="dcard__note">section · macro data</span></div>
+      {/* The product's Macro board (#4432/#4438), which replaced the risk-appetite gauge and the regime
+          words (#4415): the two large rows, then two small ones. Each graph is drawn for the width it
+          renders at (a 177px tile on a 413px card, 259px on a 283px phone card); below 400px of deck
+          the small two drop so the large two stay legible. */}
       <div class="dcard__fill">
-        <div class="rg">
-          <div class="hero-fig">
-            <span class="hero-fig__k">Risk appetite<span class="ph-only"> · {macro.date}</span></span>
-            <span class="hero-fig__v">▲ {macro.lean}</span>
-            <span class="hero-fig__s dk-only">{macro.date}</span>
-          </div>
-          <div class="rg-scale" role="img" aria-label={macroLabel}>
-            <div class="rg-track"><i class="rg-zero"></i><span class="rg-mark" style={`left:${riskAxisLeft(macro.net)}%`}><b>{signed(macro.net)}</b></span></div>
-            <div class="rg-ends" aria-hidden="true"><span>−1.00</span><span>0</span><span>+1.00</span></div>
-            <div class="rg-contrib" aria-hidden="true">
-              <span class="rg-side">{cautious.map((c) => <span class="chip">{c.glyph} {c.word}</span>)}</span>
-              <span class="rg-side rg-side--r">{supportive.map((c) => <span class="chip">{c.glyph} {c.word}</span>)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="figs3 figs3--regime">
-        <div><span>Tactical · near-term</span><b>{macro.tactical.word}</b><em class="two"><i>{macro.tactical.basis} · {nbsp(macro.date)}</i></em></div>
-        <div><span>Strategic · quarterly</span><b>{macro.strategic.word}</b><em class="two"><i>{macro.strategic.basis} · {nbsp(macro.date)}</i></em></div>
-        <div><span>Catalyst · today</span><b>{macro.catalyst}</b></div>
-      </div>
-      <div class="cal">
-        <p class="cal-k">Economic calendar</p>
-        <div class="cal-rows">
-          {MACRO_CALENDAR.map((c) => (
-            <>
-              <span class="cal-d">{c.date}</span>
-              <span class="cal-e">{c.event}</span>
-              <span class="cal-s">— {c.source}</span>
-            </>
-          ))}
+        <div class="mb mb--deck">
+          <MacroTile row="vix" width={177} phoneWidth={259} />
+          <MacroTile row="sp500" width={177} phoneWidth={259} />
+          <MacroTile row="treasury-10y" width={177} class="dk-only" />
+          <MacroTile row="inflation" width={177} class="dk-only" />
         </div>
       </div>
     </div>

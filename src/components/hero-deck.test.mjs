@@ -60,11 +60,14 @@ describe("no plan or tier word in any card", () => {
   });
 });
 
-describe("card 8 draws no VIX level and no SPY change (#4415 is open)", () => {
-  it("states the regime words and contributors only", () => {
+// #4415 closed 2026-10-19: the product's Macro board shows the VIX and the S&P 500 (#4432/#4438).
+describe("card 8 draws the Macro board's tiles", () => {
+  it("leads with the VIX and the S&P 500, then two small tiles that drop on a phone", () => {
     const macro = deck.slice(deck.indexOf('data-key="macro"'));
-    expect.soft(macro).not.toMatch(/\d+(\.\d+)?%/);
-    expect.soft(macro).not.toMatch(/VIX\s*[\d(]/);
+    expect.soft(macro).toContain('<MacroTile row="vix" width={177} phoneWidth={259} />');
+    expect.soft(macro).toContain('<MacroTile row="sp500" width={177} phoneWidth={259} />');
+    expect.soft(macro).toContain('<MacroTile row="treasury-10y" width={177} class="dk-only" />');
+    expect.soft(macro).not.toContain("Economic calendar");
   });
 });
 
@@ -98,10 +101,8 @@ describe("the v2.52 cards (stock-analyst-platform#4410, #4422)", () => {
     expect.soft(read("src/styles/site.css")).not.toContain(".dcard--outlook .proof__hzrow");
   });
 
-  it("Insiders states each seller's title, amount and share, and the calendar names its publisher", () => {
+  it("Insiders states each seller's title, amount and share", () => {
     expect.soft(deck).toContain("INSIDER_ROWS.map");
-    expect.soft(deck).toContain("MACRO_CALENDAR.map");
-    expect.soft(deck).toContain("Economic calendar");
     expect.soft(deck).toContain('class="dk-only"><span>Latest trade</span>');
   });
 

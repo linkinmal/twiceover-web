@@ -50,7 +50,7 @@ const PINNED = [
     ]],
     ["synthesis", [
       "How the sections become three projected prices.",
-      "The Outlook is our AI synthesis. It weighs every section your plan shows you and projects where the price lands in about two weeks, three months and six months. Each price comes with what would break the call.",
+      "The Outlook is our AI synthesis. It weighs every section your plan shows, from the options market and the news to what traders on X are saying and the macro backdrop. Then it projects a price for about two weeks, three months and six months out, each with the thesis behind it.",
       "Illustrative example with made-up figures.",
     ]],
     ["portfolio", [
@@ -67,22 +67,20 @@ const PINNED = [
       "4",
       "Paths for every options structure you hold: make no change, close, reduce or roll. Each comes with its math.",
       "3",
-      "Horizons in every Outlook: about two weeks, three months and six months out. Each gets one projected price and what would break the call.",
+      "Horizons in every Outlook: about two weeks, three months and six months out. Each gets its own projected price and date.",
     ]],
     ["mobile", [
       "The same analysis, coming to your phone.",
       "TwiceOver is coming to iPhone and Android, with Your Portfolio, your rules and the full analysis.",
     ]],
     ["trust plate", [
+      "Real data under every number",
       "Every figure sourced",
       "Quotes, options and news data come from data vendors. Insider trades come from SEC filings, and short interest from FINRA. Every figure names its source and the time it was fetched.",
-      "Your book stays yours",
-      "Your positions and account data are never shown to or reused for another user.",
-      "Every number stamped",
-      "Every figure in a section carries its source and the time it was fetched. The Outlook's prices are labelled as our projection.",
-    ]],
-    ["what it's not", [
-      "Not an investment adviser. TwiceOver gives no recommendations or trading signals, never scores or rates a stock, and never tells you to buy or sell. It never executes a trade or holds your money. You get the evidence and the math behind our projection, and the decision stays with you.",
+      "Traders on X, in the analysis",
+      "Voices brings in what prominent traders on X are saying about the stock, each post linked and summed up in one line.",
+      "The macro backdrop, live",
+      "The VIX, the S&P 500, Treasury yields, inflation, jobs, the dollar and commodities, each graphed against its past year.",
     ]],
     ["closing band", [
       "See it on your own book.",
@@ -126,6 +124,10 @@ describe("the homepage states the signed-off copy", () => {
       "same read runs on the positions",
       // The trial disclosure leaves the closing band for /pricing (consult 0987 §2).
       "Core starts with a 14-day trial.",
+      // Founder 2026-10-24 (#4498): the defensive sections leave the page; the footer disclaimer stays.
+      "What TwiceOver is",
+      "Built the honest way",
+      "what would break the call",
     ]) {
       expect.soft(pageText, gone).not.toContain(gone);
     }
@@ -133,7 +135,7 @@ describe("the homepage states the signed-off copy", () => {
 });
 
 describe("the homepage's section order (consult 0987 §1, kept by the founder)", () => {
-  it("runs hero → band → synthesis → Portfolio → broker → facts → pricing → mobile → trust → FAQ → not → close", () => {
+  it("runs hero → band → synthesis → Portfolio → broker → facts → pricing → mobile → trust → FAQ → close", () => {
     const markers = [
       'class="hero"',
       "<AnalysisBand",
@@ -145,7 +147,6 @@ describe("the homepage's section order (consult 0987 §1, kept by the founder)",
       "<MobileShowcase",
       'class="trust-plate"',
       'class="faq ',
-      'class="not-section ',
       'class="closing-band"',
     ];
     const at = markers.map((m) => index.indexOf(m));

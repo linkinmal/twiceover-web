@@ -23,7 +23,7 @@ export const TOPIC_LABELS = Object.freeze({
   "how-to-read": "Reading charts and indicators",
 });
 
-/** One line under a topic page's heading; its meta description is this plus "Informational and educational." Growth's, `ai-team/growth/blog-site-copy.md` section 5. */
+/** One line under a topic page's heading; it is also its meta description. Growth's, `ai-team/growth/blog-site-copy.md` section 5. */
 export const TOPIC_DESCRIPTIONS = Object.freeze({
   "option-math": 'Why a call option can lose money when the stock rises. One cause is a fall in implied volatility, which traders call IV crush.',
   "expiration-assignment": "What happens to an option on its last day. Assignment is when the option's seller has to deliver on the contract.",

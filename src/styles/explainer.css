@@ -97,6 +97,8 @@
 .xp-dl dt { color:var(--color-text-muted);font:600 11px/1.3 var(--font-family-sans);letter-spacing:.08em;margin-bottom:4px;text-transform:uppercase }
 .xp-dl dd { color:var(--color-text-secondary);line-height:1.55;margin:0 }
 .xp-card { background:transparent }
+.xp-duo { display:grid;gap:var(--space-400);grid-template-columns:repeat(2,minmax(0,1fr)) }
+@media (max-width:639px) { .xp-duo { grid-template-columns:minmax(0,1fr) } }
 .xp-card__hd { color:var(--color-text-muted);display:flex;font:11px/1 var(--font-family-mono);justify-content:space-between;margin-bottom:6px }
 .xp-entry__fig .band-mini { box-shadow:0 1px 2px color-mix(in srgb, var(--color-text-primary) 6%, transparent),0 10px 24px -14px color-mix(in srgb, var(--color-text-primary) 24%, transparent) }
 .xp-steps { counter-reset:st;display:grid;gap:var(--space-400) var(--space-600);grid-template-columns:repeat(2,minmax(0,1fr));list-style:none;margin:var(--space-400) 0 0;padding:0 }
