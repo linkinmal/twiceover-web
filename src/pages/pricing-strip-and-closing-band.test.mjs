@@ -182,6 +182,15 @@ describe("Pricing strip (#3030, site-prelaunch.md §2 'Pricing strip')", () => {
     expect(baseRuleBody(".pricing-stat")).toMatch(/border-bottom:\s*1px solid var\(--color-border-default\)/);
   });
 
+  it("insets every column after the first from the divider before it (#4515)", () => {
+    // v3.4 went to three columns, but only `:last-child` carried an inline-start inset, so Core's
+    // text sat flush against Free's right-hand divider. Free stays at 0 to meet the page gutter.
+    expect(wideRuleBody(".pricing-strip__grid .pricing-stat:not(:first-child)")).toMatch(
+      /padding-inline-start:\s*var\(--space-400\)(?=\s*[;}])/,
+    );
+    expect(wideRuleBody(".pricing-stat")).not.toMatch(/padding-inline-start/);
+  });
+
   it("keeps the band's closing padding on the ground, where it cannot collapse away", () => {
     // The one deviation from the approved artifact, which parks that 48px on a `.link-band`
     // wrapper this markup has no equivalent for. Measured under the artifact-literal variant
