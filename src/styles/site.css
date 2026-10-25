@@ -893,6 +893,10 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
      running the band. It drops Free's top padding alone, and that column's contents sit 48px
      above Core's. Measured. */
   .pricing-strip__grid .pricing-stat:first-child { padding-block-start: var(--space-600); }
+  /* Every column after the first clears the divider before it (#4515): at three plans only
+     `:last-child` did, and Core's text sat flush against Free's divider. Free stays at 0 to meet
+     the page gutter. */
+  .pricing-strip__grid .pricing-stat:not(:first-child) { padding-inline-start: var(--space-400); }
   .pricing-strip__grid .pricing-stat:last-child {
     padding-inline: var(--space-400) 0;
     border-right: none;
