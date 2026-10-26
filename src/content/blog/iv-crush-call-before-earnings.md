@@ -6,7 +6,7 @@ topic: "option-math"
 lens: "concept"
 build: "text-led"
 look: "neon"
-hit: "has already paid for the jump"
+hit: "already paid"
 sources: "Black and Scholes, 1973; Overnight call calculator | https://twiceover.io/blog/tools/overnight-call; Own calculation"
 ---
 
