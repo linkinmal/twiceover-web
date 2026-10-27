@@ -44,7 +44,6 @@ import {
   smallestTypeUnits,
   parseTokens,
   REQUIRED_FACES,
-  DISCLAIMER,
   loadStyleSources,
 } from "./gen-og-cards.mjs";
 import { FACES as BLOG_SHARE_FACES } from "./blog-share/card.mjs";
@@ -71,17 +70,12 @@ function texts(body) {
 }
 
 describe("the set is three members, one chassis (ADR 0905)", () => {
-  it("holds the floor and the disclaimer as one statement each", () => {
+  it("holds the floor as one statement", () => {
     // The floor is an EXTERNAL commitment (consult 0752), so the number is written here as a
     // literal rather than imported from the module the floor tests measure against — otherwise
     // lowering it in one place moves the goalposts and the suite stays green.
     expect.soft(LEGIBILITY_FLOOR_PX, "consult 0752's floor, in px as rendered").toBe(6);
     expect.soft(PHONE_CARD_WIDTH_PX, "X's large-image card on a phone").toBe(350);
-    // C's disclaimer is the same sentence, wrapped into a 300px column. Stated twice, joined here,
-    // so the three cards cannot end up carrying different words.
-    expect
-      .soft(memberByKey("spread").disclaimer.lines.join(" "), "C's two lines are that one sentence")
-      .toBe(DISCLAIMER);
   });
 
   it("names three stably-filenamed members, each with its own plot, scale and caption", () => {
@@ -489,7 +483,7 @@ describe("the chassis is one composition, only the plot body changing", () => {
     expect.soft(svg, "headline line 1").toContain("A second look");
     expect.soft(svg, "headline line 2").toContain("at your own book.");
     expect.soft(svg, "the member's own caption line").toContain(member.caption);
-    expect.soft(svg, "the disclaimer travels with the figures").toContain("Illustrative example");
+    expect.soft(svg, "no disclaimer line on a share card").not.toContain("Illustrative example");
     expect.soft(svg, "the domain").toContain("twiceover.io");
     expect.soft(svg, "the promise").toContain("Depth, never a verdict.");
     expect.soft(svg, "the plot is placed where the artifact places it").toContain(
@@ -497,16 +491,9 @@ describe("the chassis is one composition, only the plot body changing", () => {
     );
   });
 
-  it("carries the disclaimer at the largest of the small type, with no opacity multiplier", () => {
-    // ADR 0905 build rule 1's tail: "caption 24px, disclaimer 28px and the largest of the small type
-    // on every card, no opacity multiplier". Consult 0752's finding was a 5.2px disclaimer at 60%
-    // opacity — the opacity was half the defect.
+  it("sets the caption at 24px", () => {
     for (const member of MEMBERS) {
-      const svg = cardSvg(member.key);
-      const disc = /<text class="disc"[^>]*>/.exec(svg)?.[0] ?? "";
-      expect.soft(disc, `${member.key}: no opacity on the disclaimer`).not.toMatch(/opacity/);
-      expect.soft(svg, `${member.key}: disclaimer at 28px`).toMatch(/\.disc\{[^}]*font-size:28px/);
-      expect.soft(svg, `${member.key}: caption at 24px`).toMatch(/\.cap\{[^}]*font-size:24px/);
+      expect.soft(cardSvg(member.key), `${member.key}: caption at 24px`).toMatch(/\.cap\{[^}]*font-size:24px/);
     }
   });
 });
