@@ -1,12 +1,12 @@
 ---
-title: "IV crush: a call bought before earnings has already paid for the jump"
+title: "IV crush: a call bought before earnings can lose 21% when the stock rises 4%"
 description: "Before a company reports, a call's price already includes the jump the news could bring. Once the news is out, that part of the price drains away, and traders call the drain IV crush. In our example the stock rises 4% overnight and the call loses 21%."
 publishAt: "2026-11-06T07:00:00-05:00"
 topic: "option-math"
 lens: "concept"
 build: "text-led"
 look: "neon"
-hit: "already paid"
+hit: "can lose 21%"
 sources: "Black and Scholes, 1973; Overnight call calculator | https://twiceover.io/blog/tools/overnight-call; Own calculation"
 ---
 

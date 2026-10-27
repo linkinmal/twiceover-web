@@ -1,5 +1,5 @@
 ---
-title: "After September's CPI, the next yearly rate comes on 10 December"
+title: "After September's CPI, there is no new yearly inflation rate until 10 December"
 description: "The CPI report on 14 October carries the last 12-month inflation rate until 10 December. October 2025 was never measured, so the report due on 10 November has no yearly rate. The Federal Reserve sets interest rates twice in between."
 publishAt: "2026-10-14T07:00:00-04:00"
 topic: "macro-fed"
