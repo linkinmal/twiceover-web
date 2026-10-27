@@ -1,5 +1,5 @@
 ---
-title: "Silence Therapeutics (SLN) closed 42 cents under Merck KGaA's $20 offer, and a Treasury bill earns 38 of them by March"
+title: "Silence Therapeutics (SLN) closed 42 cents under Merck KGaA's $20 offer: 38 cents is interest, 4 cents is deal risk"
 description: "Silence Therapeutics closed Monday at $19.58 against Merck KGaA's $20.00 cash offer. The same $19.58 in a Treasury bill earns about 38 cents by the end of March, so the market asks about 4 cents for the risk that the deal fails."
 publishAt: "2026-10-21T07:00:00-04:00"
 topic: "company-events"

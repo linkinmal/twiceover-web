@@ -1,12 +1,12 @@
 ---
-title: "Earnings implied move: 15 of 25 stocks stayed inside it, and the other 10 averaged double it"
+title: "15 of 25 stocks stayed inside the move options priced for earnings, and the other 10 averaged double it"
 description: "Before a company reports, the options market prices the average size of move it expects. A few big moves pull an average up, so most stocks finish inside it. Of 25 big reports from July to October 2026, 15 stayed inside and the other 10 averaged double their priced move."
 publishAt: "2026-10-26T07:00:00-04:00"
 topic: "earnings"
 lens: "concept"
 build: "chart-led"
 look: "paper-marker"
-hit: "15 of 25 stocks stayed inside it"
+hit: "15 of 25 stocks stayed inside"
 figure:
   value: "15 of 25"
   note: "stocks moved less than their options priced"
