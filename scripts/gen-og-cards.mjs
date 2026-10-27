@@ -81,7 +81,7 @@ export const PHONE_CARD_WIDTH_PX = 350;
 
 /* ── The chassis ─────────────────────────────────────────────────────────────────────────────────
    One composition for all three members: lockup, headline, caption line, plot, footer rail. Only
-   the caption text, the disclaimer's placement and the plot body differ.
+   the caption text and the plot body differ.
 
    Baselines and box edges are the build reference's own, measured in headless Chrome against the
    three artboards at 1200x630 (2026-09-04). CSS `top`/`bottom` cannot be transcribed into SVG `y`,
@@ -100,9 +100,6 @@ const CHASSIS = {
   footRight: { x: 1120, baseline: 589, text: "Depth, never a verdict." },
 };
 
-/** The disclaimer travels with the figures wherever they go — 28px, right-aligned to the margin. */
-export const DISCLAIMER = "Illustrative example — not a live account";
-
 /* ── The members ─────────────────────────────────────────────────────────────────────────────────
    `scale` is ADR 0905's build rule 1, solved per member from the legibility floor against that
    member's own plot width — not re-derived here, because the constant IS the recorded decision;
@@ -115,7 +112,6 @@ export const MEMBERS = [
     scale: 1.53,
     caption: PRICE_CAPTION,
     plot: { x: 80, y: 262, width: 980 },
-    disclaimer: { x: 1120, baselines: [253] },
   },
   {
     key: "levels",
@@ -124,7 +120,6 @@ export const MEMBERS = [
     scale: 1.67,
     caption: "last 90 sessions · the levels",
     plot: { x: 80, y: 290, width: 900 },
-    disclaimer: { x: 1120, baselines: [253] },
   },
   {
     key: "spread",
@@ -133,9 +128,6 @@ export const MEMBERS = [
     scale: 1.9,
     caption: `your ${SPREAD.contracts}× ${SPREAD.expiry} ${SPREAD.lowerStrike}C/${SPREAD.upperStrike}C · breakeven ${money(SPREAD.breakeven)}`,
     plot: { x: 60, y: 250, width: 744 },
-    // The spread's plot is tall enough to push the disclaimer below it, where it wraps in a 300px
-    // column. Both lines' baselines are the artboard's own, measured with the rest of the chassis.
-    disclaimer: { x: 1120, baselines: [358, 394.39], lines: ["Illustrative example —", "not a live account"] },
   },
 ];
 
@@ -510,15 +502,11 @@ export function cardSvg(key, sources = loadStyleSources()) {
   const plot = plotFor(key);
   const scale = member.plot.width / plot.width;
 
-  const disc = member.disclaimer;
-  const discLines = disc.lines ?? [DISCLAIMER];
-
   const chassisCss = [
     `.word{font-family:${tokens.get("font-family-serif")};font-weight:600;font-size:32px;fill:${tokens.get("color-text-primary")}}`,
     `.o{fill:${tokens.get("color-accent-default")}}`,
     `.tagline{font-family:${tokens.get("font-family-serif")};font-weight:600;font-size:46px;letter-spacing:-1.15px;fill:${tokens.get("color-text-primary")}}`,
     `.cap{font-family:${tokens.get("font-family-mono")};font-size:24px;fill:${tokens.get("accent-surface-on-surface-muted")}}`,
-    `.disc{font-family:${tokens.get("font-family-sans")};font-size:28px;fill:${tokens.get("color-text-muted")}}`,
     `.foot{font-family:${tokens.get("font-family-sans")};font-weight:600;font-size:22px;fill:${tokens.get("text-link")}}`,
     `.foot-right{font-family:${tokens.get("font-family-serif")};font-weight:600;font-size:24px;fill:${tokens.get("color-text-primary")}}`,
   ].join("\n");
@@ -536,9 +524,6 @@ export function cardSvg(key, sources = loadStyleSources()) {
       (line, i) => `<text class="tagline" x="${CHASSIS.tagline.x}" y="${CHASSIS.tagline.baselines[i]}">${esc(line)}</text>`,
     ),
     `<text class="cap" x="${CHASSIS.caption.x}" y="${CHASSIS.caption.baseline}">${esc(member.caption)}</text>`,
-    ...discLines.map(
-      (line, i) => `<text class="disc" text-anchor="end" x="${disc.x}" y="${disc.baselines[i]}">${esc(line)}</text>`,
-    ),
     `<g transform="translate(${member.plot.x} ${member.plot.y}) scale(${Number(scale.toFixed(6))})">${plot.body}</g>`,
     `<text class="foot" x="${CHASSIS.foot.x}" y="${CHASSIS.foot.baseline}">${esc(CHASSIS.foot.text)}</text>`,
     `<text class="foot-right" text-anchor="end" x="${CHASSIS.footRight.x}" y="${CHASSIS.footRight.baseline}">${esc(CHASSIS.footRight.text)}</text>`,
