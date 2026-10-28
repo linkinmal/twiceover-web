@@ -5,7 +5,7 @@ publishAt: "2026-11-09T07:00:00-05:00"
 topic: "other-markets"
 lens: "history"
 build: "chart-led"
-look: "printout"
+look: "exhibit"
 hit: "nowhere to go"
 image:
   src: "/blog-images/oil-below-zero-may-june-2020.png"
