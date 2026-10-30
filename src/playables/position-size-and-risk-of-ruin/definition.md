@@ -75,8 +75,8 @@ A picture of the game, not a source of its figures. The exact shares (figure 3) 
 - **The size slider** runs from 1% to 60% in whole percents; 60% is where the chart's drawing ends. The bars still show their 100% row.
 - **The tick** on the slider marks the fastest-growing size (figure 2): the win chance, less the loss chance divided by the payoff, rounded to a whole percent. It shows only when that size is a whole percent from 1% to 60%. The line under the slider reads:
   - in range: `The tick marks K%, the size that grows the account fastest over many trades.`
-  - above 60%: `The size that grows the account fastest over many trades is K%, past the end of this slider.`
-  - above 0 but under 1%: `The size that grows the account fastest over many trades is under 1%.`
+  - above 60%: `The size that grows the account fastest over many trades is K%. That is past the slider's 60% end, so no tick shows.`
+  - above 0 but under 1%: `The size that grows the account fastest over many trades is under 1%. That is below the slider's 1% start, so no tick shows.`
   - zero or negative edge: no tick and no line. The sentence over the chart already says no size grows the account.
 
 ## The page's sentences
@@ -92,7 +92,7 @@ Money is printed with thousands separators: whole dollars bare (`$11,000`), othe
 - **The note under the tally:** `The sentence above the chart is exact, worked over every possible run. The 30 drawn runs are one fixed sample, the same at every size, so their count can differ from it.`
 - **The lesson** has two parts. The first (fixed, at the even-money example) says what a win and then a loss of the same size leave of $10,000, at 10% ($9,900) and at 50% ($7,500), worked as $10,000 × (1 + X/100) × (1 − X/100). The second, the fastest-growing size, is worked from the reader's own odds and is rewritten when they change. With K the fastest-growing size (figure 2) as a whole percent, `half` = K/2 rounded half up (at least 1) and `twice` = 2K (at most 100), and each share printed by figure 3's rules:
   - K above 0: `So one size grows the account fastest over many trades: the edge divided by the payoff. At a P% win chance and a B% payoff, it is K%.` Then, when `half` is below K: ` A smaller size grows more slowly but falls to $5,000 less often: at half%, S of runs do.` Then ` A bigger size takes more risk and grows more slowly too: at twice%, S of runs fall to $5,000. Even at K% itself, S of runs fall to $5,000 at some point on the way.`
-  - K under 1%: `At a P% win chance and a B% payoff, the edge is so thin that the size that grows the account fastest is under 1%. Even at 1%, S of runs fall to $5,000. At 10%, S do.`
+  - K under 1%: `At a P% win chance and a B% payoff, the edge is so thin that the size that grows the account fastest over many trades is under 1%. Even at 1%, S of runs fall to $5,000. At 10%, S do.`
   - Edge zero or negative: `At a P% win chance and a B% payoff, the edge is E. No size grows the account on average; a bigger size only makes it shrink faster. At 1%, S of runs fall to $5,000. At 10%, S do.`
   P and B print without a trailing `.0`.
 
