@@ -30,14 +30,14 @@
       "photo": { "$value": "grayscale, contrast 1.35, multiplied onto the ground, 55% dot screen" }
     },
     "printout": {
-      "$description": "Continuous paper off the line printer. Suits documents and data digs. The green band is a neutral by the lightness rule; the sprocket holes are drawn, not images.",
+      "$description": "Continuous paper off the line printer. Suits documents and data digs. Flat ground, no bands (2026-10-28, blog.md section 1 ruling 12). The sprocket holes and the dashed perforation are drawn, not images, and show from 900px wide.",
       "ground": { "$type": "color", "$value": "#FBFBF8" },
       "plate":  { "$type": "color", "$value": "#FFFFFF" },
       "ink":    { "$type": "color", "$value": "#15171A" },
       "muted":  { "$type": "color", "$value": "#5E646B" },
       "accent": { "$type": "color", "$value": "#1E46C8" },
-      "band":   { "$type": "color", "$value": "#E6F0E4" },
-      "hole":   { "$type": "color", "$value": "#CDD1CB" },
+      "hole":   { "$type": "color", "$value": "#C6CAC3" },
+      "perforation": { "$type": "color", "$value": "#C6CAC3" },
       "display": { "$type": "fontFamily", "$value": ["IBM Plex Mono", "ui-monospace", "Menlo", "monospace"] },
       "text":    { "$type": "fontFamily", "$value": ["Source Sans 3", "system-ui", "sans-serif"] },
       "display-weight": { "$type": "number", "$value": 700 },

@@ -81,7 +81,7 @@ describe("the committed token copies", () => {
   // so a copy that changes here must change this digest on purpose (the Designer's file is the source).
   const sha = (p) => createHash("sha256").update(readFileSync(root + p)).digest("hex");
   it("are the files the design signed off", () => {
-    expect.soft(sha("tokens/blog-themes.tokens.json")).toBe("6846ec2f403400aae25fe2cef9725970ea08079a5e6be6976dc8d48b6b38d52f");
+    expect.soft(sha("tokens/blog-themes.tokens.json")).toBe("fd1e3514524be0f54ca4ee19b0cfa96c700c2e60ae46178018f81e1ec8f8bbe9");
     expect.soft(sha("tokens/marketing-looks.tokens.json")).toBe("a84dc5de526d10aed02d88602bd6a8b073b2a9616aced3c83baa11e09cded1bd");
   });
 });
