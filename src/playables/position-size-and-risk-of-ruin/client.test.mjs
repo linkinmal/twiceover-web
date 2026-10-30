@@ -2,7 +2,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { init } from "./client.mjs";
 import { EXAMPLES, PAYOFF_MESSAGE, WIN_MESSAGE, runOdds } from "./position-size.mjs";
-import { answerHtml, barsHtml, chartParts, firstTradeText, payoffNote, sayText, tallyText, winNote } from "./position-size-view.mjs";
+import { answerHtml, barsHtml, chartParts, firstTradeText, lessonText, payoffNote, sayText, tallyText, winNote } from "./position-size-view.mjs";
 
 // The served markup the page carries, reduced to what the script touches: the opening example printed by the build.
 function served() {
@@ -28,6 +28,7 @@ function served() {
     </section>
     <div data-bars>${barsHtml(r, 10)}</div>
     <p data-first>${firstTradeText(r, 10)}</p>
+    <p data-lesson>${lessonText(r)}</p>
   </div>`;
   return document.querySelector("[data-ruin]");
 }

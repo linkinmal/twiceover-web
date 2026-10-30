@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { outcomes, runOdds } from "./position-size.mjs";
-import { answerHtml, barsHtml, chartParts, dollars, edgeExplain, edgeText, edgeWords, firstTradeText, kellyText, payoffNote, sayText, share, sliderText, tallyText, tickLeft, tickNote, tickSize, winNote, winThenLoss } from "./position-size-view.mjs";
+import { lessonText, answerHtml, barsHtml, chartParts, dollars, edgeExplain, edgeText, edgeWords, firstTradeText, kellyText, payoffNote, sayText, share, sliderText, tallyText, tickLeft, tickNote, tickSize, winNote, winThenLoss } from "./position-size-view.mjs";
 
 const o = (p, can = true, all = false) => ({ p, can, all });
 
@@ -90,6 +90,17 @@ describe("the page's words", () => {
     expect.soft(winThenLoss(50)).toBe("$7,500");
   });
 
+  it("writes the lesson's fastest-growing-size paragraph from the reader's odds, never the opening ones", () => {
+    const at = (w, b) => lessonText(runOdds(w, b));
+    expect.soft(at(60, 100)).toBe("So one size grows the account fastest over many trades: the edge divided by the payoff. At a 60% win chance and a 100% payoff, it is 20%. A smaller size grows more slowly but falls to $5,000 less often: at 10%, 9% of runs do. A bigger size takes more risk and grows more slowly too: at 40%, 84% of runs fall to $5,000. Even at 20% itself, 42% of runs fall to $5,000 at some point on the way.");
+    expect.soft(at(65, 60)).toContain("it is 7%.");
+    expect.soft(at(65, 60)).not.toContain("20%");
+    expect.soft(at(50, 100)).toBe("At a 50% win chance and a 100% payoff, the edge is 0.0%. No size grows the account on average; a bigger size only makes it shrink faster. At 1%, under 1% of runs fall to $5,000. At 10%, " + share(outcomes(runOdds(50, 100), 10).floor) + " do.");
+    expect.soft(at(50, 101)).toContain("under 1%");
+    expect.soft(at(50, 101)).toContain("thin");
+    expect.soft(at(90, 1000)).toContain("it is 89%.");
+  });
+
   it("gives the slider a value and a spoken value", () => {
     expect(sliderText(12)).toEqual({ value: "12", valuetext: "12% of the account on each trade" });
   });
@@ -114,7 +125,7 @@ describe("the runs chart's words", () => {
   });
 
   it("says why there is no tick when there is none to draw, in words, from the same figure the tile prints", () => {
-    expect.soft(tickNote(runOdds(90, 100))).toBe("The size that grows the account fastest over many trades is 80%, past the end of this scale.");
+    expect.soft(tickNote(runOdds(90, 100))).toBe("The size that grows the account fastest over many trades is 80%, past the end of this slider.");
     expect.soft(tickNote(runOdds(50.1, 100))).toBe("The size that grows the account fastest over many trades is under 1%.");
     expect.soft(tickNote(runOdds(50, 100))).toBe("");
     expect.soft(tickNote(runOdds(40, 100))).toBe("");

@@ -29,7 +29,7 @@ The page shows the exact probability of outcomes 1 and 2 (not a simulation; no s
 |---|---|---|---|
 | Win chance `p` | typed, with a % mark | 1% to 99% inclusive | rounded to the nearest 0.1% (half up) before anything else; the range is checked on the rounded value |
 | Payoff `b` | typed, with a % mark: what a win pays, as a percent of the amount risked (100% = even money) | 1% to 1000% inclusive | rounded to the nearest 0.1% (half up), range checked on the rounded value |
-| Size `f` | slider | 1% to 60%, whole percents (the runs chart's scale ends there; the bars still show a 100% row) | as is |
+| Size `f` | slider | 1% to 60%, whole percents (the runs chart's drawing ends there; the bars still show a 100% row) | as is |
 
 A typed number is digits with at most one decimal mark, a dot or a comma; spaces at either end are ignored. A comma followed by exactly three digits is a thousands separator and is refused (so `1,000` is refused and `1000` is accepted). A sign, an exponent, a space inside, a typed % sign (the mark sits beside the box), or other text is refused. (This is the shared reader the other tool pages use.) Rounding to 0.1 is decimal rounding of the number as typed: 55.55 is 55.6, 55.549 is 55.5.
 
@@ -64,17 +64,37 @@ Write `p%` and `b%` for the two typed inputs after rounding to 0.1, and `p = p%/
 
 One row per size, for the sizes 1%, 2%, 5%, 10%, 20%, 30%, 50% and 100%, in that order. When the slider's size is not one of these, a row for it is added in its place in the order. The row at the slider's size is marked. Each row shows the two shares from figure 3 at the current odds, as `A ahead · B to $5,000` (the dot is U+00B7), with A and B printed by the rules of figure 3.
 
+## The runs chart
+
+A picture of the game, not a source of its figures. The exact shares (figure 3) come from the model above. The chart draws a sample of thirty runs, and its tally counts only those thirty, so the two can differ. At the opening odds and a 10% size the exact share that falls to $5,000 is 9%, and 5 of the 30 drawn runs do.
+
+- **The sample.** Thirty runs of 100 trades, from one fixed list of 3,000 numbers between 0 and 1: the mulberry32 generator with seed 7, read in order, run 1's 100 numbers first. Trade n of a run wins when its number is below `p`, else it loses. The same numbers are used at every size and every set of odds. So moving the slider changes how far each run moves, not which trades win.
+- **One run, drawn.** It starts at 1× ($10,000). A win multiplies the account by `1 + f·b` and a loss by `1 − f`, the same rule as the model. A run whose account is at or below ½ after any trade stops there. Its last point sits on the half line, with a dot. A run that never did and ends strictly above 1× is *ahead*. Any other run is *neither*. A tie lands as the model's does: exactly ½ is at the floor, exactly 1× is not ahead.
+- **The scale.** The account axis is logarithmic, from ¼× to 8× the start, labelled $2,500, $5,000 (the half line, labelled "half"), $10,000 (the start line), $20,000, $40,000 and $80,000. The trade axis runs 0 to 100, labelled 0, 25, 50, 75 and "100 trades" (0, 50 and "100 trades" in the narrow drawing). A point above 8× is drawn at the top edge, and the chart then prints `off the chart ↑`.
+- **The tally,** under the chart: `These 30 drawn runs: A ended above $10,000 · H fell to $5,000 and stopped · N ended between $5,000 and $10,000.` The three counts add to 30.
+- **The size slider** runs from 1% to 60% in whole percents; 60% is where the chart's drawing ends. The bars still show their 100% row.
+- **The tick** on the slider marks the fastest-growing size (figure 2): the win chance, less the loss chance divided by the payoff, rounded to a whole percent. It shows only when that size is a whole percent from 1% to 60%. The line under the slider reads:
+  - in range: `The tick marks K%, the size that grows the account fastest over many trades.`
+  - above 60%: `The size that grows the account fastest over many trades is K%, past the end of this slider.`
+  - above 0 but under 1%: `The size that grows the account fastest over many trades is under 1%.`
+  - zero or negative edge: no tick and no line. The sentence over the chart already says no size grows the account.
+
 ## The page's sentences
 
 Money is printed with thousands separators: whole dollars bare (`$11,000`), otherwise two decimals (`$10,112.50`). A number held in tenths prints without a trailing `.0` (`60`, `55.5`).
 
 - **The sentence over the answer:** `Risking X% on each trade, A of runs end above $10,000 and B fall to $5,000 on the way.` X is the slider's size; A and B are figure 3. When the exact edge is zero or negative (not the edge as shown to one decimal), a second sentence follows: `With no positive edge, no size grows the account on average.`
-- **The three tiles:** A `of runs end the 100 trades above $10,000`; B `of runs fall to $5,000 on the way, and stop`; figure 2 `the size that grows the account fastest`.
+- **The three tiles:** A `of runs end the 100 trades above $10,000`; B `of runs fall to $5,000 on the way, and stop`; figure 2 `the size that grows the account fastest over many trades`.
 - **The first trade, under the slider:** `At X%, the first trade risks R of the $10,000. A win adds W, to $10,000 + W. A loss takes R, to $10,000 − R. Each later trade risks X% of what the account holds then.` R = $10,000 × X/100; W = R × b. In cents both are whole numbers.
-- **The note under the win chance box:** `p% means about p trades in 100 win.`
+- **The note under the win chance box:** `p% means about p trades in 100 win.` At exactly 1%: `1% means about 1 trade in 100 wins.`
 - **The note under the payoff box:** `At b%, a trade that risks $1,000 wins $1,000 × b. ` followed by the edge in words: `Edge: E. On average a trade earns C cents for each $1 it risks.` (or `loses`, when the edge is negative; `1 cent` when C is 1; `Edge: 0.0%. On average a trade earns nothing.` when E prints as 0.0%). E is figure 1 and C is the same number without its sign or % mark, printed without a trailing `.0`.
 - **The edge, at the top** (opening odds): `Here a trade wins V cents and loses L cents for each $1 it risks, on average. The difference, E, is the edge.` V = 100·p·b and L = 100·(1 − p), each to at most two decimals with trailing zeros dropped.
-- **The lesson** quotes, at the opening odds (60%, 100%): what a win and then a loss of the same size leave of $10,000, at 10% ($9,900) and at 50% ($7,500), worked as $10,000 × (1 + X/100) × (1 − X/100); the fastest-growing size (figure 2); and the share that fell to $5,000 at 10%, at 40% and at the fastest-growing size, each printed by figure 3's rules.
+- **The note under the tally:** `The sentence above the chart is exact, worked over every possible run. The 30 drawn runs are one fixed sample, the same at every size, so their count can differ from it.`
+- **The lesson** has two parts. The first (fixed, at the even-money example) says what a win and then a loss of the same size leave of $10,000, at 10% ($9,900) and at 50% ($7,500), worked as $10,000 × (1 + X/100) × (1 − X/100). The second, the fastest-growing size, is worked from the reader's own odds and is rewritten when they change. With K the fastest-growing size (figure 2) as a whole percent, `half` = K/2 rounded half up (at least 1) and `twice` = 2K (at most 100), and each share printed by figure 3's rules:
+  - K above 0: `So one size grows the account fastest over many trades: the edge divided by the payoff. At a P% win chance and a B% payoff, it is K%.` Then, when `half` is below K: ` A smaller size grows more slowly but falls to $5,000 less often: at half%, S of runs do.` Then ` A bigger size takes more risk and grows more slowly too: at twice%, S of runs fall to $5,000. Even at K% itself, S of runs fall to $5,000 at some point on the way.`
+  - K under 1%: `At a P% win chance and a B% payoff, the edge is so thin that the size that grows the account fastest is under 1%. Even at 1%, S of runs fall to $5,000. At 10%, S do.`
+  - Edge zero or negative: `At a P% win chance and a B% payoff, the edge is E. No size grows the account on average; a bigger size only makes it shrink faster. At 1%, S of runs fall to $5,000. At 10%, S do.`
+  P and B print without a trailing `.0`.
 
 ## Refusals (bad input)
 

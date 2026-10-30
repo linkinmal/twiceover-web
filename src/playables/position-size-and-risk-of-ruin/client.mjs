@@ -7,7 +7,7 @@
  */
 import { DEFAULT_EXAMPLE, DEFAULT_SIZE, EXAMPLES, fitSize, outcomes, runOdds, validateOdds } from "./position-size.mjs";
 import { readNumber } from "../_kit/number-input.mjs";
-import { answerHtml, barsHtml, chartParts, firstTradeText, payoffNote, sayText, sliderText, tickLeft, tickNote, tickSize, winNote } from "./position-size-view.mjs";
+import { answerHtml, barsHtml, chartParts, firstTradeText, payoffNote, sayText, sliderText, tickLeft, tickNote, tickSize, winNote, lessonText } from "./position-size-view.mjs";
 
 const REPLAY_MS = 1600;
 const reduced = () => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -83,6 +83,7 @@ export function init(root, opts = {}) {
     q("[data-ans]").innerHTML = answerHtml(r, size, o);
     q("[data-bars]").innerHTML = barsHtml(r, size);
     q("[data-first]").textContent = firstTradeText(r, size);
+    q("[data-lesson]").textContent = lessonText(r);
     slider.value = sliderText(size).value;
     slider.setAttribute("aria-valuetext", sliderText(size).valuetext);
   }

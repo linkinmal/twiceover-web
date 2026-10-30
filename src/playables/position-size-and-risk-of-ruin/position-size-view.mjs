@@ -114,6 +114,27 @@ export function barsHtml(r, size) {
 /** What a win and then a loss of the same size leave of the $10,000: the leak the lesson explains. */
 export const winThenLoss = (size) => dollars((START_CENTS * (100 + size) * (100 - size)) / 10000);
 
+/**
+ * The lesson's paragraph on the fastest-growing size, at the reader's odds: that size, the share that falls to $5,000
+ * at half of it, at twice it and at it. With no positive edge, or one under 1%, the shares at 1% and 10% instead.
+ */
+export function lessonText(r) {
+  const odds = `At a ${tenths(r.P)}% win chance and a ${tenths(r.B)}% payoff`;
+  const fell = (s) => share(outcomes(r, s).floor);
+  const k = r.kelly;
+  if (k.kind === "none") {
+    return `${odds}, the edge is ${edgeText(r.edgeTenths)}. No size grows the account on average; a bigger size only makes it shrink faster. At 1%, ${fell(1)} of runs fall to ${FLOOR}. At 10%, ${fell(10)} do.`;
+  }
+  if (k.kind === "under") {
+    return `${odds}, the edge is so thin that the size that grows the account fastest is under 1%. Even at 1%, ${fell(1)} of runs fall to ${FLOOR}. At 10%, ${fell(10)} do.`;
+  }
+  const K = k.pct;
+  const half = Math.max(1, Math.round(K / 2));
+  const twice = Math.min(100, 2 * K);
+  const smaller = half < K ? ` A smaller size grows more slowly but falls to ${FLOOR} less often: at ${half}%, ${fell(half)} of runs do.` : "";
+  return `So one size grows the account fastest over many trades: the edge divided by the payoff. ${odds}, it is ${K}%.${smaller} A bigger size takes more risk and grows more slowly too: at ${twice}%, ${fell(twice)} of runs fall to ${FLOOR}. Even at ${K}% itself, ${fell(K)} of runs fall to ${FLOOR} at some point on the way.`;
+}
+
 export const sliderText = (size) => ({ value: String(size), valuetext: `${size}% of the account on each trade` });
 
 /** The runs chart's tally: counted from the thirty drawn runs, and says so. The sentence above the chart is the exact odds. */
@@ -136,7 +157,7 @@ export function tickNote(r) {
   if (k.kind === "none") return "";
   const fastest = "the size that grows the account fastest over many trades";
   if (k.kind === "under") return `The ${fastest.slice(4)} is under 1%.`;
-  return tickSize(r) === null ? `The ${fastest.slice(4)} is ${k.pct}%, past the end of this scale.` : `The tick marks ${k.pct}%, ${fastest}.`;
+  return tickSize(r) === null ? `The ${fastest.slice(4)} is ${k.pct}%, past the end of this slider.` : `The tick marks ${k.pct}%, ${fastest}.`;
 }
 
 /** The chart for one size: the two drawings (the kit shows one by width), the tally, and the text alternative. */
