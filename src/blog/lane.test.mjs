@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { LIMITS, REGEN_GROUPS, evaluateLane, kindOf, magicKind, regenKind, show } from "./lane.mjs";
+import { FIXTURE_DIR, GENERATOR_DIR, GENERATOR_EXTENSIONS, GENERATOR_MAX_DIRS, LIMITS, REGEN_EXACT, REGEN_GROUPS, evaluateLane, kindOf, magicKind, regenKind, show } from "./lane.mjs";
 
 const NOW = Date.parse("2026-10-12T12:00:00Z");
 const post = (publishAt) => `---\ntitle: "x"\npublishAt: "${publishAt}"\n---\nbody\n`;
@@ -308,14 +308,24 @@ describe("a regen pull request", () => {
 });
 
 describe("the regen set", () => {
-  it("is exactly the five groups the amendment names, and none of the never-in paths is in it", () => {
-    expect(REGEN_GROUPS).toEqual([
-      "scripts/blog-share/**",
-      "tokens/blog-themes.tokens.json",
-      "src/styles/blog.css",
-      "test-fixtures/blog-share/<name>.png",
-      "ci/blog-style.test.mjs",
-    ]);
+  it("is exactly the five groups the amendment names: each constant the predicate reads equals its literal", () => {
+    expect.soft(REGEN_EXACT).toEqual(["tokens/blog-themes.tokens.json", "src/styles/blog.css", "ci/blog-style.test.mjs"]);
+    expect.soft(GENERATOR_DIR).toBe("scripts/blog-share/");
+    expect.soft(GENERATOR_EXTENSIONS).toEqual(["mjs", "png"]);
+    expect.soft(GENERATOR_MAX_DIRS).toBe(2);
+    expect.soft(FIXTURE_DIR).toBe("test-fixtures/blog-share/");
+    expect.soft(REGEN_GROUPS).toEqual(["scripts/blog-share/**", "tokens/blog-themes.tokens.json", "src/styles/blog.css", "ci/blog-style.test.mjs", "test-fixtures/blog-share/<name>.png"]);
+  });
+  it("accepts the depth bound exactly: two directories under the folder, not three", () => {
+    expect.soft(regenKind("scripts/blog-share/a/b/c.mjs")).toBe("regen");
+    expect.soft(regenKind("scripts/blog-share/a/b/c/d.mjs")).toBeNull();
+  });
+  it("refuses the near-misses of each group", () => {
+    for (const near of ["src/styles/global.css", "tokens/other.tokens.json", "scripts/blog-share/x.json", "scripts/blog-share/x.svg", "ci/blog-style.mjs", "test-fixtures/other/a.png", "test-fixtures/blog-share/a.jpg", "test-fixtures/blog-share/a/b.png", "scripts/blog-sharex/a.mjs"]) {
+      expect.soft(regenKind(near), near).toBeNull();
+    }
+  });
+  it("keeps every never-in path out", () => {
     for (const never of [
       ".github/workflows/lane.yml",
       ".github/anything",

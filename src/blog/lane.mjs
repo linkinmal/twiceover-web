@@ -45,18 +45,28 @@ export function kindOf(path) {
   return null;
 }
 
-/** The regen set, by group (ADR 1090 Amendment 4). Adding a path is an amendment to that decision: the pinning test breaks. */
-export const REGEN_GROUPS = Object.freeze(["scripts/blog-share/**", "tokens/blog-themes.tokens.json", "src/styles/blog.css", "test-fixtures/blog-share/<name>.png", "ci/blog-style.test.mjs"]);
-const REGEN_EXACT = new Set(["tokens/blog-themes.tokens.json", "src/styles/blog.css", "ci/blog-style.test.mjs"]);
+/**
+ * The regen set (ADR 1090 Amendment 4). These constants ARE the set: the predicate below reads nothing else, and the
+ * pinning test compares each one to its literal, so adding a path, an extension or a level breaks it and needs an amendment.
+ */
+export const REGEN_EXACT = Object.freeze(["tokens/blog-themes.tokens.json", "src/styles/blog.css", "ci/blog-style.test.mjs"]);
+export const GENERATOR_DIR = "scripts/blog-share/";
+/** The extensions that exist in the generator's folder at the base commit. */
+export const GENERATOR_EXTENSIONS = Object.freeze(["mjs", "png"]);
+/** Directories allowed between the generator's folder and the file ("depth at most 3" read as three levels in all). */
+export const GENERATOR_MAX_DIRS = 2;
+export const FIXTURE_DIR = "test-fixtures/blog-share/";
+/** The set as the amendment names it, derived from the constants above. */
+export const REGEN_GROUPS = Object.freeze([`${GENERATOR_DIR}**`, ...REGEN_EXACT, `${FIXTURE_DIR}<name>.png`]);
 const SEG = "[A-Za-z0-9][A-Za-z0-9._-]*";
-/** `scripts/blog-share/**`: depth at most 3, and only the extensions that exist there at the base commit (`.mjs`, `.png`). */
-const GENERATOR = new RegExp(`^scripts/blog-share/(${SEG}/){0,2}${SEG}\\.(mjs|png)$`);
-const FIXTURE_CARD = new RegExp(`^test-fixtures/blog-share/${SEG}\\.png$`);
+const escapeRe = (t) => t.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&");
+const GENERATOR = new RegExp(`^${escapeRe(GENERATOR_DIR)}(${SEG}/){0,${GENERATOR_MAX_DIRS}}${SEG}\\.(${GENERATOR_EXTENSIONS.join("|")})$`);
+const FIXTURE_CARD = new RegExp(`^${escapeRe(FIXTURE_DIR)}${SEG}\\.png$`);
 
 /** @returns {"regen" | null} whether an exact path is in the regen set. Never `.github/`, `ci/blog-lane*`, `src/blog/lane*`, `package*.json` or a deploy path. */
 export function regenKind(path) {
   if (path.includes("..")) return null;
-  return REGEN_EXACT.has(path) || GENERATOR.test(path) || FIXTURE_CARD.test(path) ? "regen" : null;
+  return REGEN_EXACT.includes(path) || GENERATOR.test(path) || FIXTURE_CARD.test(path) ? "regen" : null;
 }
 
 export const REGEN_LIMITS = Object.freeze({ textBytes: 200_000, pngBytes: 1_000_000 });
