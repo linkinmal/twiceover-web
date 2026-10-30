@@ -1,0 +1,10 @@
+---
+import PositionSize from "./PositionSize.astro";
+import MethodLimits from "../../components/blog/MethodLimits.astro";
+---
+<p class="words">The <b>edge</b> is what a trade makes on average, as a share of the amount it risks. The <b>size</b> is the share of the account risked on each trade. <b>Ruin</b>, on this page, is the account falling to half its start. The page plays 100 trades in a row and counts how the runs end.</p>
+<PositionSize />
+<MethodLimits noun="position sizing math">
+  <Fragment slot="method">Each trade risks the same share of the account as it stands. A win adds that amount times the payoff; a loss takes it. Trades are independent and the odds never change. A run stops if the account falls to half its start or lower; otherwise it ends after 100 trades, and it is ahead if it ends above the start. The shares are the exact odds of every path through 100 trades, not a simulation. The fastest-growing size is the win chance minus the loss chance divided by the payoff.</Fragment>
+  <Fragment slot="limits">Real trades do not have fixed odds or fixed payoffs, and one trade's result can affect the next. The figures cover 100 trades and say nothing past them. Half the start is one floor among many. Commissions, taxes and slippage are left out. The examples are samples, not anyone's record. This page does not use your accounts or positions.</Fragment>
+</MethodLimits>
