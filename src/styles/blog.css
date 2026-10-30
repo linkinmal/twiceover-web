@@ -278,7 +278,10 @@
   [data-look="printout"]{--g:#FBFBF8;--plate:#FFFFFF;--ink:#15171A;--ink2:#5E646B;--a:#1E46C8;--a2:#1E46C8;--gain:#14684B;--loss:#A33028;--rule:#15171A;--lab:#15171A;
   --fd:"IBM Plex Mono",ui-monospace,Menlo,monospace;--fdw:700;--fdls:-.05em;--fdlh:1.08;--fdsz:.74;--ft:"Source Sans 3",system-ui,sans-serif;--fm:"IBM Plex Mono",ui-monospace,Menlo,monospace;--cw:1.8;
   --phf:grayscale(1) contrast(1.7);--teachbg:#15171A;--teachfg:#FBFBF8;--teacha:#A9BDFF;
-  &.skin{background-image:radial-gradient(circle at 13px 14px,#CDD1CB 5px,transparent 5.6px),radial-gradient(circle at 13px 14px,#CDD1CB 5px,transparent 5.6px),repeating-linear-gradient(transparent 0 78px,#E6F0E4 78px 156px);background-size:26px 28px,26px 28px,auto;background-repeat:repeat-y,repeat-y,repeat;background-position:0 0,100% 0,0 0}
+  /* a plain sheet (blog.md section 1 ruling 12): holes and a dashed perforation, no bands. The tile always draws them; the post page from 900px wide. */
+  &.t-cell.skin{background-image:radial-gradient(circle at 13px 14px,#C6CAC3 5px,transparent 5.6px),radial-gradient(circle at 13px 14px,#C6CAC3 5px,transparent 5.6px),linear-gradient(180deg,#C6CAC3 0 5px,transparent 5px 9px),linear-gradient(180deg,#C6CAC3 0 5px,transparent 5px 9px);background-size:26px 28px,26px 28px,1px 9px,1px 9px;background-repeat:repeat-y;background-position:0 0,100% 0,28px 0,calc(100% - 29px) 0;padding-inline:40px}
+  &.t-cell.pc.skin{padding-inline:36px}
+  @media (min-width:900px){&.post.skin{background-image:radial-gradient(circle at 13px 14px,#C6CAC3 5px,transparent 5.6px),radial-gradient(circle at 13px 14px,#C6CAC3 5px,transparent 5.6px),linear-gradient(180deg,#C6CAC3 0 5px,transparent 5px 9px),linear-gradient(180deg,#C6CAC3 0 5px,transparent 5px 9px);background-size:26px 28px,26px 28px,1px 9px,1px 9px;background-repeat:repeat-y;background-position:0 0,100% 0,28px 0,calc(100% - 29px) 0}}
   .hit{background:var(--ink);color:var(--g);padding:0 .12em}
   .lab::before{content:"*** "} .lab::after{content:" ***"}
   .plate,.stats>div,.play{border-style:dashed}
@@ -556,6 +559,11 @@
   .t-fig{font-size:calc(30px*var(--fdsz))}
   .tile.lead{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);grid-template-areas:"cell no" "cell main" "cell date";grid-template-rows:auto auto 1fr;border-top:0}
   .lead .t-cell{aspect-ratio:16/11;padding:22px}
+  /* the printout tile pads its text clear of the holes and the perforation; #blog's own .t-cell padding outranks the look block, so it is restated here */
+  [data-look="printout"].t-cell{padding-inline:40px}
+  [data-look="printout"].t-cell.pc{padding-inline:36px}
+  /* 150px of text room beside an 85px figure leaves the note 51px: on the desktop tile the figure and its note stack (Designer gate, PR 177) */
+  @media (min-width:761px){.tile:not(.lead) [data-look="printout"].t-cell:has(.t-note){flex-direction:column;align-items:flex-start;justify-content:flex-end;gap:8px}.tile:not(.lead) [data-look="printout"] .t-note{text-align:left;max-width:none}.tile:not(.lead) [data-look="printout"] .t-ph{width:100%}}
   .lead .t-title{font-size:clamp(30px,4.4vw,54px)}
   .lead .t-fig{font-size:calc(clamp(44px,6vw,84px)*var(--fdsz))}
   .meta{justify-content:center;border-bottom:1px solid var(--sline)}

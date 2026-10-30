@@ -246,11 +246,9 @@ function ground(L, grain) {
       art += bar(0, 0, w, h, "url(#n1)") + bar(0, 0, w, h, "url(#n2)");
       break;
     case "printout": {
-      const bands = [];
-      for (let y = 78; y < h; y += 156) bands.push(`<rect x="0" y="${y}" width="${w}" height="${Math.min(78, h - y)}"/>`);
       const holes = [];
       for (let y = 14; y < h; y += 28) holes.push(`<circle cx="13" cy="${y}" r="5"/><circle cx="${w - 13}" cy="${y}" r="5"/>`);
-      art += `<g fill="#E6F0E4">${bands.join("")}</g><g fill="#CDD1CB">${holes.join("")}</g>`;
+      art += `<g fill="#C6CAC3">${holes.join("")}</g>`;
       break;
     }
     default:

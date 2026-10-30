@@ -150,12 +150,27 @@ describe("the faces and themes are the page's own", () => {
     expect.soft(readLook(css, "risograph").photo).toMatchObject({ blend: "screen", dots: 0.35, backdrop: { color: "#0078BF" } });
     expect.soft(readLook(css, "house").photo).toMatchObject({ blend: "normal", backdrop: null, dots: 0 });
   });
-  it("draws the printout theme's holes and band in the colours blog.css names", () => {
-    expect(css).toContain("#CDD1CB");
-    expect(css).toContain("#E6F0E4");
+  it("draws the printout theme as a plain sheet: holes in the new colour, no bands, perforation from 900px", () => {
+    const block = css.slice(css.indexOf('[data-look="printout"]{'), css.indexOf("/* ---------- more blocks"));
     const { svg } = cardSvg(withBody("printout", "none"), ctx);
-    expect.soft(svg).toContain("#CDD1CB");
-    expect.soft(svg).toContain("#E6F0E4");
+    const blog = JSON.parse(readFileSync(join(root, "tokens/blog-themes.tokens.json"), "utf8")).look.printout;
+    expect.soft(block).toContain("#C6CAC3");
+    expect.soft(block).not.toContain("#E6F0E4");
+    expect.soft(block).not.toContain("#CDD1CB");
+    expect.soft(block).toMatch(/@media \(min-width:900px\)/);
+    expect.soft(block).toContain("5px,transparent 5px 9px");
+    expect.soft(block).toMatch(/\.t-cell\.skin\{[^}]*padding-inline:40px/);
+    expect.soft(block).toMatch(/\.t-cell\.pc\.skin\{[^}]*padding-inline:36px/);
+    expect.soft(css).toMatch(/\[data-look="printout"\]\.t-cell\{padding-inline:40px\}/);
+    expect.soft(css).toMatch(/\[data-look="printout"\]\.t-cell\.pc\{padding-inline:36px\}/);
+    expect.soft(css).toMatch(/@media \(min-width:761px\)\{\.tile:not\(\.lead\) \[data-look="printout"\]\.t-cell:has\(\.t-note\)\{flex-direction:column/);
+    expect.soft(css).toContain('[data-look="printout"] .t-ph{width:100%}');
+    expect.soft(svg).toContain("#C6CAC3");
+    expect.soft(svg).not.toContain("#E6F0E4");
+    expect.soft(svg).not.toContain("#CDD1CB");
+    expect.soft(blog.band).toBeUndefined();
+    expect.soft(blog.hole.$value.toLowerCase()).toBe("#c6cac3");
+    expect.soft(blog.perforation.$value.toLowerCase()).toBe("#c6cac3");
   });
 });
 
