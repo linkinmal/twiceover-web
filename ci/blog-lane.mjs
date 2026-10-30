@@ -5,6 +5,8 @@
  * `main` (never the pull request), installs nothing, and reads the pull request ONLY through the GitHub API:
  * the file list (with `previous_filename`), the head commit's tree (mode, type, size), the bytes of the changed
  * post files and images, and each changed post's text at the base. The decision is `src/blog/lane.mjs`.
+ * A pull request with a card and a path of the generator chain is a `regen` pull request (ADR 1090 Amendment 4); the
+ * report says it is a normal-lane pull request, and the step output `lane` names the kind.
  *
  * Everything from the pull request is data. File names are printed JSON-quoted. Every API path is built from
  * a fixed route and a path that already matched an exact allowlist, or a commit SHA checked as 40 hex digits.
@@ -16,7 +18,7 @@ import { execFile } from "node:child_process";
 import { appendFileSync } from "node:fs";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
-import { evaluateLane, inLaneDir, kindOf } from "../src/blog/lane.mjs";
+import { evaluateLane, inLaneDir, kindOf, regenKind } from "../src/blog/lane.mjs";
 
 const run = promisify(execFile);
 const PAGE = 100;
@@ -50,14 +52,14 @@ export async function check({ repo, pr, base, head }, api, now = Date.now()) {
     files.push(...got);
     if (got.length < PAGE) break;
   }
-  if (files.length >= API_FILE_CEILING) return { post: true, problems: [`the pull request lists ${files.length} files, the API's ceiling; the lane cannot see them all`], lines: [] };
+  if (files.length >= API_FILE_CEILING) return { post: true, kind: "post", problems: [`the pull request lists ${files.length} files, the API's ceiling; the lane cannot see them all`], lines: [] };
   if (!files.some((f) => [f.filename, f.previous_filename].some((n) => typeof n === "string" && inLaneDir(n)))) {
-    return { post: false, problems: [], lines: [`not a post pull request: ${files.length} file(s), none in a post directory`] };
+    return { post: false, kind: "none", problems: [], lines: [`not a post pull request: ${files.length} file(s), none in a post directory`] };
   }
 
   const t = await json([`repos/${repo}/git/trees/${head}?recursive=1`]);
   if (t.truncated) throw new Error("the head commit's tree was truncated");
-  const tree = new Map(t.tree.filter((e) => inLaneDir(e.path)).map((e) => [e.path, { type: e.type, mode: e.mode, size: e.size, sha: e.sha }]));
+  const tree = new Map(t.tree.filter((e) => inLaneDir(e.path) || regenKind(e.path)).map((e) => [e.path, { type: e.type, mode: e.mode, size: e.size, sha: e.sha }]));
 
   return evaluateLane({
     files,
@@ -84,7 +86,13 @@ export async function check({ repo, pr, base, head }, api, now = Date.now()) {
 export function report(result) {
   const out = [];
   if (!result.post) out.push(`Lane: ${result.lines[0]}`);
-  else if (result.problems.length === 0) out.push("Lane: post-only pull request, every file allowed.", ...result.lines.map((l) => `  ${l}`));
+  else if (result.problems.length === 0 && result.kind === "regen") {
+    out.push(
+      "Lane: regen pull request, every file allowed. This is a NORMAL-LANE pull request: it needs the Architect's and Security's review, and is not post-only.",
+      "  The regeneration set paths and cards it touches:",
+      ...result.lines.map((l) => `  ${l}`),
+    );
+  } else if (result.problems.length === 0) out.push("Lane: post-only pull request, every file allowed.", ...result.lines.map((l) => `  ${l}`));
   else out.push(`Lane FAILED: ${result.problems.length} problem(s).`, ...result.problems.map((p) => `  ${p}`));
   return out.join("\n");
 }
@@ -94,6 +102,8 @@ async function main() {
   const text = report(result);
   console.log(text);
   if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, "```\n" + text + "\n```\n");
+  // The lane kind, a fixed word and never a pull-request value: `none`, `post` or `regen`.
+  if (process.env.GITHUB_OUTPUT && result.problems.length === 0) appendFileSync(process.env.GITHUB_OUTPUT, `lane=${result.post ? result.kind : "none"}\n`);
   return result.problems.length === 0 ? 0 : 1;
 }
 
