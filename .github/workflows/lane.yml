@@ -34,11 +34,14 @@ jobs:
   lane:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    outputs:
+      lane: ${{ steps.lane.outputs.lane }}
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - run: node ci/blog-lane.mjs
+      - id: lane
+        run: node ci/blog-lane.mjs
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}

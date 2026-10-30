@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { LIMITS, evaluateLane, kindOf, magicKind, show } from "./lane.mjs";
+import { LIMITS, REGEN_GROUPS, evaluateLane, kindOf, magicKind, regenKind, show } from "./lane.mjs";
 
 const NOW = Date.parse("2026-10-12T12:00:00Z");
 const post = (publishAt) => `---\ntitle: "x"\npublishAt: "${publishAt}"\n---\nbody\n`;
@@ -195,5 +195,168 @@ describe("helpers", () => {
   it("show quotes a path so it cannot start a workflow command or break a line", () => {
     expect(show("::error::x\nline")).toBe('"::error::x\\nline"');
     expect(show("a".repeat(500)).length).toBe(200);
+  });
+});
+
+// ADR 1090 Amendment 4: a regeneration pull request (a live card plus the generator chain that made it stale) is
+// a third kind. Each case below is one line of the amendment's build list.
+describe("a regen pull request", () => {
+  const CARD = "public/blog-share/a-call.png";
+  const REGEN_FILES = [
+    "scripts/blog-share/card.mjs",
+    "scripts/blog-share/golden/printout-figure.png",
+    "tokens/blog-themes.tokens.json",
+    "src/styles/blog.css",
+    "test-fixtures/blog-share/future-fixture-post.png",
+    "ci/blog-style.test.mjs",
+  ];
+  const bytes = (p) => (p.endsWith(".png") ? PNG : enc("text\n"));
+  const regen = (extra = [], over = {}) => {
+    const files = [add(CARD), ...REGEN_FILES.map(add), ...extra.map((e) => (typeof e === "string" ? add(e) : e))];
+    const head = Object.fromEntries(files.filter((f) => f.status !== "removed").map((f) => [f.filename, bytes(f.filename)]));
+    return lane({ files, head, ...over });
+  };
+  const text = (r) => r.problems.join("\n");
+
+  it("passes a card plus every path of the regen set, and says so", async () => {
+    const r = await regen();
+    expect(r.post).toBe(true);
+    expect.soft(r.kind).toBe("regen");
+    clean(r);
+    expect.soft(r.lines.join("\n")).toContain("scripts/blog-share/card.mjs");
+  });
+  it.each(REGEN_FILES)("passes with %s alone beside a card", async (path) => {
+    const r = await lane({ files: [add(CARD), add(path)], head: { [CARD]: PNG, [path]: bytes(path) } });
+    expect.soft(r.kind).toBe("regen");
+    clean(r);
+  });
+  it.each([
+    ".github/workflows/x.yml",
+    "ci/blog-lane.mjs",
+    "src/blog/lane.mjs",
+    "package.json",
+    "package-lock.json",
+    "ci/check-content.mjs",
+    "scripts/deploy.sh",
+  ])("fails when it also touches %s, naming the path", async (path) => {
+    const r = await regen([path]);
+    expect(text(r)).toContain(show(path) + " is not an allowed path");
+  });
+  it("fails a post file and a post image beside a regen path, naming the regen path as not allowed", async () => {
+    for (const f of ["src/content/blog/a.md", "public/blog-images/a.png"]) {
+      const r = await regen([f], { now: NOW });
+      expect.soft(text(r), f).toContain('"src/styles/blog.css" is not allowed beside a post or post image');
+    }
+  });
+  it("fails a symlink and an executable anywhere in it", async () => {
+    for (const path of [CARD, "src/styles/blog.css", "scripts/blog-share/card.mjs"]) {
+      for (const mode of ["120000", "100755"]) {
+        expect.soft(text(await regen([], { modes: { [path]: mode } })), `${path} ${mode}`).toContain("not a plain file");
+      }
+    }
+  });
+  it("fails a rename into or out of the set", async () => {
+    const into = await regen([{ filename: "src/styles/blog.css", previous_filename: "src/styles/other.css", status: "renamed" }]);
+    expect.soft(text(into)).toContain('"src/styles/other.css" is not an allowed path');
+    const out = await regen([{ filename: "src/styles/other.css", previous_filename: "scripts/blog-share/card.mjs", status: "renamed" }]);
+    expect.soft(text(out)).toContain('"src/styles/other.css" is not an allowed path');
+    const inside = await regen([{ filename: "scripts/blog-share/b.mjs", previous_filename: "scripts/blog-share/a.mjs", status: "renamed" }]);
+    clean(inside);
+  });
+  it("lets a regen-set file be removed, and fails a removal outside the set", async () => {
+    clean(await regen([{ filename: "scripts/blog-share/old.mjs", status: "removed" }]));
+    expect(text(await regen([{ filename: "ci/check-content.mjs", status: "removed" }]))).toContain("not an allowed path");
+  });
+  it.each([
+    ["a climb out", "scripts/blog-share/../x.mjs"],
+    ["a double slash", "scripts/blog-share//x.mjs"],
+    ["an upper-case extension", "scripts/blog-share/x.MJS"],
+    ["an extension the folder does not have", "scripts/blog-share/x.svg"],
+    ["a segment that starts with a dot", "scripts/blog-share/.x.mjs"],
+    ["four levels deep", "scripts/blog-share/a/b/c/d.mjs"],
+    ["a nested fixture", "test-fixtures/blog-share/sub/a.png"],
+    ["a fixture that is not a PNG", "test-fixtures/blog-share/a.jpg"],
+    ["a name with two dots in a row", "scripts/blog-share/a..b.mjs"],
+  ])("fails %s", async (_n, path) => {
+    expect(text(await regen([path]))).toContain("not an allowed path");
+  });
+  it("fails a regen-set PNG that is not a PNG, and a file over its cap", async () => {
+    const path = "scripts/blog-share/golden/printout-figure.png";
+    const files = [add(CARD), add(path)];
+    const wrong = await lane({ files, head: { [CARD]: PNG, [path]: JPG } });
+    expect.soft(text(wrong)).toContain("first bytes say jpeg");
+    const bigText = await lane({ files: [add(CARD), add("src/styles/blog.css")], head: { [CARD]: PNG, "src/styles/blog.css": enc("x") }, sizes: { "src/styles/blog.css": 200_001 } });
+    expect.soft(text(bigText)).toContain("the cap is 200000");
+    const bigPng = await lane({ files, head: { [CARD]: PNG, [path]: PNG }, sizes: { [path]: 1_000_001 } });
+    expect.soft(text(bigPng)).toContain("the cap is 1000000");
+  });
+  it("still validates the card as a card: wrong bytes fail", async () => {
+    expect(text(await regen([], { head: { [CARD]: JPG, ...Object.fromEntries(REGEN_FILES.map((p) => [p, bytes(p)])) } }))).toContain("first bytes say jpeg");
+  });
+  it("is not a post pull request when it has a regen path and no card", async () => {
+    const r = await lane({ files: REGEN_FILES.map(add) });
+    expect(r.post).toBe(false);
+    clean(r);
+  });
+  it("is a post pull request, as before, when it has cards and no regen path", async () => {
+    const r = await lane({ files: [add(CARD)], head: { [CARD]: PNG } });
+    expect.soft(r.kind).toBe("post");
+    clean(r);
+    const bad = await lane({ files: [add(CARD), add("ci/check-content.mjs")], head: { [CARD]: PNG } });
+    expect.soft(text(bad)).toContain("not an allowed path");
+  });
+});
+
+describe("the regen set", () => {
+  it("is exactly the five groups the amendment names, and none of the never-in paths is in it", () => {
+    expect(REGEN_GROUPS).toEqual([
+      "scripts/blog-share/**",
+      "tokens/blog-themes.tokens.json",
+      "src/styles/blog.css",
+      "test-fixtures/blog-share/<name>.png",
+      "ci/blog-style.test.mjs",
+    ]);
+    for (const never of [
+      ".github/workflows/lane.yml",
+      ".github/anything",
+      "ci/blog-lane.mjs",
+      "ci/blog-lane.test.mjs",
+      "src/blog/lane.mjs",
+      "src/blog/lane.test.mjs",
+      "package.json",
+      "package-lock.json",
+      "ci/check-content.mjs",
+      "ci/blog-style.mjs",
+      "scripts/deploy.sh",
+      "scripts/gen-blog-share.mjs",
+      "src/styles/other.css",
+      "tokens/marketing-looks.tokens.json",
+    ]) {
+      expect.soft(regenKind(never), never).toBeNull();
+    }
+  });
+});
+
+// The control: the kind is not blind. PR 177's own file list is what this amendment was written for.
+describe("the replay of twiceover-web PR 177", () => {
+  const FILES = [
+    "ci/blog-style.test.mjs",
+    "public/blog-share/september-cpi-next-yearly-rate-10-december.png",
+    "scripts/blog-share/card.mjs",
+    "scripts/blog-share/card.test.mjs",
+    "scripts/blog-share/golden/printout-figure.png",
+    "src/styles/blog.css",
+    "test-fixtures/blog-share/future-fixture-post.png",
+    "tokens/blog-themes.tokens.json",
+  ].map((filename) => ({ filename, status: "modified" }));
+  const head = Object.fromEntries(FILES.map((f) => [f.filename, f.filename.endsWith(".png") ? PNG : enc("x")]));
+  it("returns regen with no problems", async () => {
+    const r = await lane({ files: FILES, head });
+    expect.soft(r.kind).toBe("regen");
+    clean(r);
+  });
+  it("fails with the workflow named once .github/workflows/lane.yml is added", async () => {
+    const r = await lane({ files: [...FILES, { filename: ".github/workflows/lane.yml", status: "modified" }], head });
+    expect(r.problems.join("\n")).toContain('".github/workflows/lane.yml" is not an allowed path');
   });
 });

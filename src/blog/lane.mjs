@@ -5,6 +5,11 @@
  * only those, by exact path. Anything else in it fails. A pull request that touches none of them is not a post
  * pull request; the lane has nothing to say and passes it, to its normal review.
  *
+ * One exception (ADR 1090 Amendment 4, ADR 1088 Amendment 3): a pull request that carries a live card AND a path of
+ * the generator chain that made it stale (the REGEN set) is a REGEN pull request. It passes only if every file is in
+ * that closed set or is a valid card, and it carries no post and no post image. A green regen check is a path check,
+ * not a review: the pull request takes the normal lane's Architect and Security gates.
+ *
  * This module only decides. It reads nothing and runs nothing from the pull request: `ci/blog-lane.mjs`
  * hands it the file list, the tree at the head commit (for file mode and size) and two readers, all from
  * the GitHub API, and the workflow that calls it is defined on `main` (`.github/workflows/lane.yml`).
@@ -40,6 +45,22 @@ export function kindOf(path) {
   return null;
 }
 
+/** The regen set, by group (ADR 1090 Amendment 4). Adding a path is an amendment to that decision: the pinning test breaks. */
+export const REGEN_GROUPS = Object.freeze(["scripts/blog-share/**", "tokens/blog-themes.tokens.json", "src/styles/blog.css", "test-fixtures/blog-share/<name>.png", "ci/blog-style.test.mjs"]);
+const REGEN_EXACT = new Set(["tokens/blog-themes.tokens.json", "src/styles/blog.css", "ci/blog-style.test.mjs"]);
+const SEG = "[A-Za-z0-9][A-Za-z0-9._-]*";
+/** `scripts/blog-share/**`: depth at most 3, and only the extensions that exist there at the base commit (`.mjs`, `.png`). */
+const GENERATOR = new RegExp(`^scripts/blog-share/(${SEG}/){0,2}${SEG}\\.(mjs|png)$`);
+const FIXTURE_CARD = new RegExp(`^test-fixtures/blog-share/${SEG}\\.png$`);
+
+/** @returns {"regen" | null} whether an exact path is in the regen set. Never `.github/`, `ci/blog-lane*`, `src/blog/lane*`, `package*.json` or a deploy path. */
+export function regenKind(path) {
+  if (path.includes("..")) return null;
+  return REGEN_EXACT.has(path) || GENERATOR.test(path) || FIXTURE_CARD.test(path) ? "regen" : null;
+}
+
+export const REGEN_LIMITS = Object.freeze({ textBytes: 200_000, pngBytes: 1_000_000 });
+
 /** Whether a path is in a lane directory at all (allowed or not). */
 export const inLaneDir = (path) => LANE_PREFIXES.some((p) => path.startsWith(p));
 
@@ -70,12 +91,13 @@ export const show = (p) => JSON.stringify(String(p)).slice(0, 200);
  * @param {(path: string, sha: string) => Promise<Uint8Array>} a.readHead the bytes of a file at the head commit
  * @param {(path: string) => Promise<string | null>} a.readBase a post's text at the base commit, or null if it was not there
  * @param {number} a.now the real clock, in epoch milliseconds
- * @returns {Promise<{post: boolean, problems: string[], lines: string[]}>}
+ * @returns {Promise<{post: boolean, kind: "none" | "post" | "regen", problems: string[], lines: string[]}>}
  */
 export async function evaluateLane({ files, tree, readHead, readBase, now }) {
   const names = (f) => [f.filename, f.previous_filename].filter((x) => typeof x === "string");
   const post = files.some((f) => names(f).some(inLaneDir));
-  if (!post) return { post: false, problems: [], lines: [`not a post pull request: ${files.length} file(s), none in a post directory`] };
+  if (!post) return { post: false, kind: "none", problems: [], lines: [`not a post pull request: ${files.length} file(s), none in a post directory`] };
+  if (files.some((f) => names(f).some((n) => regenKind(n)))) return evaluateRegen({ files, tree, readHead });
 
   const problems = [];
   const lines = [];
@@ -153,7 +175,7 @@ export async function evaluateLane({ files, tree, readHead, readBase, now }) {
     lines.push(`${kind} ${show(path)} (${f.status})`);
   }
   if (imageBytes > LIMITS.imagesTotalBytes) problems.push(`images total ${imageBytes} bytes; the cap is ${LIMITS.imagesTotalBytes}`);
-  return { post: true, problems, lines };
+  return { post: true, kind: "post", problems, lines };
 }
 
 /** A post is live when its publishAt has passed. A time that cannot be read counts as live: fail closed. */
@@ -166,4 +188,58 @@ function isLive(text, now) {
 function publishTime(text) {
   const fm = readStrictFrontMatter(text);
   return fm.ok ? parsePublishTime(fm.publishAt) : null;
+}
+
+/**
+ * A regen pull request (ADR 1090 Amendment 4). Every name, `previous_filename` included, is a regen-set path or a
+ * share card, by exact path. No post and no post image. Cards are checked as a post pull request checks them; a
+ * regen-set file is a plain blob under its cap, and every `.png` has PNG magic bytes.
+ */
+async function evaluateRegen({ files, tree, readHead }) {
+  const names = (f) => [f.filename, f.previous_filename].filter((x) => typeof x === "string");
+  const all = files.flatMap(names);
+  const problems = [];
+  const lines = [];
+  if (files.length > LIMITS.maxFiles) problems.push(`${files.length} files; a pull request carries at most ${LIMITS.maxFiles}`);
+
+  const content = all.filter((n) => ["post", "image"].includes(kindOf(n)));
+  if (content.length) {
+    for (const n of all.filter((x) => regenKind(x))) problems.push(`${show(n)} is not allowed beside a post or post image (${show(content[0])}); a regen pull request carries neither`);
+    for (const n of content) problems.push(`${show(n)} is a post or post image, and a regen pull request carries neither`);
+  }
+  for (const n of all) if (kindOf(n) === null && regenKind(n) === null) problems.push(`${show(n)} is not an allowed path (a regen pull request touches only a share card and the generator chain: ${REGEN_GROUPS.join(", ")})`);
+
+  for (const f of files) {
+    const path = f.filename;
+    if (!names(f).every((n) => kindOf(n) === "share" || regenKind(n))) continue;
+    if (!["added", "modified", "removed", "renamed", "copied", "changed"].includes(f.status)) {
+      problems.push(`${show(path)} has the status ${show(f.status)}, which the lane does not know`);
+      continue;
+    }
+    if (f.status === "removed") continue;
+    const isCard = kindOf(path) === "share";
+    const entry = tree.get(path);
+    if (!entry) {
+      problems.push(`${show(path)} is not in the head commit's tree`);
+      continue;
+    }
+    if (entry.type !== "blob" || entry.mode !== "100644") {
+      problems.push(`${show(path)} is not a plain file (mode ${show(entry.mode)}, type ${show(entry.type)}); no symlink, no executable`);
+      continue;
+    }
+    const png = path.endsWith(".png");
+    const cap = isCard ? LIMITS.shareBytes : png ? REGEN_LIMITS.pngBytes : REGEN_LIMITS.textBytes;
+    if (!(entry.size <= cap)) {
+      problems.push(`${show(path)} is ${entry.size} bytes; the cap is ${cap}`);
+      continue;
+    }
+    const bytes = await readHead(path, entry.sha);
+    if (!(bytes.length <= cap)) {
+      problems.push(`${show(path)} reads as ${bytes.length} bytes; the cap is ${cap}`);
+      continue;
+    }
+    if (png && magicKind(bytes) !== "png") problems.push(`${show(path)}: its first bytes say ${magicKind(bytes) ?? "no image type the lane allows"}, its name says png`);
+    lines.push(`${isCard ? "share" : "regen"} ${show(path)} (${f.status})`);
+  }
+  return { post: true, kind: "regen", problems, lines };
 }

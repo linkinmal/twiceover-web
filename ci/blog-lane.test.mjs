@@ -75,6 +75,55 @@ describe("the lane job, end to end against a fake API", () => {
   });
 });
 
+describe("a regen pull request, end to end against a fake API", () => {
+  const CARD = "public/blog-share/a.png";
+  const FILES = [CARD, "scripts/blog-share/card.mjs", "src/styles/blog.css", "tokens/blog-themes.tokens.json"].map((filename) => ({ filename, status: "modified" }));
+  const tree = [entry(CARD, SHA("1"), PNG.length), entry("scripts/blog-share/card.mjs", SHA("2"), 5), entry("src/styles/blog.css", SHA("3"), 5), entry("tokens/blog-themes.tokens.json", SHA("4"), 5), entry("src/pages/x.astro", SHA("5"), 5)];
+  const blobs = { [SHA("1")]: PNG, [SHA("2")]: "x", [SHA("3")]: "x", [SHA("4")]: "x" };
+  it("passes, names itself a normal-lane pull request with the paths listed, and reads no post text", async () => {
+    const { api, calls } = fakeApi({ files: FILES, tree, blobs });
+    const r = await check(ctx, api);
+    expect(r.problems).toEqual([]);
+    expect.soft(r.kind).toBe("regen");
+    const text = report(r);
+    expect.soft(text).toContain("regen pull request");
+    expect.soft(text).toContain("NORMAL-LANE");
+    expect.soft(text).toContain("not post-only");
+    expect.soft(text).toContain('"src/styles/blog.css"');
+    expect.soft(text).not.toContain("post-only pull request, every file allowed");
+    expect.soft(calls.every((a) => a[0].startsWith("repos/o/r/") && !a[0].includes("/contents/"))).toBe(true);
+  });
+  it("fails when the workflow is among the files, with the path named", async () => {
+    const files = [...FILES, { filename: ".github/workflows/lane.yml", status: "modified" }];
+    const r = await check(ctx, fakeApi({ files, tree, blobs }).api);
+    expect(report(r)).toContain('Lane FAILED');
+    expect(r.problems.join("\n")).toContain('".github/workflows/lane.yml" is not an allowed path');
+  });
+  it("sees a regen-set file's mode from the head tree: an executable generator fails", async () => {
+    const t = tree.map((e) => (e.path === "scripts/blog-share/card.mjs" ? { ...e, mode: "100755" } : e));
+    const r = await check(ctx, fakeApi({ files: FILES, tree: t, blobs }).api);
+    expect(r.problems.join("\n")).toContain("not a plain file");
+  });
+  it("is a regen-set change with no card: not a post pull request, and the report says so", async () => {
+    const r = await check(ctx, fakeApi({ files: FILES.slice(1), tree: [] }).api);
+    expect.soft(r.post).toBe(false);
+    expect.soft(report(r)).toContain("not a post pull request");
+  });
+});
+
+describe("the job's output", () => {
+  const src = readFileSync(new URL("./blog-lane.mjs", import.meta.url), "utf8");
+  it("writes the lane kind to GITHUB_OUTPUT as a fixed word, only on a pass", () => {
+    expect(src).toContain("lane=${result.post ? result.kind : \"none\"}");
+    expect(src).toMatch(/GITHUB_OUTPUT && result\.problems\.length === 0/);
+  });
+  it("is declared on the job and read from the one step, with no pull-request value in it", () => {
+    const wf = readFileSync(new URL("../.github/workflows/lane.yml", import.meta.url), "utf8").replace(/^\s*#.*$/gm, "");
+    expect(wf).toContain("    outputs:\n      lane: ${{ steps.lane.outputs.lane }}\n");
+    expect(wf).toContain("      - id: lane\n        run: node ci/blog-lane.mjs\n");
+  });
+});
+
 describe("readEnv", () => {
   const ok = { GITHUB_REPOSITORY: "o/r", PR_NUMBER: "7", BASE_SHA: SHA("a"), HEAD_SHA: SHA("b") };
   it("accepts well-formed values and refuses anything else", () => {
@@ -95,14 +144,14 @@ describe(".github/workflows/lane.yml", () => {
     expect(body).not.toMatch(/: write/);
   });
   it("checks out the base only, installs nothing, and runs the one script", () => {
-    const steps = body.split("\n").filter((l) => /^      - (uses|run):/.test(l));
-    expect(steps).toEqual(["      - uses: actions/checkout@v4", "      - run: node ci/blog-lane.mjs"]);
+    const steps = body.split("\n").filter((l) => /^      - (uses|run|id):|^        run:/.test(l));
+    expect(steps).toEqual(["      - uses: actions/checkout@v4", "      - id: lane", "        run: node ci/blog-lane.mjs"]);
     expect(body).not.toMatch(/\bref:|repository:/);
     expect(body).toContain("persist-credentials: false");
     expect(body).not.toMatch(/npm |npx |pnpm |yarn |setup-node/);
   });
   it("puts pull-request values in env only, never in a run line, and never the branch name, title or body", () => {
-    const runs = body.split("\n").filter((l) => /^\s*- run:/.test(l));
+    const runs = body.split("\n").filter((l) => /^\s*(- )?run:/.test(l));
     expect(runs.some((l) => l.includes("${{"))).toBe(false);
     expect(body).not.toMatch(/pull_request\.(head\.ref|title|body|user|head\.repo|labels)/);
     expect(body).toContain("HEAD_SHA: ${{ github.event.pull_request.head.sha }}");
