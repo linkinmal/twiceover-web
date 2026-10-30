@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { outcomes, runOdds } from "../position-size-and-risk-of-ruin/position-size.mjs";
-import { FLIPS, RUNS, TRADES, VIEWS, axisLabels, chartLabel, chartSvg, drawRuns, tally } from "./runs-chart.mjs";
+import { FLIPS, RUNS, TRADES, VIEWS, axisLabels, chartLabel, chartSvg, classify, drawRuns, tally } from "./runs-chart.mjs";
 
 const odds = runOdds(60, 100);
 const counts = (size, r = odds) => tally(drawRuns(r, size));
@@ -87,16 +87,16 @@ describe("the tally counts only the drawn runs", () => {
     expect.soft(counts(20).half / RUNS).not.toBe(exact.floor.p);
   });
 
-  it("calls a run that ends exactly at its start neither (the same rule the exact odds use)", () => {
-    // 50% and even money at a 0% size is not reachable; a win then a loss of the same size never returns to 1,
-    // so use the rule directly: kind is decided on the log of the end level with the odds' tolerance.
-    const runs = drawRuns(runOdds(50, 100), 30);
-    for (const r of runs) {
-      const end = r.pts.at(-1)[1];
-      if (r.kind === "half") expect.soft(end).toBe(0.5);
-      else if (r.kind === "ahead") expect.soft(end).toBeGreaterThan(1);
-      else expect.soft(end).toBeLessThanOrEqual(1 + 1e-9);
-    }
+  it("classifies a log level: at or below half is half, strictly above the start is ahead, anything else is neither", () => {
+    const up = Math.log1p(0.5 * 2);
+    const down = Math.log1p(-0.5);
+    expect.soft(classify(up + down)).toBe("neither"); // a 50% size at 200%: one win, one loss, exactly the start
+    expect.soft(classify(0)).toBe("neither");
+    expect.soft(classify(down)).toBe("half"); // a 50% size, one loss: exactly half is at half
+    expect.soft(classify(down + 1e-12)).toBe("half"); // within the odds' tolerance
+    expect.soft(classify(down + 1e-6)).toBe("neither");
+    expect.soft(classify(1e-6)).toBe("ahead");
+    expect.soft(classify(-Infinity)).toBe("half");
   });
 });
 

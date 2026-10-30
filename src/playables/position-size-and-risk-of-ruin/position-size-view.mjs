@@ -126,7 +126,7 @@ export function lessonText(r) {
     return `${odds}, the edge is ${edgeText(r.edgeTenths)}. No size grows the account on average; a bigger size only makes it shrink faster. At 1%, ${fell(1)} of runs fall to ${FLOOR}. At 10%, ${fell(10)} do.`;
   }
   if (k.kind === "under") {
-    return `${odds}, the edge is so thin that the size that grows the account fastest is under 1%. Even at 1%, ${fell(1)} of runs fall to ${FLOOR}. At 10%, ${fell(10)} do.`;
+    return `${odds}, the edge is so thin that the size that grows the account fastest over many trades is under 1%. Even at 1%, ${fell(1)} of runs fall to ${FLOOR}. At 10%, ${fell(10)} do.`;
   }
   const K = k.pct;
   const half = Math.max(1, Math.round(K / 2));

@@ -315,7 +315,7 @@
   .post .sim-go p{margin:0;font-size:16.5px;line-height:1.4;flex:1 1 240px;max-width:none}
   .post p.sim-wait{font-size:15px;color:var(--ink2);margin:16px 0 0}
   .sim-bars{display:grid;gap:4px;margin-top:14px}
-  .sb{display:grid;grid-template-columns:52px 1fr 36ch;gap:12px;align-items:center;font:14.5px var(--fm);color:var(--ink);background:none;border:0;padding:8px 6px;min-height:44px;text-align:left;border-radius:max(var(--rad),2px);cursor:pointer;width:100%}
+  .sb{display:grid;grid-template-columns:52px 1fr 200px;gap:12px;align-items:center;font:14.5px var(--fm);color:var(--ink);background:none;border:0;padding:8px 6px;min-height:44px;text-align:left;border-radius:max(var(--rad),2px);cursor:pointer;width:100%}
   .sb.hd{min-height:0;padding-block:0 2px;font:600 11.5px "Source Sans 3",system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);cursor:default}
   button.sb:hover{background:color-mix(in srgb,var(--ink) 6%,transparent)}
   .sb .tr{height:18px;display:flex;background:color-mix(in srgb,var(--ink) 14%,var(--plate));border-radius:max(var(--rad),0px);outline:1px solid color-mix(in srgb,var(--ink) 55%,transparent);outline-offset:-1px}
@@ -434,6 +434,8 @@
   .fine{font:13.5px/1.5 "Source Sans 3",system-ui,sans-serif;color:var(--ink2);max-width:46em}
   .post p.fine{font-size:13.5px;line-height:1.5}
   .fine b{color:var(--ink)}
+  /* a bar page whose labels are longer than 200px sizes the column to its longest label (each row is its own grid) */
+  @media (min-width:561px){.sim-bars.sb-long .sb{grid-template-columns:52px 1fr 36ch}}
   @media (max-width:560px){.sb .n{font-size:12.5px}}
   @media (max-width:560px){.sb{grid-template-columns:44px 1fr}.sb .n{grid-column:1/-1}.cal .d{min-height:54px;padding:4px 5px}.cal .d b{font-size:calc(15px*var(--fdsz))}}
   @media (max-width:560px){.gr{grid-template-columns:1fr}}
@@ -456,6 +458,7 @@
   .rc-side{display:flex;gap:12px;align-items:center;justify-content:space-between}
   .rc-rd{font:600 15px var(--fm);min-width:3.2ch;text-align:right}
   .rc-note{margin:6px 0 0}
+  .post p.rc-fixed{margin:0 0 14px;max-width:none}
   .post p.rc-tally,.rc-tally{font:13px/1.4 var(--fm);color:var(--ink2);margin:10px 0 14px;max-width:none}
   @media (max-width:560px){.rc-wide{display:none}.rc-narrow{display:block}.rc-ctl{grid-template-columns:1fr}}
   .sd-ans{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:0 0 14px}

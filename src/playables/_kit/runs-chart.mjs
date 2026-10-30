@@ -48,6 +48,9 @@ function makeFlips() {
 }
 export const FLIPS = makeFlips();
 
+/** What a run's account level (its log) means: at or below half is at half, strictly above the start is ahead. */
+export const classify = (level) => (level <= HALF + EPS ? "half" : level > EPS ? "ahead" : "neither");
+
 /**
  * The thirty runs at one size. A flip below the win chance is a win (the account times 1 + f·b), else a loss (times
  * 1 − f). A run that reaches half stops there: its last point is pinned to exactly one half, on the half line.
@@ -66,14 +69,14 @@ export function drawRuns(r, size) {
     let kind = null;
     for (let n = 1; n <= TRADES; n++) {
       level += flips[n - 1] < p ? up : down;
-      if (level <= HALF + EPS) {
+      if (classify(level) === "half") {
         pts.push([n, 0.5]);
         kind = "half";
         break;
       }
       pts.push([n, Math.exp(level)]);
     }
-    return { kind: kind ?? (level > EPS ? "ahead" : "neither"), pts };
+    return { kind: kind ?? classify(level), pts };
   });
 }
 

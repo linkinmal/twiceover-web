@@ -39,7 +39,7 @@ const chart = chartParts(r, DEFAULT_SIZE);
       <p class="pdesc rc-note" data-tick-note></p>
     </div>
     <p class="rc-tally" data-tally aria-live="polite">{chart.tally}</p>
-    <p class="pdesc">The sentence above the chart is exact, worked over every possible run. The 30 drawn runs are one fixed sample, the same at every size, so their count can differ from it.</p>
+    <p class="fine rc-fixed">The sentence above the chart is exact, worked over every possible run. The 30 drawn runs are one fixed sample, the same at every size, so their count can differ from it.</p>
     <div class="sd-ans" data-ans aria-live="polite" set:html={answerHtml(r, DEFAULT_SIZE)}></div>
     <p class="pdesc" data-first aria-live="polite">{firstTradeText(r, DEFAULT_SIZE)}</p>
     <div data-js hidden><div class="row"><button class="btn" type="button" data-another>Try another example</button></div></div>
@@ -66,7 +66,7 @@ const chart = chartParts(r, DEFAULT_SIZE);
   <section class="blk">
     <p class="lab">Every size, the same odds</p>
     <p class="pdesc">Each row is one size. Green is the share of runs that end above {START}. Red is the share that fall to {FLOOR} and stop. The grey rest end in between.</p>
-    <div class="sim-bars" data-bars set:html={barsHtml(r, DEFAULT_SIZE)}></div>
+    <div class="sim-bars sb-long" data-bars set:html={barsHtml(r, DEFAULT_SIZE)}></div>
     <div class="lg" style="margin-top:12px">
       <span><svg width="14" height="14" aria-hidden="true"><rect width="14" height="14" fill="var(--gain)"/></svg>ended above {START}</span>
       <span><svg width="14" height="14" aria-hidden="true"><rect width="14" height="14" fill="var(--loss)"/></svg>fell to {FLOOR} and stopped</span>

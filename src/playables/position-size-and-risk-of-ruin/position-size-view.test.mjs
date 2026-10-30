@@ -97,7 +97,7 @@ describe("the page's words", () => {
     expect.soft(at(65, 60)).not.toContain("20%");
     expect.soft(at(50, 100)).toBe("At a 50% win chance and a 100% payoff, the edge is 0.0%. No size grows the account on average; a bigger size only makes it shrink faster. At 1%, under 1% of runs fall to $5,000. At 10%, " + share(outcomes(runOdds(50, 100), 10).floor) + " do.");
     expect.soft(at(50, 101)).toContain("under 1%");
-    expect.soft(at(50, 101)).toContain("thin");
+    expect.soft(at(50, 101)).toContain("so thin that the size that grows the account fastest over many trades is under 1%.");
     expect.soft(at(90, 1000)).toContain("it is 89%.");
   });
 
