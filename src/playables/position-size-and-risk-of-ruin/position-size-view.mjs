@@ -1,11 +1,29 @@
 /**
  * position-size-view — the words of "Position size and risk of ruin" (definition.md beside this file). The build
  * imports these to print the opening example and the block script imports them to print the reader's, so a reader
- * with script off and a reader with script on see the same sentences. Every figure comes from position-size.mjs.
+ * with script off and a reader with script on see the same sentences. Every figure comes from position-size.mjs or
+ * from the $10,000 start below, in whole cents.
  */
 import { barSizes, outcomes } from "./position-size.mjs";
 
 const MINUS = "−";
+
+/** The account every run starts with, and the line a run stops at (half of it), in cents. */
+export const START_CENTS = 1000000;
+export const FLOOR_CENTS = START_CENTS / 2;
+
+/** Cents as dollars with separators: whole dollars bare, else two decimals. */
+export function dollars(cents) {
+  const whole = Math.trunc(Math.abs(cents) / 100);
+  const rest = Math.abs(cents) % 100;
+  const body = whole.toLocaleString("en-US") + (rest ? `.${String(rest).padStart(2, "0")}` : "");
+  return `${cents < 0 ? MINUS : ""}$${body}`;
+}
+export const START = dollars(START_CENTS);
+export const FLOOR = dollars(FLOOR_CENTS);
+
+/** A number held in tenths, printed without a trailing ".0": 600 → "60", 555 → "55.5". */
+const tenths = (t) => (t % 10 === 0 ? String(t / 10) : (t / 10).toFixed(1));
 
 /**
  * A share of runs as the page prints it: whole percents, half up, with "under 1%" and "over 99%" at the ends, and 0%
@@ -22,27 +40,53 @@ export function share(o) {
 }
 
 /** The edge in tenths of a percent, signed: "+20.0%", "−5.0%", "0.0%". */
-export function edgeText(tenths) {
-  const body = `${(Math.abs(tenths) / 10).toFixed(1)}%`;
-  return tenths > 0 ? `+${body}` : tenths < 0 ? `${MINUS}${body}` : body;
+export function edgeText(t) {
+  const body = `${(Math.abs(t) / 10).toFixed(1)}%`;
+  return t > 0 ? `+${body}` : t < 0 ? `${MINUS}${body}` : body;
 }
 
 export function kellyText(k) {
   return k.kind === "none" ? "none" : k.kind === "under" ? "under 1%" : `${k.pct}%`;
 }
 
-export const WIN_NOTE = "The chance that one trade wins.";
-export const payoffNote = (r) => `Edge: ${edgeText(r.edgeTenths)} of the amount risked, on average.`;
+/** The edge in words: what a trade earns or loses, on average, for each $1 it risks (an edge of N% is N cents). */
+export function edgeWords(r) {
+  const t = r.edgeTenths;
+  if (t === 0) return `Edge: ${edgeText(t)}. On average a trade earns nothing.`;
+  const cents = `${tenths(Math.abs(t))} ${Math.abs(t) === 10 ? "cent" : "cents"}`;
+  return `Edge: ${edgeText(t)}. On average a trade ${t > 0 ? "earns" : "loses"} ${cents} for each $1 it risks.`;
+}
+
+/**
+ * The edge worked out in cents for the lesson at the top: a win chance p paying b wins p·b dollars and loses (1 − p)
+ * per $1 risked, on average. P and B are tenths of a percent, so p·b in cents is P·B/10000, a multiple of 0.0001.
+ */
+export function edgeExplain(r) {
+  const win = (r.P * r.B) / 10000;
+  const loss = (1000 - r.P) / 10;
+  const c = (x) => `${Number(x.toFixed(2))} cents`;
+  return `Here a trade wins ${c(win)} and loses ${c(loss)} for each $1 it risks, on average. The difference, ${edgeText(r.edgeTenths)}, is the edge.`;
+}
+
+export const winNote =(r) => `${tenths(r.P)}% means about ${tenths(r.P)} trades in 100 win.`;
+export const payoffNote = (r) => `At ${tenths(r.B)}%, a trade that risks $1,000 wins ${dollars(r.B * 100)}. ${edgeWords(r)}`;
+
+/** The first trade at this size, from the $10,000 start. */
+export function firstTradeText(r, size) {
+  const risk = (START_CENTS * size) / 100;
+  const win = (risk * r.B) / 1000;
+  return `At ${size}%, the first trade risks ${dollars(risk)} of the ${START}. A win adds ${dollars(win)}, to ${dollars(START_CENTS + win)}. A loss takes ${dollars(risk)}, to ${dollars(START_CENTS - risk)}. Each later trade risks ${size}% of what the account holds then.`;
+}
 
 export function sayText(r, size, o = outcomes(r, size)) {
-  const first = `Risking ${size}% of the account on each trade, ${share(o.ahead)} of runs end 100 trades ahead and ${share(o.floor)} fall to half the start.`;
-  return r.positive ? first : `${first} With no edge, no size grows the account on average.`;
+  const first = `Risking ${size}% on each trade, ${share(o.ahead)} of runs end above ${START} and ${share(o.floor)} fall to ${FLOOR} on the way.`;
+  return r.positive ? first : `${first} With no positive edge, no size grows the account on average.`;
 }
 
 export function answerHtml(r, size, o = outcomes(r, size)) {
   return (
-    `<div><b>${share(o.ahead)}</b><span>of runs end 100 trades ahead</span></div>` +
-    `<div><b>${share(o.floor)}</b><span>of runs fall to half the start</span></div>` +
+    `<div><b>${share(o.ahead)}</b><span>of runs end the 100 trades above ${START}</span></div>` +
+    `<div><b>${share(o.floor)}</b><span>of runs fall to ${FLOOR} on the way, and stop</span></div>` +
     `<div><b>${kellyText(r.kelly)}</b><span>the size that grows the account fastest</span></div>`
   );
 }
@@ -59,12 +103,14 @@ export function barsHtml(r, size) {
         return (
           `<div class="sb${s === size ? " on" : ""}"><span>${s}%</span>` +
           `<span class="tr"><i class="cp" style="width:${width(o.ahead)}"></i><i class="bu" style="width:${width(o.floor)}"></i></span>` +
-          `<span class="n">${share(o.ahead)} ahead · ${share(o.floor)} at half</span></div>`
+          `<span class="n">${share(o.ahead)} ahead · ${share(o.floor)} to ${FLOOR}</span></div>`
         );
       })
       .join("")
   );
 }
 
-export const sliderText = (size) => ({ value: String(size), valuetext: `${size}% of the account on each trade` });
+/** What a win and then a loss of the same size leave of the $10,000: the leak the lesson explains. */
+export const winThenLoss = (size) => dollars((START_CENTS * (100 + size) * (100 - size)) / 10000);
 
+export const sliderText = (size) => ({ value: String(size), valuetext: `${size}% of the account on each trade` });

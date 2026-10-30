@@ -6,7 +6,7 @@
  */
 import { DEFAULT_EXAMPLE, DEFAULT_SIZE, EXAMPLES, fitSize, outcomes, runOdds, validateOdds } from "./position-size.mjs";
 import { readNumber } from "../_kit/number-input.mjs";
-import { WIN_NOTE, answerHtml, barsHtml, payoffNote, sayText, sliderText } from "./position-size-view.mjs";
+import { answerHtml, barsHtml, firstTradeText, payoffNote, sayText, sliderText, winNote } from "./position-size-view.mjs";
 
 /**
  * @param {Element} root the [data-ruin] element
@@ -32,6 +32,7 @@ export function init(root, opts = {}) {
     q("[data-say]").textContent = sayText(r, size, o);
     q("[data-ans]").innerHTML = answerHtml(r, size, o);
     q("[data-bars]").innerHTML = barsHtml(r, size);
+    q("[data-first]").textContent = firstTradeText(r, size);
     slider.value = sliderText(size).value;
     slider.setAttribute("aria-valuetext", sliderText(size).valuetext);
   }
@@ -40,7 +41,7 @@ export function init(root, opts = {}) {
     const bad = Boolean(message);
     q(`[data-field=${name}]`).classList.toggle("bad", bad);
     box.setAttribute("aria-invalid", String(bad));
-    q(`#${box.id}-n`).textContent = message ?? (name === "win" ? WIN_NOTE : payoffNote(r));
+    q(`#${box.id}-n`).textContent = message ?? (name === "win" ? winNote(r) : payoffNote(r));
   }
 
   function read() {

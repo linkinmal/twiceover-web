@@ -34,7 +34,7 @@ export const SIZE_MIN = 1;
 export const SIZE_MAX = 100;
 
 export const WIN_MESSAGE = "Type a chance from 1% to 99%. Showing the last good result.";
-export const PAYOFF_MESSAGE = "Type a payoff from 1% to 1,000%. Showing the last good result.";
+export const PAYOFF_MESSAGE = "Type a payoff from 1% to 1000%. Showing the last good result.";
 
 /** A typed percent as whole tenths, half up. Trimming to 12 significant digits keeps 55.55 (binary 55.549…) at 556. */
 export const tenthsOf = (x) => Math.round(Number((x * 10).toPrecision(12)));

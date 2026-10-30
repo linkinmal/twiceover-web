@@ -2,7 +2,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { init } from "./client.mjs";
 import { EXAMPLES, PAYOFF_MESSAGE, WIN_MESSAGE, runOdds } from "./position-size.mjs";
-import { WIN_NOTE, answerHtml, barsHtml, payoffNote, sayText } from "./position-size-view.mjs";
+import { answerHtml, barsHtml, firstTradeText, payoffNote, sayText, winNote } from "./position-size-view.mjs";
 
 // The served markup the page carries, reduced to what the script touches: the opening example printed by the build.
 function served() {
@@ -14,10 +14,11 @@ function served() {
     <div data-js hidden><input type="range" id="pr-size" min="1" max="100" step="1" value="10"></div>
     <div data-js hidden><button type="button" data-another>Try another example</button></div>
     <section data-js hidden>
-      <div data-field="win"><input id="pr-win" value="60" aria-describedby="pr-win-n"><small id="pr-win-n">${WIN_NOTE}</small></div>
+      <div data-field="win"><input id="pr-win" value="60" aria-describedby="pr-win-n"><small id="pr-win-n">${winNote(r)}</small></div>
       <div data-field="payoff"><input id="pr-pay" value="100" aria-describedby="pr-pay-n"><small id="pr-pay-n">${payoffNote(r)}</small></div>
     </section>
     <div data-bars>${barsHtml(r, 10)}</div>
+    <p data-first>${firstTradeText(r, 10)}</p>
   </div>`;
   return document.querySelector("[data-ruin]");
 }
@@ -53,6 +54,7 @@ describe("the position size block script", () => {
     expect.soft(q("[data-say]").textContent).toBe(sayText(r, 37));
     expect.soft(q("[data-ans]").innerHTML).toBe(answerHtml(r, 37));
     expect.soft(q("[data-bars] .sb.on").textContent).toMatch(/^37%/);
+    expect.soft(q("[data-first]").textContent).toBe(firstTradeText(r, 37));
     expect.soft(q("#pr-size").getAttribute("aria-valuetext")).toBe("37% of the account on each trade");
   });
 
@@ -82,7 +84,15 @@ describe("the position size block script", () => {
     type(q("#pr-win"), "60");
     type(q("#pr-pay"), "100");
     expect.soft(q("[data-field=win]").classList.contains("bad")).toBe(false);
-    expect.soft(q("#pr-win-n").textContent).toBe(WIN_NOTE);
+    expect.soft(q("#pr-win-n").textContent).toBe(winNote(runOdds(60, 100)));
+  });
+
+  it("refuses a payoff typed as 1,000 with a message that writes the limit as 1000%", () => {
+    type(q("#pr-pay"), "1,000");
+    expect.soft(q("#pr-pay-n").textContent).toBe(PAYOFF_MESSAGE);
+    expect.soft(PAYOFF_MESSAGE).toContain("1000%");
+    type(q("#pr-pay"), "1000");
+    expect.soft(q("[data-field=payoff]").classList.contains("bad")).toBe(false);
   });
 
   it("deals another example into both boxes and keeps the size", () => {
