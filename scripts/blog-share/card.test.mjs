@@ -163,6 +163,8 @@ describe("the faces and themes are the page's own", () => {
     expect.soft(block).toMatch(/\.t-cell\.pc\.skin\{[^}]*padding-inline:36px/);
     expect.soft(css).toMatch(/\[data-look="printout"\]\.t-cell\{padding-inline:40px\}/);
     expect.soft(css).toMatch(/\[data-look="printout"\]\.t-cell\.pc\{padding-inline:36px\}/);
+    expect.soft(css).toMatch(/@media \(min-width:761px\)\{\.tile:not\(\.lead\) \[data-look="printout"\]\.t-cell:has\(\.t-note\)\{flex-direction:column/);
+    expect.soft(css).toContain('[data-look="printout"] .t-ph{width:100%}');
     expect.soft(svg).toContain("#C6CAC3");
     expect.soft(svg).not.toContain("#E6F0E4");
     expect.soft(svg).not.toContain("#CDD1CB");
