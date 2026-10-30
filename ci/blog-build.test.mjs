@@ -12,6 +12,9 @@ import { join } from "node:path";
 import { JSDOM } from "jsdom";
 import { beforeAll, describe, expect, it } from "vitest";
 import { DEGRADED_FAR_LINE, EXMP_OUTLOOK } from "../src/charts/exmp-fixture.mjs";
+import { TOPIC_LABELS } from "../src/blog/labels.mjs";
+import { PLAYABLES, otherPlayables, playablesNewestFirst } from "../src/blog/playables.mjs";
+import { LOOKS } from "../src/blog/vocabulary.mjs";
 
 const root = new URL("..", import.meta.url).pathname;
 const astro = join(root, "node_modules/astro/astro.js");
@@ -569,13 +572,36 @@ describe("the games-and-tools hub and the link map (blog-handoff.md v1.2 section
   });
   it("has one whole-row link per game or tool, newest first, each with its label, topic, title, deck and picture", () => {
     const rows = [...hub().querySelectorAll(".wall a.tile")];
-    expect.soft(rows.map((a) => a.getAttribute("href"))).toEqual(["/blog/play/guess-the-gap", "/blog/tools/implied-move-from-a-straddle", "/blog/play/coin", "/blog/tools/overnight-call", "/blog/tools/option-payoff-calculator"]);
-    expect.soft(rows.map((a) => a.querySelector(".t-no").textContent)).toEqual(["Game", "Tool", "Game", "Tool", "Tool"]);
-    expect.soft(rows.map((a) => a.querySelector(".t-topic").textContent)).toEqual(["Earnings", "Earnings", "Risk and position sizing", "How options are priced", "How options are priced"]);
-    expect.soft(rows.map((a) => a.querySelector("h2.t-title").textContent)).toEqual(["Guess the gap", "Implied move from a straddle", "The 60% coin", "The overnight call calculator", "The option payoff calculator"]);
-    expect.soft(rows[2].querySelector(".t-deck").textContent).toBe("A coin lands heads 60% of the time. You start with $25 in play money and bet on heads every flip. You pick only how much to bet.");
-    expect.soft(rows.map((a) => a.querySelector(".t-cell").getAttribute("data-look"))).toEqual(["ticket", "riso", "neon", "exhibit", "blueprint"]);
+    const order = playablesNewestFirst();
+    expect.soft(rows.map((a) => a.getAttribute("href")), "one row per playable, in the hub's order").toEqual(order.map((p) => p.path));
+    expect.soft(rows.map((a) => a.querySelector(".t-no").textContent)).toEqual(order.map((p) => (p.kind === "game" ? "Game" : "Tool")));
+    expect.soft(rows.map((a) => a.querySelector(".t-topic").textContent)).toEqual(order.map((p) => TOPIC_LABELS[p.topic]));
+    expect.soft(rows.map((a) => a.querySelector("h2.t-title").textContent)).toEqual(order.map((p) => p.title));
+    expect.soft(rows.map((a) => a.querySelector(".t-deck").textContent)).toEqual(order.map((p) => p.deck));
+    expect.soft(rows.map((a) => a.querySelector(".t-cell").getAttribute("data-look"))).toEqual(order.map((p) => LOOKS[p.look].kit));
     for (const a of rows) expect.soft(a.querySelectorAll(".t-cell svg").length, a.getAttribute("href")).toBe(1);
+  });
+  it("shows the five written first as they are: kind, topic, title, deck and look, in their order", () => {
+    const rows = new Map([...hub().querySelectorAll(".wall a.tile")].map((a) => [a.getAttribute("href"), a]));
+    const five = [
+      ["/blog/play/guess-the-gap", "Game", "Earnings", "Guess the gap", "ticket"],
+      ["/blog/tools/implied-move-from-a-straddle", "Tool", "Earnings", "Implied move from a straddle", "riso"],
+      ["/blog/play/coin", "Game", "Risk and position sizing", "The 60% coin", "neon"],
+      ["/blog/tools/overnight-call", "Tool", "How options are priced", "The overnight call calculator", "exhibit"],
+      ["/blog/tools/option-payoff-calculator", "Tool", "How options are priced", "The option payoff calculator", "blueprint"],
+    ];
+    for (const [href, no, topic, title, look] of five) {
+      const a = rows.get(href);
+      expect.soft(a, href).toBeDefined();
+      if (!a) continue;
+      expect.soft(a.querySelector(".t-no").textContent, href).toBe(no);
+      expect.soft(a.querySelector(".t-topic").textContent, href).toBe(topic);
+      expect.soft(a.querySelector("h2.t-title").textContent, href).toBe(title);
+      expect.soft(a.querySelector(".t-cell").getAttribute("data-look"), href).toBe(look);
+    }
+    expect.soft(rows.get("/blog/play/coin")?.querySelector(".t-deck").textContent).toBe("A coin lands heads 60% of the time. You start with $25 in play money and bet on heads every flip. You pick only how much to bet.");
+    const hrefs = [...rows.keys()].filter((h) => five.some(([f]) => f === h));
+    expect.soft(hrefs, "their order is unchanged").toEqual(five.map(([h]) => h));
   });
   it("is in the sitemap and is marked as the current page in the bar", () => {
     expect.soft(read(dist, "sitemap-0.xml")).toContain("https://twiceover.io/blog/play</loc>");
@@ -586,18 +612,14 @@ describe("the games-and-tools hub and the link map (blog-handoff.md v1.2 section
     const { pageKind } = await import("./content-rules.mjs");
     expect.soft(pageKind("blog/play/index.html", ["first-fixture-post"])).toBe("blog");
   });
-  it("ends each playable page's More to play strip with a cell that opens the hub, after two other pages: the same topic first, then the newest, then the slug", () => {
-    for (const [file, others] of [
-      ["blog/play/guess-the-gap/index.html", ["/blog/tools/implied-move-from-a-straddle", "/blog/play/coin"]],
-      ["blog/tools/implied-move-from-a-straddle/index.html", ["/blog/play/guess-the-gap", "/blog/play/coin"]],
-      ["blog/play/coin/index.html", ["/blog/play/guess-the-gap", "/blog/tools/implied-move-from-a-straddle"]],
-      ["blog/tools/overnight-call/index.html", ["/blog/tools/option-payoff-calculator", "/blog/play/guess-the-gap"]],
-      ["blog/tools/option-payoff-calculator/index.html", ["/blog/tools/overnight-call", "/blog/play/guess-the-gap"]],
-    ]) {
+  it("ends each playable page's More to play strip with a cell that opens the hub, after the pages moreToPlay picks: the same topic first, then the newest, then the slug", () => {
+    for (const p of PLAYABLES) {
+      const file = `${p.path.slice(1)}/index.html`;
       const cells = [...dom(dist, file).querySelectorAll('.pnav[aria-label="More to play"] a')];
+      const others = otherPlayables(p.slug).map((m) => m.path);
       expect.soft(cells.map((a) => a.getAttribute("href")), file).toEqual([...others, "/blog/play"]);
-      expect.soft(cells[2].firstChild.textContent, file).toBe("All");
-      expect.soft(cells[2].querySelector("b").textContent, file).toBe("Games and tools");
+      expect.soft(cells.at(-1).firstChild.textContent, file).toBe("All");
+      expect.soft(cells.at(-1).querySelector("b").textContent, file).toBe("Games and tools");
     }
   });
   it("makes the nameplate two links, TwiceOver to the site and Blog to the blog, on the index, a topic page and the hub", () => {
@@ -741,7 +763,8 @@ describe("the gates over the built fixture site", () => {
   });
   it("passes the isolation gate, with blog pages present so its blindness controls run", () => {
     const r = node("ci/blog-isolation.mjs", "--dist", dist);
-    expect(r.stdout).toMatch(/Blog isolation check passed: \d+ site page\(s\) carry no blog styles; 15 blog page\(s\)/);
+    // ten blog pages are not playables (the fixture site, the hub among them); each playable adds one
+    expect(r.stdout).toMatch(new RegExp(`Blog isolation check passed: \\d+ site page\\(s\\) carry no blog styles; ${10 + PLAYABLES.length} blog page\\(s\\)`));
     expect(r.status).toBe(0);
   });
   it("fails the isolation gate when a site page is made to load the blog's stylesheet (known positive)", () => {

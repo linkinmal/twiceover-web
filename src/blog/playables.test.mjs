@@ -27,8 +27,17 @@ describe("the playables loader", () => {
   });
   it("lists every playable on the hub, newest update first, the order of PLAYABLES breaking a tie", () => {
     expect.soft(HUB_PATH).toBe("/blog/play");
-    expect.soft(playablesNewestFirst().map((p) => p.updatedAt)).toEqual([...PLAYABLES.map((p) => p.updatedAt)].sort().reverse());
-    expect.soft(playablesNewestFirst().map((p) => p.slug), "the five written first keep their order").toEqual(["guess-the-gap", "implied-move-from-a-straddle", "coin", "overnight-call", "option-payoff-calculator"]);
+    const hub = playablesNewestFirst();
+    expect.soft(hub.map((p) => p.slug).sort(), "every playable, once").toEqual(PLAYABLES.map((p) => p.slug).sort());
+    for (let i = 1; i < hub.length; i++) {
+      const [a, b] = [hub[i - 1], hub[i]];
+      expect.soft(Date.parse(a.updatedAt), `${a.slug} before ${b.slug}`).toBeGreaterThanOrEqual(Date.parse(b.updatedAt));
+      if (Date.parse(a.updatedAt) === Date.parse(b.updatedAt)) expect.soft(PLAYABLES.indexOf(a), `${a.slug} and ${b.slug} tie: PLAYABLES order`).toBeLessThan(PLAYABLES.indexOf(b));
+    }
+  });
+  it("keeps the five written first in their order on the hub, whatever else is added", () => {
+    const five = ["guess-the-gap", "implied-move-from-a-straddle", "coin", "overnight-call", "option-payoff-calculator"];
+    expect.soft(playablesNewestFirst().map((p) => p.slug).filter((s) => five.includes(s))).toEqual(five);
   });
   it("shows at most two other playables in the More to play strip, never the page itself", () => {
     for (const p of PLAYABLES) {
