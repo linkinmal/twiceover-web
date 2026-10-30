@@ -125,8 +125,8 @@ describe("the runs chart's words", () => {
   });
 
   it("says why there is no tick when there is none to draw, in words, from the same figure the tile prints", () => {
-    expect.soft(tickNote(runOdds(90, 100))).toBe("The size that grows the account fastest over many trades is 80%, past the end of this slider.");
-    expect.soft(tickNote(runOdds(50.1, 100))).toBe("The size that grows the account fastest over many trades is under 1%.");
+    expect.soft(tickNote(runOdds(90, 100))).toBe("The size that grows the account fastest over many trades is 80%. That is past the slider's 60% end, so no tick shows.");
+    expect.soft(tickNote(runOdds(50.1, 100))).toBe("The size that grows the account fastest over many trades is under 1%. That is below the slider's 1% start, so no tick shows.");
     expect.soft(tickNote(runOdds(50, 100))).toBe("");
     expect.soft(tickNote(runOdds(40, 100))).toBe("");
   });

@@ -156,8 +156,9 @@ export function tickNote(r) {
   const k = r.kelly;
   if (k.kind === "none") return "";
   const fastest = "the size that grows the account fastest over many trades";
-  if (k.kind === "under") return `The ${fastest.slice(4)} is under 1%.`;
-  return tickSize(r) === null ? `The ${fastest.slice(4)} is ${k.pct}%, past the end of this slider.` : `The tick marks ${k.pct}%, ${fastest}.`;
+  const lead = `The ${fastest.slice(4)}`;
+  if (k.kind === "under") return `${lead} is under 1%. That is below the slider's ${SIZE_MIN}% start, so no tick shows.`;
+  return tickSize(r) === null ? `${lead} is ${k.pct}%. That is past the slider's ${SIZE_MAX}% end, so no tick shows.` : `The tick marks ${k.pct}%, ${fastest}.`;
 }
 
 /** The chart for one size: the two drawings (the kit shows one by width), the tally, and the text alternative. */

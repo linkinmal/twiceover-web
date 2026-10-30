@@ -449,7 +449,7 @@
   .rc-g{stroke:var(--gain);stroke-opacity:.75} .rc-l{stroke:var(--loss);stroke-opacity:.75}
   .rc-n{stroke:color-mix(in srgb,var(--ink) 40%,var(--g));stroke-opacity:.85}
   .rc-dot{fill:var(--loss)}
-  .rc-off{paint-order:stroke;stroke:var(--g);stroke-width:3px}
+  .rc-off{paint-order:stroke;stroke:var(--g);stroke-width:5px}
   .rc-ctl{display:grid;grid-template-columns:1fr auto;gap:8px 14px;align-items:center;margin-top:10px}
   .rc-rw{position:relative}
   .rc-tick{position:absolute;top:6px;width:3px;height:32px;margin-left:-1.5px;background:var(--a);pointer-events:none}
