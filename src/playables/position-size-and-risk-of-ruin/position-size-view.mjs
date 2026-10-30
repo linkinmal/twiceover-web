@@ -4,7 +4,8 @@
  * with script off and a reader with script on see the same sentences. Every figure comes from position-size.mjs or
  * from the $10,000 start below, in whole cents.
  */
-import { barSizes, outcomes } from "./position-size.mjs";
+import { VIEWS, chartLabel, chartSvg, drawRuns, tally } from "../_kit/runs-chart.mjs";
+import { SIZE_MAX, SIZE_MIN, barSizes, outcomes } from "./position-size.mjs";
 
 const MINUS = "−";
 
@@ -114,3 +115,29 @@ export function barsHtml(r, size) {
 export const winThenLoss = (size) => dollars((START_CENTS * (100 + size) * (100 - size)) / 10000);
 
 export const sliderText = (size) => ({ value: String(size), valuetext: `${size}% of the account on each trade` });
+
+/** The runs chart's tally: counted from the thirty drawn runs, and says so. The sentence above the chart is the exact odds. */
+export function tallyText(t) {
+  return `These 30 drawn runs: ${t.ahead} ended above ${START} · ${t.half} fell to ${FLOOR} and stopped · ${t.neither} ended between ${FLOOR} and ${START}.`;
+}
+
+/** The size the ochre tick marks: the fastest-growing size, when it is a whole percent the slider reaches. */
+export const tickSize = (r) => (r.kelly.kind === "pct" && r.kelly.pct >= SIZE_MIN && r.kelly.pct <= SIZE_MAX ? r.kelly.pct : null);
+
+/** Where the tick sits along the slider, centred on the thumb's travel (the thumb is 28px wide). */
+export const tickLeft = (pct) => `calc(14px + (100% - 28px) * ${((pct - SIZE_MIN) / (SIZE_MAX - SIZE_MIN)).toFixed(4)})`;
+
+/** The line that names the tick; empty when there is none (no edge, or the fastest size is past the slider). */
+export const tickNote = (r) => (tickSize(r) === null ? "" : `The tick marks ${tickSize(r)}%, the size that grows the account fastest.`);
+
+/** The chart for one size: the two drawings (the kit shows one by width), the tally, and the text alternative. */
+export function chartParts(r, size, o = outcomes(r, size)) {
+  const runs = drawRuns(r, size);
+  const t = tally(runs);
+  return {
+    wide: chartSvg(runs, VIEWS.wide),
+    narrow: chartSvg(runs, VIEWS.narrow),
+    tally: tallyText(t),
+    label: chartLabel(size, sayText(r, size, o), tallyText(t)),
+  };
+}

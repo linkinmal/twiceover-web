@@ -29,7 +29,7 @@ The page shows the exact probability of outcomes 1 and 2 (not a simulation; no s
 |---|---|---|---|
 | Win chance `p` | typed, with a % mark | 1% to 99% inclusive | rounded to the nearest 0.1% (half up) before anything else; the range is checked on the rounded value |
 | Payoff `b` | typed, with a % mark: what a win pays, as a percent of the amount risked (100% = even money) | 1% to 1000% inclusive | rounded to the nearest 0.1% (half up), range checked on the rounded value |
-| Size `f` | slider | 1% to 100%, whole percents | as is |
+| Size `f` | slider | 1% to 60%, whole percents (the runs chart's scale ends there; the bars still show a 100% row) | as is |
 
 A typed number is digits with at most one decimal mark, a dot or a comma; spaces at either end are ignored. A comma followed by exactly three digits is a thousands separator and is refused (so `1,000` is refused and `1000` is accepted). A sign, an exponent, a space inside, a typed % sign (the mark sits beside the box), or other text is refused. (This is the shared reader the other tool pages use.) Rounding to 0.1 is decimal rounding of the number as typed: 55.55 is 55.6, 55.549 is 55.5.
 

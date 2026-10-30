@@ -2,16 +2,18 @@
 // "Position size and risk of ruin" as served (definition.md beside this file): how the game works, two open numbered
 // steps in one column, then the bars for every size at the same odds and the lesson. The page opens on the coin game's
 // odds (60%, even money) at a 10% size, printed in full by the functions the block script imports
-// (position-size-view.mjs), so the script only rewrites what is already here. The slider, "Try another example" and
-// the two typed boxes are hidden until the script runs them; with script off the opening example, its bars and the
-// lesson read as a page of their own.
+// (position-size-view.mjs), so the script only rewrites what is already here. Step 1 leads with the runs chart (the
+// kit's, _kit/runs-chart.mjs): thirty drawn paths under the exact-odds sentence, one slider for the size. The slider,
+// Replay, "Try another example" and the two typed boxes are hidden until the script runs them; with script off the
+// opening example, its paths and tally, its bars and the lesson read as a page of their own.
 import { DEFAULT_EXAMPLE, DEFAULT_SIZE, EXAMPLES, SIZE_MAX, SIZE_MIN, outcomes, runOdds } from "./position-size.mjs";
-import { FLOOR, START, answerHtml, barsHtml, edgeExplain, firstTradeText, kellyText, payoffNote, sayText, share, sliderText, winNote, winThenLoss } from "./position-size-view.mjs";
+import { FLOOR, START, answerHtml, barsHtml, chartParts, edgeExplain, firstTradeText, kellyText, payoffNote, sayText, share, sliderText, winNote, winThenLoss } from "./position-size-view.mjs";
 
 const ex = EXAMPLES[DEFAULT_EXAMPLE];
 const r = runOdds(ex.win, ex.payoff);
 if (!r.ok) throw new Error("the opening example must be valid");
 const sl = sliderText(DEFAULT_SIZE);
+const chart = chartParts(r, DEFAULT_SIZE);
 const at = (s: number) => share(outcomes(r, s).floor);
 ---
 <div data-ruin>
@@ -23,10 +25,22 @@ const at = (s: number) => share(outcomes(r, s).floor);
     <h2 class="lab" id="pr-h1" data-js hidden>Step 1 · Choose how much each trade risks</h2>
     <p class="lab" data-nojs>The example: a {ex.win}% win chance, even money, {DEFAULT_SIZE}% of the account on each trade</p>
     <p class="tsent" data-say aria-live="polite">{sayText(r, DEFAULT_SIZE)}</p>
-    <div class="sd-ans" data-ans aria-live="polite" set:html={answerHtml(r, DEFAULT_SIZE)}></div>
-    <div data-js hidden>
-      <input type="range" class="rng" id="pr-size" aria-label="Share of the account each trade risks" min={SIZE_MIN} max={SIZE_MAX} step="1" value={sl.value} aria-valuetext={sl.valuetext} />
+    <div class="rc" data-chart>
+      <svg class="rc-svg rc-wide" viewBox="0 0 752 300" role="img" aria-label={chart.label} data-view="wide" set:html={chart.wide}></svg>
+      <svg class="rc-svg rc-narrow" viewBox="0 0 358 230" role="img" aria-label={chart.label} data-view="narrow" set:html={chart.narrow}></svg>
     </div>
+    <div data-js hidden>
+      <div class="rc-ctl">
+        <div class="rc-rw">
+          <input type="range" class="rng" id="pr-size" aria-label="Share of the account each trade risks" min={SIZE_MIN} max={SIZE_MAX} step="1" value={sl.value} aria-valuetext={sl.valuetext} />
+          <i class="rc-tick" data-tick hidden></i>
+        </div>
+        <div class="rc-side"><span class="rc-rd" data-read>{DEFAULT_SIZE}%</span><button class="btn" type="button" data-replay>Replay</button></div>
+      </div>
+      <p class="pdesc rc-note" data-tick-note></p>
+    </div>
+    <p class="rc-tally" data-tally aria-live="polite">{chart.tally}</p>
+    <div class="sd-ans" data-ans aria-live="polite" set:html={answerHtml(r, DEFAULT_SIZE)}></div>
     <p class="pdesc" data-first aria-live="polite">{firstTradeText(r, DEFAULT_SIZE)}</p>
     <div data-js hidden><div class="row"><button class="btn" type="button" data-another>Try another example</button></div></div>
     <p class="stamp"><span><b>As of</b> your numbers</span><span><b>Source</b> computed on this page. Sample odds, not anyone's record.</span></p>

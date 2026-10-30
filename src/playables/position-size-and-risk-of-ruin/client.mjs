@@ -1,12 +1,16 @@
 /**
  * Block script for "Position size and risk of ruin" (ADR 1088 Decision 1, ADR 1090 Decision 8). Bundled to
  * public/js/blog-position-size-and-risk-of-ruin.js. It reads the page's own slider and two typed boxes, runs the shared
- * math and writes the same sentence, answers and bars the build printed (position-size-view.mjs) back into the page.
+ * math and writes the same sentence, runs chart, tally, answers and bars the build printed (position-size-view.mjs) back
+ * into the page. The one slider drives all of them; Replay draws the thirty paths again, left to right.
  * A bad entry marks its own box and the page keeps the last good result. Nothing is sent, stored or read from the address.
  */
 import { DEFAULT_EXAMPLE, DEFAULT_SIZE, EXAMPLES, fitSize, outcomes, runOdds, validateOdds } from "./position-size.mjs";
 import { readNumber } from "../_kit/number-input.mjs";
-import { answerHtml, barsHtml, firstTradeText, payoffNote, sayText, sliderText, winNote } from "./position-size-view.mjs";
+import { answerHtml, barsHtml, chartParts, firstTradeText, payoffNote, sayText, sliderText, tickLeft, tickNote, tickSize, winNote } from "./position-size-view.mjs";
+
+const REPLAY_MS = 1600;
+const reduced = () => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /**
  * @param {Element} root the [data-ruin] element
@@ -27,8 +31,54 @@ export function init(root, opts = {}) {
   root.querySelectorAll("[data-js]").forEach((n) => (n.hidden = false));
   root.querySelectorAll("[data-nojs]").forEach((n) => (n.hidden = true));
 
+  /** Draws the paths left to right by opening a clip over them; with reduced motion the chart is simply redrawn at rest. */
+  function replay() {
+    draw();
+    if (reduced()) return;
+    for (const svg of root.querySelectorAll("[data-chart] svg")) {
+      const g = svg.querySelector(".rc-runs");
+      const [, , vw, vh] = (svg.getAttribute("viewBox") ?? "").split(" ").map(Number);
+      if (!g || !vw) continue;
+      const id = `rc-clip-${svg.dataset.view}`;
+      const NS = "http://www.w3.org/2000/svg";
+      const clip = document.createElementNS(NS, "clipPath");
+      clip.id = id;
+      const rect = document.createElementNS(NS, "rect");
+      rect.setAttribute("height", String(vh));
+      rect.setAttribute("width", "0");
+      clip.appendChild(rect);
+      svg.insertBefore(clip, g);
+      g.setAttribute("clip-path", `url(#${id})`);
+      // The first frame's own timestamp starts the clock: it can be earlier than performance.now() at the click.
+      let t0 = null;
+      const step = (now) => {
+        t0 ??= now;
+        const k = Math.min(1, (now - t0) / REPLAY_MS);
+        rect.setAttribute("width", String(vw * k));
+        if (k < 1 && clip.isConnected) requestAnimationFrame(step);
+        else {
+          g.removeAttribute("clip-path");
+          clip.remove();
+        }
+      };
+      requestAnimationFrame(step);
+    }
+  }
+
   function draw() {
     const o = outcomes(r, size);
+    const c = chartParts(r, size, o);
+    for (const svg of root.querySelectorAll("[data-chart] svg")) {
+      svg.innerHTML = c[svg.dataset.view];
+      svg.setAttribute("aria-label", c.label);
+    }
+    q("[data-tally]").textContent = c.tally;
+    q("[data-read]").textContent = `${size}%`;
+    const tick = tickSize(r);
+    const tickEl = q("[data-tick]");
+    tickEl.hidden = tick === null;
+    if (tick !== null) tickEl.style.left = tickLeft(tick);
+    q("[data-tick-note]").textContent = tickNote(r);
     q("[data-say]").textContent = sayText(r, size, o);
     q("[data-ans]").innerHTML = answerHtml(r, size, o);
     q("[data-bars]").innerHTML = barsHtml(r, size);
@@ -75,6 +125,7 @@ export function init(root, opts = {}) {
   winBox.addEventListener("input", read);
   payBox.addEventListener("input", read);
   q("[data-another]").addEventListener("click", another);
+  q("[data-replay]").addEventListener("click", replay);
 
   draw();
   return { state: () => ({ example, size, odds: r }) };

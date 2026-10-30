@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { outcomes, runOdds } from "./position-size.mjs";
-import { answerHtml, barsHtml, dollars, edgeExplain, edgeText, edgeWords, firstTradeText, kellyText, payoffNote, sayText, share, sliderText, winNote, winThenLoss } from "./position-size-view.mjs";
+import { answerHtml, barsHtml, chartParts, dollars, edgeExplain, edgeText, edgeWords, firstTradeText, kellyText, payoffNote, sayText, share, sliderText, tallyText, tickLeft, tickNote, tickSize, winNote, winThenLoss } from "./position-size-view.mjs";
 
 const o = (p, can = true, all = false) => ({ p, can, all });
 
@@ -92,5 +92,31 @@ describe("the page's words", () => {
 
   it("gives the slider a value and a spoken value", () => {
     expect(sliderText(12)).toEqual({ value: "12", valuetext: "12% of the account on each trade" });
+  });
+});
+
+describe("the runs chart's words", () => {
+  const r = runOdds(60, 100);
+
+  it("says the tally counts the thirty drawn runs, in the page's own words", () => {
+    expect(tallyText({ ahead: 25, half: 5, neither: 0 })).toBe("These 30 drawn runs: 25 ended above $10,000 · 5 fell to $5,000 and stopped · 0 ended between $5,000 and $10,000.");
+  });
+
+  it("marks the fastest-growing size on the slider, and nothing when there is none or it is past the slider's end", () => {
+    expect.soft(tickSize(r)).toBe(20);
+    expect.soft(tickNote(r)).toBe("The tick marks 20%, the size that grows the account fastest.");
+    expect.soft(tickSize(runOdds(50, 100))).toBeNull();
+    expect.soft(tickNote(runOdds(50, 100))).toBe("");
+    expect.soft(tickSize(runOdds(90, 100))).toBeNull();
+    expect.soft(tickSize(runOdds(61, 100))).toBe(22);
+    expect.soft(tickLeft(1)).toBe("calc(14px + (100% - 28px) * 0.0000)");
+    expect.soft(tickLeft(60)).toBe("calc(14px + (100% - 28px) * 1.0000)");
+  });
+
+  it("gives one chart from one size: the sentence in its alternative is the page's sayText, the tally its own", () => {
+    const c = chartParts(r, 10);
+    expect.soft(c.label).toBe(`Thirty account paths over 100 trades at a 10% size. ${sayText(r, 10)} ${c.tally}`);
+    expect.soft(c.tally).toBe("These 30 drawn runs: 25 ended above $10,000 · 5 fell to $5,000 and stopped · 0 ended between $5,000 and $10,000.");
+    expect.soft(c.wide).not.toBe(c.narrow);
   });
 });

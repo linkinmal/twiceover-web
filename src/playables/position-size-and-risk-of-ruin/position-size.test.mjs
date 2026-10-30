@@ -119,9 +119,9 @@ describe("the bars", () => {
     expect.soft(barSizes(99)).toEqual([1, 2, 5, 10, 20, 30, 50, 99, 100]);
   });
 
-  it("keeps the slider inside 1% to 100% in whole percents", () => {
+  it("keeps the slider inside 1% to 60% in whole percents", () => {
     expect.soft(fitSize(0)).toBe(1);
-    expect.soft(fitSize(140)).toBe(100);
+    expect.soft(fitSize(140)).toBe(60);
     expect.soft(fitSize(12.4)).toBe(12);
   });
 });

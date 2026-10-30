@@ -31,7 +31,8 @@ export const TRADES = 100;
 /** The bars' rows, in percent of the account. The slider's size is added in its place when it is not one of them. */
 export const SIZES = Object.freeze([1, 2, 5, 10, 20, 30, 50, 100]);
 export const SIZE_MIN = 1;
-export const SIZE_MAX = 100;
+/** The slider stops at 60%, where the runs chart's scale ends (the signed-off drawing); the bars still show 100%. */
+export const SIZE_MAX = 60;
 
 export const WIN_MESSAGE = "Type a chance from 1% to 99%. Showing the last good result.";
 export const PAYOFF_MESSAGE = "Type a payoff from 1% to 1000%. Showing the last good result.";
