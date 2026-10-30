@@ -1,0 +1,84 @@
+---
+// "Position size and risk of ruin" as served (definition.md beside this file): how the game works, two open numbered
+// steps in one column, then the bars for every size at the same odds and the lesson. The page opens on the coin game's
+// odds (60%, even money) at a 10% size, printed in full by the functions the block script imports
+// (position-size-view.mjs), so the script only rewrites what is already here. Step 1 leads with the runs chart (the
+// kit's, _kit/runs-chart.mjs): thirty drawn paths under the exact-odds sentence, one slider for the size. The slider,
+// Replay, "Try another example" and the two typed boxes are hidden until the script runs them; with script off the
+// opening example, its paths and tally, its bars and the lesson read as a page of their own.
+import { DEFAULT_EXAMPLE, DEFAULT_SIZE, EXAMPLES, SIZE_MAX, SIZE_MIN, outcomes, runOdds } from "./position-size.mjs";
+import { FLOOR, START, answerHtml, barsHtml, chartParts, edgeExplain, firstTradeText, kellyText, payoffNote, sayText, share, sliderText, lessonText, winNote, winThenLoss } from "./position-size-view.mjs";
+
+const ex = EXAMPLES[DEFAULT_EXAMPLE];
+const r = runOdds(ex.win, ex.payoff);
+if (!r.ok) throw new Error("the opening example must be valid");
+const sl = sliderText(DEFAULT_SIZE);
+const chart = chartParts(r, DEFAULT_SIZE);
+---
+<div data-ruin>
+  <p class="words"><b>How it works.</b> You start with {START}. You make 100 trades in a row. Each trade wins or loses at fixed odds: in the opening example each trade has a {ex.win}% chance to win, so about {ex.win} trades in 100 win, and a win pays what the trade risked. Step 2 lets you change both.</p>
+  <p class="words">You choose one number: the share of the account each trade risks. That is your <b>size</b>. The trade's dollar amount changes as the account grows or shrinks; the share stays the same. Everything else is luck.</p>
+  <p class="words">One set of 100 trades is a <b>run</b>. The page works out every possible run and how likely each one is. Then it counts two things: the runs that end above {START}, and the runs that fall to {FLOOR}, half the start, at some point. A run that falls to {FLOOR} stops there. That is what this page calls <b>ruin</b>.</p>
+  <p class="words">The <b>edge</b> is what a trade earns on average for each $1 it risks. {edgeExplain(r)}</p>
+  <section class="blk calc" aria-labelledby="pr-h1">
+    <h2 class="lab" id="pr-h1" data-js hidden>Step 1 · Choose how much each trade risks</h2>
+    <p class="lab" data-nojs>The example: a {ex.win}% win chance, even money, {DEFAULT_SIZE}% of the account on each trade</p>
+    <p class="tsent" data-say aria-live="polite">{sayText(r, DEFAULT_SIZE)}</p>
+    <div class="rc" data-chart>
+      <svg class="rc-svg rc-wide" viewBox="0 0 752 300" role="img" aria-label={chart.label} data-view="wide" set:html={chart.wide}></svg>
+      <svg class="rc-svg rc-narrow" viewBox="0 0 358 230" role="img" aria-label={chart.label} data-view="narrow" set:html={chart.narrow}></svg>
+    </div>
+    <div data-js hidden>
+      <div class="rc-ctl">
+        <div class="rc-rw">
+          <input type="range" class="rng" id="pr-size" aria-label="Share of the account each trade risks" min={SIZE_MIN} max={SIZE_MAX} step="1" value={sl.value} aria-valuetext={sl.valuetext} />
+          <i class="rc-tick" data-tick hidden></i>
+        </div>
+        <div class="rc-side"><span class="rc-rd" data-read>{DEFAULT_SIZE}%</span><button class="btn" type="button" data-replay>Replay</button></div>
+      </div>
+      <p class="pdesc rc-note" data-tick-note></p>
+    </div>
+    <p class="rc-tally" data-tally aria-live="polite">{chart.tally}</p>
+    <p class="fine rc-fixed">The sentence above the chart is exact, worked over every possible run. The 30 drawn runs are one fixed sample, the same at every size, so their count can differ from it.</p>
+    <div class="sd-ans" data-ans aria-live="polite" set:html={answerHtml(r, DEFAULT_SIZE)}></div>
+    <p class="pdesc" data-first aria-live="polite">{firstTradeText(r, DEFAULT_SIZE)}</p>
+    <div data-js hidden><div class="row"><button class="btn" type="button" data-another>Try another example</button></div></div>
+    <p class="stamp"><span><b>As of</b> your numbers</span><span><b>Source</b> computed on this page. Sample odds, not anyone's record.</span></p>
+  </section>
+  <section class="blk calc" aria-labelledby="pr-h2" data-js hidden>
+    <h2 class="lab" id="pr-h2">Step 2 · Change the odds</h2>
+    <p class="pdesc">The chart, the answers, the bars and the lesson all follow these two numbers.</p>
+    <div class="plate">
+      <div class="sd-fields">
+        <div class="sd-field" data-field="win">
+          <label for="pr-win">Chance a trade wins</label>
+          <div class="in"><input id="pr-win" type="text" inputmode="decimal" autocomplete="off" value={String(ex.win)} aria-describedby="pr-win-n" aria-invalid="false" /><span aria-hidden="true">%</span></div>
+          <small id="pr-win-n">{winNote(r)}</small>
+        </div>
+        <div class="sd-field" data-field="payoff">
+          <label for="pr-pay">What a win pays, as a % of what the trade risked</label>
+          <div class="in"><input id="pr-pay" type="text" inputmode="decimal" autocomplete="off" value={String(ex.payoff)} aria-describedby="pr-pay-n" aria-invalid="false" /><span aria-hidden="true">%</span></div>
+          <small id="pr-pay-n">{payoffNote(r)}</small>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="blk">
+    <p class="lab">Every size, the same odds</p>
+    <p class="pdesc">Each row is one size. Green is the share of runs that end above {START}. Red is the share that fall to {FLOOR} and stop. The grey rest end in between.</p>
+    <div class="sim-bars sb-long" data-bars set:html={barsHtml(r, DEFAULT_SIZE)}></div>
+    <div class="lg" style="margin-top:12px">
+      <span><svg width="14" height="14" aria-hidden="true"><rect width="14" height="14" fill="var(--gain)"/></svg>ended above {START}</span>
+      <span><svg width="14" height="14" aria-hidden="true"><rect width="14" height="14" fill="var(--loss)"/></svg>fell to {FLOOR} and stopped</span>
+      <span><svg width="14" height="14" aria-hidden="true"><rect class="nb" x=".5" y=".5" width="13" height="13" fill="color-mix(in srgb,var(--ink) 14%,var(--plate))"/></svg>ended between {FLOOR} and {START}</span>
+    </div>
+    <p class="stamp"><span><b>As of</b> your numbers</span><span><b>Source</b> computed on this page, the exact odds over every possible run, no simulation</span></p>
+  </section>
+  <section class="blk teach">
+    <p class="lab">What it shows</p>
+    <p class="big">The odds are the same in every row. Only the size changes, and the size decides how the runs end.</p>
+    <p>Why: a loss hurts more than a win of the same size helps. Take even money: win 10% and then lose 10%, and {START} becomes {winThenLoss(10)}. At 50%, a win and then a loss leave {winThenLoss(50)}. The bigger the size, the bigger that leak.</p>
+    <p data-lesson aria-live="polite">{lessonText(r)}</p>
+    <p>Traders call this question position sizing.</p>
+  </section>
+</div>
