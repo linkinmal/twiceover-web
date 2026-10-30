@@ -129,6 +129,16 @@ describe("the drawing", () => {
     expect.soft(chartSvg(drawRuns(odds, 1), VIEWS.wide)).not.toContain("off the chart");
   });
 
+  it("prints 0, 25, 50, 75 and 100 trades at 1280, and only 0, 50 and 100 trades at 390 so the labels do not touch", () => {
+    const labels = (svg) => [...svg.matchAll(/class="rc-ax" x="[\d.]+" y="(?:292|222)" text-anchor="\w+">([^<]+)</g)].map((m) => m[1]);
+    expect.soft(labels(chartSvg(runs, VIEWS.wide))).toEqual(["0", "25", "50", "75", "100 trades"]);
+    expect.soft(labels(chartSvg(runs, VIEWS.narrow))).toEqual(["0", "50", "100 trades"]);
+  });
+
+  it("gives 'off the chart' its own class, so the kit can set it clear of the paths", () => {
+    expect.soft(chartSvg(drawRuns(odds, 20), VIEWS.wide)).toContain('class="rc-ax rc-off"');
+  });
+
   it("holds both views to the artifact's sizes", () => {
     expect.soft(VIEWS.wide).toMatchObject({ w: 752, h: 300 });
     expect.soft(VIEWS.narrow).toMatchObject({ w: 358, h: 230 });

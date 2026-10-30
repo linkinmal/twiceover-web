@@ -17,8 +17,9 @@ export const TRADES = 100;
 
 /** The two drawings the page prints: the column's width, and one column at 390. The kit's 560px query shows one. */
 export const VIEWS = Object.freeze({
-  wide: Object.freeze({ id: "wide", w: 752, h: 300 }),
-  narrow: Object.freeze({ id: "narrow", w: 358, h: 230 }),
+  wide: Object.freeze({ id: "wide", w: 752, h: 300, ticks: [0, 25, 50, 75, 100] }),
+  // One column at 390 is 334px wide, so 75 and "100 trades" would touch: the narrow drawing prints three.
+  narrow: Object.freeze({ id: "narrow", w: 358, h: 230, ticks: [0, 50, 100] }),
 });
 
 const LEFT = 56;
@@ -99,7 +100,7 @@ const DRAW_ORDER = { half: 0, neither: 1, ahead: 2 };
 /**
  * The chart as SVG markup (the inside of an <svg viewBox="0 0 w h">). Coordinates are rounded to a tenth of a pixel, and every element is closed, so the markup is what the DOM serializes back.
  * @param {ReturnType<typeof drawRuns>} runs
- * @param {{w:number, h:number}} view
+ * @param {{w:number, h:number, ticks:number[]}} view
  * @param {number} [start] the account every run starts with, in whole dollars, for the axis
  */
 export function chartSvg(runs, view, start = 10000) {
@@ -117,7 +118,7 @@ export function chartSvg(runs, view, start = 10000) {
     out += `<text class="rc-ax${a.v === 0.5 ? " rc-axl" : ""}" x="${LEFT - 6}" y="${t(y(a.v) + 4)}" text-anchor="end">${a.text}</text>`;
   }
   out += `<text class="rc-ax rc-axl" x="${t(w - RIGHT)}" y="${t(y(0.5) - 5)}" text-anchor="end">half</text>`;
-  for (const n of [0, 25, 50, 75, 100]) {
+  for (const n of view.ticks) {
     out += `<text class="rc-ax" x="${t(x(n))}" y="${h - 8}" text-anchor="${n === 0 ? "start" : n === 100 ? "end" : "middle"}">${n === 100 ? "100 trades" : n}</text>`;
   }
   let off = false;
@@ -132,6 +133,6 @@ export function chartSvg(runs, view, start = 10000) {
     }
   }
   out += `</g>`;
-  if (off) out += `<text class="rc-ax" x="${t(w - RIGHT)}" y="${TOP + 11}" text-anchor="end">off the chart ↑</text>`;
+  if (off) out += `<text class="rc-ax rc-off" x="${t(w - RIGHT)}" y="${TOP + 11}" text-anchor="end">off the chart ↑</text>`;
   return out;
 }

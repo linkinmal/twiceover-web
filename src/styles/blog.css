@@ -315,10 +315,11 @@
   .post .sim-go p{margin:0;font-size:16.5px;line-height:1.4;flex:1 1 240px;max-width:none}
   .post p.sim-wait{font-size:15px;color:var(--ink2);margin:16px 0 0}
   .sim-bars{display:grid;gap:4px;margin-top:14px}
-  .sb{display:grid;grid-template-columns:52px 1fr 200px;gap:12px;align-items:center;font:14.5px var(--fm);color:var(--ink);background:none;border:0;padding:8px 6px;min-height:44px;text-align:left;border-radius:max(var(--rad),2px);cursor:pointer;width:100%}
+  .sb{display:grid;grid-template-columns:52px 1fr 36ch;gap:12px;align-items:center;font:14.5px var(--fm);color:var(--ink);background:none;border:0;padding:8px 6px;min-height:44px;text-align:left;border-radius:max(var(--rad),2px);cursor:pointer;width:100%}
   .sb.hd{min-height:0;padding-block:0 2px;font:600 11.5px "Source Sans 3",system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);cursor:default}
   button.sb:hover{background:color-mix(in srgb,var(--ink) 6%,transparent)}
-  .sb .tr{height:18px;display:flex;background:color-mix(in srgb,var(--ink) 14%,var(--plate));border-radius:max(var(--rad),0px)}
+  .sb .tr{height:18px;display:flex;background:color-mix(in srgb,var(--ink) 14%,var(--plate));border-radius:max(var(--rad),0px);outline:1px solid color-mix(in srgb,var(--ink) 55%,transparent);outline-offset:-1px}
+  .lg .nb{stroke:color-mix(in srgb,var(--ink) 55%,transparent);stroke-width:1}
   .sb .tr i{display:block;height:100%} .sb .cp{background:var(--gain)} .sb .bu{background:var(--loss)}
   .sb.on span:first-child{font-weight:700;color:var(--a)} .sb.on .tr{outline:2px solid var(--ink);outline-offset:2px}
   @media (max-width:560px){.sb{grid-template-columns:46px 1fr;gap:4px 10px}.sb .n{grid-column:1/-1;padding-left:56px}.sb.hd span:last-child{display:none}}
@@ -433,6 +434,7 @@
   .fine{font:13.5px/1.5 "Source Sans 3",system-ui,sans-serif;color:var(--ink2);max-width:46em}
   .post p.fine{font-size:13.5px;line-height:1.5}
   .fine b{color:var(--ink)}
+  @media (max-width:560px){.sb .n{font-size:12.5px}}
   @media (max-width:560px){.sb{grid-template-columns:44px 1fr}.sb .n{grid-column:1/-1}.cal .d{min-height:54px;padding:4px 5px}.cal .d b{font-size:calc(15px*var(--fdsz))}}
   @media (max-width:560px){.gr{grid-template-columns:1fr}}
   /* "Implied move from a straddle": the three answers, the chart's band and handle, the result, the two typed boxes */
@@ -447,6 +449,7 @@
   .rc-g{stroke:var(--gain);stroke-opacity:.75} .rc-l{stroke:var(--loss);stroke-opacity:.75}
   .rc-n{stroke:color-mix(in srgb,var(--ink) 40%,var(--g));stroke-opacity:.85}
   .rc-dot{fill:var(--loss)}
+  .rc-off{paint-order:stroke;stroke:var(--g);stroke-width:3px}
   .rc-ctl{display:grid;grid-template-columns:1fr auto;gap:8px 14px;align-items:center;margin-top:10px}
   .rc-rw{position:relative}
   .rc-tick{position:absolute;top:6px;width:3px;height:32px;margin-left:-1.5px;background:var(--a);pointer-events:none}

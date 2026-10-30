@@ -84,7 +84,7 @@ describe("the position size block script", () => {
   it("puts the ochre tick at the fastest-growing size, and takes it away when there is no positive edge", () => {
     expect.soft(q("[data-tick]").hidden).toBe(false);
     expect.soft(q("[data-tick]").style.left).toContain("0.322");
-    expect.soft(q("[data-tick-note]").textContent).toBe("The tick marks 20%, the size that grows the account fastest.");
+    expect.soft(q("[data-tick-note]").textContent).toBe("The tick marks 20%, the size that grows the account fastest over many trades.");
     type(q("#pr-win"), "50");
     expect.soft(q("[data-tick]").hidden).toBe(true);
     expect.soft(q("[data-tick-note]").textContent).toBe("");

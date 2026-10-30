@@ -57,7 +57,7 @@ describe("the page's words", () => {
     const out = outcomes(r, 20);
     expect.soft(html).toContain(`<b>${share(out.ahead)}</b><span>of runs end the 100 trades above $10,000</span>`);
     expect.soft(html).toContain(`<b>${share(out.floor)}</b><span>of runs fall to $5,000 on the way, and stop</span>`);
-    expect.soft(html).toContain("<b>20%</b><span>the size that grows the account fastest</span>");
+    expect.soft(html).toContain("<b>20%</b><span>the size that grows the account fastest over many trades</span>");
   });
 
   it("draws one row a size, marks the slider's, and adds it when it is not a fixed row", () => {
@@ -104,13 +104,35 @@ describe("the runs chart's words", () => {
 
   it("marks the fastest-growing size on the slider, and nothing when there is none or it is past the slider's end", () => {
     expect.soft(tickSize(r)).toBe(20);
-    expect.soft(tickNote(r)).toBe("The tick marks 20%, the size that grows the account fastest.");
+    expect.soft(tickNote(r)).toBe("The tick marks 20%, the size that grows the account fastest over many trades.");
     expect.soft(tickSize(runOdds(50, 100))).toBeNull();
     expect.soft(tickNote(runOdds(50, 100))).toBe("");
     expect.soft(tickSize(runOdds(90, 100))).toBeNull();
     expect.soft(tickSize(runOdds(61, 100))).toBe(22);
     expect.soft(tickLeft(1)).toBe("calc(14px + (100% - 28px) * 0.0000)");
     expect.soft(tickLeft(60)).toBe("calc(14px + (100% - 28px) * 1.0000)");
+  });
+
+  it("says why there is no tick when there is none to draw, in words, from the same figure the tile prints", () => {
+    expect.soft(tickNote(runOdds(90, 100))).toBe("The size that grows the account fastest over many trades is 80%, past the end of this scale.");
+    expect.soft(tickNote(runOdds(50.1, 100))).toBe("The size that grows the account fastest over many trades is under 1%.");
+    expect.soft(tickNote(runOdds(50, 100))).toBe("");
+    expect.soft(tickNote(runOdds(40, 100))).toBe("");
+  });
+
+  it("prints one rounded figure in the note, the tick and the tile: 12.5% rounds half up to 13% in all three", () => {
+    const k = runOdds(30, 400);
+    expect.soft(tickSize(k)).toBe(13);
+    expect.soft(tickNote(k)).toContain("marks 13%,");
+    expect.soft(kellyText(k.kelly)).toBe("13%");
+    expect.soft(answerHtml(k, 10)).toContain("<b>13%</b>");
+    expect.soft(tickLeft(tickSize(k))).toBe(tickLeft(13));
+  });
+
+  it("says a trade, not 1 trades, at a 1% win chance", () => {
+    expect.soft(winNote(runOdds(1, 100))).toBe("1% means about 1 trade in 100 wins.");
+    expect.soft(winNote(runOdds(1.5, 100))).toBe("1.5% means about 1.5 trades in 100 win.");
+    expect.soft(winNote(runOdds(60, 100))).toBe("60% means about 60 trades in 100 win.");
   });
 
   it("gives one chart from one size: the sentence in its alternative is the page's sayText, the tally its own", () => {

@@ -69,7 +69,7 @@ export function edgeExplain(r) {
   return `Here a trade wins ${c(win)} and loses ${c(loss)} for each $1 it risks, on average. The difference, ${edgeText(r.edgeTenths)}, is the edge.`;
 }
 
-export const winNote =(r) => `${tenths(r.P)}% means about ${tenths(r.P)} trades in 100 win.`;
+export const winNote = (r) => (r.P === 10 ? "1% means about 1 trade in 100 wins." : `${tenths(r.P)}% means about ${tenths(r.P)} trades in 100 win.`);
 export const payoffNote = (r) => `At ${tenths(r.B)}%, a trade that risks $1,000 wins ${dollars(r.B * 100)}. ${edgeWords(r)}`;
 
 /** The first trade at this size, from the $10,000 start. */
@@ -88,7 +88,7 @@ export function answerHtml(r, size, o = outcomes(r, size)) {
   return (
     `<div><b>${share(o.ahead)}</b><span>of runs end the 100 trades above ${START}</span></div>` +
     `<div><b>${share(o.floor)}</b><span>of runs fall to ${FLOOR} on the way, and stop</span></div>` +
-    `<div><b>${kellyText(r.kelly)}</b><span>the size that grows the account fastest</span></div>`
+    `<div><b>${kellyText(r.kelly)}</b><span>the size that grows the account fastest over many trades</span></div>`
   );
 }
 
@@ -127,8 +127,17 @@ export const tickSize = (r) => (r.kelly.kind === "pct" && r.kelly.pct >= SIZE_MI
 /** Where the tick sits along the slider, centred on the thumb's travel (the thumb is 28px wide). */
 export const tickLeft = (pct) => `calc(14px + (100% - 28px) * ${((pct - SIZE_MIN) / (SIZE_MAX - SIZE_MIN)).toFixed(4)})`;
 
-/** The line that names the tick; empty when there is none (no edge, or the fastest size is past the slider). */
-export const tickNote = (r) => (tickSize(r) === null ? "" : `The tick marks ${tickSize(r)}%, the size that grows the account fastest.`);
+/**
+ * The line under the slider: names the tick, or says why there is none. The size is r.kelly, the figure the tile prints,
+ * so the note, the tick and the tile are one rounded number. Empty at no edge: the sentence above says so.
+ */
+export function tickNote(r) {
+  const k = r.kelly;
+  if (k.kind === "none") return "";
+  const fastest = "the size that grows the account fastest over many trades";
+  if (k.kind === "under") return `The ${fastest.slice(4)} is under 1%.`;
+  return tickSize(r) === null ? `The ${fastest.slice(4)} is ${k.pct}%, past the end of this scale.` : `The tick marks ${k.pct}%, ${fastest}.`;
+}
 
 /** The chart for one size: the two drawings (the kit shows one by width), the tally, and the text alternative. */
 export function chartParts(r, size, o = outcomes(r, size)) {
