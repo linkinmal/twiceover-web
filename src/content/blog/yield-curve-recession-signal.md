@@ -1,13 +1,13 @@
 ---
 title: "The yield curve’s famous recession signal got this one wrong"
-description: "For most of 2022 to 2024 the US government paid more to borrow for two years than for ten. Traders read that as a recession warning. Fifty-five months on, no recession has been dated. Before each of the six since 1976, one came within three years."
+description: "For most of 2022 to 2024 the US government paid more to borrow for two years than for ten. Traders read that as a recession warning. Fifty-five months on, no recession has been dated. Each of the six recessions since 1976 came within three years of the curve inverting."
 publishAt: "2026-11-13T07:00:00-05:00"
 topic: "how-to-read"
 lens: "concept"
 build: "text-led"
 look: "printout"
 hit: "wrong"
-sources: "FRED, 10-year minus 2-year | https://fred.stlouisfed.org/series/T10Y2Y; NBER business cycle dates | https://www.nber.org/research/data/us-business-cycle-expansions-and-contractions; FRED, real GDP | https://fred.stlouisfed.org/series/GDPC1; FRED, payrolls | https://fred.stlouisfed.org/series/PAYEMS"
+sources: "FRED, 10-year minus 2-year | https://fred.stlouisfed.org/series/T10Y2Y; NBER business cycle dates | https://www.nber.org/research/data/us-business-cycle-expansions-and-contractions; FRED, real GDP | https://fred.stlouisfed.org/series/GDPC1; FRED, payrolls | https://fred.stlouisfed.org/series/PAYEMS; FRED, unemployment | https://fred.stlouisfed.org/series/UNRATE"
 ---
 
 The bond market’s best-known recession warning went off in April 2022, and 55 months later no recession has been dated.
@@ -16,7 +16,7 @@ The bond market’s best-known recession warning went off in April 2022, and 55 
 
 The US government borrows for two years and for ten. The rate each loan pays is its yield. The ten-year usually pays more, because lenders want more for tying money up longer. Plot the yields from short loans to long ones and the line slopes up. When the two-year pays more, it slopes down. Traders call that an inverted yield curve.
 
-An inverted curve says bond traders expect short-term rates to fall, and rates fall most often in a recession. So traders have read it as a recession warning for decades. It first inverted in April 2022, for two days, and then stayed inverted from July 2022 for more than two years. Before each of the six US recessions since 1976, the recession arrived within three years of the curve inverting. This time the economy kept growing.
+An inverted curve says bond traders expect short-term rates to fall, and rates fall most often in a recession. So traders have read it as a recession warning for decades. This time it first inverted in April 2022, for two days, and then stayed inverted from July 2022 for more than two years. Before each of the six US recessions since 1976, the recession arrived within three years of the curve inverting. This time the economy kept growing.
 
 ## 1. The facts
 
@@ -27,19 +27,19 @@ An inverted curve says bond traders expect short-term rates to fall, and rates f
 
 ## 2. Every wait since 1976
 
-The National Bureau of Economic Research, the NBER, dates US recessions. It names the month the economy peaked, and the recession starts the month after. The table counts from the first close below zero to that peak. The spread is the 10-year yield minus the 2-year, from the Federal Reserve’s daily series, which starts in June 1976. Below zero means the 2-year pays more.
+The National Bureau of Economic Research, the NBER, dates US recessions. It names the month the economy peaked, and the recession starts the month after. The table counts from the curve’s first close below zero after the previous recession ended, to that peak. The spread is the 10-year yield minus the 2-year, from the Federal Reserve’s daily series, which starts in June 1976. Below zero means the 2-year pays more.
 
-| The economy peaked | Curve first closed below zero | Months between |
+| The economy peaked | Curve first closed below zero after the last recession | Months between |
 |---|---|---|
 | January 1980 | August 1978 | 17 |
 | July 1981 | September 1980 | 10 |
 | July 1990 | December 1988 | 19 |
-| March 2001 | February 2000 | 13 |
+| March 2001 | May 1998 | 34 |
 | December 2007 | December 2005 | 24 |
 | February 2020 | August 2019 | 6 |
 | No peak dated | April 2022 | 55 by November 2026 |
 
-The 1981 row counts from September 1980, when the curve turned below zero again after the 1980 recession. The curve also dipped below zero on and off from late May to late July 1998. Counted from that dip, the 2001 wait grows to 34 months. The current wait is 55 months.
+The 1998 dip ran on and off from late May to late July. The run that led into the 2001 peak began in February 2000, 13 months before it. Either way, the longest wait in the record is 34 months. The current wait is 55 months.
 
 ## 3. The clock from the end of the inversion ran out too
 
@@ -72,4 +72,4 @@ The signal earned its fame by matching all six recessions since 1976. In 2022 th
 
 On 30 October 2026 the 10-year paid 0.38 percentage points more than the 2-year. The 10-year has not closed below the 2-year since 5 September 2024.
 
-Two earlier posts read the same rates: [what the 2-year yield said before the Fed’s October decision](/blog/fed-decision-two-year-above-forecast), and [why the next yearly inflation rate waits until 10 December](/blog/september-cpi-next-yearly-rate-10-december).
+Two earlier posts on the same economy: [what the 2-year yield said before the Fed’s October decision](/blog/fed-decision-two-year-above-forecast), and [why the next yearly inflation rate waits until 10 December](/blog/september-cpi-next-yearly-rate-10-december).
