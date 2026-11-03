@@ -15,7 +15,7 @@ import BROKER_LIST from "./data/brokers.json" with { type: "json" };
 
 export const APP_STORE_VARIANTS = Object.freeze(["both", "iphone", "android"]);
 
-/** The stores live at merge. iPhone first: Apple's release is expected before Google's brand approval. */
+/** The stores live at merge. iPhone first: Apple's release is expected before Google's app. */
 export const DEFAULT_APP_STORES = "iphone";
 
 export function parseAppStores(raw, fallback = DEFAULT_APP_STORES) {
@@ -34,8 +34,9 @@ export const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=io.
 export const APP_PAGE_PATH = "/app";
 export const APP_PAGE_URL = "https://twiceover.io/app";
 
-/** Official artwork, unaltered (§2 "Badges"). Apple's from its marketing guidelines; Google's is
- *  Growth's to supply once Google's brand review approves it. */
+/** Official artwork, unaltered (§2 "Badges"). Apple's from its marketing guidelines; Google's from the
+ *  Partner Marketing Hub's public badge page, under its under-1-million-impressions exemption (Security,
+ *  store-badge-trademark-credit.md §6). Google asks for the newest artwork: re-download it, never edit it. */
 export const BADGE_ART = Object.freeze({
   apple: "/badges/app-store.svg",
   play: "/badges/google-play.svg",
@@ -73,7 +74,7 @@ export function assertBadgeArt(variant, publicDir = join(process.cwd(), "public"
   if (missing.length) {
     throw new Error(
       `The "${variant}" site variant needs badge art that is not committed: ${missing.join(", ")}. ` +
-        "Google's badge arrives from Growth after Google's brand approval (app-launch-surfaces.md §2).",
+        "Google's badge is Growth's to supply, unaltered (app-launch-surfaces.md §2).",
     );
   }
 }
