@@ -16,6 +16,9 @@ const BADGES = (stores, variant) =>
 const HOW = `<p class="closing-band__app"><a href="/app">Or get the mobile app →</a></p>`;
 const END = `<a href="/">or go to twiceover.io</a><span class="e-sep" aria-hidden="true">·</span><a href="/app">get the mobile app</a>`;
 
+const DESCRIPTION = (variant, text = APP_COPY.homeDescription[variant]) =>
+  ["name=\"description\"", "property=\"og:description\"", "name=\"twitter:description\""].map((t) => `<meta ${t} content="${text}">`).join("");
+const PRIVACY = `<li>handling of subscriptions bought on the web.</li><p>If you subscribe in the iPhone app, Apple is the seller.</p><li>for web purchases, card and billing details are handled by Dodo</li>`;
 const CANCEL = (variant) =>
   `<p>${APP_COPY.cancelWebHtml}${variant === "iphone" || variant === "both" ? ` ${APP_COPY.cancelIphone}` : ""}</p>`;
 const PRICING = (variant, line = APP_COPY.pricingLine[variant]) =>
@@ -23,17 +26,18 @@ const PRICING = (variant, line = APP_COPY.pricingLine[variant]) =>
 
 function site({ variant = "iphone", stores = ["apple"], banner = true } = {}) {
   const b = banner ? BANNER : "";
-  const page = (body, current = false) => `<head>${b}</head>${HEADER(current)}${body}${FOOTER}`;
+  const page = (body, current = false, head = "") => `<head>${b}${head}</head>${HEADER(current)}${body}${FOOTER}`;
   return {
     variant,
     postSlugs: ["a-post"],
     pages: {
-      "index.html": page(`<a class="hero__app-link" href="/app">Get the mobile app →</a>${BADGES(stores, variant)}${CANCEL(variant)}`),
+      "index.html": page(`<a class="hero__app-link" href="/app">Get the mobile app →</a>${BADGES(stores, variant)}${CANCEL(variant)}`, false, DESCRIPTION(variant)),
       "app/index.html": page(BADGES(stores, variant) + BADGES(stores, variant) + `<p>${APP_COPY.planAnswer[variant]}</p>`, true),
       "how-our-analysis-works/index.html": page(HOW),
       "your-portfolio/index.html": page(HOW),
       "blog/a-post/index.html": page(END),
       "pricing/index.html": page(PRICING(variant)),
+      "privacy/index.html": page(PRIVACY),
       "in-app/terms/index.html": "<head></head><main>terms</main>",
     },
   };
@@ -134,6 +138,23 @@ describe("appLaunchFailures", () => {
       expect.soft(failuresWith("iphone", ["apple"], `<p class="mor-line">x</p>`)).toMatch(/no app line/);
       expect.soft(failuresWith("iphone", ["apple"], PRICING("iphone", APP_COPY.pricingLine.both))).toMatch(/not the "iphone" variant's/);
       expect.soft(failuresWith("iphone", ["apple"], `<p class="mor-line">a</p><h2 id="plans-title">p</h2><p class="mor-line">${APP_COPY.pricingLine.iphone}</p>`)).toMatch(/before "What each plan includes"/);
+    });
+    it("fails a homepage description that is not the variant's, in any of its three tags", () => {
+      for (const tag of ['name="description"', 'property="og:description"', 'name="twitter:description"']) {
+        const s = site();
+        s.pages["index.html"] = s.pages["index.html"].replace(`<meta ${tag} content="${APP_COPY.homeDescription.iphone}">`, `<meta ${tag} content="Analyze any stock.">`);
+        expect.soft(appLaunchFailures(s).join()).toMatch(new RegExp(`${tag.replace(/[".]/g, ".")}.*homepage description`));
+      }
+      const wrong = site({ variant: "android", stores: ["play"], banner: false });
+      wrong.pages["index.html"] = wrong.pages["index.html"].replaceAll(APP_COPY.homeDescription.android, APP_COPY.homeDescription.both);
+      expect.soft(appLaunchFailures(wrong).join()).toMatch(/homepage description/);
+    });
+    it("fails a privacy policy that names only Dodo for billing", () => {
+      for (const needle of ["handling of subscriptions bought on the web.", "Apple is the seller.", "for web purchases, card"]) {
+        const s = site();
+        s.pages["privacy/index.html"] = PRIVACY.replace(needle, "x");
+        expect.soft(appLaunchFailures(s).join()).toMatch(/privacy policy lacks/);
+      }
     });
     it("fails the old unscoped merchant-of-record line", () => {
       const old = `<p class="mor-line">Subscriptions are sold by Dodo Payments.</p><p class="mor-line">${APP_COPY.pricingLine.iphone}</p><h2 id="plans-title">p</h2>`;

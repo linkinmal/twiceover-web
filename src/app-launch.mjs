@@ -142,6 +142,13 @@ export const APP_COPY = Object.freeze({
     iphone: "Plans are sold on the web and in the iPhone app. Sign in with the same email and your plan works on both.",
     android: "Plans are sold on the web. Sign in with the same email and your plan works on the web and on Android.",
   }),
+  // Homepage description, also og:description and twitter:description (app-launch-kit.md §5): names a
+  // store only in a variant where that app is live.
+  homeDescription: Object.freeze({
+    both: "Your positions, checked against your own rules on the web and on iPhone and Android. Any US-listed stock's analysis opens with a projected price per horizon.",
+    iphone: "Your positions, checked against your own rules on the web and on iPhone. Any US-listed stock's analysis opens with a projected price per horizon.",
+    android: "Your positions, checked against your own rules on the web and on Android. Any US-listed stock's analysis opens with a projected price per horizon.",
+  }),
   // Web-scoped billing copy (app-launch-kit.md §5, rows for the merchant-of-record line and the cancel FAQ).
   // With S7 saying plans are also sold in the iPhone app, an unscoped "sold by Dodo", "prices in USD" or
   // "cancel anytime" is false for an iPhone buyer (Terms, "Who bills you"). HTML, rendered with set:html.

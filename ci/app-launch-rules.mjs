@@ -44,7 +44,23 @@ export function appLaunchFailures({ pages, variant, postSlugs = [] }) {
         fail(rel, `expected ${want.comingSoon ? `${sets} "${want.comingSoon}" line(s)` : "no coming-soon line"} in the "${variant}" variant`);
       }
     }
+    if (rel === "privacy/index.html") {
+      // Dodo is the processor for web purchases only; an iPhone buyer is billed by Apple (ADR 1018).
+      for (const [needle, what] of [
+        ["handling of subscriptions bought on the web.</li>", "Dodo scoped to web subscriptions"],
+        ["If you subscribe in the iPhone app, Apple is the seller.", "the Apple seller sentence"],
+        ["for web purchases, card and billing details are handled by", "the card sentence scoped to web purchases"],
+      ]) {
+        if (!html.includes(needle)) fail(rel, `the privacy policy lacks ${what}`);
+      }
+    }
     if (rel === "index.html") {
+      // One string, in the description, og:description and twitter:description, per variant.
+      for (const tag of ['name="description"', 'property="og:description"', 'name="twitter:description"']) {
+        if (!html.includes(`<meta ${tag} content="${APP_COPY.homeDescription[variant].replaceAll("'", "&#39;")}"`) && !html.includes(`<meta ${tag} content="${APP_COPY.homeDescription[variant]}"`)) {
+          fail(rel, `${tag} is not the "${variant}" variant's homepage description`);
+        }
+      }
       // The cancel answer is scoped to the web, with the iPhone sentence only where that app is live.
       const answer = `<p>${APP_COPY.cancelWebHtml}${want.apple ? ` ${APP_COPY.cancelIphone}` : ""}</p>`;
       if (!html.includes(answer)) fail(rel, `the "How do I cancel?" answer is not the "${variant}" variant's web-scoped one`);
@@ -70,7 +86,7 @@ export function appLaunchFailures({ pages, variant, postSlugs = [] }) {
     }
   }
   if (PRICING in pages) failures.push(...pricingFailures(pages[PRICING], variant));
-  for (const rel of [...Object.keys(BADGE_PAGES), ...HOW_PAGES, PRICING]) {
+  for (const rel of [...Object.keys(BADGE_PAGES), ...HOW_PAGES, PRICING, "privacy/index.html"]) {
     if (!(rel in pages)) fail(rel, "page missing from the build");
   }
   // Control: with posts to build, at least one was checked, or the post-end rule matched nothing.
