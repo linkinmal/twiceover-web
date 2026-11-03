@@ -1977,7 +1977,7 @@ main { padding-block-end: var(--space-800); }
 .converge path { fill: none; stroke: var(--color-border-strong); }
 .synth__outlook .proof__band { transform: none; }
 
-/* Your book, checked against your own rules. */
+/* Your book, with your own rules checked on the positions they fit. */
 .pv .container { padding-block: var(--space-600); }
 .pv__p { max-width: 60ch; }
 .pv__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-400); margin-top: var(--space-400); }
