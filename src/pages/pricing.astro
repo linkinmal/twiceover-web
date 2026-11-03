@@ -164,7 +164,7 @@ const includedOn = (section) => PLANS.map((plan) => PLANS.indexOf(plan) >= PLANS
     </li>
   </ul>
 
-  <p class="mor-line">Subscriptions are sold by <strong>Dodo Payments</strong>, our merchant of record; TwiceOver is the software and service you're using. Prices in USD. You can cancel anytime; see the <a href="/refunds">Refund Policy</a>.</p>
+  <p class="mor-line" set:html={APP_COPY.morLineHtml} />
   <p class="mor-line">{APP_COPY.pricingLine[APP_STORES]}</p>
 
   {/* Section-by-plan table (ADR 0912 Amendment 1 ruling 2). The mark is a plain ink dot — not a

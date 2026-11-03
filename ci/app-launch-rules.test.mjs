@@ -16,8 +16,10 @@ const BADGES = (stores, variant) =>
 const HOW = `<p class="closing-band__app"><a href="/app">Or get the mobile app →</a></p>`;
 const END = `<a href="/">or go to twiceover.io</a><span class="e-sep" aria-hidden="true">·</span><a href="/app">get the mobile app</a>`;
 
+const CANCEL = (variant) =>
+  `<p>${APP_COPY.cancelWebHtml}${variant === "iphone" || variant === "both" ? ` ${APP_COPY.cancelIphone}` : ""}</p>`;
 const PRICING = (variant, line = APP_COPY.pricingLine[variant]) =>
-  `<p class="mor-line">Subscriptions are sold by Dodo.</p><p class="mor-line">${line}</p><h2 id="plans-title">What each plan includes</h2>`;
+  `<p class="mor-line">${APP_COPY.morLineHtml}</p><p class="mor-line">${line}</p><h2 id="plans-title">What each plan includes</h2>`;
 
 function site({ variant = "iphone", stores = ["apple"], banner = true } = {}) {
   const b = banner ? BANNER : "";
@@ -26,7 +28,7 @@ function site({ variant = "iphone", stores = ["apple"], banner = true } = {}) {
     variant,
     postSlugs: ["a-post"],
     pages: {
-      "index.html": page(`<a class="hero__app-link" href="/app">Get the mobile app →</a>${BADGES(stores, variant)}`),
+      "index.html": page(`<a class="hero__app-link" href="/app">Get the mobile app →</a>${BADGES(stores, variant)}${CANCEL(variant)}`),
       "app/index.html": page(BADGES(stores, variant) + BADGES(stores, variant) + `<p>${APP_COPY.planAnswer[variant]}</p>`, true),
       "how-our-analysis-works/index.html": page(HOW),
       "your-portfolio/index.html": page(HOW),
@@ -132,6 +134,23 @@ describe("appLaunchFailures", () => {
       expect.soft(failuresWith("iphone", ["apple"], `<p class="mor-line">x</p>`)).toMatch(/no app line/);
       expect.soft(failuresWith("iphone", ["apple"], PRICING("iphone", APP_COPY.pricingLine.both))).toMatch(/not the "iphone" variant's/);
       expect.soft(failuresWith("iphone", ["apple"], `<p class="mor-line">a</p><h2 id="plans-title">p</h2><p class="mor-line">${APP_COPY.pricingLine.iphone}</p>`)).toMatch(/before "What each plan includes"/);
+    });
+    it("fails the old unscoped merchant-of-record line", () => {
+      const old = `<p class="mor-line">Subscriptions are sold by Dodo Payments.</p><p class="mor-line">${APP_COPY.pricingLine.iphone}</p><h2 id="plans-title">p</h2>`;
+      expect.soft(failuresWith("iphone", ["apple"], old)).toMatch(/not the web-scoped one/);
+    });
+    it("fails the homepage cancel answer unscoped, or with the iPhone sentence in the wrong variant", () => {
+      const cases = [
+        ["iphone", ["apple"], CANCEL("iphone"), "<p>One click in Settings.</p>"],
+        ["iphone", ["apple"], CANCEL("iphone"), `<p>${APP_COPY.cancelWebHtml}</p>`],
+        ["android", ["play"], CANCEL("android"), CANCEL("iphone")],
+      ];
+      for (const [variant, stores, good, bad] of cases) {
+        const s = site({ variant, stores, banner: variant === "iphone" });
+        expect.soft(appLaunchFailures(s)).toEqual([]);
+        s.pages["index.html"] = s.pages["index.html"].replace(good, bad);
+        expect.soft(appLaunchFailures(s).join()).toMatch(/How do I cancel/);
+      }
     });
     it("fails a link inside the line", () => {
       const linked = `<a href="/app">${APP_COPY.pricingLine.iphone}</a>`;

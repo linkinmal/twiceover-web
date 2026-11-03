@@ -45,7 +45,7 @@ export const BADGE_ART = Object.freeze({
  *  founder-approved 2026-11-03; stock-analyst-platform#4597). One constant, so the page and the Terms
  *  credit check read the same words; if the brand reviews change them, change them here. */
 export const STORE_BADGE_CREDIT =
-  "Apple and the Apple logo are trademarks of Apple Inc., registered in the U.S. and other countries. App Store is a service mark of Apple Inc., registered in the U.S. and other countries. Google Play and the Google Play logo are trademarks of Google LLC.";
+  "Apple, the Apple logo and iPhone are trademarks of Apple Inc., registered in the U.S. and other countries. App Store is a service mark of Apple Inc., registered in the U.S. and other countries. Google Play and the Google Play logo are trademarks of Google LLC. Android is a trademark of Google LLC.";
 
 /** The marker every rendered store badge carries and nothing else does. The Terms credit check
  *  (ci/content-rules.mjs, stock-analyst-platform#4597) reads it from the built pages. */
@@ -142,6 +142,13 @@ export const APP_COPY = Object.freeze({
     iphone: "Plans are sold on the web and in the iPhone app. Sign in with the same email and your plan works on both.",
     android: "Plans are sold on the web. Sign in with the same email and your plan works on the web and on Android.",
   }),
+  // Web-scoped billing copy (app-launch-kit.md §5, rows for the merchant-of-record line and the cancel FAQ).
+  // With S7 saying plans are also sold in the iPhone app, an unscoped "sold by Dodo", "prices in USD" or
+  // "cancel anytime" is false for an iPhone buyer (Terms, "Who bills you"). HTML, rendered with set:html.
+  morLineHtml: "Web subscriptions are sold by <strong>Dodo Payments</strong>, our merchant of record; TwiceOver is the software and service you're using. Web prices are in USD. You can cancel a web subscription anytime; see the <a href=\"/refunds\">Refund Policy</a>.",
+  cancelWebHtml: "On the web, cancel in one click in Settings, with no retention flow, call or form. Cancelling during a trial means no charge. On a paid plan, your plan stays on until the end of the period you've paid for, then the account moves to Free. Your rules, broker connection and analysis history are kept. Web refunds are handled by Dodo Payments, our merchant of record. See the <a href=\"/refunds\">Refund Policy</a>.",
+  // Appended after the web part only where the iPhone app is live.
+  cancelIphone: "If you subscribed in the iPhone app, cancel in your iPhone's Settings under Subscriptions at least 24 hours before the renewal. Apple handles refunds for those purchases.",
   closing: "Get TwiceOver on your phone.",
   previewCaption: "The same account on every screen.",
   // §4 links, one label across the product.

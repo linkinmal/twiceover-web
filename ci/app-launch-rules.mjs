@@ -44,6 +44,11 @@ export function appLaunchFailures({ pages, variant, postSlugs = [] }) {
         fail(rel, `expected ${want.comingSoon ? `${sets} "${want.comingSoon}" line(s)` : "no coming-soon line"} in the "${variant}" variant`);
       }
     }
+    if (rel === "index.html") {
+      // The cancel answer is scoped to the web, with the iPhone sentence only where that app is live.
+      const answer = `<p>${APP_COPY.cancelWebHtml}${want.apple ? ` ${APP_COPY.cancelIphone}` : ""}</p>`;
+      if (!html.includes(answer)) fail(rel, `the "How do I cancel?" answer is not the "${variant}" variant's web-scoped one`);
+    }
     if (rel === "app/index.html" && !html.includes(APP_COPY.planAnswer[variant])) {
       fail(rel, `the plan answer is not the "${variant}" variant's`);
     }
@@ -83,6 +88,7 @@ function pricingFailures(html, variant) {
   const out = [];
   const fail = (msg) => out.push(`[APP] ${PRICING}: ${msg}`);
   const lines = [...html.matchAll(MOR_LINE)].map((m) => m[1]);
+  if (lines[0] !== APP_COPY.morLineHtml) fail("the merchant-of-record line is not the web-scoped one");
   const line = lines[1];
   if (line === undefined) return [`[APP] ${PRICING}: no app line under the merchant-of-record line`];
   if (line !== APP_COPY.pricingLine[variant]) fail(`the app line is not the "${variant}" variant's, as plain text`);
