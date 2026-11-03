@@ -105,7 +105,7 @@ describe("the set is three members, one chassis (ADR 0905)", () => {
     expect.soft(MEMBERS.map((m) => m.caption)).toEqual([
       "price $184.52 · AUG 28",
       "last 90 sessions · the levels",
-      "your 2× Jul 17 175C/190C · breakeven $181.20",
+      "your 2× Dec 18 175C/190C · breakeven $181.20",
     ]);
   });
 });

@@ -8,7 +8,7 @@ describe("the position phone", () => {
 
   it("shows the NVDA spread's P&L, its share of the debit and the facts at expiry", () => {
     expect.soft(p.title).toBe("NVDA Bull call spread");
-    expect.soft(p.legs).toBe("2 contracts · 175/190 calls · Jul 17");
+    expect.soft(p.legs).toBe("2 contracts · 175/190 calls · Dec 18");
     expect.soft(p.pnl).toBe("+$612");
     expect.soft(p.pnlOfDebit).toBe("+49.4% of the $1,240 debit");
     expect.soft(p.facts).toBe("Breakeven $181.20 · Max loss −$1,240 · Max gain +$1,760");

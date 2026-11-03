@@ -135,6 +135,13 @@ export const APP_COPY = Object.freeze({
     iphone: "Yes. Sign in with the same email and your plan works on the web and on iPhone. Plans are sold in both places.",
     android: "Yes. Sign in with the same email and your plan works on the web and on Android. Plans are sold on the web.",
   }),
+  // S7 (app-launch-kit.md §5): the Pricing page's line under the merchant-of-record one. Sale sentence
+  // first, so "Android" never sits beside a sale word; a store is named only where that app is live.
+  pricingLine: Object.freeze({
+    both: "Plans are sold on the web and in the iPhone app. Sign in with the same email and your plan works on the web, iPhone and Android.",
+    iphone: "Plans are sold on the web and in the iPhone app. Sign in with the same email and your plan works on both.",
+    android: "Plans are sold on the web. Sign in with the same email and your plan works on the web and on Android.",
+  }),
   closing: "Get TwiceOver on your phone.",
   previewCaption: "The same account on every screen.",
   // §4 links, one label across the product.

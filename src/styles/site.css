@@ -1530,6 +1530,7 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 /* Centred under the cards since v2.40 — the page's axis is the band's, not the column's. The
    section table now follows it, so its closing margin is the table's opening one. */
 .mor-line { font-size: var(--font-size-200); color: var(--color-text-muted); max-width: 65ch; text-align: center; margin: var(--space-400) auto 0; }
+.mor-line + .mor-line { margin-top: var(--space-100); }
 
 /* ── Section-by-plan table (ADR 0912 Amendment 1 ruling 2, #3829) ───────────────────────
    One list, grouped by the plan that adds each section, rendered from src/data/sections.mjs.
@@ -2017,9 +2018,15 @@ main { padding-block-end: var(--space-800); }
 .app-both__phone { position: absolute; right: 0; top: 70px; transform: scale(0.62); transform-origin: top right; }
 .phone--flat { box-shadow: none; }
 @media (max-width: 639px) {
-  /* The web window is wider than a phone's column; it keeps its row and the phone overlaps it. */
-  .app-both { height: 27rem; }
+  /* Stacked (Designer ruling, app-launch-surfaces.md §3): the web window takes the whole column with
+     ticker, structure and P&L in every row, and the phone sits under it, right-aligned, over only the
+     window's empty bottom padding — no row is covered. The scaled phone's wrapper is sized to its
+     scaled width, since a transform does not shrink the layout box. */
+  .app-both { height: auto; }
   .app-both__rule { display: none; }
+  .app-both__web { position: relative; width: 100%; height: auto; padding-bottom: 3rem; }
+  .app-both__phone { position: relative; right: auto; top: auto; transform: none; width: calc(19rem * 0.62); aspect-ratio: var(--phone-aspect); margin: -3rem 0 0 auto; }
+  .app-both__phone .phone { position: absolute; top: 0; right: 0; margin: 0; transform: scale(0.62); transform-origin: top right; }
 }
 .app-close { flex-direction: row; flex-wrap: wrap; align-items: center; gap: var(--space-400) var(--space-600); }
 .app-close .closing-band__heading { flex: 1 1 22rem; }

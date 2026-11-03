@@ -16,6 +16,9 @@ const BADGES = (stores, variant) =>
 const HOW = `<p class="closing-band__app"><a href="/app">Or get the mobile app →</a></p>`;
 const END = `<a href="/">or go to twiceover.io</a><span class="e-sep" aria-hidden="true">·</span><a href="/app">get the mobile app</a>`;
 
+const PRICING = (variant, line = APP_COPY.pricingLine[variant]) =>
+  `<p class="mor-line">Subscriptions are sold by Dodo.</p><p class="mor-line">${line}</p><h2 id="plans-title">What each plan includes</h2>`;
+
 function site({ variant = "iphone", stores = ["apple"], banner = true } = {}) {
   const b = banner ? BANNER : "";
   const page = (body, current = false) => `<head>${b}</head>${HEADER(current)}${body}${FOOTER}`;
@@ -28,6 +31,7 @@ function site({ variant = "iphone", stores = ["apple"], banner = true } = {}) {
       "how-our-analysis-works/index.html": page(HOW),
       "your-portfolio/index.html": page(HOW),
       "blog/a-post/index.html": page(END),
+      "pricing/index.html": page(PRICING(variant)),
       "in-app/terms/index.html": "<head></head><main>terms</main>",
     },
   };
@@ -112,5 +116,40 @@ describe("appLaunchFailures", () => {
     const s = site();
     s.pages["index.html"] = s.pages["index.html"].replace(HEADER(), HEADER(true));
     expect(appLaunchFailures(s).join()).toMatch(/marked current/);
+  });
+
+  describe("the Pricing line (S7)", () => {
+    const failuresWith = (variant, stores, body) => {
+      const s = site({ variant, stores });
+      s.pages["pricing/index.html"] = `<head></head>${HEADER()}${body}${FOOTER}`;
+      return appLaunchFailures(s).join("\n");
+    };
+    it("passes each variant's own line, verbatim", () => {
+      expect.soft(appLaunchFailures(site({ variant: "both", stores: ["apple", "play"] }))).toEqual([]);
+      expect.soft(appLaunchFailures(site({ variant: "android", stores: ["play"], banner: false }))).toEqual([]);
+    });
+    it("fails the line missing, in the wrong place, or another variant's", () => {
+      expect.soft(failuresWith("iphone", ["apple"], `<p class="mor-line">x</p>`)).toMatch(/no app line/);
+      expect.soft(failuresWith("iphone", ["apple"], PRICING("iphone", APP_COPY.pricingLine.both))).toMatch(/not the "iphone" variant's/);
+      expect.soft(failuresWith("iphone", ["apple"], `<p class="mor-line">a</p><h2 id="plans-title">p</h2><p class="mor-line">${APP_COPY.pricingLine.iphone}</p>`)).toMatch(/before "What each plan includes"/);
+    });
+    it("fails a link inside the line", () => {
+      const linked = `<a href="/app">${APP_COPY.pricingLine.iphone}</a>`;
+      expect.soft(failuresWith("iphone", ["apple"], PRICING("iphone", linked))).toMatch(/plain text/);
+    });
+    it("fails the iPhone-only variant naming Android, and the Android-only naming iPhone", () => {
+      expect.soft(failuresWith("iphone", ["apple"], PRICING("iphone", `${APP_COPY.pricingLine.iphone} Android soon.`))).toMatch(/iPhone-only variant names Android/);
+      expect.soft(failuresWith("android", ["play"], PRICING("android", `${APP_COPY.pricingLine.android} iPhone soon.`))).toMatch(/Android-only variant names iPhone/);
+    });
+    it("fails Android in a sentence with buy or subscribe, in every variant", () => {
+      for (const [variant, stores] of [["both", ["apple", "play"]], ["android", ["play"]]]) {
+        for (const word of ["Buy on Android.", "Subscribe on Android."]) {
+          expect.soft(failuresWith(variant, stores, PRICING(variant, `${APP_COPY.pricingLine[variant]} ${word}`))).toMatch(/beside buy or subscribe/);
+        }
+      }
+    });
+    it("fails a badge or QR drawn on the Pricing page", () => {
+      expect.soft(failuresWith("iphone", ["apple"], PRICING("iphone") + BADGES(["apple"], "iphone"))).toMatch(/pricing.*apple badge/);
+    });
   });
 });

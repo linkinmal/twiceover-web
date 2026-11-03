@@ -71,8 +71,8 @@ export function money(v) {
 export const PRICE_CAPTION = `price ${money(SPOT)} · ${LAST_CLOSE_DATE}`;
 
 /**
- * Structure 1 of the page's held position — a **2× Jul 17 175C/190C bull call spread**, the exact
- * structure `ai-team/design/read-held-position.md` line 37 makes canonical: "+2 Jul 17 175C / −2 Jul
+ * Structure 1 of the page's held position — a **2× Dec 18 175C/190C bull call spread**, the exact
+ * structure `ai-team/design/read-held-position.md` line 37 makes canonical: "+2 Dec 18 175C / −2 Jul
  * 17 190C, net debit $6.20/spread ($1,240 total) … max profit $1,760, max loss $1,240, breakeven
  * $181.20". Not the chart artifact's covered call — a covered-call shape here would contradict the
  * row directly above it.
@@ -88,7 +88,7 @@ export const SPREAD = {
   contracts: 2,
   netDebit: 1240,
   breakeven: 181.2,
-  expiry: "Jul 17",
+  expiry: "Dec 18",
   /** Per-contract multiplier — 100 shares, the standard US equity option. */
   multiplier: 100,
 };

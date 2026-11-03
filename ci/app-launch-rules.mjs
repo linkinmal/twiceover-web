@@ -13,6 +13,8 @@ const FOOTER_APP = /<nav class="footer-links"[^]*?<a href="\/app">Mobile app<\/a
 // Pages that carry the badges and the QR, and how many sets each draws.
 const BADGE_PAGES = { "index.html": 1, "app/index.html": 2 };
 const HOW_PAGES = ["how-our-analysis-works/index.html", "your-portfolio/index.html"];
+const PRICING = "pricing/index.html";
+const MOR_LINE = /<p class="mor-line">([^]*?)<\/p>/g;
 
 const isInApp = (rel) => rel.startsWith("in-app/");
 const isPost = (rel, postSlugs) => postSlugs.some((slug) => rel === `blog/${slug}/index.html`);
@@ -62,7 +64,8 @@ export function appLaunchFailures({ pages, variant, postSlugs = [] }) {
       fail(rel, "the post's end has no get the mobile app link beside or go to twiceover.io");
     }
   }
-  for (const rel of [...Object.keys(BADGE_PAGES), ...HOW_PAGES]) {
+  if (PRICING in pages) failures.push(...pricingFailures(pages[PRICING], variant));
+  for (const rel of [...Object.keys(BADGE_PAGES), ...HOW_PAGES, PRICING]) {
     if (!(rel in pages)) fail(rel, "page missing from the build");
   }
   // Control: with posts to build, at least one was checked, or the post-end rule matched nothing.
@@ -70,4 +73,28 @@ export function appLaunchFailures({ pages, variant, postSlugs = [] }) {
     fail("blog/", "no built post page matched a post slug: the post-end link rule checked nothing");
   }
   return failures;
+}
+
+// S7 (app-launch-kit.md §5; Designer ruling, stock-analyst-platform#4598): the Pricing page's one plain
+// line under the merchant-of-record paragraph and above "What each plan includes" — text only, so no
+// link, button, badge or QR. It names a store only where that app is live, and "Android" never shares
+// a sentence with a sale word.
+function pricingFailures(html, variant) {
+  const out = [];
+  const fail = (msg) => out.push(`[APP] ${PRICING}: ${msg}`);
+  const lines = [...html.matchAll(MOR_LINE)].map((m) => m[1]);
+  const line = lines[1];
+  if (line === undefined) return [`[APP] ${PRICING}: no app line under the merchant-of-record line`];
+  if (line !== APP_COPY.pricingLine[variant]) fail(`the app line is not the "${variant}" variant's, as plain text`);
+  const at = html.indexOf(line);
+  const plans = html.indexOf('id="plans-title"');
+  if (plans === -1 || at > plans) fail('the app line does not sit before "What each plan includes"');
+  if (variant === "iphone" && /android/i.test(line)) fail("the iPhone-only variant names Android");
+  if (variant === "android" && /iphone/i.test(line)) fail("the Android-only variant names iPhone");
+  for (const sentence of line.split(/(?<=\.)\s+/)) {
+    if (/android/i.test(sentence) && /\b(buy|subscribe)/i.test(sentence)) {
+      fail(`"${sentence}" puts Android beside buy or subscribe`);
+    }
+  }
+  return out;
 }
