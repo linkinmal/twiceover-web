@@ -9,8 +9,8 @@
 <rect width="1200" height="630" fill="#F7F3EA"/>
 <g transform="translate(72 64) scale(1.375)"><rect x="5" y="11" width="22" height="3.4" rx="1.7" fill="#23436F"/><rect x="10" y="18" width="17" height="3.4" rx="1.7" fill="#23436F" opacity="0.55"/></g>
 <text class="word" x="128" y="98">Twice<tspan class="o">O</tspan>ver</text>
-<text class="headline" x="72" y="212">Your book, checked</text>
-<text class="headline" x="72" y="277">against your rules,</text>
+<text class="headline" x="72" y="212">Your book,</text>
+<text class="headline" x="72" y="277">your rules,</text>
 <text class="headline" x="72" y="342">on your phone.</text>
 <text class="cap" x="72" y="404">The same account on every screen.</text>
 <text class="foot" x="72" y="558">twiceover.io/app</text>

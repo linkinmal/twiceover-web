@@ -561,7 +561,7 @@ export const APP_CARD = {
   file: "og-card-app.png",
   svg: "app.svg",
   /** Growth's headline at 60px serif in the board's 600px column: three lines. */
-  headline: { x: 72, baselines: [212, 277, 342], lines: ["Your book, checked", "against your rules,", "on your phone."] },
+  headline: { x: 72, baselines: [212, 277, 342], lines: ["Your book,", "your rules,", "on your phone."] },
   caption: { x: 72, baseline: 404 },
   foot: { x: 72, baseline: 558, text: "twiceover.io/app" },
   mark: { x: 72, y: 64, size: 44 },

@@ -81,9 +81,9 @@ export function assertBadgeArt(variant, publicDir = join(process.cwd(), "public"
 
 /** Growth §5 and the Designer's boards — the strings the surfaces share. */
 export const APP_COPY = Object.freeze({
-  headline: "Your book, checked against your rules, on your phone.",
+  headline: "Your book, your rules, on your phone.",
   sub: "One account on your phone and the web, so your rules and your connected broker come with you.",
-  title: "TwiceOver mobile app: your book, checked against your rules",
+  title: "TwiceOver mobile app: your book, your rules",
   description:
     "Your profit targets and loss limits, checked on the positions they fit. One account on your phone and the web.",
   // Homepage section, three phones in the order a trader moves (§2; Main board).

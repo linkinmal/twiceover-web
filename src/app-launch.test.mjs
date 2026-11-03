@@ -50,11 +50,11 @@ describe("the site variant (app-launch-surfaces.md §2 Variants)", () => {
 // is a copy change in those documents first.
 describe("the launch copy, verbatim", () => {
   it("carries Growth's strings", () => {
-    expect.soft(APP_COPY.headline).toBe("Your book, checked against your rules, on your phone.");
+    expect.soft(APP_COPY.headline).toBe("Your book, your rules, on your phone.");
     expect
       .soft(APP_COPY.sub)
       .toBe("One account on your phone and the web, so your rules and your connected broker come with you.");
-    expect.soft(APP_COPY.title).toBe("TwiceOver mobile app: your book, checked against your rules");
+    expect.soft(APP_COPY.title).toBe("TwiceOver mobile app: your book, your rules");
     expect
       .soft(APP_COPY.description)
       .toBe("Your profit targets and loss limits, checked on the positions they fit. One account on your phone and the web.");
