@@ -39,7 +39,7 @@ const pageText = [index, ...components].map(text).join(" ");
 const PINNED = [
     ["hero", [
       "A second look at your own book.",
-      "Every position in your brokerage account, checked against the rules you set.",
+      "The rules you set, checked on every position they fit in your brokerage account.",
       "Connect your broker →",
       "Or analyze any US-listed stock, down to a projected price for each horizon. No account needed.",
       "Analyze",
