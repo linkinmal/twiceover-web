@@ -1,11 +1,11 @@
 // The app launch surfaces (app-launch-surfaces.md, consult 1178, stock-analyst-platform#4598): which
 // stores the site shows, where their badges lead, and the copy every surface shares.
 //
-// THE VARIANT is a build-time choice, one held PR for three sites (§2 "Variants"): both stores,
+// THE VARIANT is a build-time choice, one held PR with three build variants (§2 "Variants"): both stores,
 // iPhone only, Android only. The site shows only the stores that are live; nothing else moves.
 // `SITE_APP_STORES` selects it at build; unset, the committed default below is used. An unknown value
-// fails the build rather than guessing a store. When both apps are live this switch has done its job
-// and should be removed (both, always).
+// fails the build rather than guessing a store. Its retirement once both apps are live is tracked on the
+// trip-wires issue (stock-analyst-platform#4598).
 //
 // COPY is Growth's (app-launch-kit.md §5) where Growth wrote it, the Designer's (§3 and the boards)
 // where the spec says so. Never reword either here; change the source doc and copy it across.
@@ -51,7 +51,7 @@ export const STORE_BADGE_CREDIT =
  *  (ci/content-rules.mjs, stock-analyst-platform#4597) reads it from the built pages. */
 export const BADGE_MARKER = "data-store-badge";
 
-/** What one variant shows: the badges, in Apple-first order, and the line under a lone badge. */
+/** What one variant shows: which badges (StoreBadges.astro draws Apple's first), and the line under a lone badge. */
 export function storesFor(variant) {
   parseAppStores(variant);
   return {
@@ -63,8 +63,8 @@ export function storesFor(variant) {
   };
 }
 
-/** Fails the build when a variant needs badge art that is not committed, instead of an empty slot. */
-// The project root, not this module's URL: Astro bundles it into dist/chunks before it runs.
+/** Fails the build when a variant needs badge art that is not committed, instead of an empty slot.
+ *  `publicDir` defaults to the project root's, not this module's URL: Astro bundles it into dist/chunks. */
 export function assertBadgeArt(variant, publicDir = join(process.cwd(), "public")) {
   const { apple, play } = storesFor(variant);
   const missing = [apple && BADGE_ART.apple, play && BADGE_ART.play].filter(

@@ -35,7 +35,7 @@
  * v1.0.0 (ADR 0035, two-theme "Ledger" identity; consult 0067): the site-safe
  * semantic set lives under themes.light (default) / themes.dark (variant). This
  * build emits themes.light -> :root and themes.dark -> [data-theme="dark"];
- * theme-invariant groups (font.*, typography.*, space.*, radius.*, layer.*, phone.*) emit once into
+ * theme-invariant groups (font.*, typography.*, space.*, radius.*) emit once into
  * :root. App-only groups (signal, health, elevation, motion, path-card) sit
  * OUTSIDE themes.* at the JSON root and are NEVER walked by this build (#34, Q5).
  *
@@ -44,6 +44,9 @@
  * accent-surface.{light,dark}.* (reserved Paths/Outlook standout), surface.panel
  * (full-bleed parchment band), text-link (inline link/handle blue). Each emits
  * --accent-surface-*, --surface-panel, --text-link per theme.
+ *
+ * v2.13.0 (stock-analyst-platform#4598): `phone.*`, the neutral phone frame, theme-invariant, emits
+ * once into :root.
  *
  * Two CI gates run before the CSS is written (both process.exit(1) on failure):
  *  - Contrast gate (consult 0067 Q2): WCAG 2.1 AA over every site-safe text/accent
@@ -232,8 +235,9 @@ for (const [name, def] of Object.entries(tokens.layer)) {
   if (name.startsWith("$")) continue;
   css.push(`  --layer-${name}: ${resolve(def.$value)};`);
 }
-// The one neutral phone frame (app-launch-surfaces.md §1, stock-analyst-platform#4598). Ratios of the
-// frame width; site.css multiplies them by the phone's own width. Theme-invariant, like the frame.
+// The one neutral phone frame (app-launch-surfaces.md §1, stock-analyst-platform#4598). Bezel width and
+// radii are ratios of the frame width, which site.css multiplies by the phone's own width; colour,
+// aspect and shadow emit as they are.
 const phone = tokens.phone;
 const shadow = resolve(phone.shadow.$value);
 css.push(`  --phone-bezel-color: ${resolve(phone.bezel.color.$value)};`);

@@ -14,7 +14,7 @@
  *         is a purchase path outside Apple's IAP (ADR 1018 Decision 4).
  *   STRIP — the home page's "From the blog" titles leave the banned-term scan, by a marker honored on index.html only
  *         and only for a title that is a post's own heading; the phrase floor still reads them (ADR 1090 Amendment 3).
- *   BADGE-CREDIT — any built page showing a store badge needs the trademark credit on the built Terms
+ *   BADGE-CREDIT — any built page showing a store badge (its `data-store-badge` attribute, BADGE_MARKER) needs the trademark credit on the built Terms
  *         page (stock-analyst-platform#4597).
  *   BLOG — posts under blog/<slug> leave the banned-word scan for a phrase floor; the blog index and
  *         topic pages keep it after their exact post titles are subtracted; every other page,

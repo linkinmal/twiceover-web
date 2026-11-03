@@ -1,7 +1,8 @@
 // The three app screens the site's neutral phone shows (app-launch-surfaces.md §1–§3, Phone board):
 // Your Portfolio, one position, an analysis. Every figure comes out of `site-fixture.mjs`, the same book
 // and the same NVDA read the hero deck and the explainers draw, so a phone cannot disagree with them.
-// Geometry is computed here, not traced from the board's sketch, so it moves with the numbers.
+// Geometry is computed here, not traced from the board's sketch, so the points move with the numbers;
+// each plot's scale is fixed, and phone-screens.test.mjs fails a point that falls outside its plot.
 import {
   AS_OF,
   AS_OF_CLOCK,
@@ -21,7 +22,7 @@ import {
 
 const round = (v) => Number(v.toFixed(1));
 
-/** `Aug 31`, the analysis stamp's date, from the fixture's own as-of instant (UTC date, ET clock). */
+/** `Aug 31`, the analysis stamp's date, from the fixture's own as-of instant: the ET date, so it agrees with the ET clock. */
 function stampDate(iso) {
   return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "America/New_York" });
 }

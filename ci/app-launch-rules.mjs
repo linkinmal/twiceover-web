@@ -1,7 +1,7 @@
 // The app launch surfaces, held against the built pages for the variant that was built
 // (app-launch-surfaces.md §2–§4, stock-analyst-platform#4598). Pure: `check-app-launch.mjs` walks
 // dist/ and hands the pages here; `app-launch-rules.test.mjs` holds each rule to a page that breaks it.
-import { storesFor } from "../src/app-launch.mjs";
+import { APP_COPY, storesFor } from "../src/app-launch.mjs";
 
 const count = (html, re) => (html.match(re) ?? []).length;
 const BANNER = /<meta name="apple-itunes-app" content="app-id=6804799140">/g;
@@ -34,6 +34,17 @@ export function appLaunchFailures({ pages, variant, postSlugs = [] }) {
     }
     const qrs = count(html, QR);
     if (qrs !== sets) fail(rel, `expected ${sets} QR code(s), found ${qrs}`);
+    if (sets) {
+      // The plain line under a lone badge names the other store; both stores, no line.
+      const lines = count(html, /<p class="store-badges__next">([^<]*)<\/p>/g);
+      const right = want.comingSoon ? count(html, new RegExp(`<p class="store-badges__next">${want.comingSoon}</p>`, "g")) : 0;
+      if (lines !== (want.comingSoon ? sets : 0) || right !== lines) {
+        fail(rel, `expected ${want.comingSoon ? `${sets} "${want.comingSoon}" line(s)` : "no coming-soon line"} in the "${variant}" variant`);
+      }
+    }
+    if (rel === "app/index.html" && !html.includes(APP_COPY.planAnswer[variant])) {
+      fail(rel, `the plan answer is not the "${variant}" variant's`);
+    }
 
     if (html.includes('class="site-header"')) {
       if (count(html, NAV_APP) !== 1) fail(rel, "the header has no Mobile app link to /app");
@@ -53,6 +64,10 @@ export function appLaunchFailures({ pages, variant, postSlugs = [] }) {
   }
   for (const rel of [...Object.keys(BADGE_PAGES), ...HOW_PAGES]) {
     if (!(rel in pages)) fail(rel, "page missing from the build");
+  }
+  // Control: with posts to build, at least one was checked, or the post-end rule matched nothing.
+  if (postSlugs.length && !Object.keys(pages).some((rel) => isPost(rel, postSlugs))) {
+    fail("blog/", "no built post page matched a post slug: the post-end link rule checked nothing");
   }
   return failures;
 }

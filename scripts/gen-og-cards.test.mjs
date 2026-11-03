@@ -598,11 +598,19 @@ describe("the /app link preview", () => {
     expect(readFileSync(join(root, "scripts/og-cards", APP_CARD.svg), "utf8")).toBe(appCardSvg());
   });
 
+  // P&L colours: the site build emits no signal.* group (app-only, build-tokens.mjs containment), so the
+  // card uses the same hex fallbacks site.css's .up/.dn rules do.
   it("carries Growth's headline and caption, and names no store, so one image serves every variant", () => {
     const svg = appCardSvg();
     expect.soft(APP_CARD.headline.lines.join(" ")).toBe(APP_COPY.headline);
     expect.soft(svg).toContain(APP_COPY.previewCaption);
     expect.soft(svg).not.toMatch(/App Store|Google Play|iPhone|Android/);
+  });
+
+  it("the committed PNG is a 1200×630 image", () => {
+    const png = readFileSync(join(root, "public", APP_CARD.file));
+    expect.soft(png.subarray(1, 4).toString("ascii")).toBe("PNG");
+    expect.soft([png.readUInt32BE(16), png.readUInt32BE(20)]).toEqual([CARD.w, CARD.h]);
   });
 
   it("is the PNG /app passes to Base.astro", () => {

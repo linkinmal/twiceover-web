@@ -223,8 +223,8 @@ export const FUNDAMENTALS = {
 
 /**
  * Your Portfolio, as the homepage draws it (homepage v3.4, stock-analyst-platform#3829): the hero
- * deck's Portfolio card, the Portfolio section's list, and the phone. One book, so the three cannot
- * disagree. Ordered by rule state — reached first — as the product orders it.
+ * deck's Portfolio card, the Portfolio section's list, and every Your Portfolio phone (homepage, /app,
+ * the /app share card). One book, so none can disagree. Ordered by rule state — reached first — as the product orders it.
  *
  * NVDA is structure 1 of the page's canonical spread (`SPREAD` above): its percent is DERIVED from
  * that structure's debit, never typed. The other three rows are the artifact's stated illustrative

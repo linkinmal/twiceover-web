@@ -1078,7 +1078,7 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 /* ── Store badges and the QR (§2 "Badges", "QR") ── 44px tall, a quarter of the height clear all
    round, nothing inside it. The QR shows only where a pointer can hover, at 820px and up: no device
    is detected, the media query decides. */
-.store-badges__row { display: flex; flex-wrap: wrap; gap: var(--space-150); }
+.store-badges__row { display: flex; flex-wrap: wrap; gap: 22px; } /* two 11px clear zones, never shared */
 .store-badge { display: inline-block; padding: 11px; margin: -11px; line-height: 0; }
 .store-badge img { height: 44px; width: auto; display: block; }
 .store-badges__next { margin: var(--space-150) 0 0; font-size: var(--font-size-200); color: var(--color-text-muted); }
@@ -1988,7 +1988,7 @@ main { padding-block-end: var(--space-800); }
 .connect .connect__head { max-width: 32ch; }
 .pricing-stat__more { max-width: 30ch; margin: var(--space-100) 0 0; font-size: var(--font-size-200); color: var(--color-text-secondary); }
 
-/* The phone shows Your Portfolio: each row's P/L floats right of its title, its rule beneath. */
+/* On the Your Portfolio screen, each row's P/L floats right of its title, its rule beneath. */
 .phone__pl { float: right; }
 .phone__rule { margin: 2px 0 0; font-size: 11px; }
 .phone__rule i { font-style: normal; }

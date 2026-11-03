@@ -16,7 +16,7 @@ describe("the position phone", () => {
 
   it("fills the target meter by the P&L's share of the 60% target", () => {
     expect.soft(p.rule.text).toBe("Option target 60% · approaching");
-    expect.soft(p.meterPct).toBeCloseTo((49.4 / 60) * 100, 1);
+    expect.soft(p.meterPct).toBe(82.3);
     expect.soft(p.meterNow).toBe("49.4%");
     expect.soft(p.meterTarget).toBe("your 60%");
   });
@@ -31,6 +31,25 @@ describe("the position phone", () => {
     expect.soft(p.spot.x).toBeGreaterThan(pts[1][0]);
     expect.soft(p.spot.x).toBeLessThan(pts[2][0]);
     expect.soft(p.spot.y).toBeLessThan(p.zeroY);
+  });
+});
+
+// Known-good geometry, so a scale edit that throws a point off the plot fails here rather than on screen.
+const inside = (points, w, h) => points.every(([x, y]) => x >= 0 && x <= w && y >= 0 && y <= h);
+const parse = (s) => s.split(" ").map((xy) => xy.split(",").map(Number));
+
+describe("the phone plots' geometry", () => {
+  it("the payoff runs at the recorded coordinates, inside its 256×86 plot", () => {
+    const p = positionScreen();
+    expect.soft(p.payoff).toBe("8,74.8 66,74.8 190,14.8 248,14.8");
+    expect.soft(p.spot).toEqual({ x: 144.7, y: 36.7 });
+    expect.soft(inside([...parse(p.payoff), [p.spot.x, p.spot.y]], 256, 86)).toBe(true);
+  });
+
+  it("the projection runs at the recorded coordinates, and every point sits inside the 256×118 plot", () => {
+    const a = analysisScreen();
+    expect.soft(a.projection).toBe("146,68.6 176,84.4 212,50.6 246,19.2");
+    expect.soft(inside([...parse(a.history), ...parse(a.projection)], 256, 118)).toBe(true);
   });
 });
 

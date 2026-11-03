@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 /**
  * The site's share image — a rotating set of three cards (ADR 0905, stock-analyst-platform#2988 /
- * #3508). Run via `npm run gen:og-cards`; the PNGs are committed, like the favicons.
+ * #3508). Run via `npm run gen:og-cards`; the PNGs are committed, like the favicons. It also writes the
+ * /app link preview (`APP_CARD`, stock-analyst-platform#4598), outside the rotation, whose phone is
+ * drawn by `phoneSvg` rather than a chart module.
  *
  * **Why three files rather than one that changes.** Replacing the bytes at an existing `og:image`
  * URL changes nothing anyone sees: Meta documents it outright — *"We cache all images referenced
@@ -578,8 +580,8 @@ function ruleMarkSvg(state, cx, cy, ink) {
   return ring + `<path d="M${cx} ${cy - r}a${r} ${r} 0 0 0 0 ${2 * r}z" fill="${ink}"/>`;
 }
 
-/** The neutral phone with Your Portfolio on it, as SVG, at 304×656 before scaling: the same screen
- *  `Phone.astro` draws, from the same fixture and the same `phone.*` tokens. */
+/** The neutral phone with Your Portfolio on it, as SVG, at 304×656 before scaling: the screen
+ *  `Phone.astro` draws, redrawn for resvg from the same fixture and the same `phone.*` tokens. */
 export function phoneSvg(tokens) {
   const t = (name) => tokens.get(name);
   const W = 304;

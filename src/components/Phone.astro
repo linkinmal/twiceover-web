@@ -4,7 +4,7 @@
 // app's own masthead and ends at its tab bar. The frame binds the `phone` token group (site.css), so
 // a change to the frame is a token change, never an override here. Every figure is the site fixture's
 // (`charts/phone-screens.mjs`).
-import { PORTFOLIO, RULE_MARK, signedMoney } from "../charts/site-fixture.mjs";
+import { NVDA_OPTION_TARGET_PCT, PORTFOLIO, RULE_MARK, signedMoney } from "../charts/site-fixture.mjs";
 import { analysisScreen, positionScreen } from "../charts/phone-screens.mjs";
 
 interface Props {
@@ -15,7 +15,7 @@ const { screen, class: extra } = Astro.props;
 
 const LABELS = {
   portfolio: "TwiceOver on a phone, showing Your Portfolio with each position and the rule it is near",
-  position: "TwiceOver on a phone, showing an NVDA bull call spread against its 60% option target",
+  position: `TwiceOver on a phone, showing an NVDA bull call spread against its ${NVDA_OPTION_TARGET_PCT}% option target`,
   analysis: "TwiceOver on a phone, showing the analysis of NVDA with its three projected prices",
 };
 const position = screen === "position" ? positionScreen() : null;

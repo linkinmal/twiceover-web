@@ -4,8 +4,9 @@
  * once into `src/assets/app-qr.svg` and inlined by `AppQr.astro`. Run via `npm run gen:app-qr`; the
  * SVG is committed, like the share cards.
  *
- * Inline SVG because the site's CSP is `img-src 'self'` and serves no script that could draw one.
- * Generated here, never at runtime: `qrcode-generator` is a build-time devDependency only.
+ * Generated here, never at runtime: the site serves no script that could draw one, and
+ * `qrcode-generator` is a build-time devDependency only. Inlined into the page (`?raw`), so its modules
+ * take the text colour and it costs no request.
  * `gen-app-qr.test.mjs` regenerates it and compares against the committed file, so a change to the URL
  * or the drawing cannot leave the artwork stale.
  *

@@ -1247,7 +1247,7 @@
     }
   },
   "phone": {
-    "$description": "Site-safe, theme-invariant. The one neutral phone frame (app-launch-surfaces.md §1, stock-analyst-platform#4598): a phone, not an iPhone, today's homepage phone lifted into one group that the site CSS, the card renderer and the video component bind. Ratios of the frame width, so it holds at any size. Never drawn: Dynamic Island, notch, camera hole, side buttons, home button, an OS status bar. A change here is a versioned change, never a local override in a card or video.",
+    "$description": "Site-safe, theme-invariant. The one neutral phone frame (app-launch-surfaces.md §1, stock-analyst-platform#4598): a phone, not an iPhone, the homepage phone's frame lifted into one group, for the site CSS, the card renderer and the video component (stock-analyst-platform ai-team/growth/video) to bind. Ratios of the frame width, so it holds at any size. Never drawn: Dynamic Island, notch, camera hole, side buttons, home button, an OS status bar. A change here is a versioned change, never a local override in a card or video.",
     "bezel": {
       "color": { "$type": "color", "$value": "{color.warm-ink.900}", "$description": "One colour." },
       "width": { "$type": "number", "$value": 0.0395, "$description": "Fraction of the frame width, even all round (12px at 304px)." }
