@@ -45,7 +45,10 @@ import {
   parseTokens,
   REQUIRED_FACES,
   loadStyleSources,
+  APP_CARD,
+  appCardSvg,
 } from "./gen-og-cards.mjs";
+import { APP_COPY } from "../src/app-launch.mjs";
 import { FACES as BLOG_SHARE_FACES } from "./blog-share/card.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -586,5 +589,23 @@ describe("the member being pointed at is the one whose bytes are committed", () 
     // NOT covered here, and worth saying rather than implying: nothing checks that a face is
     // instanced at the WEIGHT its filename claims. Re-running `instance-faces.py` with a changed
     // weight would pass this and reflow the card. The rendered-card review is what catches that.
+  });
+});
+
+// The /app link preview (app-launch-surfaces.md §3 S8, stock-analyst-platform#4598).
+describe("the /app link preview", () => {
+  it("the committed SVG is what the generator draws today", () => {
+    expect(readFileSync(join(root, "scripts/og-cards", APP_CARD.svg), "utf8")).toBe(appCardSvg());
+  });
+
+  it("carries Growth's headline and caption, and names no store, so one image serves every variant", () => {
+    const svg = appCardSvg();
+    expect.soft(APP_CARD.headline.lines.join(" ")).toBe(APP_COPY.headline);
+    expect.soft(svg).toContain(APP_COPY.previewCaption);
+    expect.soft(svg).not.toMatch(/App Store|Google Play|iPhone|Android/);
+  });
+
+  it("is the PNG /app passes to Base.astro", () => {
+    expect(readFileSync(join(root, "src/pages/app.astro"), "utf8")).toContain(`image="/${APP_CARD.file}"`);
   });
 });

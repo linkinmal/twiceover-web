@@ -95,6 +95,10 @@ jobs:
       # alongside the Worker's URLSearchParams-encoded, pattern-bounded forwarding, and the
       # carried-forward bans on any .value read or fetch/XHR/WebSocket/sendBeacon on the page.
       - run: node ci/check-entry-box.mjs
+      # App launch surfaces (stock-analyst-platform#4598, app-launch-surfaces.md §2–§4): the built variant's badges
+      # (only the live stores), Safari's Smart App Banner (every full page, never Android-only or /in-app/*), the QR,
+      # and every link to /app. The variant is SITE_APP_STORES at build, unset here and there, so the committed default.
+      - run: node ci/check-app-launch.mjs
       # SITE_METRICS Worker field gate (ADR 0136 / consult 0163, #557): the six-field source assertion.
       - run: node ci/check-worker-source.mjs
       # Blog font gate (#4233, ADR 1088 Decision 2): files exist, no orphans, an OFL licence per family,

@@ -8,11 +8,13 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
+import { STORE_BADGE_CREDIT } from "../src/app-launch.mjs";
 import {
   BLOG_SCRIPTS,
   BLOG_SCRIPT_PATTERN,
   PLAYABLE_SLUG,
   PHRASE_FLOOR,
+  badgeCreditFailures,
   contentSlugFailures,
   crossPageFailures,
   deriveBlogScripts,
@@ -475,5 +477,33 @@ describe("deriveBlogScripts: the list is read from src/playables/*/client.mjs (A
     expect.soft(Object.isFrozen(BLOG_SCRIPTS)).toBe(true);
     expect.soft(BLOG_SCRIPTS.length).toBeGreaterThan(0);
     for (const u of BLOG_SCRIPTS) expect.soft(BLOG_SCRIPT_PATTERN.test(u), u).toBe(true);
+  });
+});
+
+// BADGE CREDIT (stock-analyst-platform#4597): the three fixtures the issue names, plus the fail-closed case.
+
+describe("badgeCreditFailures", () => {
+  const badge = { rel: "app/index.html", html: '<a data-store-badge="apple"><img src="/badges/app-store.svg"></a>' };
+  const termsWith = { rel: "terms/index.html", html: `<main><h2>Intellectual Property</h2><p>${STORE_BADGE_CREDIT}</p></main>` };
+  const termsWithout = { rel: "terms/index.html", html: "<main><h2>Intellectual Property</h2><p>Other text.</p></main>" };
+  const plain = { rel: "pricing/index.html", html: "<main>No badge here.</main>" };
+
+  it("fails a page with a badge when the Terms page lacks the credit", () => {
+    expect(badgeCreditFailures([badge, termsWithout]).join()).toMatch(/lacks the trademark credit/);
+  });
+
+  it("passes a page with a badge when the Terms page carries the credit", () => {
+    expect(badgeCreditFailures([badge, termsWith])).toEqual([]);
+  });
+
+  it("passes a build with no badge, credit or not", () => {
+    expect.soft(badgeCreditFailures([plain, termsWithout])).toEqual([]);
+    expect.soft(badgeCreditFailures([plain, termsWith])).toEqual([]);
+  });
+
+  it("fails closed: badge art without the marker, or a badge with no Terms page at all", () => {
+    const unmarked = { rel: "index.html", html: '<img src="/badges/google-play.svg">' };
+    expect.soft(badgeCreditFailures([unmarked, termsWith]).join()).toMatch(/cannot read it/);
+    expect.soft(badgeCreditFailures([badge]).join()).toMatch(/no built Terms page/);
   });
 });

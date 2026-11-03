@@ -190,6 +190,8 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   /* Blog (blog.md §1 ruling 10a): at 375px it would sit 1.6px from the wordmark, and the 320px header is full. */
   /* a.site-nav__blog, not .site-nav__blog: `.site-nav a` (display: inline-flex) outranks a bare class. */
   .site-nav a.site-nav__blog { display: none; }
+  /* Mobile app hides with Blog (app-launch-surfaces.md §4); the hero carries its own link instead. */
+  .site-nav a.site-nav__app { display: none; }
 }
 
 /* ── Footer ───────────────────────────────────────────────────────────── */
@@ -1057,16 +1059,51 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
   .xf-row { flex-direction: column; gap: var(--space-050); }
 }
 
-/* ── Mobile-app showcase (v2.13, new, #2179) — full-bleed, phone mockup. CSS-only
-   shimmer on the two "loading" skeleton rows; no JS. ─────────────────────────── */
+/* ── Mobile-app showcase (app-launch-surfaces.md §2, stock-analyst-platform#4598; first v2.13, #2179).
+   Copy and badges, the desktop QR behind a hairline beside them, three phones below; under 820px one
+   phone and no QR. ──────────────────────────────────────────────────────────────────────────────── */
 /* ground + strong hairline now come from .section-ground (#2216) */
-.mobile-showcase__inner { display: grid; grid-template-columns: 1fr; gap: var(--space-600); align-items: center; }
-@media (min-width: 820px) { .mobile-showcase__inner { grid-template-columns: 1fr auto; } }
 .mobile-showcase__sub { max-width: 56ch; margin: 0; color: var(--color-text-secondary); font-size: var(--font-size-400); }
-.mobile-showcase__pill { display: inline-block; border: 1px solid var(--color-border-strong); border-radius: 999px; padding: var(--space-100) var(--space-300); font-size: var(--font-size-200); color: var(--color-text-secondary); margin-top: var(--space-300); }
+.mobile-showcase__get { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-300) calc(var(--space-400) + var(--space-100)); margin-top: var(--space-400); }
+.mobile-showcase__phones { display: grid; grid-template-columns: 1fr; justify-items: center; gap: var(--space-800); margin-top: var(--space-600); }
+.mobile-showcase__phone { margin: 0; display: flex; flex-direction: column; align-items: center; gap: var(--space-200); }
+.mobile-showcase__phone figcaption { font-size: var(--font-size-200); color: var(--color-text-secondary); text-align: center; max-width: 19rem; }
+.mobile-showcase__phone--wide { display: none; }
+@media (min-width: 820px) {
+  .mobile-showcase__phones { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-600); }
+  .mobile-showcase__phone--wide { display: flex; }
+  .mobile-showcase__get .app-qr { padding-left: calc(var(--space-400) + var(--space-100)); border-left: 1px solid var(--color-border-strong); }
+}
 
-.phone { width: 19rem; height: 41rem; border-radius: 38px; background: var(--color-text-primary); padding: var(--space-150); box-shadow: 0 18px 40px color-mix(in srgb, var(--color-text-primary) 22%, transparent); margin-inline: auto; }
-.phone__screen { width: 100%; height: 100%; border-radius: 30px; background: var(--color-bg-canvas); overflow: hidden; display: flex; flex-direction: column; position: relative; }
+/* ── Store badges and the QR (§2 "Badges", "QR") ── 44px tall, a quarter of the height clear all
+   round, nothing inside it. The QR shows only where a pointer can hover, at 820px and up: no device
+   is detected, the media query decides. */
+.store-badges__row { display: flex; flex-wrap: wrap; gap: var(--space-150); }
+.store-badge { display: inline-block; padding: 11px; margin: -11px; line-height: 0; }
+.store-badge img { height: 44px; width: auto; display: block; }
+.store-badges__next { margin: var(--space-150) 0 0; font-size: var(--font-size-200); color: var(--color-text-muted); }
+.app-qr { display: none; align-items: center; gap: var(--space-200); }
+@media (hover: hover) and (pointer: fine) and (min-width: 820px) { .app-qr { display: flex; } }
+.app-qr__code { width: 116px; height: 116px; box-sizing: border-box; padding: 8px; background: #FFFFFF; border: 1px solid var(--color-border-default); border-radius: 6px; color: var(--color-text-primary); flex: 0 0 auto; }
+.app-qr__code svg { display: block; width: 100%; height: 100%; }
+.app-qr__line { margin: 0; font-size: var(--font-size-300); color: var(--color-text-primary); }
+.app-qr__hint { margin: var(--space-050) 0 0; font-family: var(--font-family-mono); font-size: var(--font-size-100); color: var(--color-text-muted); }
+
+/* ── The neutral phone (§1) ── every frame dimension is a `phone.*` token times the phone's own
+   width, so a size change is one variable and a frame change is a token change. */
+.phone {
+  --phone-w: 19rem;
+  width: var(--phone-w);
+  aspect-ratio: var(--phone-aspect);
+  box-sizing: border-box;
+  padding: calc(var(--phone-w) * var(--phone-bezel-width));
+  border-radius: calc(var(--phone-w) * var(--phone-radius-outer));
+  background: var(--phone-bezel-color);
+  box-shadow: var(--phone-shadow);
+  margin-inline: auto;
+  flex: 0 0 auto;
+}
+.phone__screen { width: 100%; height: 100%; border-radius: calc(var(--phone-w) * var(--phone-radius-screen)); background: var(--color-bg-canvas); overflow: hidden; display: flex; flex-direction: column; position: relative; }
 .phone__masthead { display: flex; align-items: center; gap: var(--space-100); padding: var(--space-300) var(--space-200) var(--space-150); border-bottom: 1px solid var(--color-border-default); }
 .phone__mark { display: flex; gap: 3px; align-items: flex-end; }
 .phone__mark i { display: block; width: 4px; height: 14px; background: var(--color-text-primary); border-radius: 1px; }
@@ -1075,7 +1112,8 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 /* The screen is a scroll viewport, so the stack running past the bottom edge is honest —
    but a hard crop reads as a layout bug. The mask fades the last few pixels into the tab
    bar so "there is more below" is the read, not "this is broken" (#2216). */
-.phone__body { flex: 1; overflow: hidden; padding: var(--space-200) var(--space-200) 0; position: relative; -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent); }
+/* 12px sides, the Phone board's (app-launch-surfaces.md §1): the screen's plots are drawn 256 wide. */
+.phone__body { flex: 1; overflow: hidden; padding: var(--space-100) var(--space-150) 0; position: relative; -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent); }
 .phone__halfbanner { font-family: var(--font-family-mono); font-size: var(--font-size-100); color: var(--color-text-muted); letter-spacing: 0.05em; margin: var(--space-050) 0 var(--space-150); }
 .phone__card { background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-small); padding: var(--space-150); margin-bottom: var(--space-150); }
 .phone__card-title { font-family: var(--font-family-serif); font-weight: var(--font-weight-semibold); font-size: var(--font-size-200); margin: 0 0 2px; }
@@ -1120,6 +1158,39 @@ a, .btn-quiet { transition: color 150ms, background-color 150ms, border-color 15
 .phone__tab { text-align: center; font-size: var(--font-size-100); color: var(--color-text-secondary); }
 .phone__tab--on { color: var(--color-accent-default); font-weight: var(--font-weight-medium); }
 .phone__tab svg { display: block; margin: 0 auto 2px; color: currentColor; }
+.phone__search { margin-left: auto; font-size: var(--font-size-300); color: var(--color-text-secondary); }
+.phone__back { margin: var(--space-050) 0; font-size: var(--font-size-100); color: var(--text-link); }
+.phone__title { margin: 0; font-family: var(--font-family-serif); font-weight: var(--font-weight-semibold); font-size: var(--font-size-300); }
+.phone__legs, .phone__stamp, .phone__facts, .phone__meter-ends { font-family: var(--font-family-mono); font-size: 10px; color: var(--color-text-muted); }
+.phone__legs { margin: 2px 0 var(--space-150); }
+.phone__big-pnl { margin: 0; font-family: var(--font-family-serif); font-weight: var(--font-weight-semibold); font-size: 28px; }
+.phone__of-debit { margin: 0 0 var(--space-150); font-size: var(--font-size-100); color: var(--color-text-secondary); }
+.phone__meter { padding: 10px; }
+.phone__meter .phone__rule { margin: 0 0 var(--space-100); }
+.phone__meter-track { position: relative; height: 6px; background: var(--color-border-default); border-radius: 3px; }
+.phone__meter-fill { height: 6px; background: var(--color-accent-default); border-radius: 3px; }
+.phone__meter-goal { position: absolute; right: 0; top: -4px; width: 2px; height: 14px; background: var(--color-text-primary); }
+.phone__meter-ends { display: flex; justify-content: space-between; margin: 6px 0 0; font-size: 9px; }
+.phone__plot { display: block; width: 100%; height: auto; margin-top: 10px; background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-small); }
+.phone__plot-zero { stroke: var(--color-border-strong); stroke-width: 1; }
+.phone__plot-line { fill: none; stroke: var(--color-text-primary); stroke-width: 1.6; }
+.phone__plot-spot { stroke: var(--color-accent-default); stroke-width: 1; stroke-dasharray: 3 3; }
+.phone__plot-dot { fill: var(--color-accent-default); }
+.phone__plot-today { font-family: var(--font-family-mono); font-size: 8px; fill: var(--color-accent-default); }
+.phone__plot-projection { fill: none; stroke: var(--color-accent-default); stroke-width: 1.6; stroke-dasharray: 4 3; }
+.phone__plot-horizon { fill: var(--color-bg-surface); stroke: var(--color-accent-default); stroke-width: 1.4; }
+.phone__facts { margin: 6px 0 0; font-size: 9px; color: var(--color-text-secondary); }
+.phone__quote { display: flex; align-items: baseline; gap: 6px; margin: 6px 0 2px; }
+.phone__ticker { font-family: var(--font-family-mono); font-weight: var(--font-weight-semibold); font-size: 17px; }
+.phone__name { font-size: var(--font-size-100); color: var(--color-text-muted); }
+.phone__price { margin-left: auto; font-family: var(--font-family-mono); font-weight: var(--font-weight-semibold); font-size: var(--font-size-200); }
+.phone__stamp { margin: 0 0 var(--space-100); letter-spacing: 0.04em; }
+.phone__horizons { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: var(--space-100); }
+.phone__horizon { background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-small); padding: 8px 6px; }
+.phone__horizon-label { margin: 0; font-family: var(--font-family-serif); font-weight: var(--font-weight-semibold); font-size: 8px; letter-spacing: 0.06em; color: var(--color-text-secondary); }
+.phone__horizon-price { margin: 4px 0 0; font-family: var(--font-family-serif); font-weight: var(--font-weight-semibold); font-size: 19px; }
+.phone__section { margin: 14px 0 6px; font-family: var(--font-family-serif); font-weight: var(--font-weight-semibold); font-size: 13px; }
+.phone__placeholder { height: 64px; padding: 0; }
 
 /* Outlook artifact — the reserved accent surface (ADR 0008), same tokens as the
    app's Paths/Outlook pair. Never rendered without the label + non-personalization
@@ -1921,3 +1992,46 @@ main { padding-block-end: var(--space-800); }
 .phone__pl { float: right; }
 .phone__rule { margin: 2px 0 0; font-size: 11px; }
 .phone__rule i { font-style: normal; }
+
+/* ── /app (app-launch-surfaces.md §3, App-Page board, stock-analyst-platform#4598) ── hero, three
+   blocks alternating text and phone on lifted and plain grounds, the FAQ, the closing band. */
+.app-hero { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-600); padding-block: var(--space-600) var(--space-800); }
+.app-hero__copy { flex: 1 1 26rem; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-400); }
+.app-hero__h1 { margin: 0; max-width: 18ch; }
+@media (min-width: 960px) { .app-hero__h1 { font-size: var(--font-size-900); } }
+.app-hero__sub { margin: 0; max-width: 46ch; font-size: var(--font-size-400); color: var(--color-text-secondary); }
+.app-block { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-800); padding-block: var(--space-800); }
+.app-block--flip { flex-direction: row-reverse; flex-wrap: wrap-reverse; }
+.app-block__copy { flex: 1 1 22rem; min-width: 0; }
+.app-block__copy h2 { margin: 0 0 var(--space-150); }
+.app-block__copy p { margin: 0; max-width: 44ch; font-size: var(--font-size-400); line-height: 1.6; color: var(--color-text-secondary); }
+.app-both { flex: 0 1 37.5rem; min-width: 0; position: relative; height: 29.5rem; }
+.app-both__web { position: absolute; left: 0; top: 0; width: 32.5rem; max-width: 100%; height: 21.25rem; background: var(--color-bg-surface); border: 1px solid var(--color-border-strong); border-radius: 10px; overflow: hidden; box-shadow: 0 12px 32px color-mix(in srgb, var(--color-text-primary) 12%, transparent); }
+.app-both__bar { height: 30px; display: flex; align-items: center; padding: 0 var(--space-150); background: var(--surface-panel); border-bottom: 1px solid var(--color-border-default); }
+.app-both__bar span { font-family: var(--font-family-mono); font-size: 11px; color: var(--color-text-muted); background: #FFFFFF; border: 1px solid var(--color-border-default); border-radius: 4px; padding: 2px 10px; }
+.app-both__body { padding: var(--space-200) 20px; }
+.app-both__row { display: flex; gap: var(--space-150); align-items: baseline; padding: 9px 0; border-bottom: 1px solid var(--color-border-default); font-size: 13px; }
+.app-both__row b { font-family: var(--font-family-serif); width: 44px; flex: 0 0 auto; }
+.app-both__row > span:nth-of-type(1) { width: 120px; flex: 0 0 auto; color: var(--color-text-primary); }
+.app-both__rule { flex: 1; color: var(--color-text-secondary); }
+.app-both__phone { position: absolute; right: 0; top: 70px; transform: scale(0.62); transform-origin: top right; }
+.phone--flat { box-shadow: none; }
+@media (max-width: 639px) {
+  /* The web window is wider than a phone's column; it keeps its row and the phone overlaps it. */
+  .app-both { height: 27rem; }
+  .app-both__rule { display: none; }
+}
+.app-close { flex-direction: row; flex-wrap: wrap; align-items: center; gap: var(--space-400) var(--space-600); }
+.app-close .closing-band__heading { flex: 1 1 22rem; }
+.app-close__get { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-400); }
+
+/* ── Links to /app (§4) ── one label: Mobile app. The hero's is a text link under the connect
+   button, under 640px only, where the header item hides. The how-pages' is a text line under the
+   closing band's two buttons, never a third button. */
+.site-nav a[aria-current="page"] { color: var(--color-text-primary); box-shadow: inset 0 -2px 0 var(--color-accent-default); }
+.hero__app-link { display: none; }
+@media (max-width: 639px) {
+  .hero__app-link { display: inline-flex; align-items: center; min-height: 44px; margin-top: var(--space-050); font-size: var(--font-size-300); color: var(--text-link); text-decoration: underline; text-underline-offset: 0.18em; }
+}
+.closing-band__app { margin: var(--space-200) 0 0; }
+.closing-band__app a { display: inline-flex; align-items: center; min-height: 44px; color: var(--text-link); }

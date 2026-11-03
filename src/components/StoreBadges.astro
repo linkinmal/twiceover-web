@@ -1,0 +1,25 @@
+---
+// The store badges (app-launch-surfaces.md §2 "Badges" and "Variants", Badges board): official artwork,
+// unaltered, Apple's first and black, Play's the same height, 44px, a quarter of the height clear all
+// round. One variant per build (`APP_STORES`); a lone badge carries the plain line naming the other.
+// Each badge carries BADGE_MARKER, which the Terms credit check reads (stock-analyst-platform#4597).
+import { APP_STORES, APP_STORE_URL, BADGE_ART, PLAY_STORE_URL, assertBadgeArt, storesFor } from "../app-launch.mjs";
+
+assertBadgeArt(APP_STORES);
+const { apple, play, comingSoon } = storesFor(APP_STORES);
+---
+<div class="store-badges">
+  <div class="store-badges__row">
+    {apple && (
+      <a class="store-badge" href={APP_STORE_URL} data-store-badge="apple">
+        <img src={BADGE_ART.apple} alt="Download on the App Store" height="44" />
+      </a>
+    )}
+    {play && (
+      <a class="store-badge" href={PLAY_STORE_URL} data-store-badge="play">
+        <img src={BADGE_ART.play} alt="Get it on Google Play" height="44" />
+      </a>
+    )}
+  </div>
+  {comingSoon && <p class="store-badges__next">{comingSoon}</p>}
+</div>

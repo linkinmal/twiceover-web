@@ -6,6 +6,7 @@
 import disclaimer from "../../content/disclaimer.txt?raw";
 import { DOOR_UTM } from "../../blog/door.mjs";
 import BlogMark from "./BlogMark.astro";
+import { APP_COPY, APP_PAGE_PATH } from "../../app-launch.mjs";
 
 interface Props {
   slug: string;
@@ -25,7 +26,7 @@ const { slug } = Astro.props;
         <input type="hidden" name="utm_medium" value={DOOR_UTM.medium} />
         <input type="hidden" name="utm_campaign" value={slug} />
         <button type="submit">Analyze</button>
-        <a href="/">or go to twiceover.io</a>
+        <a href="/">or go to twiceover.io</a><span class="e-sep" aria-hidden="true">·</span><a href={APP_PAGE_PATH}>{APP_COPY.blogEndLink}</a>
       </div>
     </form>
     <p class="e-d">{disclaimer.trim()}</p>

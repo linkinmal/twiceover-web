@@ -61,8 +61,12 @@ function divsByClass(source, className) {
 const failures = [];
 
 const EXPECTED = {
-  // 8 hero-deck slides (v2.51, stock-analyst-platform#4411) + the Portfolio section's two cards; 1 phone.
-  "index.html": { dcard: 10, phone: 1 },
+  // 8 hero-deck slides (v2.51, stock-analyst-platform#4411) + the Portfolio section's two cards; the
+  // phone section's three phones (app-launch-surfaces.md §2, stock-analyst-platform#4598).
+  "index.html": { dcard: 10, phone: 3 },
+  // The mobile app page (§3): the hero's Portfolio phone, the position and analysis blocks, and the
+  // small phone beside the web window in the third block.
+  "app/index.html": { phone: 4 },
   // The 13 section cards, the Voices and Macro pair (stock-analyst-platform#4498), and the hero's four
   // product pictures (site-prelaunch v2.54: analysis, Voices, Large options trades, Macro board).
   "how-our-analysis-works/index.html": { "xp-card": 15, "pic-card": 4 },

@@ -35,7 +35,7 @@
  * v1.0.0 (ADR 0035, two-theme "Ledger" identity; consult 0067): the site-safe
  * semantic set lives under themes.light (default) / themes.dark (variant). This
  * build emits themes.light -> :root and themes.dark -> [data-theme="dark"];
- * theme-invariant groups (font.*, typography.*, space.*, radius.*) emit once into
+ * theme-invariant groups (font.*, typography.*, space.*, radius.*, layer.*, phone.*) emit once into
  * :root. App-only groups (signal, health, elevation, motion, path-card) sit
  * OUTSIDE themes.* at the JSON root and are NEVER walked by this build (#34, Q5).
  *
@@ -232,6 +232,16 @@ for (const [name, def] of Object.entries(tokens.layer)) {
   if (name.startsWith("$")) continue;
   css.push(`  --layer-${name}: ${resolve(def.$value)};`);
 }
+// The one neutral phone frame (app-launch-surfaces.md §1, stock-analyst-platform#4598). Ratios of the
+// frame width; site.css multiplies them by the phone's own width. Theme-invariant, like the frame.
+const phone = tokens.phone;
+const shadow = resolve(phone.shadow.$value);
+css.push(`  --phone-bezel-color: ${resolve(phone.bezel.color.$value)};`);
+css.push(`  --phone-bezel-width: ${phone.bezel.width.$value};`);
+css.push(`  --phone-radius-outer: ${phone.radius.outer.$value};`);
+css.push(`  --phone-radius-screen: ${phone.radius.screen.$value};`);
+css.push(`  --phone-aspect: ${phone.aspect.width.$value} / ${phone.aspect.height.$value};`);
+css.push(`  --phone-shadow: ${shadow.offsetX} ${shadow.offsetY} ${shadow.blur} ${shadow.spread} ${shadow.color};`);
 css.push("}");
 
 // [data-theme="dark"] — variant theme color overrides only (invariants inherit :root).

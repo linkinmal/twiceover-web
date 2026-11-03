@@ -12,6 +12,7 @@
     "check": "node ci/check-content.mjs",
     "check:a11y-decor": "node ci/check-a11y-decor.mjs",
     "check:entry-box": "node ci/check-entry-box.mjs",
+    "check:app-launch": "node ci/check-app-launch.mjs",
     "check:worker": "node ci/check-worker-source.mjs",
     "check:fonts": "node ci/blog-fonts.mjs",
     "check:style": "node ci/blog-style.mjs",
@@ -24,6 +25,7 @@
     "test": "vitest run",
     "gen:favicons": "node scripts/gen-favicons.mjs",
     "gen:og-cards": "node scripts/gen-og-cards.mjs",
+    "gen:app-qr": "node scripts/gen-app-qr.mjs",
     "pregen:og-cards": "node scripts/build-tokens.mjs",
     "symbol-index:generate": "node scripts/gen-symbol-index.mjs",
     "deploy": "bash scripts/deploy.sh"
@@ -49,6 +51,7 @@
     "@resvg/resvg-js": "2.6.2",
     "esbuild": "^0.27.7",
     "jsdom": "^30.0.1",
+    "qrcode-generator": "1.4.4",
     "vitest": "^3.0.0",
     "wrangler": "^4.0.0",
     "zod": "3.25.76"

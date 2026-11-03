@@ -96,6 +96,8 @@ import { BLOG_SCRIPTS, BLOG_SCRIPT_PATTERN } from "./content-rules.mjs";
 // admits no inline exception.
 const EXPECTED_SCRIPTS = {
   "404.html": { inline: 0, external: 0 },
+  // The mobile app page (stock-analyst-platform#4598): badges, phones and the QR are drawn at build.
+  "app/index.html": { inline: 0, external: 0 },
   "cookies/index.html": { inline: 0, external: 0 },
   "delete-account/index.html": { inline: 0, external: 0 },
   // The explainer pages (stock-analyst-platform#3829) are static: every picture is drawn at build.

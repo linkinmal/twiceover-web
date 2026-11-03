@@ -11,6 +11,7 @@
 // The "Connect read-only →" CTA and header sign-in slot are same-origin /go/* redirects (#1754,
 // site-app-seam.md §3/§4); see Base.astro for the header slot.
 import Base from "../layouts/Base.astro";
+import { APP_COPY, APP_PAGE_PATH } from "../app-launch.mjs";
 import AnalysisBand from "../components/AnalysisBand.astro";
 import MobileShowcase from "../components/MobileShowcase.astro";
 import HeroDeck from "../components/HeroDeck.astro";
@@ -67,6 +68,8 @@ const blogStrip = (await getPublished()).slice(0, 3);
       <h1 class="type-display">A second look at your own book.</h1>
       <p class="sub">Every position in your brokerage account, checked against the rules you set.</p>
       <a class="btn-filled hero__cta" href="/go/connect">Connect your broker →</a>
+      {/* Under 640px only, where the header's Mobile app item hides: a text link, not a second button (app-launch-surfaces.md §4). */}
+      <a class="hero__app-link" href={APP_PAGE_PATH}>{APP_COPY.heroLink}</a>
       <p class="demo-turn">Or analyze any US-listed stock, down to a projected price for each horizon. No account needed.</p>
       {/* The live ticker handoff (#2520, ADR 0383 Amendment 1, consult 0739) — replaces the
           v2.6 fixture-only demo. A plain HTML GET submit: the browser serializes `ticker` and

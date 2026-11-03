@@ -9,6 +9,7 @@ import Mark from "../components/Mark.astro";
 import Disclaimer from "../components/Disclaimer.astro";
 import { YEAR } from "../config.mjs";
 import { assertShareImage } from "../blog/url.mjs";
+import { APP_COPY, APP_PAGE_PATH, APP_STORES, APP_STORE_ID, storesFor } from "../app-launch.mjs";
 
 interface Props {
   title: string;
@@ -37,6 +38,12 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site).href;
 const OG_CARD = "/og-card-path.png";
 const cardURL = new URL(OG_CARD, Astro.site).href;
 const ogImageURL = image ? new URL(assertShareImage(image), Astro.site).href : cardURL;
+
+// Safari's Smart App Banner (app-launch-surfaces.md §2, ADR 1179 Amendment 1, stock-analyst-platform#4598):
+// Apple's own bar, from one tag, on every full page. Not on /in-app/* (chrome "none", the iOS app's own
+// in-app browser) and not in the Android-only variant, which has no iPhone app to offer.
+const smartAppBanner = chrome === "full" && storesFor(APP_STORES).smartAppBanner;
+const onAppPage = Astro.url.pathname === APP_PAGE_PATH;
 ---
 <!doctype html>
 <html lang="en-US">
@@ -45,6 +52,7 @@ const ogImageURL = image ? new URL(assertShareImage(image), Astro.site).href : c
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {smartAppBanner && <meta name="apple-itunes-app" content={`app-id=${APP_STORE_ID}`} />}
     {chrome === "none" && <meta name="robots" content="noindex" />}
     <link rel="canonical" href={canonicalURL} />
     <meta property="og:title" content={title} />
@@ -78,8 +86,11 @@ const ogImageURL = image ? new URL(assertShareImage(image), Astro.site).href : c
         </a>
         <div class="site-header__actions">
           <nav class="site-nav" aria-label="Primary">
-            {/* Blog before Pricing, hidden below 640px like Sign in (blog.md §1 ruling 10a); Pricing stays at every width. */}
+            {/* Blog before Pricing, hidden below 640px like Sign in (blog.md §1 ruling 10a); Pricing stays at every width.
+                Mobile app between them, hidden with Blog: the bar is full below 640px (#2520); underlined on /app only
+                (app-launch-surfaces.md §4). */}
             <a class="site-nav__blog" href="/blog">Blog</a>
+            <a class="site-nav__app" href={APP_PAGE_PATH} aria-current={onAppPage ? "page" : undefined}>{APP_COPY.navLabel}</a>
             <a href="/pricing">Pricing</a>
           </nav>
           {/* Sign in / Sign up pair, founder-directed 2026-08-22 (#2520) — site-prelaunch.md
@@ -107,6 +118,8 @@ const ogImageURL = image ? new URL(assertShareImage(image), Astro.site).href : c
           {/* The two explainer pages lead the footer, on every page (ADR 0996, consult 0995). */}
           <a href="/how-our-analysis-works">How our analysis works</a>
           <a href="/your-portfolio">How Your Portfolio works</a>
+          {/* Mobile app third, beside the explainers: a product page, not a legal one (app-launch-surfaces.md §4). */}
+          <a href={APP_PAGE_PATH}>{APP_COPY.navLabel}</a>
           {/* Blog after the explainers, before Terms (blog.md §1 ruling 10b). */}
           <a href="/blog">Blog</a>
           <a href="/terms">Terms</a>

@@ -13,7 +13,11 @@
 // founder sign-off 2026-10-19 (stock-analyst-platform#4437), from App Review 3.1.2;
 // restates already-approved renewal/cancel/refund facts, no prices. Last-updated date
 // moved to October 19, 2026 on that change (was June 11, 2026 per human direction).
+// Store-badge trademark credit (Security ruling, founder-approved 2026-11-03,
+// stock-analyst-platform#4589), after the Intellectual Property paragraphs. Last-updated date moved to
+// the day that change merged (#4597); TOS_VERSION unchanged, a credit changes no right or duty.
 import Policy from "../layouts/Policy.astro";
+import { STORE_BADGE_CREDIT } from "../app-launch.mjs";
 // Set only by the /in-app/* page that renders this one (stock-analyst-platform#4033).
 const { chrome = "full" } = Astro.props;
 ---
@@ -31,7 +35,7 @@ const { chrome = "full" } = Astro.props;
   <p>These Terms of Service govern your use of the website located at https://twiceover.io and any related services provided by Halit Okumuş.</p>
   <p>By accessing https://twiceover.io, you agree to abide by these Terms of Service and to comply with all applicable laws and regulations. If you do not agree with these Terms of Service, you are prohibited from using or accessing this website or using any other services provided by Halit Okumuş.</p>
   <p>We, Halit Okumuş, reserve the right to review and amend any of these Terms of Service at our sole discretion. Upon doing so, we will update this page. Any changes to these Terms of Service will take effect immediately from the date of publication.</p>
-  <p>These Terms of Service were last updated on October 19, 2026.</p>
+  <p>These Terms of Service were last updated on November 3, 2026.</p>
 
   <h2 class="type-heading-2">Geographic Eligibility</h2>
   <p>TwiceOver is offered exclusively to residents of the United States of America. By accepting these Terms, you represent and warrant that you are a US resident. If you are not a US resident, you are not authorized to access or use this service and must discontinue use immediately. We reserve the right to restrict or terminate access based on geographic location.</p>
@@ -66,6 +70,7 @@ const { chrome = "full" } = Astro.props;
   <h2 class="type-heading-2">Intellectual Property</h2>
   <p>The intellectual property in the materials contained in this website are owned by or licensed to Halit Okumuş and are protected by applicable copyright and trademark law. We grant our users permission to download one copy of the materials for personal, non-commercial transitory use.</p>
   <p>This constitutes the grant of a license, not a transfer of title. This license shall automatically terminate if you violate any of these restrictions or the Terms of Service, and may be terminated by Halit Okumuş at any time.</p>
+  <p>{STORE_BADGE_CREDIT}</p>
 
   <h2 class="type-heading-2">Liability</h2>
   <p>Our website and the materials on our website are provided on an 'as is' basis. To the extent permitted by law, Halit Okumuş makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property, or other violation of rights.</p>

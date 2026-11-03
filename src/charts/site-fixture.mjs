@@ -236,9 +236,15 @@ export const FUNDAMENTALS = {
  */
 export const NVDA_SPREAD_PNL = 612;
 
+/** The NVDA spread's option target, the rule its Portfolio row is near (and the app phone's meter). */
+export const NVDA_OPTION_TARGET_PCT = 60;
+
+/** The analysed stock's name beside its ticker, as the app's analysis header shows it. */
+export const COMPANY_NAME = "NVIDIA Corp";
+
 const PORTFOLIO_ROWS = [
   { ticker: "SPY", structure: "Put debit spread", rule: { state: "reached", text: "Expiry 21 days · reached" }, pnl: -462, pct: -22.0 },
-  { ticker: "NVDA", structure: "Bull call spread", rule: { state: "approaching", text: "Option target 60% · approaching" }, pnl: NVDA_SPREAD_PNL, pct: Number(((NVDA_SPREAD_PNL / SPREAD.netDebit) * 100).toFixed(1)) },
+  { ticker: "NVDA", structure: "Bull call spread", rule: { state: "approaching", text: `Option target ${NVDA_OPTION_TARGET_PCT}% · approaching` }, pnl: NVDA_SPREAD_PNL, pct: Number(((NVDA_SPREAD_PNL / SPREAD.netDebit) * 100).toFixed(1)) },
   { ticker: "TSLA", structure: "Cash-secured put", rule: { state: "not-met", text: "Option target 60% · not met" }, pnl: 215, pct: 31.4 },
   { ticker: "AMD", structure: "Shares", rule: { state: "not-met", text: "Stock max loss −15% · not met" }, pnl: -806, pct: -6.3 },
 ];

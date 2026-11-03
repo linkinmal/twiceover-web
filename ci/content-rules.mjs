@@ -24,6 +24,7 @@ import { fileURLToPath } from "node:url";
 import { JSDOM } from "jsdom";
 import { isValidSlug } from "../src/blog/publish.mjs";
 import { isRootRelative } from "../src/blog/url.mjs";
+import { BADGE_MARKER, STORE_BADGE_CREDIT } from "../src/app-launch.mjs";
 
 // ---------------------------------------------------------------------------------------------
 // Compliance rules (unchanged from the pre-blog gate)
@@ -497,4 +498,33 @@ export function sitemapLocs(xml) {
 export function removedAddresses(previous, current) {
   const now = new Set(current);
   return previous.filter((u) => /^https?:\/\/[^/]+\/blog(?:\/|$)/.test(u) && !now.has(u));
+}
+
+// ---------------------------------------------------------------------------------------------
+// BADGE CREDIT — a page that shows a store badge needs Apple's and Google's trademark credit on the
+// built Terms page (Security's store-badge ruling, stock-analyst-platform#4597). "Shows a store badge"
+// is BADGE_MARKER, which StoreBadges.astro puts on every badge and nothing else carries. Fail closed:
+// a page that references the badge art without the marker is a badge the check cannot read, and fails.
+// ---------------------------------------------------------------------------------------------
+
+const BADGE_ART_REF = /\/badges\/[a-z-]+\.svg/;
+
+export function badgeCreditFailures(pages, credit = STORE_BADGE_CREDIT) {
+  const failures = [];
+  const badgePages = [];
+  for (const { rel, html } of pages) {
+    const marked = html.includes(`${BADGE_MARKER}=`);
+    if (!marked && BADGE_ART_REF.test(html)) {
+      failures.push(`[BADGE-CREDIT] ${rel}: store badge art without ${BADGE_MARKER} — the credit check cannot read it`);
+    }
+    if (marked) badgePages.push(rel);
+  }
+  if (badgePages.length === 0) return failures;
+  const terms = pages.find((p) => p.rel === "terms/index.html");
+  if (!terms) {
+    failures.push(`[BADGE-CREDIT] ${badgePages.join(", ")} show a store badge, and no built Terms page carries the credit`);
+  } else if (!textOf(terms.html).includes(normalize(credit))) {
+    failures.push(`[BADGE-CREDIT] ${badgePages.join(", ")} show a store badge, and terms/index.html lacks the trademark credit`);
+  }
+  return failures;
 }
