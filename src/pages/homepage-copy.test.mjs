@@ -54,7 +54,7 @@ const PINNED = [
       "Illustrative example with made-up figures.",
     ]],
     ["portfolio", [
-      "Your book, checked against your own rules.",
+      "Your book, with your own rules checked on the positions they fit.",
       "Connect your broker and Your Portfolio lists everything you hold. Positions that have hit one of your rules come first: a profit target, a max loss or an expiry line you set. Open a position to see its breakevens and where each rule stands on current prices. For an options structure, scenarios show it at other prices. Paths show what you could do next, from making no change to rolling, each with its math.",
       "Illustrative example with made-up positions.",
     ]],
@@ -65,7 +65,7 @@ const PINNED = [
     ]],
     ["facts strip", [
       "4",
-      "Paths for every options structure you hold: make no change, close, reduce or roll. Each comes with its math.",
+      "Paths for each options structure you hold: up to four choices, each with its math.",
       "3",
       "Horizons in every analysis: about two weeks, three months and six months out. Each gets its own projected price and date.",
     ]],
