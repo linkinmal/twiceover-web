@@ -57,7 +57,7 @@ describe("the launch copy, verbatim", () => {
     expect.soft(APP_COPY.title).toBe("TwiceOver mobile app: your book, checked against your rules");
     expect
       .soft(APP_COPY.description)
-      .toBe("Every position you hold, checked against your profit targets and loss limits. One account on your phone and the web.");
+      .toBe("Your profit targets and loss limits, checked on the positions they fit. One account on your phone and the web.");
     expect
       .soft(APP_COPY.phoneCaptions.analysis)
       .toBe("Any US-listed stock's analysis, opening with its three projected prices");

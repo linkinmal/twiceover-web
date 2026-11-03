@@ -85,11 +85,11 @@ export const APP_COPY = Object.freeze({
   sub: "One account on your phone and the web, so your rules and your connected broker come with you.",
   title: "TwiceOver mobile app: your book, checked against your rules",
   description:
-    "Every position you hold, checked against your profit targets and loss limits. One account on your phone and the web.",
+    "Your profit targets and loss limits, checked on the positions they fit. One account on your phone and the web.",
   // Homepage section, three phones in the order a trader moves (§2; Main board).
   phoneCaptions: Object.freeze({
     portfolio: "Your Portfolio, against your rules",
-    position: "One position and the rule it is near",
+    position: "One position and the rule it is nearest",
     analysis: "Any US-listed stock's analysis, opening with its three projected prices",
   }),
   homeQr: "Scan to get the app on your phone.",
@@ -99,7 +99,7 @@ export const APP_COPY = Object.freeze({
     {
       id: "app-block-rules",
       heading: "Your book, against your rules",
-      body: "Set your profit targets, loss limits and days-to-expiry rules once. TwiceOver checks each rule against the positions it fits. Every position then shows the rule it is near: reached, approaching or not met.",
+      body: "Set your profit targets, loss limits and days-to-expiry rules once. TwiceOver checks each rule against the positions it fits. Each of those positions then shows the rule it is nearest: reached, approaching or not met.",
       screen: "position",
     },
     {
@@ -146,9 +146,9 @@ export const APP_COPY = Object.freeze({
   // Homepage description, also og:description and twitter:description (app-launch-kit.md §5): names a
   // store only in a variant where that app is live.
   homeDescription: Object.freeze({
-    both: "Your positions, checked against your own rules on the web and on iPhone and Android. Any US-listed stock's analysis opens with a projected price per horizon.",
-    iphone: "Your positions, checked against your own rules on the web and on iPhone. Any US-listed stock's analysis opens with a projected price per horizon.",
-    android: "Your positions, checked against your own rules on the web and on Android. Any US-listed stock's analysis opens with a projected price per horizon.",
+    both: "Your rules, checked on the positions they fit, on the web and on iPhone and Android. Any US-listed stock's analysis opens with a projected price per horizon.",
+    iphone: "Your rules, checked on the positions they fit, on the web and on iPhone. Any US-listed stock's analysis opens with a projected price per horizon.",
+    android: "Your rules, checked on the positions they fit, on the web and on Android. Any US-listed stock's analysis opens with a projected price per horizon.",
   }),
   // Web-scoped billing copy (app-launch-kit.md §5, rows for the merchant-of-record line and the cancel FAQ).
   // With S7 saying plans are also sold in the iPhone app, an unscoped "sold by Dodo", "prices in USD" or
