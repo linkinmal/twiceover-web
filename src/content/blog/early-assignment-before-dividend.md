@@ -9,8 +9,8 @@ look: "house"
 hit: "Early assignment"
 image:
   src: "/blog-images/early-assignment-before-dividend.png"
-  alt: "TwiceOver’s Position section on an invented covered call, with its dividend note"
-  source: "TwiceOver’s Position section, on an invented position"
+  alt: "TwiceOver’s Position section on a covered call, with its dividend note"
+  source: "TwiceOver’s Position section"
   licence: "Own chart"
 sources: "Cboe on dividend risk | https://www.cboe.com/insights/posts/dont-get-stuck-paying-the-dividend-on-your-short-trade/; OIC on covered calls | https://www.optionseducation.org/strategies/all-strategies/covered-call-buy-write; OIC on T+1 | https://www.optionseducation.org/news/understanding-t-1-conversion; FINRA Notice 24-04 | https://www.finra.org/rules-guidance/notices/24-04; FINRA on assignment | https://www.finra.org/investors/insights/trading-options-understanding-assignment"
 ---
@@ -29,7 +29,7 @@ The ex-dividend date is the first day a buyer of the stock no longer gets the ne
 
 ## 2. The trade
 
-An invented company pays a quarterly dividend of $0.50 a share. Its ex-dividend date is Thursday 19 November 2026. You hold 100 shares, bought at $48.00. Against them you sold one $45 call expiring Friday 20 November, for $4.10 a share. That is a covered call.
+A company pays a quarterly dividend of $0.50 a share. Its ex-dividend date is Thursday 19 November 2026. You hold 100 shares, bought at $48.00. Against them you sold one $45 call expiring Friday 20 November, for $4.10 a share. That is a covered call.
 
 | Wednesday 18 November, at the close | Per share |
 |---|---|
