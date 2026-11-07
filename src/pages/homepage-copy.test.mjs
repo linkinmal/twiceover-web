@@ -69,10 +69,6 @@ const PINNED = [
       "3",
       "Horizons in every analysis: about two weeks, three months and six months out. Each gets its own projected price and date.",
     ]],
-    ["mobile", [
-      "The same analysis, coming to your phone.",
-      "TwiceOver is coming to iPhone and Android, with Your Portfolio, your rules and the full analysis.",
-    ]],
     ["trust plate", [
       "Real data under every number",
       "Every figure sourced",
@@ -91,6 +87,17 @@ const PINNED = [
 ];
 
 describe("the homepage states the signed-off copy", () => {
+  // The phone section's words are the /app headline and sub (app-launch-surfaces.md §2), held once in
+  // app-launch.mjs and pinned verbatim there (app-launch.test.mjs); here, that the section renders them.
+  // The lone-badge "… app coming soon." line is per variant and is checked on the built pages
+  // (ci/app-launch-rules.mjs); this pins only that the pre-launch section copy is gone.
+  it("renders the phone section from the /app headline and sub, not the pre-launch copy", () => {
+    const showcase = read(join(here, "..", "components", "MobileShowcase.astro"));
+    expect.soft(showcase).toContain("{APP_COPY.headline}");
+    expect.soft(showcase).toContain("{APP_COPY.sub}");
+    expect.soft(pageText).not.toMatch(/coming to your phone|iOS & Android · coming soon/i);
+  });
+
   for (const [section, strings] of PINNED) {
     it(`carries the ${section} strings verbatim`, () => {
       for (const s of strings) expect.soft(pageText, s).toContain(s);

@@ -14,6 +14,8 @@
  *         is a purchase path outside Apple's IAP (ADR 1018 Decision 4).
  *   STRIP — the home page's "From the blog" titles leave the banned-term scan, by a marker honored on index.html only
  *         and only for a title that is a post's own heading; the phrase floor still reads them (ADR 1090 Amendment 3).
+ *   BADGE-CREDIT — any built page showing a store badge (its `data-store-badge` attribute, BADGE_MARKER) needs the trademark credit on the built Terms
+ *         page (stock-analyst-platform#4597).
  *   BLOG — posts under blog/<slug> leave the banned-word scan for a phrase floor; the blog index and
  *         topic pages keep it after their exact post titles are subtracted; every other page,
  *         including blog games and tools, keeps it. Blog pages also meet the markup and door-form
@@ -30,6 +32,7 @@ import { join, dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   IN_APP_PAGES,
+  badgeCreditFailures,
   contentSlugFailures,
   crossPageFailures,
   disallowedInAppHrefs,
@@ -57,6 +60,8 @@ const EXPECTED_PAGES = [
   // The two explainer pages (stock-analyst-platform#3829; ADR 0990, ADR 0993).
   "how-our-analysis-works/index.html",
   "your-portfolio/index.html",
+  // The mobile app page (stock-analyst-platform#4598).
+  "app/index.html",
   "terms/index.html",
   "privacy/index.html",
   "cookies/index.html",
@@ -124,6 +129,7 @@ if (homePage && postTitles.length && markedTitleCount(homePage.html) === 0) {
   failures.push("[BLOG-STRIP] control: index.html has posts to show but no data-post-title element — the exemption is blind");
 }
 failures.push(...crossPageFailures(built, postSlugs));
+failures.push(...badgeCreditFailures(built));
 
 if (failures.length) {
   console.error("CONTENT CHECK FAILED:\n");

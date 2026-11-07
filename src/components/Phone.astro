@@ -1,0 +1,107 @@
+---
+// The one neutral phone (app-launch-surfaces.md §1, Phone board, stock-analyst-platform#4598): a phone,
+// not an iPhone. No island, notch, camera hole, buttons or OS status bar; the screen starts at the
+// app's own masthead and ends at its tab bar. The frame binds the `phone` token group (site.css), so
+// a change to the frame is a token change, never an override here. Every figure is the site fixture's
+// (`charts/phone-screens.mjs`).
+import { NVDA_OPTION_TARGET_PCT, PORTFOLIO, RULE_MARK, signedMoney } from "../charts/site-fixture.mjs";
+import { analysisScreen, positionScreen } from "../charts/phone-screens.mjs";
+
+interface Props {
+  screen: "portfolio" | "position" | "analysis";
+  class?: string;
+}
+const { screen, class: extra } = Astro.props;
+
+const LABELS = {
+  portfolio: "TwiceOver on a phone, showing Your Portfolio with each position and the rule it is nearest",
+  position: `TwiceOver on a phone, showing an NVDA bull call spread against its ${NVDA_OPTION_TARGET_PCT}% option target`,
+  analysis: "TwiceOver on a phone, showing the analysis of NVDA with its three projected prices",
+};
+const position = screen === "position" ? positionScreen() : null;
+const analysis = screen === "analysis" ? analysisScreen() : null;
+---
+<div class:list={["phone", extra]} role="img" aria-label={LABELS[screen]}>
+  <div class="phone__screen">
+    <div class="phone__masthead">
+      <span class="phone__mark" aria-hidden="true"><i></i><i></i></span>
+      <span class="phone__word">TwiceOver</span>
+      {screen !== "portfolio" && <span class="phone__search" aria-hidden="true">⌕</span>}
+    </div>
+    <div class="phone__body">
+      {screen === "portfolio" && (
+        <>
+          <p class="phone__halfbanner">Your Portfolio · {PORTFOLIO.broker} · synced {PORTFOLIO.syncedAt}</p>
+          {PORTFOLIO.rows.map((r) => (
+            <div class="phone__card">
+              <p class="phone__card-title phone__card-title--small">
+                <b>{r.ticker}</b> {r.structure} <span class={`phone__pl pc-pl ${r.pnl < 0 ? "dn" : "up"}`}>{signedMoney(r.pnl)}</span>
+              </p>
+              <p class="phone__rule"><i>{RULE_MARK[r.rule.state]}</i> {r.rule.text}</p>
+            </div>
+          ))}
+        </>
+      )}
+      {position && (
+        <>
+          <p class="phone__back">‹ Your Portfolio</p>
+          <p class="phone__title">{position.title}</p>
+          <p class="phone__legs">{position.legs}</p>
+          <p class="phone__big-pnl up">{position.pnl}</p>
+          <p class="phone__of-debit">{position.pnlOfDebit}</p>
+          <div class="phone__card phone__meter">
+            <p class="phone__rule"><i>{RULE_MARK[position.rule.state]}</i> {position.rule.text}</p>
+            <div class="phone__meter-track"><div class="phone__meter-fill" style={`width: ${position.meterPct}%`}></div><div class="phone__meter-goal"></div></div>
+            <p class="phone__meter-ends"><span>{position.meterNow}</span><span>{position.meterTarget}</span></p>
+          </div>
+          <svg class="phone__plot" width="256" height="86" viewBox="0 0 256 86" aria-hidden="true">
+            <line class="phone__plot-zero" x1="8" y1={position.zeroY} x2="248" y2={position.zeroY} />
+            <polyline class="phone__plot-line" points={position.payoff} />
+            <line class="phone__plot-spot" x1={position.spot.x} y1="8" x2={position.spot.x} y2="80" />
+            <circle class="phone__plot-dot" cx={position.spot.x} cy={position.spot.y} r="3" />
+          </svg>
+          <p class="phone__facts">{position.facts}</p>
+        </>
+      )}
+      {analysis && (
+        <>
+          <div class="phone__quote">
+            <span class="phone__ticker">{analysis.ticker}</span>
+            <span class="phone__name">{analysis.name}</span>
+            <span class="phone__price">{analysis.price}</span>
+          </div>
+          <p class="phone__stamp">{analysis.stamp}</p>
+          <svg class="phone__plot" width="256" height="118" viewBox="0 0 256 118" aria-hidden="true">
+            <line class="phone__plot-zero" x1="8" y1="104" x2="248" y2="104" />
+            <polyline class="phone__plot-line" points={analysis.history} />
+            <circle class="phone__plot-dot" cx={analysis.today.x} cy={analysis.today.y} r="3" />
+            <text class="phone__plot-today" x={analysis.today.x - 6} y={analysis.today.y - 10}>TODAY</text>
+            <polyline class="phone__plot-projection" points={analysis.projection} />
+            {analysis.projected.map((p) => <circle class="phone__plot-horizon" cx={p.x} cy={p.y} r="2.6" />)}
+          </svg>
+          <div class="phone__horizons">
+            {analysis.horizons.map((h) => (
+              <div class="phone__horizon"><p class="phone__horizon-label">{h.label}</p><p class="phone__horizon-price">{h.price}</p></div>
+            ))}
+          </div>
+          <p class="phone__section">Technicals</p>
+          <div class="phone__card phone__placeholder"></div>
+        </>
+      )}
+    </div>
+    <div class="phone__tabbar">
+      <div class="phone__tab phone__tab--on">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M3 4h12M3 9h12M3 14h8" stroke="currentColor" stroke-width="1.5"/></svg>
+        Portfolio
+      </div>
+      <div class="phone__tab">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M9 5.5v3.5l2.5 1.5" stroke="currentColor" stroke-width="1.5"/></svg>
+        Rules
+      </div>
+      <div class="phone__tab">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><circle cx="9" cy="6.5" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M3.5 15c1-3 3-4.5 5.5-4.5s4.5 1.5 5.5 4.5" stroke="currentColor" stroke-width="1.5"/></svg>
+        Account
+      </div>
+    </div>
+  </div>
+</div>

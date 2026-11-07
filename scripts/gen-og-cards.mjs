@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 /**
  * The site's share image — a rotating set of three cards (ADR 0905, stock-analyst-platform#2988 /
- * #3508). Run via `npm run gen:og-cards`; the PNGs are committed, like the favicons.
+ * #3508). Run via `npm run gen:og-cards`; the PNGs are committed, like the favicons. It also writes the
+ * /app link preview (`APP_CARD`, stock-analyst-platform#4598), outside the rotation, whose phone is
+ * drawn by `phoneSvg` rather than a chart module.
  *
  * **Why three files rather than one that changes.** Replacing the bytes at an existing `og:image`
  * URL changes nothing anyone sees: Meta documents it outright — *"We cache all images referenced
@@ -57,9 +59,13 @@ import { priceLineChartModel } from "../src/charts/technicals-chart.mjs";
 import { technicalsPriceSvgBody } from "../src/charts/technicals-svg.mjs";
 import { payoffChartModel } from "../src/charts/payoff-chart.mjs";
 import { payoffSvgBody } from "../src/charts/payoff-svg.mjs";
+import { APP_COPY } from "../src/app-launch.mjs";
 import {
   HERO_OUTLOOK,
   HORIZON_CARDS,
+  PORTFOLIO,
+  RULE_MARK,
+  signedMoney,
   PRICE_CAPTION,
   SPOT,
   SPREAD,
@@ -534,16 +540,121 @@ export function cardSvg(key, sources = loadStyleSources()) {
 
 /** The "second look" mark, from `public/favicon.svg` — the canonical asset, not a second copy: its
  *  two bars are read out of the file so the card cannot drift from the favicon. */
-function markSvg(tokens) {
+function markSvg(tokens, at = CHASSIS.mark) {
   const favicon = readFileSync(join(root, "public/favicon.svg"), "utf8");
   const bars = [...favicon.matchAll(/<rect[^>]*\/>/g)].map((m) => m[0]);
   if (bars.length !== 2) throw new Error(`public/favicon.svg: expected the mark's 2 bars, found ${bars.length}`);
-  const { x, y, size } = CHASSIS.mark;
+  const { x, y, size } = at;
   return (
     `<g transform="translate(${x} ${y}) scale(${size / 32})">` +
     bars.map((b) => b.replace(/fill="[^"]*"/, `fill="${tokens.get("color-accent-default")}"`)).join("") +
     `</g>`
   );
+}
+
+/* ── The /app link preview (app-launch-surfaces.md §3 S8, App-OG board, stock-analyst-platform#4598) ──
+   Not a member of the rotating set above: /app passes it through Base.astro's `image` prop. The site's
+   chassis with the neutral phone (Your Portfolio, flat) in place of a chart, cropped by the card's
+   bottom edge; Growth's headline and caption; no store named, so one image serves every variant.
+   Positions are the board's own box edges at 1200×630, baselines set from the type sizes. */
+export const APP_CARD = {
+  file: "og-card-app.png",
+  svg: "app.svg",
+  /** Growth's headline at 60px serif in the board's 600px column: three lines. */
+  headline: { x: 72, baselines: [212, 277, 342], lines: ["Your book,", "your rules,", "on your phone."] },
+  caption: { x: 72, baseline: 404 },
+  foot: { x: 72, baseline: 558, text: "twiceover.io/app" },
+  mark: { x: 72, y: 64, size: 44 },
+  wordmark: { x: 128, baseline: 98 },
+  phone: { x: 760, y: 64, scale: 1.26 },
+};
+
+/** The rule-state mark (RULE_MARK's ● ◐ ○), drawn: the card's static faces carry none of the three
+ *  glyphs, and resvg would render each as a missing-glyph box. */
+function ruleMarkSvg(state, cx, cy, ink) {
+  if (!(state in RULE_MARK)) throw new Error(`unknown rule state: ${state}`);
+  const r = 3.6;
+  if (state === "reached") return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${ink}"/>`;
+  const ring = `<circle cx="${cx}" cy="${cy}" r="${r - 0.5}" fill="none" stroke="${ink}"/>`;
+  if (state === "not-met") return ring;
+  return ring + `<path d="M${cx} ${cy - r}a${r} ${r} 0 0 0 0 ${2 * r}z" fill="${ink}"/>`;
+}
+
+/** The neutral phone with Your Portfolio on it, as SVG, at 304×656 before scaling: the screen
+ *  `Phone.astro` draws, redrawn for resvg from the same fixture and the same `phone.*` tokens. */
+export function phoneSvg(tokens) {
+  const t = (name) => tokens.get(name);
+  const W = 304;
+  const bezel = W * Number(t("phone-bezel-width"));
+  const sw = W - 2 * bezel;
+  const sh = 656 - 2 * bezel;
+  // Attribute values: the token families quote their names ("Source Serif 4"), so escape them.
+  const serif = esc(t("font-family-serif"));
+  const sans = esc(t("font-family-sans"));
+  const mono = esc(t("font-family-mono"));
+  const rows = PORTFOLIO.rows
+    .map((r, i) => {
+      const y = 98 + i * 76;
+      const pnlColor = r.pnl < 0 ? t("color-signal-negative") ?? "#A33028" : t("color-signal-positive") ?? "#14684B";
+      return (
+        `<rect x="12" y="${y}" width="${sw - 24}" height="64" rx="6" fill="${t("color-bg-surface")}" stroke="${t("color-border-default")}"/>` +
+        `<text x="24" y="${y + 24}" font-family="${serif}" font-weight="600" font-size="12" fill="${t("color-text-primary")}">${esc(r.ticker)} <tspan font-weight="400">${esc(r.structure)}</tspan></text>` +
+        `<text x="${sw - 24}" y="${y + 24}" text-anchor="end" font-family="${serif}" font-weight="600" font-size="12" fill="${pnlColor}">${esc(signedMoney(r.pnl))}</text>` +
+        ruleMarkSvg(r.rule.state, 28, y + 42.5, t("color-text-primary")) +
+        `<text x="37" y="${y + 46}" font-family="${sans}" font-size="11" fill="${t("color-text-primary")}">${esc(r.rule.text)}</text>`
+      );
+    })
+    .join("");
+  const tabs = ["Portfolio", "Rules", "Account"]
+    .map(
+      (label, i) =>
+        `<text x="${(sw / 3) * (i + 0.5)}" y="${sh - 18}" text-anchor="middle" font-family="${sans}" font-size="11" fill="${i === 0 ? t("color-accent-default") : t("color-text-secondary")}">${label}</text>`,
+    )
+    .join("");
+  return [
+    `<rect width="${W}" height="656" rx="${W * Number(t("phone-radius-outer"))}" fill="${t("phone-bezel-color")}"/>`,
+    `<g transform="translate(${bezel} ${bezel})">`,
+    `<clipPath id="phone-screen"><rect width="${sw}" height="${sh}" rx="${W * Number(t("phone-radius-screen"))}"/></clipPath>`,
+    `<g clip-path="url(#phone-screen)">`,
+    `<rect width="${sw}" height="${sh}" fill="${t("color-bg-canvas")}"/>`,
+    `<rect x="16" y="26" width="4" height="14" rx="1" fill="${t("color-text-primary")}"/><rect x="23" y="30" width="4" height="10" rx="1" fill="${t("color-text-primary")}" opacity="0.55"/>`,
+    `<text x="35" y="39" font-family="${serif}" font-weight="600" font-size="16" fill="${t("color-text-primary")}">TwiceOver</text>`,
+    `<line x1="0" y1="52.5" x2="${sw}" y2="52.5" stroke="${t("color-border-default")}"/>`,
+    `<text x="12" y="80" font-family="${mono}" font-size="10" fill="${t("color-text-muted")}">${esc(`Your Portfolio · ${PORTFOLIO.broker} · synced ${PORTFOLIO.syncedAt}`)}</text>`,
+    rows,
+    `<rect y="${sh - 54}" width="${sw}" height="54" fill="${t("color-bg-canvas")}"/>`,
+    `<line x1="0" y1="${sh - 53.5}" x2="${sw}" y2="${sh - 53.5}" stroke="${t("color-border-strong")}"/>`,
+    tabs,
+    `</g></g>`,
+  ].join("");
+}
+
+/** The composed /app card, as SVG — diffable, like the members (gen-og-cards.test.mjs). */
+export function appCardSvg(sources = loadStyleSources()) {
+  const { tokens } = sources;
+  const c = APP_CARD;
+  const css = [
+    `.word{font-family:${tokens.get("font-family-serif")};font-weight:600;font-size:34px;fill:${tokens.get("color-text-primary")}}`,
+    `.o{fill:${tokens.get("color-accent-default")}}`,
+    `.headline{font-family:${tokens.get("font-family-serif")};font-weight:600;font-size:60px;letter-spacing:-1.2px;fill:${tokens.get("color-text-primary")}}`,
+    `.cap{font-family:${tokens.get("font-family-sans")};font-size:26px;fill:${tokens.get("color-text-secondary")}}`,
+    `.foot{font-family:${tokens.get("font-family-mono")};font-size:24px;fill:${tokens.get("color-text-muted")}}`,
+  ].join("\n");
+  return [
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${CARD.w}" height="${CARD.h}" viewBox="0 0 ${CARD.w} ${CARD.h}">`,
+    `<style>`,
+    css,
+    `</style>`,
+    `<rect width="${CARD.w}" height="${CARD.h}" fill="${tokens.get("color-bg-canvas")}"/>`,
+    markSvg(tokens, c.mark),
+    `<text class="word" x="${c.wordmark.x}" y="${c.wordmark.baseline}">Twice<tspan class="o">O</tspan>ver</text>`,
+    ...c.headline.lines.map((line, i) => `<text class="headline" x="${c.headline.x}" y="${c.headline.baselines[i]}">${esc(line)}</text>`),
+    `<text class="cap" x="${c.caption.x}" y="${c.caption.baseline}">${esc(APP_COPY.previewCaption)}</text>`,
+    `<text class="foot" x="${c.foot.x}" y="${c.foot.baseline}">${esc(c.foot.text)}</text>`,
+    `<g transform="translate(${c.phone.x} ${c.phone.y}) scale(${c.phone.scale})">${phoneSvg(tokens)}</g>`,
+    `</svg>`,
+    ``,
+  ].join("\n");
 }
 
 /* ── Rendering ───────────────────────────────────────────────────────────────────────────────── */
@@ -598,6 +709,12 @@ async function main() {
         `(${member.title}, type ×${member.scale}, smallest ${smallestRenderedPhonePx(member.key)}px at ${PHONE_CARD_WIDTH_PX}px)`,
     );
   }
+
+  const appSvg = appCardSvg(sources);
+  writeFileSync(join(root, "scripts/og-cards", APP_CARD.svg), appSvg);
+  const appPng = await renderPng(appSvg);
+  writeFileSync(join(root, "public", APP_CARD.file), appPng);
+  console.log(`public/${APP_CARD.file}  ${CARD.w}×${CARD.h}, ${appPng.length} bytes  (the /app link preview)`);
 
   // The pre-launch URL keeps resolving, serving A's artwork. Meta: "Don't remove old images, as
   // there maybe existing stories that reference the old image."

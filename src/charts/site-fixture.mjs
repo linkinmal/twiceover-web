@@ -71,11 +71,12 @@ export function money(v) {
 export const PRICE_CAPTION = `price ${money(SPOT)} · ${LAST_CLOSE_DATE}`;
 
 /**
- * Structure 1 of the page's held position — a **2× Jul 17 175C/190C bull call spread**, the exact
- * structure `ai-team/design/read-held-position.md` line 37 makes canonical: "+2 Jul 17 175C / −2 Jul
- * 17 190C, net debit $6.20/spread ($1,240 total) … max profit $1,760, max loss $1,240, breakeven
- * $181.20". Not the chart artifact's covered call — a covered-call shape here would contradict the
- * row directly above it.
+ * Structure 1 of the page's held position — a **2× Dec 18 175C/190C bull call spread**, the structure
+ * `ai-team/design/read-held-position.md` line 37 makes canonical: "+2 Jul 17 175C / −2 Jul 17 190C,
+ * net debit $6.20/spread ($1,240 total) … max profit $1,760, max loss $1,240, breakeven $181.20".
+ * The site fixture uses Dec 18 for both legs (Designer ruling, #4598: Jul 17 had expired before the
+ * analysis's Aug 31 date); strikes, debit and every figure are the held-position doc's. Not the chart
+ * artifact's covered call — a covered-call shape here would contradict the row directly above it.
  *
  * `sample` is the whole-position P&L at expiry, in dollars, and is the ONLY source of a P&L figure
  * on the chart: nothing is transcribed. Every published figure falls out of it —
@@ -88,7 +89,7 @@ export const SPREAD = {
   contracts: 2,
   netDebit: 1240,
   breakeven: 181.2,
-  expiry: "Jul 17",
+  expiry: "Dec 18",
   /** Per-contract multiplier — 100 shares, the standard US equity option. */
   multiplier: 100,
 };
@@ -223,8 +224,8 @@ export const FUNDAMENTALS = {
 
 /**
  * Your Portfolio, as the homepage draws it (homepage v3.4, stock-analyst-platform#3829): the hero
- * deck's Portfolio card, the Portfolio section's list, and the phone. One book, so the three cannot
- * disagree. Ordered by rule state — reached first — as the product orders it.
+ * deck's Portfolio card, the Portfolio section's list, and every Your Portfolio phone (homepage, /app,
+ * the /app share card). One book, so none can disagree. Ordered by rule state — reached first — as the product orders it.
  *
  * NVDA is structure 1 of the page's canonical spread (`SPREAD` above): its percent is DERIVED from
  * that structure's debit, never typed. The other three rows are the artifact's stated illustrative
@@ -236,9 +237,15 @@ export const FUNDAMENTALS = {
  */
 export const NVDA_SPREAD_PNL = 612;
 
+/** The NVDA spread's option target, the rule its Portfolio row is near (and the app phone's meter). */
+export const NVDA_OPTION_TARGET_PCT = 60;
+
+/** The analysed stock's name beside its ticker, as the app's analysis header shows it. */
+export const COMPANY_NAME = "NVIDIA Corp";
+
 const PORTFOLIO_ROWS = [
   { ticker: "SPY", structure: "Put debit spread", rule: { state: "reached", text: "Expiry 21 days · reached" }, pnl: -462, pct: -22.0 },
-  { ticker: "NVDA", structure: "Bull call spread", rule: { state: "approaching", text: "Option target 60% · approaching" }, pnl: NVDA_SPREAD_PNL, pct: Number(((NVDA_SPREAD_PNL / SPREAD.netDebit) * 100).toFixed(1)) },
+  { ticker: "NVDA", structure: "Bull call spread", rule: { state: "approaching", text: `Option target ${NVDA_OPTION_TARGET_PCT}% · approaching` }, pnl: NVDA_SPREAD_PNL, pct: Number(((NVDA_SPREAD_PNL / SPREAD.netDebit) * 100).toFixed(1)) },
   { ticker: "TSLA", structure: "Cash-secured put", rule: { state: "not-met", text: "Option target 60% · not met" }, pnl: 215, pct: 31.4 },
   { ticker: "AMD", structure: "Shares", rule: { state: "not-met", text: "Stock max loss −15% · not met" }, pnl: -806, pct: -6.3 },
 ];

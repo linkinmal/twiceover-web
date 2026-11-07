@@ -42,6 +42,7 @@
 // by ADR 0960 (#3932). The homepage strip's captions and plan lines quote these cards;
 // pricing-strip-and-closing-band.test.mjs asserts both equalities from both surfaces and
 // pins the three numbers so neither page can drift, nor both together.
+import { APP_COPY, APP_STORES } from "../app-launch.mjs";
 import Base from "../layouts/Base.astro";
 import { PLANS, sectionGroups, sectionsOn } from "../data/sections.mjs";
 
@@ -163,7 +164,8 @@ const includedOn = (section) => PLANS.map((plan) => PLANS.indexOf(plan) >= PLANS
     </li>
   </ul>
 
-  <p class="mor-line">Subscriptions are sold by <strong>Dodo Payments</strong>, our merchant of record; TwiceOver is the software and service you're using. Prices in USD. You can cancel anytime; see the <a href="/refunds">Refund Policy</a>.</p>
+  <p class="mor-line" set:html={APP_COPY.morLineHtml} />
+  <p class="mor-line">{APP_COPY.pricingLine[APP_STORES]}</p>
 
   {/* Section-by-plan table (ADR 0912 Amendment 1 ruling 2). The mark is a plain ink dot — not a
       tick (ADR 0912 bars ticks as a scorecard read) and not the accent (navy marks actions only).

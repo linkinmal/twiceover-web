@@ -117,7 +117,7 @@ describe("the $0 line is always on the axis", () => {
   });
 });
 
-describe("the site's fixture — the 2x Jul 17 175C/190C bull call spread", () => {
+describe("the site's fixture — the 2x Dec 18 175C/190C bull call spread", () => {
   const m = payoffChartModel({ ...SPREAD_PAYOFF, compact: false });
 
   it("draws the published max loss, breakeven and max profit exactly, from the sampler alone", () => {
@@ -171,7 +171,7 @@ describe("payoffChartModel — domain pad tracks kinkSpan, not the kink price le
    * property directly.
    */
 
-  it("the NVDA fixture (2x Jul 17 175C/190C) — the worked regression case", () => {
+  it("the NVDA fixture (2x Dec 18 175C/190C) — the worked regression case", () => {
     // kinkSpan=15, magnitude=182.5. Buggy: floorPad = max(182.5*0.15,1) = 27.375, which then WON the
     // max() against the kink-span pad — domain ~[147.63, 217.38], ~70pt, 21% of frame on a $182
     // stock. Fixed: kinkSpan alone drives the pad, since kinkSpan > 0, giving 15*0.40 = 6.0 a side.

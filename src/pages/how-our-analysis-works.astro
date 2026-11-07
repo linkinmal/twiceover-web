@@ -11,6 +11,7 @@
 // PENDING stock-analyst-platform#3963 item 4: the charts drawn inside five section cards and the
 // Technicals chart need their EXMP series, which the build reference carries only as pixels.
 import Base from "../layouts/Base.astro";
+import { APP_COPY, APP_PAGE_PATH } from "../app-launch.mjs";
 import "../styles/explainer.css";
 import "../styles/pictures.css";
 import AnalysisMini from "../components/AnalysisMini.astro";
@@ -216,6 +217,8 @@ const FAQ = [
         <a class="btn-filled" href="/go/try">Analyze a stock →</a>
         <a class="btn-quiet" href="/pricing">Compare plans →</a>
       </div>
+      {/* A text line under the two buttons, never a third button (app-launch-surfaces.md §4). */}
+      <p class="closing-band__app"><a href={APP_PAGE_PATH}>{APP_COPY.howPageLink}</a></p>
     </div>
   </section>
 </Base>

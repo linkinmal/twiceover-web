@@ -13,6 +13,7 @@
 // from its inputs and tested there. The broker list is a build-time data slot (data/brokers.json,
 // #3951; its writer is consult 0997's answer) — the page reads it and states its date.
 import Base from "../layouts/Base.astro";
+import { APP_COPY, APP_PAGE_PATH } from "../app-launch.mjs";
 import "../styles/explainer.css";
 import {
   BROKERS,
@@ -306,6 +307,8 @@ const FAQ = [
         <a class="btn-filled" href="/go/connect">Connect your broker →</a>
         <a class="btn-quiet" href="/go/try">Analyze a stock →</a>
       </div>
+      {/* A text line under the two buttons, never a third button (app-launch-surfaces.md §4). */}
+      <p class="closing-band__app"><a href={APP_PAGE_PATH}>{APP_COPY.howPageLink}</a></p>
     </div>
   </section>
 </Base>

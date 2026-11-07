@@ -45,7 +45,10 @@ import {
   parseTokens,
   REQUIRED_FACES,
   loadStyleSources,
+  APP_CARD,
+  appCardSvg,
 } from "./gen-og-cards.mjs";
+import { APP_COPY } from "../src/app-launch.mjs";
 import { FACES as BLOG_SHARE_FACES } from "./blog-share/card.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -102,7 +105,7 @@ describe("the set is three members, one chassis (ADR 0905)", () => {
     expect.soft(MEMBERS.map((m) => m.caption)).toEqual([
       "price $184.52 · AUG 28",
       "last 90 sessions · the levels",
-      "your 2× Jul 17 175C/190C · breakeven $181.20",
+      "your 2× Dec 18 175C/190C · breakeven $181.20",
     ]);
   });
 });
@@ -586,5 +589,31 @@ describe("the member being pointed at is the one whose bytes are committed", () 
     // NOT covered here, and worth saying rather than implying: nothing checks that a face is
     // instanced at the WEIGHT its filename claims. Re-running `instance-faces.py` with a changed
     // weight would pass this and reflow the card. The rendered-card review is what catches that.
+  });
+});
+
+// The /app link preview (app-launch-surfaces.md §3 S8, stock-analyst-platform#4598).
+describe("the /app link preview", () => {
+  it("the committed SVG is what the generator draws today", () => {
+    expect(readFileSync(join(root, "scripts/og-cards", APP_CARD.svg), "utf8")).toBe(appCardSvg());
+  });
+
+  // P&L colours: the site build emits no signal.* group (app-only, build-tokens.mjs containment), so the
+  // card uses the same hex fallbacks site.css's .up/.dn rules do.
+  it("carries Growth's headline and caption, and names no store, so one image serves every variant", () => {
+    const svg = appCardSvg();
+    expect.soft(APP_CARD.headline.lines.join(" ")).toBe(APP_COPY.headline);
+    expect.soft(svg).toContain(APP_COPY.previewCaption);
+    expect.soft(svg).not.toMatch(/App Store|Google Play|iPhone|Android/);
+  });
+
+  it("the committed PNG is a 1200×630 image", () => {
+    const png = readFileSync(join(root, "public", APP_CARD.file));
+    expect.soft(png.subarray(1, 4).toString("ascii")).toBe("PNG");
+    expect.soft([png.readUInt32BE(16), png.readUInt32BE(20)]).toEqual([CARD.w, CARD.h]);
+  });
+
+  it("is the PNG /app passes to Base.astro", () => {
+    expect(readFileSync(join(root, "src/pages/app.astro"), "utf8")).toContain(`image="/${APP_CARD.file}"`);
   });
 });

@@ -1,0 +1,80 @@
+---
+// /app — the mobile app's showcase-and-download page (app-launch-surfaces.md §3 S2, App-Page board,
+// stock-analyst-platform#4598). Header, hero (copy, badges, desktop QR, Portfolio phone), three screen
+// blocks, FAQ, closing band, footer. Copy is Growth's (app-launch-kit.md §5) and the Designer's, from
+// `app-launch.mjs`. No scripts (ci/check-entry-box.mjs); the FAQ is native `details`, all closed.
+import Base from "../layouts/Base.astro";
+import Phone from "../components/Phone.astro";
+import StoreBadges from "../components/StoreBadges.astro";
+import AppQr from "../components/AppQr.astro";
+import { APP_COPY, APP_STORES } from "../app-launch.mjs";
+import { PORTFOLIO, RULE_MARK, signedMoney } from "../charts/site-fixture.mjs";
+
+const CHEVRON = '<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
+const FAQ = [...APP_COPY.faq.map(({ q, a }) => [q, a]), [APP_COPY.planQuestion, APP_COPY.planAnswer[APP_STORES]]];
+---
+<Base title={APP_COPY.title} description={APP_COPY.description} image="/og-card-app.png">
+  <section class="app-hero" aria-labelledby="app-h1">
+    <div class="app-hero__copy">
+      <h1 id="app-h1" class="type-display app-hero__h1">{APP_COPY.headline}</h1>
+      <p class="sub app-hero__sub">{APP_COPY.sub}</p>
+      <StoreBadges />
+      <AppQr line={APP_COPY.appQr} />
+    </div>
+    <Phone screen="portfolio" />
+  </section>
+
+  {APP_COPY.blocks.map((block, i) => (
+    <section class:list={["app-block section-ground", { "section-ground--lifted": i !== 1, "app-block--flip": i === 1 }]} aria-labelledby={block.id}>
+      <div class="app-block__copy">
+        <h2 id={block.id} class="type-heading-1">{block.heading}</h2>
+        <p>{block.body}</p>
+      </div>
+      {block.screen === "account" ? (
+        <div class="app-both" role="img" aria-label="The same Your Portfolio on a web browser and on a phone">
+          <div class="app-both__web" aria-hidden="true">
+            <div class="app-both__bar"><span>app.twiceover.io</span></div>
+            <div class="app-both__body">
+              <p class="phone__halfbanner">Your Portfolio · {PORTFOLIO.broker} · synced {PORTFOLIO.syncedAt}</p>
+              {PORTFOLIO.rows.map((r) => (
+                <div class="app-both__row">
+                  <b>{r.ticker}</b>
+                  <span>{r.structure}</span>
+                  <span class="app-both__rule">{RULE_MARK[r.rule.state]} {r.rule.text}</span>
+                  <span class={`pc-pl ${r.pnl < 0 ? "dn" : "up"}`}>{signedMoney(r.pnl)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div class="app-both__phone" aria-hidden="true"><Phone screen="portfolio" class="phone--flat" /></div>
+        </div>
+      ) : (
+        <Phone screen={block.screen} />
+      )}
+    </section>
+  ))}
+
+  <section class="faq section-ground" aria-labelledby="app-faq">
+    <div class="faq__intro">
+      <h2 id="app-faq" class="type-heading-1">Questions</h2>
+    </div>
+    <div class="faq__list">
+      {FAQ.map(([q, a]) => (
+        <details>
+          <summary class="type-heading-2">{q}<Fragment set:html={CHEVRON} /></summary>
+          <p>{a}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+
+  <section class="closing-band" aria-labelledby="app-close">
+    <div class="container closing-band__inner app-close">
+      <h2 id="app-close" class="type-heading-1 closing-band__heading">{APP_COPY.closing}</h2>
+      <div class="app-close__get">
+        <StoreBadges />
+        <AppQr />
+      </div>
+    </div>
+  </section>
+</Base>

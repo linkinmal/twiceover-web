@@ -1,0 +1,21 @@
+---
+// The QR code to twiceover.io/app (app-launch-surfaces.md §2, QR board): one code in every variant, an
+// inline SVG generated at build by scripts/gen-app-qr.mjs, taking the text colour. Desktop only,
+// by `(hover: hover) and (pointer: fine)` at 820px and up in site.css: no user agent is read.
+import qr from "../assets/app-qr.svg?raw";
+
+interface Props {
+  line?: string;
+  hint?: string;
+}
+const { line, hint } = Astro.props;
+---
+<div class="app-qr">
+  <div class="app-qr__code" role="img" aria-label="QR code that opens twiceover.io/app" set:html={qr} />
+  {line && (
+    <div>
+      <p class="app-qr__line">{line}</p>
+      {hint && <p class="app-qr__hint">{hint}</p>}
+    </div>
+  )}
+</div>

@@ -2,7 +2,9 @@
 // Home — homepage v3.4 (stock-analyst-platform#3829; ADR 0991 signed the build reference
 // ai-team/design/assets/homepage-3818-v3-2026-09-23.html; section order and copy tables are
 // consult 0987's, with the PM's #3935 accuracy corrections folded into the artifact). Every string
-// on this page is the artifact's, pinned by homepage-copy.test.mjs and faq-structure.test.mjs.
+// on this page is the artifact's, pinned by homepage-copy.test.mjs and faq-structure.test.mjs, except the
+// phone section and the hero's app link: app-launch-surfaces.md's, held in app-launch.mjs and pinned in
+// app-launch.test.mjs (stock-analyst-platform#4598).
 //
 // Sections, in consult 0987 §1's order (kept by the founder): hero with its product deck → the
 // analysis band → how the sections become the Outlook → Your Portfolio → broker connection →
@@ -11,6 +13,7 @@
 // The "Connect read-only →" CTA and header sign-in slot are same-origin /go/* redirects (#1754,
 // site-app-seam.md §3/§4); see Base.astro for the header slot.
 import Base from "../layouts/Base.astro";
+import { APP_COPY, APP_PAGE_PATH, APP_STORES, storesFor } from "../app-launch.mjs";
 import AnalysisBand from "../components/AnalysisBand.astro";
 import MobileShowcase from "../components/MobileShowcase.astro";
 import HeroDeck from "../components/HeroDeck.astro";
@@ -56,7 +59,7 @@ const blogStrip = (await getPublished()).slice(0, 3);
 ---
 <Base
   title="TwiceOver: stock and options analysis and your portfolio"
-  description="Analyze any stock down to a projected price for each horizon, no account needed. Connect your broker to check your own rules on the positions they fit."
+  description={APP_COPY.homeDescription[APP_STORES]}
 >
   <script type="application/ld+json" set:html={JSON.stringify(organizationJsonLd)} />
   <script type="application/ld+json" set:html={JSON.stringify(websiteJsonLd)} />
@@ -67,6 +70,8 @@ const blogStrip = (await getPublished()).slice(0, 3);
       <h1 class="type-display">A second look at your own book.</h1>
       <p class="sub">The rules you set, checked on every position they fit in your brokerage account.</p>
       <a class="btn-filled hero__cta" href="/go/connect">Connect your broker →</a>
+      {/* Under 640px only, where the header's Mobile app item hides: a text link, not a second button (app-launch-surfaces.md §4). */}
+      <a class="hero__app-link" href={APP_PAGE_PATH}>{APP_COPY.heroLink}</a>
       <p class="demo-turn">Or analyze any US-listed stock, down to a projected price for each horizon. No account needed.</p>
       {/* The live ticker handoff (#2520, ADR 0383 Amendment 1, consult 0739) — replaces the
           v2.6 fixture-only demo. A plain HTML GET submit: the browser serializes `ticker` and
@@ -305,7 +310,7 @@ const blogStrip = (await getPublished()).slice(0, 3);
       </details>
       <details>
         <summary class="type-heading-2">How do I cancel?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
-        <p>One click in Settings, with no retention flow, call or form. Cancelling during a trial means no charge. On a paid plan, your plan stays on until the end of the period you've paid for, then the account moves to Free. Your rules, broker connection and analysis history are kept. Refunds are handled separately by Dodo Payments, our merchant of record. See the <a href="/refunds">Refund Policy</a>.</p>
+        <p set:html={`${APP_COPY.cancelWebHtml}${storesFor(APP_STORES).apple ? " " + APP_COPY.cancelIphone : ""}`} />
       </details>
       <details>
         <summary class="type-heading-2">What if connecting my brokerage fails?<svg class="faq__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>
