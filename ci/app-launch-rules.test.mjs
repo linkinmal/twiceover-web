@@ -2,15 +2,16 @@
 // cannot pass silently (constitution "Declaration wired").
 import { describe, expect, it } from "vitest";
 import { appLaunchFailures } from "./app-launch-rules.mjs";
-import { APP_COPY } from "../src/app-launch.mjs";
+import { APP_COPY, STORE_CAMPAIGNS, appStoreUrl, playStoreUrl } from "../src/app-launch.mjs";
 
 const HEADER = (current = false) =>
   `<header class="site-header"><a class="site-nav__app" href="/app"${current ? ' aria-current="page"' : ""}>Mobile app</a></header>`;
 const FOOTER = `<nav class="footer-links" aria-label="Footer"><a href="/your-portfolio">x</a><a href="/app">Mobile app</a></nav>`;
 const BANNER = `<meta name="apple-itunes-app" content="app-id=6804799140">`;
 const NEXT = { iphone: "Android app coming soon.", android: "iPhone app coming soon." };
-const BADGES = (stores, variant) =>
-  stores.map((s) => `<a data-store-badge="${s}"></a>`).join("") +
+const URLS = (campaign) => ({ apple: appStoreUrl(campaign), play: playStoreUrl(campaign) });
+const BADGES = (stores, variant, campaign = STORE_CAMPAIGNS.appPage, urls = URLS(campaign)) =>
+  stores.map((s) => `<a class="store-badge" href="${urls[s].replaceAll("&", "&#38;")}" data-store-badge="${s}"></a>`).join("") +
   (NEXT[variant] ? `<p class="store-badges__next">${NEXT[variant]}</p>` : "") +
   `<div class="app-qr__code"></div>`;
 const HOW = `<p class="closing-band__app"><a href="/app">Or get the mobile app →</a></p>`;
@@ -31,7 +32,7 @@ function site({ variant = "iphone", stores = ["apple"], banner = true } = {}) {
     variant,
     postSlugs: ["a-post"],
     pages: {
-      "index.html": page(`<a class="hero__app-link" href="/app">Get the mobile app →</a>${BADGES(stores, variant)}${CANCEL(variant)}`, false, DESCRIPTION(variant)),
+      "index.html": page(`<a class="hero__app-link" href="/app">Get the mobile app →</a>${BADGES(stores, variant, STORE_CAMPAIGNS.home)}${CANCEL(variant)}`, false, DESCRIPTION(variant)),
       "app/index.html": page(BADGES(stores, variant) + BADGES(stores, variant) + `<p>${APP_COPY.planAnswer[variant]}</p>`, true),
       "how-our-analysis-works/index.html": page(HOW),
       "your-portfolio/index.html": page(HOW),
@@ -104,6 +105,20 @@ describe("appLaunchFailures", () => {
     const plan = site();
     plan.pages["app/index.html"] = plan.pages["app/index.html"].replace(APP_COPY.planAnswer.iphone, APP_COPY.planAnswer.both);
     expect.soft(appLaunchFailures(plan).join()).toMatch(/plan answer/);
+  });
+
+  it("fails a badge whose link carries another placement's campaign, no Play referrer, or is not the component's anchor", () => {
+    const both = () => site({ variant: "both", stores: ["apple", "play"] });
+    expect.soft(appLaunchFailures(both())).toEqual([]);
+    const swapped = both();
+    swapped.pages["index.html"] = swapped.pages["index.html"].replaceAll("site-home", "site-app-page");
+    expect.soft(appLaunchFailures(swapped).join()).toMatch(/index\.html: the play badge links to .*site-app-page/);
+    const untagged = both();
+    untagged.pages["app/index.html"] = untagged.pages["app/index.html"].replaceAll(/&#38;referrer=[^"]*"/g, '"');
+    expect.soft(appLaunchFailures(untagged).join()).toMatch(/app\/index\.html: the play badge links to/);
+    const bare = both();
+    bare.pages["app/index.html"] = bare.pages["app/index.html"].replace('<a class="store-badge" href=', '<a href=');
+    expect.soft(appLaunchFailures(bare).join()).toMatch(/app\/index\.html: 1 store badge\(s\) are not the component's anchor/);
   });
 
   it("fails when no built post matched a slug, so the post-end rule cannot pass on nothing", () => {

@@ -1,12 +1,15 @@
 // The app launch surfaces, held against the built pages for the variant that was built
 // (app-launch-surfaces.md §2–§4, stock-analyst-platform#4598). Pure: `check-app-launch.mjs` walks
 // dist/ and hands the pages here; `app-launch-rules.test.mjs` holds each rule to a page that breaks it.
-import { APP_COPY, storesFor } from "../src/app-launch.mjs";
+import { APP_COPY, STORE_CAMPAIGNS, appStoreUrl, playStoreUrl, storesFor } from "../src/app-launch.mjs";
 
 const count = (html, re) => (html.match(re) ?? []).length;
 const BANNER = /<meta name="apple-itunes-app" content="app-id=6804799140">/g;
 const BADGE = (store) => new RegExp(`data-store-badge="${store}"`, "g");
 const QR = /class="app-qr__code"/g;
+// A badge anchor as the component writes it: its href, then its store.
+const BADGE_LINK = /<a class="store-badge" href="([^"]*)" data-store-badge="(apple|play)"/g;
+const decode = (href) => href.replaceAll("&#38;", "&").replaceAll("&amp;", "&");
 const NAV_APP = /<a class="site-nav__app" href="\/app"/g;
 const FOOTER_APP = /<nav class="footer-links"[^]*?<a href="\/app">Mobile app<\/a>/;
 
@@ -33,6 +36,18 @@ export function appLaunchFailures({ pages, variant, postSlugs = [] }) {
       const expected = want[store] ? sets : 0;
       const found = count(html, BADGE(store));
       if (found !== expected) fail(rel, `expected ${expected} ${store} badge(s) in the "${variant}" variant, found ${found}`);
+    }
+    // Each badge leads to its store with this placement's campaign: the homepage band is `site-home`, /app
+    // `site-app-page` (app-stores.md §3, R4). The Apple link carries Growth's provider token once it is set.
+    if (sets) {
+      const campaign = rel === "index.html" ? STORE_CAMPAIGNS.home : STORE_CAMPAIGNS.appPage;
+      const expectedHref = { apple: appStoreUrl(campaign), play: playStoreUrl(campaign) };
+      for (const [, href, store] of html.matchAll(BADGE_LINK)) {
+        if (decode(href) !== expectedHref[store]) fail(rel, `the ${store} badge links to "${decode(href)}", expected "${expectedHref[store]}"`);
+      }
+      const links = count(html, BADGE_LINK);
+      const badges = count(html, BADGE("apple")) + count(html, BADGE("play"));
+      if (links !== badges) fail(rel, `${badges - links} store badge(s) are not the component's anchor, so their campaign tag is unchecked`);
     }
     const qrs = count(html, QR);
     if (qrs !== sets) fail(rel, `expected ${sets} QR code(s), found ${qrs}`);

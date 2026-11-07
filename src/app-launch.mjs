@@ -15,8 +15,8 @@ import BROKER_LIST from "./data/brokers.json" with { type: "json" };
 
 export const APP_STORE_VARIANTS = Object.freeze(["both", "iphone", "android"]);
 
-/** The stores live at merge. iPhone first: Apple's release is expected before Google's app. */
-export const DEFAULT_APP_STORES = "iphone";
+/** The stores live at merge: both apps are live (Google Play 2026-11-04, iOS 2026-11-07). iPhone first. */
+export const DEFAULT_APP_STORES = "both";
 
 export function parseAppStores(raw, fallback = DEFAULT_APP_STORES) {
   const value = raw === undefined || raw === "" ? fallback : raw;
@@ -29,8 +29,28 @@ export function parseAppStores(raw, fallback = DEFAULT_APP_STORES) {
 export const APP_STORES = parseAppStores(process.env.SITE_APP_STORES);
 
 export const APP_STORE_ID = "6804799140";
-export const APP_STORE_URL = `https://apps.apple.com/app/id${APP_STORE_ID}`;
-export const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=io.twiceover.app";
+/** Campaign tags on the badge links (Growth app-stores.md §3, R4): one name per placement, used as the
+ *  App Store `ct` and the Play `utm_campaign`, so the two stores' install counts read side by side. The
+ *  QR encodes /app, so its scans count as `site-app-page`. */
+export const STORE_CAMPAIGNS = Object.freeze({ appPage: "site-app-page", home: "site-home" });
+
+/** Apple's App Analytics provider token. Not a secret (it is in every Apple campaign link); Growth reads it
+ *  from App Store Connect once the app is live and posts it on #4598. Empty means the Apple badge links
+ *  stay untagged, and the build check names the missing tag. Digits only, or empty. */
+export const APPLE_PROVIDER_TOKEN = "";
+
+export function appStoreUrl(campaign, token = APPLE_PROVIDER_TOKEN) {
+  const base = `https://apps.apple.com/app/id${APP_STORE_ID}`;
+  if (!token) return base;
+  if (!/^\d+$/.test(token)) throw new Error(`the Apple provider token must be digits, got "${token}"`);
+  return `${base}?pt=${token}&ct=${campaign}&mt=8`;
+}
+
+/** The Play referrer is URL-encoded once: utm_source=twiceover.io&utm_medium=website&utm_campaign=<c>. */
+export function playStoreUrl(campaign) {
+  const referrer = `utm_source%3Dtwiceover.io%26utm_medium%3Dwebsite%26utm_campaign%3D${campaign}`;
+  return `https://play.google.com/store/apps/details?id=io.twiceover.app&referrer=${referrer}`;
+}
 export const APP_PAGE_PATH = "/app";
 export const APP_PAGE_URL = "https://twiceover.io/app";
 
@@ -88,7 +108,7 @@ export const APP_COPY = Object.freeze({
     "Your profit targets and loss limits, checked on the positions they fit. One account on your phone and the web.",
   // Homepage section, three phones in the order a trader moves (§2; Main board).
   phoneCaptions: Object.freeze({
-    portfolio: "Your Portfolio, against your rules",
+    portfolio: "Your Portfolio, with reached rules first",
     position: "One position and the rule it is nearest",
     analysis: "Any US-listed stock's analysis, opening with its three projected prices",
   }),
@@ -98,7 +118,7 @@ export const APP_COPY = Object.freeze({
   blocks: Object.freeze([
     {
       id: "app-block-rules",
-      heading: "Your book, against your rules",
+      heading: "Your rules, checked on the positions they fit",
       body: "Set your profit targets, loss limits and days-to-expiry rules once. TwiceOver checks each rule against the positions it fits. Each of those positions then shows the rule it is nearest: reached, approaching or not met.",
       screen: "position",
     },

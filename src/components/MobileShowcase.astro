@@ -8,7 +8,7 @@
 import Phone from "./Phone.astro";
 import StoreBadges from "./StoreBadges.astro";
 import AppQr from "./AppQr.astro";
-import { APP_COPY } from "../app-launch.mjs";
+import { APP_COPY, STORE_CAMPAIGNS } from "../app-launch.mjs";
 
 const SCREENS = ["portfolio", "position", "analysis"] as const;
 ---
@@ -21,7 +21,7 @@ const SCREENS = ["portfolio", "position", "analysis"] as const;
     <h2 id="mobile-showcase-heading" class="type-heading-1 section-heading">{APP_COPY.headline}</h2>
     <p class="mobile-showcase__sub">{APP_COPY.sub}</p>
     <div class="mobile-showcase__get">
-      <StoreBadges />
+      <StoreBadges campaign={STORE_CAMPAIGNS.home} />
       <AppQr line={APP_COPY.homeQr} hint={APP_COPY.homeQrHint} />
     </div>
     <div class="mobile-showcase__phones">

@@ -3,12 +3,16 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  APPLE_PROVIDER_TOKEN,
   APP_COPY,
   APP_STORE_VARIANTS,
   BADGE_ART,
   DEFAULT_APP_STORES,
+  STORE_CAMPAIGNS,
+  appStoreUrl,
   assertBadgeArt,
   parseAppStores,
+  playStoreUrl,
   storesFor,
 } from "./app-launch.mjs";
 
@@ -85,5 +89,28 @@ describe("the launch copy, verbatim", () => {
   it("has a plan answer for every variant and four FAQ questions in all", () => {
     for (const v of APP_STORE_VARIANTS) expect.soft(APP_COPY.planAnswer[v]).toMatch(/^Yes\. /);
     expect.soft(APP_COPY.faq.length + 1).toBe(4);
+  });
+});
+
+describe("the store badge links carry the placement's campaign (#4598, app-stores.md §3)", () => {
+  it("tags the Play link with the referrer, URL-encoded once", () => {
+    expect.soft(playStoreUrl(STORE_CAMPAIGNS.appPage)).toBe(
+      "https://play.google.com/store/apps/details?id=io.twiceover.app&referrer=utm_source%3Dtwiceover.io%26utm_medium%3Dwebsite%26utm_campaign%3Dsite-app-page",
+    );
+    expect.soft(playStoreUrl(STORE_CAMPAIGNS.home)).toContain("utm_campaign%3Dsite-home");
+  });
+
+  it("tags the Apple link with the provider token, campaign and media type once the token is set", () => {
+    expect.soft(appStoreUrl(STORE_CAMPAIGNS.home, "12345678")).toBe("https://apps.apple.com/app/id6804799140?pt=12345678&ct=site-home&mt=8");
+    expect.soft(appStoreUrl(STORE_CAMPAIGNS.appPage, "")).toBe("https://apps.apple.com/app/id6804799140");
+  });
+
+  it("refuses a token that is not digits, so a '<pt>' placeholder cannot ship", () => {
+    expect.soft(() => appStoreUrl(STORE_CAMPAIGNS.home, "<pt>")).toThrow(/digits/);
+    expect.soft(APPLE_PROVIDER_TOKEN).toMatch(/^\d*$/);
+  });
+
+  it("names the two placements' campaigns", () => {
+    expect.soft(STORE_CAMPAIGNS).toEqual({ appPage: "site-app-page", home: "site-home" });
   });
 });
