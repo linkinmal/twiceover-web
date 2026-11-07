@@ -107,7 +107,13 @@ describe("the store badge links carry the placement's campaign (#4598, app-store
 
   it("refuses a token that is not digits, so a '<pt>' placeholder cannot ship", () => {
     expect.soft(() => appStoreUrl(STORE_CAMPAIGNS.home, "<pt>")).toThrow(/digits/);
-    expect.soft(APPLE_PROVIDER_TOKEN).toMatch(/^\d*$/);
+    expect.soft(APPLE_PROVIDER_TOKEN).toMatch(/^\d+$/);
+  });
+
+  it("tags the live Apple links with Growth's provider token, one campaign per placement", () => {
+    expect.soft(APPLE_PROVIDER_TOKEN).toBe("129355732");
+    expect.soft(appStoreUrl(STORE_CAMPAIGNS.appPage)).toBe("https://apps.apple.com/app/id6804799140?pt=129355732&ct=site-app-page&mt=8");
+    expect.soft(appStoreUrl(STORE_CAMPAIGNS.home)).toBe("https://apps.apple.com/app/id6804799140?pt=129355732&ct=site-home&mt=8");
   });
 
   it("names the two placements' campaigns", () => {

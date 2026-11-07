@@ -34,10 +34,10 @@ export const APP_STORE_ID = "6804799140";
  *  QR encodes /app, so its scans count as `site-app-page`. */
 export const STORE_CAMPAIGNS = Object.freeze({ appPage: "site-app-page", home: "site-home" });
 
-/** Apple's App Analytics provider token. Not a secret (it is in every Apple campaign link); Growth reads it
- *  from App Store Connect once the app is live and posts it on #4598. Empty means the Apple badge links
- *  stay untagged, and the build check names the missing tag. Digits only, or empty. */
-export const APPLE_PROVIDER_TOKEN = "";
+/** Apple's App Analytics provider token, read by Growth from App Store Connect (App Analytics, Campaigns,
+ *  link generator) and posted on #4598 on 2026-11-07. Not a secret: it is in every Apple campaign link.
+ *  Digits only; `appStoreUrl` leaves the link untagged only if it is ever emptied, which the tests refuse. */
+export const APPLE_PROVIDER_TOKEN = "129355732";
 
 export function appStoreUrl(campaign, token = APPLE_PROVIDER_TOKEN) {
   const base = `https://apps.apple.com/app/id${APP_STORE_ID}`;
