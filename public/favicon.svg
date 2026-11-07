@@ -1,5 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-labelledby="title">
   <title id="title">TwiceOver mark</title>
+  <style>@media (prefers-color-scheme: dark) { rect { fill: #7DA6DB; } }</style>
   <rect x="5" y="11" width="22" height="3.4" rx="1.7" fill="#23436F"/>
   <rect x="10" y="18" width="17" height="3.4" rx="1.7" fill="#23436F" opacity="0.55"/>
 </svg>

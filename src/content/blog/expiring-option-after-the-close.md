@@ -47,7 +47,7 @@ After 4:00 the stock keeps trading in the after-hours session. Companies often r
 
 ## 5. A worked example
 
-An invented company closes at $49.80. A trader wrote one $50 call on it and collected a premium of $0.40 a share, or $40 for the contract. At the close the call is 20 cents out of the money. Under the default it lapses, and the writer keeps the $40.
+A company closes at $49.80. A trader wrote one $50 call on it and collected a premium of $0.40 a share, or $40 for the contract. At the close the call is 20 cents out of the money. Under the default it lapses, and the writer keeps the $40.
 
 At 4:20 p.m. the company agrees to be bought for $56 a share. After hours the stock trades at $55, a little under the offer. At 5:00 p.m. the holder sends an exercise instruction.
 
