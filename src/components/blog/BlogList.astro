@@ -6,6 +6,7 @@ import BlogBase from "../../layouts/BlogBase.astro";
 import Nameplate from "./Nameplate.astro";
 import Tile from "./Tile.astro";
 import { TOPIC_LABELS, TOPIC_DESCRIPTIONS, INDEX_DESCRIPTION } from "../../blog/labels.mjs";
+import { TOPIC_INTROS } from "../../blog/topic-intros.mjs";
 
 interface Props {
   title: string;
@@ -21,6 +22,7 @@ interface Props {
 const { title, description, topic, topics, items, numbers, basePath, pageNo, pageCount } = Astro.props;
 const href = (n: number) => (n === 1 ? basePath : `${basePath}/page/${n}`);
 const label = topic ? TOPIC_LABELS[topic as keyof typeof TOPIC_LABELS] : "";
+const intro = topic && pageNo === 1 ? TOPIC_INTROS[topic as keyof typeof TOPIC_INTROS] : undefined;
 const ds = topic ? TOPIC_DESCRIPTIONS[topic as keyof typeof TOPIC_DESCRIPTIONS] : INDEX_DESCRIPTION;
 ---
 <BlogBase title={title} description={description}>
@@ -35,6 +37,7 @@ const ds = topic ? TOPIC_DESCRIPTIONS[topic as keyof typeof TOPIC_DESCRIPTIONS] 
         <Nameplate heading />
       )}
       <p class="ds">{ds}</p>
+      {intro && <div class="intro">{intro.map((para) => <p>{para}</p>)}</div>}
     </section>
     <div class="filt" id="topics" role="group" aria-label="Filter posts by topic">
       <a href="/blog" aria-current={!topic ? "page" : undefined}>All</a>
