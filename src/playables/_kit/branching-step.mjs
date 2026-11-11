@@ -9,6 +9,15 @@
  *   step   = { kind: "step", sit, q, given, happened?, choices: [{ label, sub, to }] }
  *   ending = { kind: "end", sit, q, happened, tiles: [{ figure, label, tone?: "gain" | "loss" }] }
  * `sit` is the one-line state the map prints for the node. `happened` is the "What happened" line (steps after the first).
+ *
+ * PAGE CONTRACT (what the build prints, what the block script and the CSS read). In this order inside the page's column:
+ *   playHtml(tree)                               the playing section, hidden until the script runs
+ *   <section class="blk teach" data-br-lesson>   the page's lesson, authored by Growth; held hidden until the first ending
+ *   mapSectionHtml(tree)                         every path, as an open list; held hidden until the first ending
+ *   <section class="blk" data-br-how>            "How it is played"; hidden when the script runs, printed with script off
+ * With script off the page prints the terms, the lesson, the whole map and "How it is played"; the playing section stays hidden.
+ * branching-step.test.mjs mounts the client against exactly this markup.
+ *
  * state = { at, path: [{ at, pick }], found: [endingId] }  (immutable; every move returns a new one)
  */
 
@@ -19,17 +28,22 @@ export const MAX_TILES = 3;
 
 const esc = (x) => String(x).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-/** Whole-dollar figures print bare, others to the cent; money is rounded to cents first. The sign is a real minus. */
+/** The cents a figure shows: its magnitude rounded once, so the sign, the digits and the tone can never disagree. */
+const cents = (n) => Math.round(Math.abs(n) * 100);
+const isLoss = (n) => n < 0 && cents(n) > 0;
+
+/** Whole-dollar figures print bare, others to the cent; money is rounded to cents first. */
 export function money(n) {
-  const c = Math.round(Math.abs(n) * 100) / 100;
+  const c = cents(n) / 100;
   const body = Number.isInteger(c) ? c.toLocaleString("en-US") : c.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   return `$${body}`;
 }
-export const signedMoney = (n) => `${Math.round(n * 100) < 0 ? "−" : "+"}${money(n)}`;
+/** A real minus for a loss, a plus otherwise (also for zero and for a loss that rounds to zero). */
+export const signedMoney = (n) => `${isLoss(n) ? "\u2212" : "+"}${money(n)}`;
 /** A per-share price: always two decimals. */
 export const price = (n) => `$${(Math.round(n * 100) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 /** The tile tone for a figure that is a gain or a loss. */
-export const toneOf = (n) => (Math.round(n * 100) < 0 ? "loss" : "gain");
+export const toneOf = (n) => (isLoss(n) ? "loss" : "gain");
 
 /** The limits of the part (spec section 3). Returns every problem found, so a page's test names them all at once. */
 export function validateTree(tree) {
@@ -127,6 +141,11 @@ export function mapHtml(tree, found = []) {
     return `<li><b>${esc(n.sit)}</b><ul>${n.choices.map((c) => `<li><b>${esc(c.label)}</b> →<ul>${node(c.to)}</ul></li>`).join("")}</ul></li>`;
   };
   return `<ul>${node(tree.start)}</ul>`;
+}
+
+/** The map's own block, printed in the page with script off and held hidden by the script until the first ending. */
+export function mapSectionHtml(tree, found = []) {
+  return `<section class="blk br-map" data-br-mapblk aria-labelledby="br-maph"><p class="lab" id="br-maph">Every path</p><div data-br-map>${mapHtml(tree, found)}</div></section>`;
 }
 
 /**

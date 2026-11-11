@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from "vitest";
-import { again, back, endingIds, hasBack, initial, mapHtml, money, pick, playHtml, price, roundLine, signedMoney, stepHtml, toneOf, trailHtml, validateTree } from "./branching-step.mjs";
+import { again, back, endingIds, hasBack, initial, mapHtml, mapSectionHtml, money, pick, playHtml, price, roundLine, signedMoney, stepHtml, toneOf, trailHtml, validateTree } from "./branching-step.mjs";
 import { mount } from "./branching-step-client.mjs";
 
 // The sample of blog-handoff-playables.md section 3: put strike $50, premium $1.20, close $48.00, buy-back $2.05,
@@ -35,6 +35,17 @@ describe("the figures the sample prints", () => {
     expect.soft(money(1234.5)).toBe("$1,234.50");
     expect.soft(money(0.1 + 0.2)).toBe("$0.30");
     expect.soft(signedMoney(-0.004)).toBe("+$0");
+  });
+
+  it("agree on sign, digits and tone at a half cent: a loss is never printed as a gain", () => {
+    expect.soft(signedMoney(-0.005)).toBe("\u2212$0.01");
+    expect.soft(toneOf(-0.005)).toBe("loss");
+    expect.soft(signedMoney(-0.015)).toBe("\u2212$0.02");
+    expect.soft(toneOf(-0.015)).toBe("loss");
+    expect.soft(signedMoney(0.005)).toBe("+$0.01");
+    expect.soft(toneOf(0.005)).toBe("gain");
+    expect.soft(toneOf(-0.004), "a loss that rounds to zero is not shown as one").toBe("gain");
+    expect.soft(signedMoney(0)).toBe("+$0");
   });
 });
 
@@ -138,15 +149,38 @@ describe("the markup", () => {
     expect.soft(loss.querySelector(".br-score b")?.className).toBe("neg");
   });
 
-  it("escapes every word it prints", () => {
+  it("escapes every word it prints: a markup payload in each field shows as text and makes no element", () => {
+    const pay = (f) => `<img src=x onerror=alert(1)>${f} & "q"`;
     const t = structuredClone(tree);
-    t.nodes.s1.q = "<img src=x onerror=alert(1)> & \"q\"";
-    t.nodes.s1.choices[0].label = "<b>x</b>";
-    const d = document.createElement("div");
-    d.innerHTML = stepHtml(t, initial(t)) + mapHtml(t, []);
-    expect.soft(d.querySelector("img")).toBeNull();
-    expect.soft(d.querySelector("h2")?.textContent).toBe("<img src=x onerror=alert(1)> & \"q\"");
-    expect.soft(d.querySelectorAll("b")[0].textContent).not.toBe("");
+    const set = (o, k) => (o[k] = pay(k));
+    set(t.nodes.s1, "q"); set(t.nodes.s1, "given"); set(t.nodes.s1, "sit");
+    set(t.nodes.s1.choices[0], "label"); set(t.nodes.s1.choices[0], "sub");
+    set(t.nodes.s2, "happened");
+    set(t.nodes.e2, "q"); set(t.nodes.e2, "sit"); set(t.nodes.e2, "happened");
+    set(t.nodes.e2.tiles[0], "figure"); set(t.nodes.e2.tiles[0], "label");
+    const html = (x) => {
+      const d = document.createElement("div");
+      d.innerHTML = x;
+      return d;
+    };
+    const first = html(stepHtml(t, initial(t)));
+    const second = html(stepHtml(t, { at: "s2", path: [{ at: "s1", pick: 0 }], found: [] }));
+    const end = html(stepHtml(t, { at: "e2", path: [{ at: "s1", pick: 0 }, { at: "s2", pick: 0 }], found: ["e2"] }));
+    const map = html(mapSectionHtml(t, ["e2"]));
+    const trail = html(`<ol>${trailHtml(t, { at: "s2", path: [{ at: "s1", pick: 0 }], found: [] })}</ol>`);
+    for (const d of [first, second, end, map, trail]) expect.soft(d.querySelectorAll("img")).toHaveLength(0);
+    expect.soft(first.querySelector("h2")?.textContent).toBe(pay("q"));
+    expect.soft(first.querySelector(".br-given")?.textContent).toBe(pay("given"));
+    expect.soft(first.querySelector(".br-choice b")?.textContent).toBe(pay("label"));
+    expect.soft(first.querySelector(".br-choice span")?.textContent).toBe(pay("sub"));
+    expect.soft(second.querySelector(".br-happ")?.textContent).toBe("What happened" + pay("happened"));
+    expect.soft(end.querySelector("h2")?.textContent).toBe(pay("q"));
+    expect.soft(end.querySelector(".br-score b")?.textContent).toBe(pay("figure"));
+    expect.soft(end.querySelector(".br-score span")?.textContent).toBe(pay("label"));
+    expect.soft(trail.querySelector("li")?.textContent).toBe(pay("label"));
+    expect.soft(map.querySelector(".br-sit")?.textContent).toBe(pay("sit"));
+    expect.soft(map.textContent).toContain(pay("sit"));
+    expect.soft(map.textContent).toContain(pay("label"));
   });
 
   it("draws the map as an open nested list of every step, pick and ending, with Reached on the found ones", () => {
@@ -173,7 +207,8 @@ describe("the markup", () => {
 
 describe("the block script", () => {
   const served = () => {
-    document.body.innerHTML = `<div data-root>${playHtml(tree)}<section data-br-lesson>lesson</section><section data-br-mapblk><div data-br-map>${mapHtml(tree, [])}</div></section><section data-br-how>how</section></div>`;
+    // Exactly the page contract in branching-step.mjs's header.
+    document.body.innerHTML = `<div data-root>${playHtml(tree)}<section class="blk teach" data-br-lesson>lesson</section>${mapSectionHtml(tree)}<section class="blk" data-br-how>how</section></div>`;
     return document.querySelector("[data-root]");
   };
   const click = (sel) => document.querySelector(sel).click();
