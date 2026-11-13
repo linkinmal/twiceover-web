@@ -6,7 +6,7 @@ topic: "market-plumbing"
 lens: "concept"
 build: "text-led"
 look: "night-desk"
-hit: "because it is short"
+hit: "short"
 sources: "Cboe market volume | https://www.cboe.com/markets/us/equities/market-statistics/historical-market-volume; NYSE hours | https://www.nyse.com/trade/hours-calendars; FRED S&P 500 | https://fred.stlouisfed.org/series/SP500; WHO, 26 Nov 2021; FINRA Rule 2360 | https://www.finra.org/rules-guidance/rulebooks/finra-rules/2360"
 ---
 
