@@ -52,7 +52,7 @@ const ctaOf = (card) => {
 describe("the three plan cards", () => {
   it("shows Free, Core and Premium with their price and allowance, and no ruled feature list", () => {
     expect.soft(Object.keys(cards)).toEqual(["Free", "Core", "Premium"]);
-    expect.soft(textsOf(template, "tier__price")).toEqual(["$0", "$49/mo", "$99/mo"]);
+    expect.soft(textsOf(template, "tier__price")).toEqual(["$0", "$39/mo", "$59/mo"]);
     // Ruling 1: one plan line per card; the section table below is where the plans differ.
     expect.soft(template).not.toMatch(/tier__rows/);
     for (const [plan, card] of Object.entries(cards)) {
@@ -88,10 +88,10 @@ describe("the three plan cards", () => {
 
     expect.soft(disclosure("Free")).toEqual([]);
     expect.soft(disclosure("Core")).toEqual([
-      "Free for 14 days. Then $49/month, charged automatically to the card you save at checkout.",
+      "Free for 14 days. Then $39/month, charged automatically to the card you save at checkout.",
       "Cancel any time before the trial ends — one click in Settings, no charge. We email you three days before.",
     ]);
-    expect.soft(disclosure("Premium")).toEqual(disclosure("Core").map((l) => l.replace("$49", "$99")));
+    expect.soft(disclosure("Premium")).toEqual(disclosure("Core").map((l) => l.replace("$39", "$59")));
     expect.soft(afterCta("Core"), "Core's disclosure follows its button").toBe(true);
     expect.soft(afterCta("Premium"), "Premium's disclosure follows its button").toBe(true);
   });

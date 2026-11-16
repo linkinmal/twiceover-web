@@ -2,7 +2,7 @@
 // Pricing (site-prelaunch.md §3) — copy verbatim from "Page: Pricing" (#41, FINAL).
 // Monthly-only: no annual figures landed, so the designed billing toggle ships dormant
 // (NOT built — zero JS, per the design's own conditional + PM annual-pricing decision).
-// Connection-optional: works with or without a broker connection. Core's $49 is the
+// Connection-optional: works with or without a broker connection. Core's $39 is the
 // Accepted price (pricing-artifact.md §1, human sign-off 2026-06-30), matching
 // FastSpring's catalog exactly. Tier symmetry is a compliance feature (spec §6.2):
 // never differentiate.
@@ -23,7 +23,7 @@
 // identical, which is what §6.2 and site-prelaunch.md §3's "equal weight" govern.
 // The paid cards' two sub-lines are the negative-option disclosure (ADR 0145, FTC/EU-UK
 // auto-renewal) — verbatim, legal-flagged; they are not decoration and never ship
-// without the CTA they qualify, nor it without them. Premium's are Core's with $99 for $49:
+// without the CTA they qualify, nor it without them. Premium's are Core's with $59 for $39:
 // ADR 0145 Amendment 9 gives Premium the same 14-day, card-required, auto-charge trial.
 // THREE PLANS (stock-analyst-platform#3829; ADR 0912 Amendment 1, build reference
 // ai-team/design/assets/pricing-page-c4-three-plans-2026-09-24.html, #3962; copy filled by
@@ -79,7 +79,7 @@ const productJsonLd = {
     {
       "@type": "Offer",
       name: "Core",
-      price: "49",
+      price: "39",
       priceCurrency: "USD",
       availability: "https://schema.org/InStock",
       url: "https://twiceover.io/go/plan",
@@ -87,7 +87,7 @@ const productJsonLd = {
     {
       "@type": "Offer",
       name: "Premium",
-      price: "99",
+      price: "59",
       priceCurrency: "USD",
       availability: "https://schema.org/InStock",
       url: "https://twiceover.io/go/plan-premium",
@@ -139,26 +139,26 @@ const includedOn = (section) => PLANS.map((plan) => PLANS.indexOf(plan) >= PLANS
     <li class="tier">
       <div class="tier__figures">
         <h2 class="tier__eyebrow">Core</h2>
-        <p class="tier__price">$49<span class="per">/mo</span></p>
+        <p class="tier__price">$39<span class="per">/mo</span></p>
         <p class="tier__cap"><span class="tier__cap-n">200</span> <span class="tier__cap-w">analyses a month</span></p>
       </div>
       <p class="tier__line">Everything in Free, plus: news and market voices, earnings and dividends, what options price in, and short interest.</p>
       <div class="tier__foot">
         <a class="btn-quiet tier__cta" href="/go/plan">Start 14-day trial</a>
-        <p class="tier__disclosure">Free for 14 days. Then $49/month, charged automatically to the card you save at checkout.</p>
+        <p class="tier__disclosure">Free for 14 days. Then $39/month, charged automatically to the card you save at checkout.</p>
         <p class="tier__disclosure">Cancel any time before the trial ends — one click in Settings, no charge. We email you three days before.</p>
       </div>
     </li>
     <li class="tier">
       <div class="tier__figures">
         <h2 class="tier__eyebrow">Premium</h2>
-        <p class="tier__price">$99<span class="per">/mo</span></p>
+        <p class="tier__price">$59<span class="per">/mo</span></p>
         <p class="tier__cap"><span class="tier__cap-n">300</span> <span class="tier__cap-w">analyses a month</span></p>
       </div>
       <p class="tier__line">Everything in Core, plus: the largest options trades, earnings history against the implied move, and insider buying and selling.</p>
       <div class="tier__foot">
         <a class="btn-quiet tier__cta" href="/go/plan-premium">Start 14-day trial</a>
-        <p class="tier__disclosure">Free for 14 days. Then $99/month, charged automatically to the card you save at checkout.</p>
+        <p class="tier__disclosure">Free for 14 days. Then $59/month, charged automatically to the card you save at checkout.</p>
         <p class="tier__disclosure">Cancel any time before the trial ends — one click in Settings, no charge. We email you three days before.</p>
       </div>
     </li>
@@ -181,8 +181,8 @@ const includedOn = (section) => PLANS.map((plan) => PLANS.indexOf(plan) >= PLANS
           <tr>
             <th scope="col">Section</th>
             <th scope="col">Free<span class="plans__price">$0</span></th>
-            <th scope="col">Core<span class="plans__price">$49/mo</span></th>
-            <th scope="col">Premium<span class="plans__price">$99/mo</span></th>
+            <th scope="col">Core<span class="plans__price">$39/mo</span></th>
+            <th scope="col">Premium<span class="plans__price">$59/mo</span></th>
           </tr>
         </thead>
         {groups.map((group) => (
