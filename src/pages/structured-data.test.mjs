@@ -65,7 +65,8 @@ describe("stock-analyst-platform#2634 — pricing Product JSON-LD (pricing.astro
     expect.soft(freeOffer, "Free offer present").toBeTruthy();
     expect.soft(coreOffer, "Core offer present").toBeTruthy();
     expect.soft(premiumOffer, "Premium offer present").toBeTruthy();
-    expect.soft(premiumOffer, "Premium at its Accepted price").toMatch(/price:\s*"99"/);
+    expect.soft(coreOffer, "Core at its Accepted price").toMatch(/price:\s*"39"/);
+    expect.soft(premiumOffer, "Premium at its Accepted price").toMatch(/price:\s*"59"/);
 
     for (const [offer, label] of [
       [freeOffer, "Free"],

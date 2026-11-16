@@ -119,7 +119,7 @@ describe("Pricing strip (#3030, site-prelaunch.md §2 'Pricing strip')", () => {
 
     expect(strip, "pricing-strip section not found in index.astro").not.toBe("");
     expect(textsOfClass(strip, "pricing-stat__label")).toEqual(["Free", "Core", "Premium"]);
-    expect(textsOfClass(strip, "pricing-stat__figure")).toEqual(["$0", "$49/mo", "$99/mo"]);
+    expect(textsOfClass(strip, "pricing-stat__figure")).toEqual(["$0", "$39/mo", "$59/mo"]);
     // One shared quiet link beneath all three columns, to the full pricing page.
     expect(strip).toMatch(/<a class="btn-quiet[^"]*" href="\/pricing">See full pricing →<\/a>/);
   });
