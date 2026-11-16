@@ -18,7 +18,7 @@ image:
 sources: "Fed projections, Dec 2025 | https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20251210.htm; Fed projections, Sep 2026 | https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20260916.htm; Fed rate decisions | https://www.federalreserve.gov/monetarypolicy/openmarket.htm; Fed meeting calendar | https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
 ---
 
-Every December, each Fed official puts a dot on a chart at the level where they think the Fed’s interest rate should be at the end of next year. That chart is the dot plot. Over the last ten years, the median dot landed within a quarter point of the real outcome six times. In the other four years it was off by 0.75 to 3.5 points.
+In six of the last ten years, the Fed’s December dot plot landed within a quarter point of where the Fed’s rate really ended the next year. In the other four it was off by 0.75 to 3.5 points. The dot plot is a chart on which each Fed official puts a dot where they think the rate should be at the end of each coming year. This post scores the median dot.
 
 A quarter point is the size of a normal Fed change, so this post counts everything in quarter points. The next dot plot comes out on 9 December.
 
