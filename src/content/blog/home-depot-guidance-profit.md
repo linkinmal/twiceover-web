@@ -5,11 +5,11 @@ publishAt: "2026-11-18T07:00:00-05:00"
 topic: "earnings"
 lens: "actuality"
 build: "text-led"
-look: "risograph"
+look: "newsprint"
 hit: "adds nothing to its profit forecast"
 image:
   src: "/blog-images/home-depot-guidance-profit.png"
-  alt: "Home Depot’s last 8 reports: the move options priced and the move made"
+  alt: "Home Depot’s last 8 reports: the move options priced, and 7 moves made"
   source: "TwiceOver’s Earnings history section, 17 Nov 2026, before the open"
   licence: "Own chart"
 sources: "Home Depot Q3 2026 release | https://ir.homedepot.com/news-releases/2026/11-17-2026-110221331; Home Depot CEO release | https://ir.homedepot.com/news-releases/2026/11-17-2026-104320345; Home Depot Q2 2026 release | https://www.sec.gov/Archives/edgar/data/0000354950/000035495026000145/hd_exhibit991x08022026.htm"
@@ -59,4 +59,4 @@ At Monday's close, the at-the-money straddle for Friday's expiry cost 4.8% of Ho
 
 The picture above shows the last eight reports from TwiceOver's Earnings history section. Each box is the move the options priced, which the section calls the implied move. Each dot is the move from the close before a report to the close after it. The last box is Tuesday's report, priced at Monday's close. In seven reports with a result, the stock moved more than priced once: in November 2025 it fell 6.0% against 4.2%. The average move, up or down, was 2.2%, about half the 4.3% the options priced on average. Our post on [25 stocks and the move options priced for earnings](/blog/earnings-implied-move-average) shows how often that holds across other companies. When the move comes in under the price, a call bought the day before can lose money on a rise, as [our IV crush example](/blog/iv-crush-call-before-earnings) works out.
 
-On Tuesday, Home Depot traded at TKPRICE at TKTIME New York time, TKMOVE from Monday's $347.51 close.
+On Tuesday, Home Depot opened at $335.07, 3.6% under Monday's $347.51 close. At 9:41 a.m. New York time it traded at $339.00, 2.4% under that close. Both sit inside the 4.8% the options priced.
