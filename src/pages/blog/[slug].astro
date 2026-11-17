@@ -52,7 +52,7 @@ const jsonLd = serializeJsonLd(blogPostingJsonLd(data, { slug, imagePath: shareI
       {data.image && (
         <figure class="photo blk">
           <div class="ph"><img src={data.image.src} alt={data.image.alt} decoding="async" /></div>
-          <figcaption>{/[.!?]$/.test(data.image.alt.trim()) ? data.image.alt.trim() : `${data.image.alt.trim()}.`}<span class="credit"><b>Source</b> {data.image.source} · <b>Licence</b> {data.image.licence}</span></figcaption>
+          <figcaption>{/[.!?]$/.test(data.image.alt.trim()) ? data.image.alt.trim() : `${data.image.alt.trim()}.`}</figcaption>
         </figure>
       )}
       <div class="body blk"><Content /></div>
