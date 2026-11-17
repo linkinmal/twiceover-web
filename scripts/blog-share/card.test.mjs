@@ -19,7 +19,8 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { lookValues, THEMES } from "../../ci/blog-style.mjs";
 import { LOOK_NAMES, LOOKS } from "../../src/blog/vocabulary.mjs";
-import { CARD, CARD_LICENCE, FACES, SMALL_PX, PHONE_WIDTH_PX, cardSvg, chooseBody, clampLines, loadContext, readLook, renderCard } from "./card.mjs";
+import { OWN_LICENCE } from "../../src/blog/credit.mjs";
+import { CARD, FACES, SMALL_PX, PHONE_WIDTH_PX, cardSvg, chooseBody, clampLines, loadContext, readLook, renderCard } from "./card.mjs";
 import { checkShare, generate } from "./posts.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -33,7 +34,7 @@ const BASE = {
   publishAt: "2026-10-09T07:00:00-04:00",
   look: "blueprint",
   figure: { value: "−21%", note: "on a call, with the stock up 4%" },
-  image: { src: "/blog-images/chart.png", alt: "Value of the $105 call against the stock price, before and after the report", source: "TwiceOver", licence: CARD_LICENCE },
+  image: { src: "/blog-images/chart.png", alt: "Value of the $105 call against the stock price, before and after the report", source: "TwiceOver", licence: OWN_LICENCE },
 };
 const withBody = (look, body, extra = {}) => {
   const p = { ...BASE, look, ...extra };

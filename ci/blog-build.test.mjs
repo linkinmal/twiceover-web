@@ -127,6 +127,19 @@ describe("a post page", () => {
     expect.soft(d.querySelector("figure.photo figcaption").textContent).toMatch(/Source TwiceOver · Licence Own work/);
     expect.soft(doc().querySelector("figure"), "a post with no image has no figure").toBeNull();
   });
+  it("prints a picture we made (licence Own chart) with its description and no credit line", () => {
+    const posts = mkdtempSync(join(tmpdir(), "blog-own-chart-"));
+    const first = readFileSync(join(root, "test-fixtures/blog/first-fixture-post.md"), "utf8");
+    const image = 'image:\n  src: "/blog-images/fixture-chart.png"\n  alt: "The Dow, 19 October 1987"\n  source: "TwiceOver’s Earnings history section"\n  licence: "Own chart"\n';
+    writeFileSync(join(posts, "own-chart-post.md"), first.replace(/^(hit: .*\n)/m, `$1${image}`));
+    const out = build({ BLOG_CONTENT_DIR: posts, BLOG_NOW: FIXTURE.BLOG_NOW });
+    const cap = dom(out, "blog/own-chart-post/index.html").querySelector("figure.photo figcaption");
+    expect.soft(cap, "the figure and its caption render").not.toBeNull();
+    expect.soft(cap.textContent).toBe("The Dow, 19 October 1987.");
+    expect.soft(cap.querySelector(".credit"), "no credit span").toBeNull();
+    rmSync(posts, { recursive: true });
+    rmSync(out, { recursive: true });
+  }, 150000);
   it("ends with the pinned door: GET /go/try, ticker plus three hidden fields, the slug as campaign, and the full disclaimer once", () => {
     const d = doc();
     const form = d.querySelector("form");
