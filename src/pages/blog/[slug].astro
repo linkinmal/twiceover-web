@@ -15,6 +15,7 @@ import { LOOKS } from "../../blog/vocabulary.mjs";
 import { LENS_LABELS, TOPIC_LABELS } from "../../blog/labels.mjs";
 import { formatStamp, hasUpdate, splitHit, toNewYorkIso } from "../../blog/format.mjs";
 import { blogPostingJsonLd, serializeJsonLd } from "../../blog/jsonld.mjs";
+import { pictureCredit } from "../../blog/credit.mjs";
 
 export async function getStaticPaths() {
   const posts = await getPublished();
@@ -31,6 +32,7 @@ const { Content } = await render(post);
 const look = LOOKS[data.look as keyof typeof LOOKS];
 const [pre, hit, after] = splitHit(data.title, data.hit);
 const updated = hasUpdate(data);
+const credit = data.image ? pictureCredit(data.image) : null;
 // The post's own share card, committed with it (ADR 1088 Decision 4); `npm run check:share` fails a post without one.
 const shareImage = `/blog-share/${slug}.png`;
 const jsonLd = serializeJsonLd(blogPostingJsonLd(data, { slug, imagePath: shareImage }));
@@ -52,7 +54,7 @@ const jsonLd = serializeJsonLd(blogPostingJsonLd(data, { slug, imagePath: shareI
       {data.image && (
         <figure class="photo blk">
           <div class="ph"><img src={data.image.src} alt={data.image.alt} decoding="async" /></div>
-          <figcaption>{/[.!?]$/.test(data.image.alt.trim()) ? data.image.alt.trim() : `${data.image.alt.trim()}.`}</figcaption>
+          <figcaption>{/[.!?]$/.test(data.image.alt.trim()) ? data.image.alt.trim() : `${data.image.alt.trim()}.`}{credit && <span class="credit"><b>Source</b> {credit.source} · <b>Licence</b> {credit.licence}</span>}</figcaption>
         </figure>
       )}
       <div class="body blk"><Content /></div>

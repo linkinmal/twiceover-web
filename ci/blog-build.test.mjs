@@ -119,14 +119,12 @@ describe("a post page", () => {
     expect.soft(ld.dateModified).not.toBe(ld.datePublished);
     expect.soft(doc().querySelector(".meta").textContent).not.toContain("Updated");
   });
-  it("prints the picture as a real image with its text description as the caption, and no source or licence line", () => {
+  it("prints the picture as a real image with its text description, source and licence", () => {
     const d = dom(dist, "blog/second-fixture-post/index.html");
     const img = d.querySelector("figure.photo img");
     expect.soft(img.getAttribute("src")).toBe("/blog-images/fixture-photo.png");
     expect.soft(img.getAttribute("alt")).toBe("A tanker at a loading dock at dusk");
-    const caption = d.querySelector("figure.photo figcaption").textContent;
-    expect.soft(caption).toBe("A tanker at a loading dock at dusk.");
-    expect.soft(caption).not.toMatch(/Source|Licence|Own work/);
+    expect.soft(d.querySelector("figure.photo figcaption").textContent).toMatch(/Source TwiceOver · Licence Own work/);
     expect.soft(doc().querySelector("figure"), "a post with no image has no figure").toBeNull();
   });
   it("ends with the pinned door: GET /go/try, ticker plus three hidden fields, the slug as campaign, and the full disclaimer once", () => {
