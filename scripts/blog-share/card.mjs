@@ -23,6 +23,7 @@ import { fileURLToPath } from "node:url";
 import { blockAfter, mixHex, topDeclarations } from "../../ci/blog-style.mjs";
 import { formatDay, splitHit } from "../../src/blog/format.mjs";
 import { LOOKS } from "../../src/blog/vocabulary.mjs";
+import { OWN_LICENCE } from "../../src/blog/credit.mjs";
 
 const require = createRequire(import.meta.url);
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -32,8 +33,6 @@ export const CARD = Object.freeze({ w: 1200, h: 630 });
 /** Small text on the card: 2.6% of the card's width is 9 px on a 350 px phone feed (section 10a). */
 export const SMALL_PX = 32;
 export const PHONE_WIDTH_PX = 350;
-/** Only a picture drawn by us may travel on a card: a share card has no licence line (Amendment 2 limit (a)). */
-export const CARD_LICENCE = "Own chart";
 
 const PAD_Y = 60;
 const PAD_X = 64.8;
@@ -202,7 +201,7 @@ function titleWords(title, hit) {
 
 /** Which of the three bodies a post's card carries. A figure or picture is a post's own field. */
 export function chooseBody(post) {
-  if (post.image && post.image.licence === CARD_LICENCE) return "picture";
+  if (post.image && post.image.licence === OWN_LICENCE) return "picture";
   if (post.figure) return "figure";
   return "none";
 }
