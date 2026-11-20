@@ -4,5 +4,5 @@ export const ORGANIZATION = Object.freeze({
   name: "TwiceOver",
   url: "https://twiceover.io",
   logo: "https://twiceover.io/icon-192.png",
-  sameAs: Object.freeze(["https://x.com/twiceover_io", "https://www.youtube.com/@twiceover-io"]),
+  sameAs: Object.freeze(["https://x.com/TwiceOverHQ", "https://www.youtube.com/@twiceover-io"]),
 });
