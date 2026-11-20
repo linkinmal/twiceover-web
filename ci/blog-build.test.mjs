@@ -647,7 +647,7 @@ describe("the games-and-tools hub and the link map (blog-handoff.md v1.2 section
       expect.soft(f.firstElementChild.className, file).toBe("follow");
       expect.soft(f.firstElementChild.querySelector("span").textContent, file).toBe("Follow TwiceOver");
       const links = [...f.querySelectorAll(".follow a")];
-      expect.soft(links.map((a) => [a.textContent, a.getAttribute("href")]), file).toEqual([["X", "https://x.com/twiceover_io"], ["YouTube", "https://www.youtube.com/@twiceover-io"]]);
+      expect.soft(links.map((a) => [a.textContent, a.getAttribute("href")]), file).toEqual([["X", "https://x.com/TwiceOverHQ"], ["YouTube", "https://www.youtube.com/@twiceover-io"]]);
       expect.soft(links.map((a) => a.getAttribute("aria-label")), file).toEqual(["TwiceOver on X (opens in a new tab)", "TwiceOver on YouTube (opens in a new tab)"]);
       expect.soft(links.map((a) => [a.getAttribute("target"), a.getAttribute("rel")]), file).toEqual([["_blank", "noopener noreferrer"], ["_blank", "noopener noreferrer"]]);
     }

@@ -36,7 +36,7 @@ describe("stock-analyst-platform#2634 — Organization JSON-LD sameAs/logo (inde
     expect
       .soft(block, "sameAs links the X account and the YouTube channel")
       .toMatch(
-        /sameAs:\s*\[\s*"https:\/\/x\.com\/twiceover_io"\s*,\s*"https:\/\/www\.youtube\.com\/@twiceover-io"\s*\]/,
+        /sameAs:\s*\[\s*"https:\/\/x\.com\/TwiceOverHQ"\s*,\s*"https:\/\/www\.youtube\.com\/@twiceover-io"\s*\]/,
       );
     expect
       .soft(block, "logo points at an absolute brand-asset URL")
