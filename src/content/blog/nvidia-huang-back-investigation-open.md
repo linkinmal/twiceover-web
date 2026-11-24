@@ -1,7 +1,7 @@
 ---
 title: "Nvidia took Jensen Huang back before its own investigation ended"
 description: "Nvidia’s board reinstated Jensen Huang on 22 November, 11 days after he resigned. Its release says the board’s investigation, opened after reports that a foreign intelligence effort had targeted him, will still run to its end."
-publishAt: "2026-11-25T07:00:00-05:00"
+publishAt: "2026-11-24T09:00:00-05:00"
 topic: "reading-the-document"
 lens: "actuality"
 build: "picture-led"
